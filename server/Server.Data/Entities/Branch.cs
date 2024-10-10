@@ -23,6 +23,8 @@ public class Branch
     public int ManagerId { get; set; }
     public virtual User ManagerBranch { get; set; }
     
+    public ICollection<Branch_Service> Branch_Services { get; set; }
+    
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

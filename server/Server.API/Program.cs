@@ -72,8 +72,8 @@ namespace Server.API
                             app.UseSwaggerUI();
                         }*/
 
-            var connectionString = builder.Configuration.GetConnectionString("PgDbConnection");
-            Console.WriteLine($"PgDbConnection Program: {connectionString}");
+            var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
+            Console.WriteLine($"MySQLDbConnection Program: {connectionString}");
             await using (var scope = app.Services.CreateAsyncScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();

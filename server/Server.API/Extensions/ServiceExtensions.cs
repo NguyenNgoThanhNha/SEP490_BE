@@ -89,7 +89,7 @@ namespace Server.API.Extensions
             services.AddDbContext<AppDbContext>(opt =>
             {
                 var connectionString = configuration.GetConnectionString("MySqlConnection");
-                Console.WriteLine($"MySqlConnection DbConnect: {connectionString}");
+                Console.WriteLine($"MySQLDbConnection DbConnect: {connectionString}");
                 opt.UseMySQL(connectionString);
             });
 
