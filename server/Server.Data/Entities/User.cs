@@ -61,11 +61,16 @@ namespace Server.Data.Entities
 
         public string? RefreshToken { get; set; }
 
+        public int BonusPoint { get; set; } = 0;
+
         public string TypeLogin { get; set; }
 
         [ForeignKey("UserRole")]
         public int RoleID { get; set; }
         public virtual UserRole UserRole { get; set; }
+        
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime UpdatedDate { get; set; } = DateTime.Now;
     }
 
 }

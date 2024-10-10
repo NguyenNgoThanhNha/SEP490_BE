@@ -1,0 +1,39 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Server.Data.Entities;
+
+[Table("Appointments")]
+public class Appointments
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int AppointmentsId { get; set; }
+    
+    [ForeignKey("Customer_Appointments")]
+    public int CustomerId { get; set; }
+    public virtual User Customer { get; set; }
+    
+    [ForeignKey("Staff_Appointments")]
+    public int StaffId { get; set; }
+    public virtual Staff Staff { get; set; }
+    
+    [ForeignKey("Service_Appointments")]
+    public int ServiceId { get; set; }
+    public virtual Service Service { get; set; }
+    
+    [ForeignKey("Branch_Appointments")]
+    public int BranchId { get; set; }
+    public virtual Branch Branch { get; set; }
+    
+    public DateTime AppointmentsTime { get; set; }
+    
+    public string Status { get; set; }
+    
+    public string Notes { get; set; }
+    
+    public string Feedback { get; set; }
+    
+    public DateTime CreatedDate { get; set; } = DateTime.Now;
+    public DateTime UpdatedDate { get; set; } = DateTime.Now;
+}

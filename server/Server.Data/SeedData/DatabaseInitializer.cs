@@ -12,6 +12,7 @@ namespace Server.Data.SeedData
         Task SeedAsync();
         Task TrySeedAsync();
     }
+
     public class DatabaseInitializer : IDataaseInitialiser
     {
         private readonly AppDbContext _context;
@@ -20,6 +21,7 @@ namespace Server.Data.SeedData
         {
             this._context = context;
         }
+
         public async Task InitialiseAsync()
         {
             try
@@ -49,66 +51,33 @@ namespace Server.Data.SeedData
 
         public async Task TrySeedAsync()
         {
+            // Kiểm tra nếu đã có UserRole và User
             if (_context.UserRoles.Any() && _context.Users.Any())
             {
                 return;
             }
 
+            // Seed các role
             var adminRole = new UserRole { RoleName = "Admin" };
+            var managerRole = new UserRole { RoleName = "Manager" };
             var customerRole = new UserRole { RoleName = "Customer" };
-            var driverRole = new UserRole { RoleName = "Driver" };
+            var staffRole = new UserRole { RoleName = "Staff" };
+
             List<UserRole> userRoles = new()
             {
                 adminRole,
+                managerRole,
                 customerRole,
-                driverRole,
+                staffRole
             };
             await _context.UserRoles.AddRangeAsync(userRoles);
             await _context.SaveChangesAsync();
-            // Seed Users
+
+            // Seed 4 người dùng, mỗi người tương ứng với một role
             var users = new List<User>();
 
-            for (int i = 1; i <= 10; i++)
-            {
-                var customer = new User
-                {
-                    UserName = $"Customer{i}",
-                    Password = SecurityUtil.Hash("123456"),
-                    FullName = $"Customer{i}",
-                    Email = $"customer{i}@gmail.com",
-                    Gender = "Male",
-                    City = "HCM",
-                    Address = "HCM",
-                    PhoneNumber = $"012345678{i}",
-                    BirthDate = DateTime.Now.AddYears(-20 - i),
-                    CreateDate = DateTime.Now.AddMonths(-i),
-                    Status = "Active",
-                    TypeLogin = "Google",
-                    OTPCode = "0",
-                    UserRole = customerRole, // Ensure `customerRole` is defined
-                };
-                users.Add(customer);
-
-                var driver = new User
-                {
-                    UserName = $"Driver{i}",
-                    Password = SecurityUtil.Hash("123456"),
-                    FullName = $"Driver{i}",
-                    Email = $"driver{i}@gmail.com",
-                    Gender = "Male",
-                    City = "HCM",
-                    Address = "HCM",
-                    PhoneNumber = $"018765432{i}",
-                    BirthDate = DateTime.Now.AddYears(-30 - i),
-                    CreateDate = DateTime.Now.AddMonths(-i),
-                    Status = "Active",
-                    TypeLogin = "Normal",
-                    OTPCode = "0",
-                    UserRole = driverRole, // Ensure `driverRole` is defined
-                };
-                users.Add(driver);
-            }
-            var admin = new User()
+            // Admin
+            var admin = new User
             {
                 UserName = "Admin",
                 Password = SecurityUtil.Hash("123456"),
@@ -117,19 +86,86 @@ namespace Server.Data.SeedData
                 Gender = "Male",
                 City = "HCM",
                 Address = "HCM",
-                PhoneNumber = $"0135724680",
+                PhoneNumber = "0123456780",
+                BonusPoint = 0,
                 BirthDate = DateTime.Now.AddYears(-42),
                 CreateDate = DateTime.Now,
                 Status = "Active",
                 TypeLogin = "Normal",
                 OTPCode = "0",
-                UserRole = adminRole, // Ensure `admin` is defined
+                UserRole = adminRole
             };
             users.Add(admin);
+
+            // Manager
+            var manager = new User
+            {
+                UserName = "Manager",
+                Password = SecurityUtil.Hash("123456"),
+                FullName = "Business Manager",
+                Email = "manager@gmail.com",
+                Gender = "Female",
+                City = "HCM",
+                Address = "HCM",
+                PhoneNumber = "0123456781",
+                BonusPoint = 0,
+                BirthDate = DateTime.Now.AddYears(-35),
+                CreateDate = DateTime.Now,
+                Status = "Active",
+                TypeLogin = "Normal",
+                OTPCode = "0",
+                UserRole = managerRole
+            };
+            users.Add(manager);
+
+            // Customer
+            var customer = new User
+            {
+                UserName = "Customer",
+                Password = SecurityUtil.Hash("123456"),
+                FullName = "Regular Customer",
+                Email = "customer@gmail.com",
+                Gender = "Male",
+                City = "HCM",
+                Address = "HCM",
+                PhoneNumber = "0123456782",
+                BonusPoint = 0,
+                BirthDate = DateTime.Now.AddYears(-30),
+                CreateDate = DateTime.Now,
+                Status = "Active",
+                TypeLogin = "Google",
+                OTPCode = "0",
+                UserRole = customerRole
+            };
+            users.Add(customer);
+
+            // Staff
+            var staff = new User
+            {
+                UserName = "Staff",
+                Password = SecurityUtil.Hash("123456"),
+                FullName = "Service Staff",
+                Email = "staff@gmail.com",
+                Gender = "Male",
+                City = "HCM",
+                Address = "HCM",
+                PhoneNumber = "0123456783",
+                BonusPoint = 0,
+                BirthDate = DateTime.Now.AddYears(-25),
+                CreateDate = DateTime.Now,
+                Status = "Active",
+                TypeLogin = "Normal",
+                OTPCode = "0",
+                UserRole = staffRole
+            };
+            users.Add(staff);
+
+            // Thêm tất cả các user vào cơ sở dữ liệu
             await _context.Users.AddRangeAsync(users);
             await _context.SaveChangesAsync();
         }
     }
+
     public static class DatabaseInitialiserExtension
     {
         public static async Task InitialiseDatabaseAsync(this WebApplication app)
