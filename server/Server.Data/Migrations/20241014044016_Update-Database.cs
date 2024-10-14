@@ -16,6 +16,46 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Category",
+                columns: table => new
+                {
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: true),
+                    Description = table.Column<string>(type: "longtext", nullable: true),
+                    SkinTypeSuitable = table.Column<string>(type: "longtext", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: true),
+                    ImageUrl = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Category", x => x.CategoryId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Company",
+                columns: table => new
+                {
+                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    Address = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true),
+                    Description = table.Column<string>(type: "longtext", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: true),
+                    Email = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Company", x => x.CompanyId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "UserRole",
                 columns: table => new
                 {
@@ -49,6 +89,66 @@ namespace Server.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Voucher", x => x.VoucherId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Service",
+                columns: table => new
+                {
+                    ServiceId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Duration = table.Column<string>(type: "longtext", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Service", x => x.ServiceId);
+                    table.ForeignKey(
+                        name: "FK_Service_Category_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Category",
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Product",
+                columns: table => new
+                {
+                    ProductId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ProductName = table.Column<string>(type: "longtext", nullable: false),
+                    ProductDescription = table.Column<string>(type: "longtext", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Product", x => x.ProductId);
+                    table.ForeignKey(
+                        name: "FK_Product_Category_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Category",
+                        principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Product_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "CompanyId",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -135,12 +235,19 @@ namespace Server.Data.Migrations
                     LongAddress = table.Column<string>(type: "longtext", nullable: true),
                     LatAddress = table.Column<string>(type: "longtext", nullable: true),
                     ManagerId = table.Column<int>(type: "int", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Branch", x => x.BranchId);
+                    table.ForeignKey(
+                        name: "FK_Branch_Company_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Company",
+                        principalColumn: "CompanyId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Branch_User_ManagerId",
                         column: x => x.ManagerId,
@@ -322,191 +429,31 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Product",
+                name: "Branch_Product",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    ProductName = table.Column<string>(type: "longtext", nullable: false),
-                    ProductDescription = table.Column<string>(type: "longtext", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
                     BranchId = table.Column<int>(type: "int", nullable: false),
+                    StockQuantity = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Product", x => x.ProductId);
+                    table.PrimaryKey("PK_Branch_Product", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Product_Branch_BranchId",
+                        name: "FK_Branch_Product_Branch",
                         column: x => x.BranchId,
                         principalTable: "Branch",
                         principalColumn: "BranchId",
                         onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Shipping",
-                columns: table => new
-                {
-                    ShippingId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    ShippingAddress = table.Column<string>(type: "longtext", nullable: false),
-                    ShippingMethod = table.Column<string>(type: "longtext", nullable: false),
-                    ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ShippingDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    DeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: false),
-                    TrackingNumber = table.Column<string>(type: "longtext", nullable: true),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Shipping", x => x.ShippingId);
                     table.ForeignKey(
-                        name: "FK_Shipping_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "OrderId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Transaction",
-                columns: table => new
-                {
-                    TransactionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    TransactionCode = table.Column<int>(type: "int", nullable: true),
-                    Reference = table.Column<string>(type: "longtext", nullable: true),
-                    PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
-                    TransactionDateTime = table.Column<string>(type: "longtext", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Transaction", x => x.TransactionId);
-                    table.ForeignKey(
-                        name: "FK_Transaction_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "OrderId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Transaction_User_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Category",
-                columns: table => new
-                {
-                    CategoryId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "longtext", nullable: true),
-                    Description = table.Column<string>(type: "longtext", nullable: true),
-                    SkinTypeSuitable = table.Column<string>(type: "longtext", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: true),
-                    ImageUrl = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Category", x => x.CategoryId);
-                    table.ForeignKey(
-                        name: "FK_Category_Product_ProductId",
+                        name: "FK_Branch_Product_Product",
                         column: x => x.ProductId,
                         principalTable: "Product",
                         principalColumn: "ProductId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Service",
-                columns: table => new
-                {
-                    ServiceId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false),
-                    Description = table.Column<string>(type: "longtext", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Duration = table.Column<string>(type: "longtext", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Service", x => x.ServiceId);
-                    table.ForeignKey(
-                        name: "FK_Service_Category_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Category",
-                        principalColumn: "CategoryId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Appointments",
-                columns: table => new
-                {
-                    AppointmentsId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    StaffId = table.Column<int>(type: "int", nullable: false),
-                    ServiceId = table.Column<int>(type: "int", nullable: false),
-                    BranchId = table.Column<int>(type: "int", nullable: false),
-                    AppointmentsTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Status = table.Column<string>(type: "longtext", nullable: false),
-                    Notes = table.Column<string>(type: "longtext", nullable: false),
-                    Feedback = table.Column<string>(type: "longtext", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Appointments", x => x.AppointmentsId);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Branch_BranchId",
-                        column: x => x.BranchId,
-                        principalTable: "Branch",
-                        principalColumn: "BranchId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Service_ServiceId",
-                        column: x => x.ServiceId,
-                        principalTable: "Service",
-                        principalColumn: "ServiceId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Staff_StaffId",
-                        column: x => x.StaffId,
-                        principalTable: "Staff",
-                        principalColumn: "StaffId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_User_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "User",
-                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -576,30 +523,111 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Product_Service",
+                name: "Shipping",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ShippingId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    ServiceId = table.Column<int>(type: "int", nullable: false),
+                    ShippingAddress = table.Column<string>(type: "longtext", nullable: false),
+                    ShippingMethod = table.Column<string>(type: "longtext", nullable: false),
+                    ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ShippingDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    TrackingNumber = table.Column<string>(type: "longtext", nullable: true),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Product_Service", x => x.Id);
+                    table.PrimaryKey("PK_Shipping", x => x.ShippingId);
                     table.ForeignKey(
-                        name: "FK_Product_Service_Product",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
-                        principalColumn: "ProductId",
+                        name: "FK_Shipping_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "OrderId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Transaction",
+                columns: table => new
+                {
+                    TransactionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    TransactionCode = table.Column<int>(type: "int", nullable: true),
+                    Reference = table.Column<string>(type: "longtext", nullable: true),
+                    PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
+                    TransactionDateTime = table.Column<string>(type: "longtext", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transaction", x => x.TransactionId);
+                    table.ForeignKey(
+                        name: "FK_Transaction_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "OrderId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Product_Service_Service",
+                        name: "FK_Transaction_User_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Appointments",
+                columns: table => new
+                {
+                    AppointmentsId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    ServiceId = table.Column<int>(type: "int", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    AppointmentsTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    Notes = table.Column<string>(type: "longtext", nullable: false),
+                    Feedback = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Appointments", x => x.AppointmentsId);
+                    table.ForeignKey(
+                        name: "FK_Appointments_Branch_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branch",
+                        principalColumn: "BranchId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Appointments_Service_ServiceId",
                         column: x => x.ServiceId,
                         principalTable: "Service",
                         principalColumn: "ServiceId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Appointments_Staff_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staff",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Appointments_User_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -650,9 +678,25 @@ namespace Server.Data.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Branch_CompanyId",
+                table: "Branch",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Branch_ManagerId",
                 table: "Branch",
                 column: "ManagerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Branch_Product_BranchId",
+                table: "Branch_Product",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Branch_Product_ProductId_BranchId",
+                table: "Branch_Product",
+                columns: new[] { "ProductId", "BranchId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Branch_Service_BranchId_ServiceId",
@@ -664,11 +708,6 @@ namespace Server.Data.Migrations
                 name: "IX_Branch_Service_ServiceId",
                 table: "Branch_Service",
                 column: "ServiceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Category_ProductId",
-                table: "Category",
-                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Chat_ReceiverId",
@@ -711,20 +750,14 @@ namespace Server.Data.Migrations
                 column: "ServiceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_BranchId",
+                name: "IX_Product_CategoryId",
                 table: "Product",
-                column: "BranchId");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Product_Service_ProductId_ServiceId",
-                table: "Product_Service",
-                columns: new[] { "ProductId", "ServiceId" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Product_Service_ServiceId",
-                table: "Product_Service",
-                column: "ServiceId");
+                name: "IX_Product_CompanyId",
+                table: "Product",
+                column: "CompanyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Service_CategoryId",
@@ -770,6 +803,9 @@ namespace Server.Data.Migrations
                 name: "BlogRating");
 
             migrationBuilder.DropTable(
+                name: "Branch_Product");
+
+            migrationBuilder.DropTable(
                 name: "Branch_Service");
 
             migrationBuilder.DropTable(
@@ -780,9 +816,6 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrderDetail");
-
-            migrationBuilder.DropTable(
-                name: "Product_Service");
 
             migrationBuilder.DropTable(
                 name: "Shipping");
@@ -797,25 +830,28 @@ namespace Server.Data.Migrations
                 name: "Blog");
 
             migrationBuilder.DropTable(
+                name: "Branch");
+
+            migrationBuilder.DropTable(
+                name: "Product");
+
+            migrationBuilder.DropTable(
                 name: "Service");
 
             migrationBuilder.DropTable(
                 name: "Order");
 
             migrationBuilder.DropTable(
+                name: "Company");
+
+            migrationBuilder.DropTable(
                 name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Voucher");
-
-            migrationBuilder.DropTable(
-                name: "Product");
-
-            migrationBuilder.DropTable(
-                name: "Branch");
-
-            migrationBuilder.DropTable(
                 name: "User");
+
+            migrationBuilder.DropTable(
+                name: "Voucher");
 
             migrationBuilder.DropTable(
                 name: "UserRole");

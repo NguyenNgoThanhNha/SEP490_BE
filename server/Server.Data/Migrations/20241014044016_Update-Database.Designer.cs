@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241010155016_Update-Database")]
+    [Migration("20241014044016_Update-Database")]
     partial class UpdateDatabase
     {
         /// <inheritdoc />
@@ -190,6 +190,9 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
@@ -207,9 +210,42 @@ namespace Server.Data.Migrations
 
                     b.HasKey("BranchId");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("ManagerId");
 
                     b.ToTable("Branch");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Branch_Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("ProductId", "BranchId")
+                        .IsUnique();
+
+                    b.ToTable("Branch_Product", (string)null);
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Branch_Service", b =>
@@ -258,9 +294,6 @@ namespace Server.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SkinTypeSuitable")
                         .HasColumnType("longtext");
 
@@ -271,8 +304,6 @@ namespace Server.Data.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("CategoryId");
-
-                    b.HasIndex("ProductId");
 
                     b.ToTable("Category");
                 });
@@ -306,6 +337,43 @@ namespace Server.Data.Migrations
                     b.HasIndex("SenderId");
 
                     b.ToTable("Chat");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Company", b =>
+                {
+                    b.Property<int>("CompanyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(15)
+                        .HasColumnType("varchar(15)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("CompanyId");
+
+                    b.ToTable("Company");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Notifications", b =>
@@ -425,7 +493,10 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("BranchId")
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
@@ -453,37 +524,11 @@ namespace Server.Data.Migrations
 
                     b.HasKey("ProductId");
 
-                    b.HasIndex("BranchId");
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("Product");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Product_Service", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServiceId");
-
-                    b.HasIndex("ProductId", "ServiceId")
-                        .IsUnique();
-
-                    b.ToTable("Product_Service", (string)null);
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Service", b =>
@@ -886,13 +931,42 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Branch", b =>
                 {
+                    b.HasOne("Server.Data.Entities.Company", "Company")
+                        .WithMany("Branches")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Server.Data.Entities.User", "ManagerBranch")
                         .WithMany()
                         .HasForeignKey("ManagerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Company");
+
                     b.Navigation("ManagerBranch");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Branch_Product", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Branch", "Branch")
+                        .WithMany("Branch_Products")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Branch_Product_Branch");
+
+                    b.HasOne("Server.Data.Entities.Product", "Product")
+                        .WithMany("Branch_Products")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Branch_Product_Product");
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Branch_Service", b =>
@@ -914,17 +988,6 @@ namespace Server.Data.Migrations
                     b.Navigation("Branch");
 
                     b.Navigation("Service");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Category", b =>
-                {
-                    b.HasOne("Server.Data.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Chat", b =>
@@ -999,34 +1062,21 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Product", b =>
                 {
-                    b.HasOne("Server.Data.Entities.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
+                    b.HasOne("Server.Data.Entities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Branch");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Product_Service", b =>
-                {
-                    b.HasOne("Server.Data.Entities.Product", "Product")
-                        .WithMany("Product_Services")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("Server.Data.Entities.Company", "Company")
+                        .WithMany("Products")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Product_Service_Product");
+                        .IsRequired();
 
-                    b.HasOne("Server.Data.Entities.Service", "Service")
-                        .WithMany("Product_Services")
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Product_Service_Service");
+                    b.Navigation("Category");
 
-                    b.Navigation("Product");
-
-                    b.Navigation("Service");
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Service", b =>
@@ -1094,19 +1144,31 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Branch", b =>
                 {
+                    b.Navigation("Branch_Products");
+
                     b.Navigation("Branch_Services");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Category", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Company", b =>
+                {
+                    b.Navigation("Branches");
+
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Product", b =>
                 {
-                    b.Navigation("Product_Services");
+                    b.Navigation("Branch_Products");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Service", b =>
                 {
                     b.Navigation("Branch_Services");
-
-                    b.Navigation("Product_Services");
                 });
 #pragma warning restore 612, 618
         }

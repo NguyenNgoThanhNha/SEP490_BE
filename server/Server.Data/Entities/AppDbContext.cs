@@ -21,6 +21,7 @@ namespace Server.Data.Entities
         public DbSet<Category> Categorys { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Service> Services { get; set; }
+        public DbSet<Company> Companies { get; set; }
         public DbSet<Appointments> Appointments { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
@@ -31,7 +32,7 @@ namespace Server.Data.Entities
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogRating> BlogRatings { get; set; }
         public DbSet<Branch_Service> Branch_Services { get; set; }
-        public DbSet<Product_Service> Product_Service { get; set; }
+        public DbSet<Branch_Product> Branch_Products { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,21 +57,21 @@ namespace Server.Data.Entities
             });
             
             // Product_Service
-            modelBuilder.Entity<Product_Service>(e =>
+            modelBuilder.Entity<Branch_Product>(e =>
             {
-                e.ToTable("Product_Service");
+                e.ToTable("Branch_Product");
                 e.HasKey(e => e.Id);
-                e.HasIndex(e => new { e.ProductId, e.ServiceId }).IsUnique();
+                e.HasIndex(e => new { e.ProductId, e.BranchId }).IsUnique();
 
                 e.HasOne(e => e.Product)
-                    .WithMany(e => e.Product_Services)
+                    .WithMany(e => e.Branch_Products)
                     .HasForeignKey(e => e.ProductId)
-                    .HasConstraintName("FK_Product_Service_Product");
+                    .HasConstraintName("FK_Branch_Product_Product");
 
-                e.HasOne(e => e.Service)
-                    .WithMany(e => e.Product_Services)
-                    .HasForeignKey(e => e.ServiceId)
-                    .HasConstraintName("FK_Product_Service_Service");
+                e.HasOne(e => e.Branch)
+                    .WithMany(e => e.Branch_Products)
+                    .HasForeignKey(e => e.BranchId)
+                    .HasConstraintName("FK_Branch_Product_Branch");
 
             });
         }

@@ -23,7 +23,6 @@ public class Service
     public virtual Category Category { get; set; }
     
     public ICollection<Branch_Service> Branch_Services { get; set; }
-    public ICollection<Product_Service> Product_Services { get; set; }
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;

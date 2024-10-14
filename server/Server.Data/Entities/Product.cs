@@ -16,15 +16,19 @@ public class Product
     
     public decimal Price { get; set; }
     
-    public int Quantity { get; set; }
+    public int Quantity { get; set; } // Số lượng hàng tồn kho tại công ty
 
     public decimal? Discount { get; set; }
     
-    [ForeignKey("Product_Branch")]
-    public int BranchId { get; set; }
-    public virtual Branch Branch { get; set; }
+    [ForeignKey("Product_Category")]
+    public int CategoryId  { get; set; }
+    public virtual Category Category { get; set; }
     
-    public ICollection<Product_Service> Product_Services { get; set; }
+    [ForeignKey("Product_Company")]
+    public int CompanyId  { get; set; }
+    public virtual Company Company { get; set; }
+    
+    public ICollection<Branch_Product> Branch_Products { get; set; }
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;

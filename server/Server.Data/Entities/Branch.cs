@@ -23,7 +23,12 @@ public class Branch
     public int ManagerId { get; set; }
     public virtual User ManagerBranch { get; set; }
     
+    [ForeignKey("Company")]
+    public int CompanyId { get; set; }
+    public virtual Company Company { get; set; }
+    
     public ICollection<Branch_Service> Branch_Services { get; set; }
+    public ICollection<Branch_Product> Branch_Products { get; set; }
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;

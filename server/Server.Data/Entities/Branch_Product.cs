@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Server.Data.Entities;
 
-[Table("Product_Service")]
-public class Product_Service
+[Table("Branch_Product")]
+public class Branch_Product
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,8 +13,10 @@ public class Product_Service
     public int ProductId { get; set; }
     public  Product Product { get; set; }
     
-    public int ServiceId { get; set; }
-    public  Service Service { get; set; }
+    public int BranchId { get; set; }
+    public  Branch Branch { get; set; }
+    
+    public int StockQuantity { get; set; } // Số lượng hàng tồn kho tại chi nhánh
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
