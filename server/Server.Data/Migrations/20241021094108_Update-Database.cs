@@ -632,6 +632,39 @@ namespace Server.Data.Migrations
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "Schedule",
+                columns: table => new
+                {
+                    ScheduleId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    ShiftName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time(6)", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time(6)", nullable: false),
+                    WorkDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Schedule", x => x.ScheduleId);
+                    table.ForeignKey(
+                        name: "FK_Schedule_Branch_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branch",
+                        principalColumn: "BranchId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Schedule_Staff_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staff",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_BranchId",
                 table: "Appointments",
@@ -760,6 +793,16 @@ namespace Server.Data.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Schedule_BranchId",
+                table: "Schedule",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedule_StaffId",
+                table: "Schedule",
+                column: "StaffId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Service_CategoryId",
                 table: "Service",
                 column: "CategoryId");
@@ -772,7 +815,8 @@ namespace Server.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Staff_UserId",
                 table: "Staff",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transaction_CustomerId",
@@ -818,19 +862,16 @@ namespace Server.Data.Migrations
                 name: "OrderDetail");
 
             migrationBuilder.DropTable(
+                name: "Schedule");
+
+            migrationBuilder.DropTable(
                 name: "Shipping");
 
             migrationBuilder.DropTable(
                 name: "Transaction");
 
             migrationBuilder.DropTable(
-                name: "Staff");
-
-            migrationBuilder.DropTable(
                 name: "Blog");
-
-            migrationBuilder.DropTable(
-                name: "Branch");
 
             migrationBuilder.DropTable(
                 name: "Product");
@@ -839,13 +880,19 @@ namespace Server.Data.Migrations
                 name: "Service");
 
             migrationBuilder.DropTable(
+                name: "Branch");
+
+            migrationBuilder.DropTable(
+                name: "Staff");
+
+            migrationBuilder.DropTable(
                 name: "Order");
 
             migrationBuilder.DropTable(
-                name: "Company");
+                name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Category");
+                name: "Company");
 
             migrationBuilder.DropTable(
                 name: "User");

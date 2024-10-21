@@ -71,6 +71,8 @@ namespace Server.Data.Entities
         
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
+        
+        public virtual Staff Staff { get; set; }
     }
 
 }

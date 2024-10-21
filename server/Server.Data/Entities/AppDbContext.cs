@@ -33,6 +33,7 @@ namespace Server.Data.Entities
         public DbSet<BlogRating> BlogRatings { get; set; }
         public DbSet<Branch_Service> Branch_Services { get; set; }
         public DbSet<Branch_Product> Branch_Products { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241014044016_Update-Database")]
+    [Migration("20241021094108_Update-Database")]
     partial class UpdateDatabase
     {
         /// <inheritdoc />
@@ -531,6 +531,47 @@ namespace Server.Data.Migrations
                     b.ToTable("Product");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
+                {
+                    b.Property<int>("ScheduleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time(6)");
+
+                    b.Property<string>("ShiftName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time(6)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("WorkDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ScheduleId");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("Schedule");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Service", b =>
                 {
                     b.Property<int>("ServiceId")
@@ -634,7 +675,8 @@ namespace Server.Data.Migrations
 
                     b.HasKey("StaffId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Staff");
                 });
@@ -1079,6 +1121,25 @@ namespace Server.Data.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.Staff", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Service", b =>
                 {
                     b.HasOne("Server.Data.Entities.Category", "Category")
@@ -1104,8 +1165,8 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.Staff", b =>
                 {
                     b.HasOne("Server.Data.Entities.User", "StaffInfo")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("Staff")
+                        .HasForeignKey("Server.Data.Entities.Staff", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1169,6 +1230,12 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.Service", b =>
                 {
                     b.Navigation("Branch_Services");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.User", b =>
+                {
+                    b.Navigation("Staff")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
