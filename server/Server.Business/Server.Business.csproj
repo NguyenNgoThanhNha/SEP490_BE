@@ -15,4 +15,8 @@
     <Folder Include="Commons\Response\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
+  </ItemGroup>
+
 </Project>

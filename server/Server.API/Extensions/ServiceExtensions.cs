@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Server.Business.Middlewares;
+using Server.Business.Utils;
 using Server.Data.Base;
 using Server.Data.Entities;
 using Server.Data.SeedData;
@@ -45,10 +46,8 @@ namespace Server.API.Extensions
                         services.AddSingleton(sp => sp.GetRequiredService<IOptions<PayOSSetting>>().Value);
 
                         // mail
-                        services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
-
-                        // cloud
-                        services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));*/
+                        services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));                       
+                       
 
             /*            services.AddAuthorization();*/
 
@@ -85,6 +84,8 @@ namespace Server.API.Extensions
                                     options.Audience = "L&L";
                                 }
                             });*/
+
+            services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));
 
             services.AddDbContext<AppDbContext>(opt =>
             {
