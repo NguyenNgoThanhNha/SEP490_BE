@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
 using Server.Business.Middlewares;
+using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.SeedData;
 
@@ -14,6 +15,8 @@ namespace Server.API
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddInfrastructure(builder.Configuration);
+
+            builder.Services.AddScoped<ServiceService>();
 
             builder.Services.AddSwaggerGen(option =>
             {
