@@ -1,4 +1,4 @@
-﻿namespace Server.Business.Services;
+﻿namespace Server.Business.Ultils;
 
 public class MailData
 {

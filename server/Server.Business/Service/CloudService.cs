@@ -3,7 +3,7 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Server.Business.Exceptions;
-using Server.Business.Utils;
+using Server.Business.Ultils;
 
 namespace Server.Business.Service
 {

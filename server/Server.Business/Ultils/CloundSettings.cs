@@ -1,4 +1,4 @@
-﻿namespace Server.Business.Utils
+﻿namespace Server.Business.Ultils
 {
     public class CloundSettings
     {

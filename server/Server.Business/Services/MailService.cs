@@ -5,7 +5,7 @@ using Server.Business.Ultils;
 
 namespace Server.Business.Services;
 
-    public class MailService
+public class MailService
     {
         private readonly MailSettings _mailSettings;
 
