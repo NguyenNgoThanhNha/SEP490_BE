@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
@@ -7,6 +8,7 @@ using NuGet.Common;
 using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
+using Server.Business.DTO;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Business.Services;
@@ -22,12 +24,14 @@ namespace Server.API.Controllers
         private readonly AuthService authService;
         private readonly MailService mailService;
         private readonly UserService _userService;
+        private readonly IMapper _mapper;
 
-        public AuthController(AuthService authService, MailService mailService, UserService userService)
+        public AuthController(AuthService authService, MailService mailService, UserService userService, IMapper mapper)
         {
             this.authService = authService;
             this.mailService = mailService;
             _userService = userService;
+            _mapper = mapper;
         }
 
         [HttpPost("first-step")]
@@ -538,6 +542,36 @@ namespace Server.API.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("user-info")]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+            
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await authService.GetUserInToken(tokenValue);
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "User info not found!"
+                }));
+            }
 
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get user info success!",
+                data = _mapper.Map<UserDTO>(currentUser)
+            }));
+        }
     }
 }
