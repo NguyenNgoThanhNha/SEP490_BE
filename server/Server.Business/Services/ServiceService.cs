@@ -57,7 +57,10 @@ namespace Server.Business.Services
 
         public async Task<ServiceDto> GetServiceByIdAsync(int id)
         {
-            var service = await _context.Services.FindAsync(id);
+            var service = await _context.Services
+        .Include(s => s.Category) 
+        .FirstOrDefaultAsync(s => s.ServiceId == id); 
+
             if (service == null) return null;
 
             return new ServiceDto
@@ -67,7 +70,7 @@ namespace Server.Business.Services
                 Description = service.Description,
                 Price = service.Price,
                 Duration = service.Duration,
-                CategoryId = service.CategoryId,
+                CategoryName = service.Category.Name, 
                 CreatedDate = service.CreatedDate,
                 UpdatedDate = service.UpdatedDate
             };
@@ -88,7 +91,7 @@ namespace Server.Business.Services
 
             _context.Services.Add(service);
             await _context.SaveChangesAsync();
-
+            var category = await _context.Categorys.FindAsync(service.CategoryId);
             return new ServiceDto
             {
                 ServiceId = service.ServiceId,
@@ -96,7 +99,7 @@ namespace Server.Business.Services
                 Description = service.Description,
                 Price = service.Price,
                 Duration = service.Duration,
-                CategoryId = service.CategoryId,
+                CategoryName = category?.Name,
                 CreatedDate = service.CreatedDate,
                 UpdatedDate = service.UpdatedDate
             };
@@ -115,6 +118,7 @@ namespace Server.Business.Services
             service.UpdatedDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
+            var category = await _context.Categorys.FindAsync(service.CategoryId);
             return new ServiceDto
             {
                 ServiceId = service.ServiceId,
@@ -122,7 +126,7 @@ namespace Server.Business.Services
                 Description = service.Description,
                 Price = service.Price,
                 Duration = service.Duration,
-                CategoryId = service.CategoryId,
+                CategoryName = category?.Name,
                 CreatedDate = service.CreatedDate,
                 UpdatedDate = service.UpdatedDate
             };
