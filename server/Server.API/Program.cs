@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
+using Server.Business.Dtos;
 using Server.Business.Middlewares;
+using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.SeedData;
 
@@ -14,6 +16,8 @@ namespace Server.API
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddInfrastructure(builder.Configuration);
+
+            builder.Services.AddScoped<ServiceService>();
 
             builder.Services.AddSwaggerGen(option =>
             {
@@ -48,6 +52,8 @@ namespace Server.API
                 option.AddPolicy("CORS", builder =>
                     builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed((host) => true)));
 
+
+            builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloundSettings"));
             var app = builder.Build();
 
             // Hook into application lifetime events and trigger only application fully started 

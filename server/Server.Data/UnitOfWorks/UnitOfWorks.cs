@@ -9,6 +9,7 @@ namespace Server.Data.UnitOfWorks
         private UserRepository _userRepo;
         private AuthRepository _authRepo;
         private UserRoleRepository _userRoleRepo;
+        private ServiceRepository _serviceRepo;
 
 
         public UnitOfWorks(AppDbContext dbContext)
@@ -29,6 +30,11 @@ namespace Server.Data.UnitOfWorks
         public UserRoleRepository UserRoleRepository
         {
             get { return _userRoleRepo ??= new UserRoleRepository(_dbContext); }
+        }
+
+        public ServiceRepository ServiceRepository
+        {
+            get { return _serviceRepo ??= new ServiceRepository(_dbContext); }
         }
     }
 }

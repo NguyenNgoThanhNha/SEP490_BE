@@ -41,21 +41,21 @@ namespace Server.API.Extensions
             services.Configure<JwtSettings>(configuration.GetSection(nameof(JwtSettings)));
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<JwtSettings>>().Value);
 
-                                    // zalo pay
-                                    /*var zaloPaySetting = configuration.GetSection(nameof(ZaloPaySetting)).Get<ZaloPaySetting>();
-                                    services.Configure<ZaloPaySetting>(configuration.GetSection(nameof(ZaloPaySetting)));
-                                    services.AddSingleton(sp => sp.GetRequiredService<IOptions<ZaloPaySetting>>().Value);*/
+            // zalo pay
+            /*var zaloPaySetting = configuration.GetSection(nameof(ZaloPaySetting)).Get<ZaloPaySetting>();
+            services.Configure<ZaloPaySetting>(configuration.GetSection(nameof(ZaloPaySetting)));
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<ZaloPaySetting>>().Value);*/
 
-                                    // payOs
-                                    /*var payOsSetting = configuration.GetSection(nameof(PayOSSetting)).Get<PayOSSetting>();
-                                    services.Configure<PayOSSetting>(configuration.GetSection(nameof(PayOSSetting)));
-                                    services.AddSingleton(sp => sp.GetRequiredService<IOptions<PayOSSetting>>().Value);*/
+            // payOs
+            /*var payOsSetting = configuration.GetSection(nameof(PayOSSetting)).Get<PayOSSetting>();
+            services.Configure<PayOSSetting>(configuration.GetSection(nameof(PayOSSetting)));
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<PayOSSetting>>().Value);*/
 
-                                    // mail
-                                    services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+            // mail
+            services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
 
-                                    // cloud
-                                    /*services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));*/
+            // cloud
+            /*services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));*/
 
             services.AddAuthorization();
 
@@ -83,6 +83,8 @@ namespace Server.API.Extensions
                     }
                 });
 
+            services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));
+
             services.AddDbContext<AppDbContext>(opt =>
             {
                 var connectionString = configuration.GetConnectionString("MySqlConnection");
@@ -103,6 +105,7 @@ namespace Server.API.Extensions
             services.AddScoped<AuthService>();
             services.AddScoped<UserService>();
             services.AddScoped<MailService>();
+            services.AddScoped<CloudianryService>();
 
             return services;
         }

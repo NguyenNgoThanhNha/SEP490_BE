@@ -14,4 +14,8 @@
     <PackageReference Include="MailKit" Version="4.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
+  </ItemGroup>
+
 </Project>
