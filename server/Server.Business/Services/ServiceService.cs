@@ -1,6 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
+using Server.Business.Models;
 using Server.Data.Entities;
+using Server.Data.UnitOfWorks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,25 +16,43 @@ namespace Server.Business.Services
     public class ServiceService
     {
         private readonly AppDbContext _context;
+        private readonly UnitOfWorks unitOfWorks;
+        private readonly IMapper _mapper;
 
-        public ServiceService(AppDbContext context)
+        public ServiceService(AppDbContext context, UnitOfWorks unitOfWorks, IMapper mapper)
         {
             _context = context;
+            this.unitOfWorks = unitOfWorks;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ServiceDto>> GetAllServicesAsync()
-        {
-            return await _context.Services.Select(s => new ServiceDto
+        public async Task<GetAllServicePaginationResponse> GetAllService(int page)
+        {         
+            const int pageSize = 4; // Set the number of objects per page
+            var services = await unitOfWorks.ServiceRepository.GetAll().OrderByDescending(x => x.ServiceId).ToListAsync();
+
+            // Calculate total count of users
+            var totalCount = services.Count();
+
+            // Calculate total pages
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // Get the users for the current page
+            var pagedServices = services.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // Map to UserModel
+            var serviceModels = _mapper.Map<List<ServiceModel>>(pagedServices);
+
+            return new GetAllServicePaginationResponse
             {
-                ServiceId = s.ServiceId,
-                Name = s.Name,
-                Description = s.Description,
-                Price = s.Price,
-                Duration = s.Duration,
-                CategoryId = s.CategoryId,
-                CreatedDate = s.CreatedDate,
-                UpdatedDate = s.UpdatedDate
-            }).ToListAsync();
+                data = serviceModels,
+                pagination = new Pagination
+                {
+                    page = page,
+                    totalPage = totalPages,
+                    totalCount = totalCount
+                }
+            };
         }
 
         public async Task<ServiceDto> GetServiceByIdAsync(int id)

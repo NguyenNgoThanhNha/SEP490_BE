@@ -17,23 +17,16 @@ namespace Server.API.Controllers
         {
             _serviceService = serviceService;
         }
-        
+
         [HttpGet("get-all-services")]
-        public async Task<IActionResult> GetAllServices()
+        public async Task<IActionResult> Get([FromQuery] int page = 1)
         {
-            try
+            var services = await _serviceService.GetAllService(page);
+            return Ok(ApiResult<GetAllServicePaginationResponse>.Succeed(new GetAllServicePaginationResponse()
             {
-                var services = await _serviceService.GetAllServicesAsync();
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    message = "Retrieved all services successfully.",
-                    data = services
-                }));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ApiResult<object>.Fail(ex));
-            }
+                data = services.data,
+                pagination = services.pagination
+            }));
         }
 
         [HttpGet("get-service-by-id")]

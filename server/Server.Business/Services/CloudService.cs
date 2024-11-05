@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using Server.Business.Exceptions;
 using Server.Business.Ultils;
 
-namespace Server.Business.Service
+namespace Server.Business.Services
 {
     public class CloudService
     {
