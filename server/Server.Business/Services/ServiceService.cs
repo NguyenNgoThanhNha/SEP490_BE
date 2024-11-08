@@ -31,16 +31,16 @@ namespace Server.Business.Services
             const int pageSize = 4; // Set the number of objects per page
             var services = await unitOfWorks.ServiceRepository.GetAll().OrderByDescending(x => x.ServiceId).ToListAsync();
 
-            // Calculate total count of users
+            // Calculate total count of service
             var totalCount = services.Count();
 
-            // Calculate total pages
+            // Calculate total service
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             // Get the users for the current page
             var pagedServices = services.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-            // Map to UserModel
+            // Map to ServiceModal
             var serviceModels = _mapper.Map<List<ServiceModel>>(pagedServices);
 
             return new GetAllServicePaginationResponse
