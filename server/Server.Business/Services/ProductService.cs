@@ -1,15 +1,19 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons.Response;
+using Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Server.Business.Services
 {
@@ -63,6 +67,80 @@ namespace Server.Business.Services
             catch (Exception ex)
             {
                 throw new Exception("Error retrieving products", ex);
+            }
+        }
+
+        public async Task<List<Product>> FilterProductAsync(
+    string? productName,
+    string? productDescription,
+    decimal? price,
+    int? quantity,
+    decimal? discount,
+    string? categoryName,
+    string? companyName)
+        {
+            try
+            {
+
+                var query = _context.Products.Include(d => d.Category).Include(d => d.Company).AsQueryable();
+
+
+                if (!string.IsNullOrEmpty(productName))
+                {
+                    string lowerName = productName.ToLower();
+
+                    query = query.Where(d => d.ProductName.ToLower().Contains(lowerName));
+                }
+
+
+                if (!string.IsNullOrEmpty(productDescription))
+                {
+                    string lowerDescription = productDescription.ToLower();
+
+                    query = query.Where(d => d.ProductDescription.ToLower().Contains(lowerDescription));
+                }
+
+                if (!string.IsNullOrEmpty(categoryName))
+                {
+                    string lowerCategoryName = categoryName.ToLower();
+                    query = query.Where(d => d.Category != null && d.Category.Name.ToLower().Contains(lowerCategoryName));
+                }
+
+
+                if (!string.IsNullOrEmpty(companyName))
+                {
+                    string lowerCompanyName = companyName.ToLower();
+                    query = query.Where(d => d.Company != null && d.Company.Name.ToLower().Contains(lowerCompanyName));
+                }
+
+
+                if (price.HasValue)
+                {
+                    query = query.Where(d => d.Price == price);
+                }
+
+
+                if (discount.HasValue)
+                {
+                    query = query.Where(d => d.Discount == discount);
+                }
+
+
+                if (quantity.HasValue)
+                {
+                    query = query.Where(d => d.Quantity == quantity);
+                }
+
+
+                return await query.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Error occurred: {ex.Message}");
+
+
+                return new List<Product>();
             }
         }
     }
