@@ -106,6 +106,7 @@ namespace Server.API.Extensions
             services.AddScoped<UserService>();
             services.AddScoped<MailService>();
             services.AddScoped<CloudianryService>();
+            services.AddScoped<ProductService>();
 
             return services;
         }

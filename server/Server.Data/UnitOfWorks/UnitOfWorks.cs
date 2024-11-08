@@ -10,7 +10,7 @@ namespace Server.Data.UnitOfWorks
         private AuthRepository _authRepo;
         private UserRoleRepository _userRoleRepo;
         private ServiceRepository _serviceRepo;
-
+        private ProductRepository _productRepo;
 
         public UnitOfWorks(AppDbContext dbContext)
         {
@@ -35,6 +35,11 @@ namespace Server.Data.UnitOfWorks
         public ServiceRepository ServiceRepository
         {
             get { return _serviceRepo ??= new ServiceRepository(_dbContext); }
+        }
+
+        public ProductRepository ProductRepository
+        {
+            get { return _productRepo ??= new ProductRepository(_dbContext); }
         }
     }
 }
