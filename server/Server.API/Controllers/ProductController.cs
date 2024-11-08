@@ -18,6 +18,72 @@ namespace Server.API.Controllers
             _productService = productService;
         }
 
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
+        {
+            // Kiểm tra nếu ProductDto là null hoặc không hợp lệ
+            if (productCreateDto == null)
+            {
+                return BadRequest("Invalid product data.");
+            }
+
+            try
+            {
+                // Gọi phương thức từ ProductService để tạo sản phẩm
+                var result = await _productService.CreateProductAsync(productCreateDto);
+
+                if (result.Success)
+                {
+                    // Trả về kết quả thành công với sản phẩm mới
+                    return CreatedAtAction(nameof(GetProductById), new { id = result.Result.ProductId }, result);
+                }
+                else
+                {
+                    // Trả về thông báo lỗi nếu có
+                    return BadRequest(result.Result?.ProductName); // Hoặc trường thông báo lỗi khác từ Product
+                }
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi nếu có ngoại lệ
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            // Gọi phương thức từ ProductService để lấy sản phẩm theo ID
+            var product = await _productService.GetProductByIdAsync(id);
+
+            if (product == null)
+            {
+                // Nếu không tìm thấy sản phẩm, trả về mã lỗi 404 (Not Found)
+                return NotFound($"Product with ID {id} not found.");
+            }
+
+            // Trả về thông tin sản phẩm nếu tìm thấy
+            var productDto = new ProductDto
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                ProductDescription = product.ProductDescription,
+                Price = product.Price,
+                Quantity = product.Quantity,
+                Discount = product.Discount,
+                CategoryId = product.CategoryId,
+                CompanyId = product.CompanyId,
+                CategoryName = product.Category?.Name,
+                CompanyName = product.Company?.Name,
+                CreatedDate = product.CreatedDate,
+                UpdatedDate = product.UpdatedDate
+            };
+
+            return Ok(productDto);
+        }
+
+
         [HttpGet("get-all-products")]
         public async Task<IActionResult> Get([FromQuery] int page = 1)
         {

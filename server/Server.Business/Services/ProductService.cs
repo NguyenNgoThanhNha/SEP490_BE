@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Models;
@@ -29,6 +30,84 @@ namespace Server.Business.Services
             _mapper = mapper;
         }
 
+
+        public async Task<ApiResult<Product>> CreateProductAsync(ProductCreateDto productCreateDto)
+        {
+            try
+            {
+                if (productCreateDto == null)
+                {
+                    return ApiResult<Product>.Error(null); // Trả về lỗi nếu productCreateDto là null
+                }
+
+                // Kiểm tra nếu các trường bắt buộc không có giá trị hợp lệ
+                if (productCreateDto.Price <= 0 || productCreateDto.Quantity <= 0 || productCreateDto.Discount < 0)
+                {
+                    return ApiResult<Product>.Error(new Product { ProductName = "Invalid Price, Quantity, or Discount" });
+                }
+
+                // Kiểm tra xem CategoryId và CompanyId có tồn tại trong cơ sở dữ liệu không
+                var categoryExists = await _context.Categorys.AnyAsync(c => c.CategoryId == productCreateDto.CategoryId);
+                var companyExists = await _context.Companies.AnyAsync(c => c.CompanyId == productCreateDto.CompanyId);
+
+                if (!categoryExists)
+                {
+                    return ApiResult<Product>.Error(new Product { ProductName = "Category does not exist" });
+                }
+
+                if (!companyExists)
+                {
+                    return ApiResult<Product>.Error(new Product { ProductName = "Company does not exist" });
+                }
+
+                // Tạo sản phẩm mới
+                var newProduct = new Product
+                {
+                    ProductName = productCreateDto.ProductName,
+                    ProductDescription = productCreateDto.ProductDescription,
+                    Price = productCreateDto.Price,
+                    Quantity = productCreateDto.Quantity,
+                    Discount = productCreateDto.Discount,
+                    CategoryId = productCreateDto.CategoryId,
+                    CompanyId = productCreateDto.CompanyId,
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                // Thêm sản phẩm mới vào cơ sở dữ liệu
+                await _context.Products.AddAsync(newProduct);
+                await _context.SaveChangesAsync();
+
+                // Trả về kết quả thành công với sản phẩm vừa tạo
+                return ApiResult<Product>.Succeed(newProduct);
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi nếu có ngoại lệ
+                return ApiResult<Product>.Error(new Product { ProductName = $"Error: {ex.Message}" });
+            }
+        }
+
+        public async Task<Product?> GetProductByIdAsync(int productId)
+        {
+            try
+            {
+                // Lấy sản phẩm theo ID, bao gồm thông tin về Category và Company
+                var product = await _context.Products
+                                             .Include(d => d.Category)
+                                             .Include(d => d.Company)
+                                             .FirstOrDefaultAsync(p => p.ProductId == productId);
+
+                return product;
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi (nếu có)
+                Console.WriteLine($"Error occurred: {ex.Message}");
+                return null;  // Trả về null nếu không tìm thấy sản phẩm hoặc có lỗi
+            }
+        }
+
         public async Task<GetAllProductPaginationResponse> GetAllProduct(int page)
         {
             try
@@ -36,8 +115,8 @@ namespace Server.Business.Services
                 const int pageSize = 4;
 
                 var products = await unitOfWorks.ProductRepository.GetAll()
-                    .Include(p => p.Category)  // Bao gồm Category
-                    .Include(p => p.Company)   // Bao gồm Company
+                    .Include(p => p.Category) 
+                    .Include(p => p.Company)   
                     .OrderByDescending(x => x.ProductId)
                     .ToListAsync();
 
@@ -46,11 +125,11 @@ namespace Server.Business.Services
                 var pagedProducts = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 var productModels = _mapper.Map<List<ProductModel>>(pagedProducts);
 
-                // Ánh xạ CategoryName và CompanyName
+               
                 foreach (var product in productModels)
                 {
-                    product.CategoryName = product.CategoryName;  // Nếu có Category
-                    product.CompanyName = product.CompanyName;    // Nếu có Company
+                    product.CategoryName = product.CategoryName;  
+                    product.CompanyName = product.CompanyName;   
                 }
 
                 return new GetAllProductPaginationResponse
