@@ -4,6 +4,7 @@
     {
         public bool Success { get; set; }
         public T? Result { get; set; }
+        public string? ErrorMessage { get; set; }
 
         public static ApiResult<T> Succeed(T? result)
         {

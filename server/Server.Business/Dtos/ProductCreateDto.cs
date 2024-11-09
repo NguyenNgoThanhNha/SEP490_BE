@@ -19,14 +19,9 @@ namespace Server.Business.Dtos
         public decimal? Discount { get; set; }
 
         public int CategoryId { get; set; }
-
         public int CompanyId { get; set; }
 
-
         public string CategoryName { get; set; }
-
-
-
         public string CompanyName { get; set; }
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;

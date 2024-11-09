@@ -28,10 +28,7 @@ namespace Server.Business.Dtos
        
         public int CompanyId { get; set; }
 
-
-        public string CategoryName { get; set; }
-       
-
+        public string CategoryName { get; set; }    
       
         public string CompanyName { get; set; }
        

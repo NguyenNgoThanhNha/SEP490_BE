@@ -37,16 +37,14 @@ namespace Server.Business.Services
             {
                 if (productCreateDto == null)
                 {
-                    return ApiResult<Product>.Error(null); // Trả về lỗi nếu productCreateDto là null
+                    return ApiResult<Product>.Error(null);
                 }
 
-                // Kiểm tra nếu các trường bắt buộc không có giá trị hợp lệ
                 if (productCreateDto.Price <= 0 || productCreateDto.Quantity <= 0 || productCreateDto.Discount < 0)
                 {
                     return ApiResult<Product>.Error(new Product { ProductName = "Invalid Price, Quantity, or Discount" });
                 }
 
-                // Kiểm tra xem CategoryId và CompanyId có tồn tại trong cơ sở dữ liệu không
                 var categoryExists = await _context.Categorys.AnyAsync(c => c.CategoryId == productCreateDto.CategoryId);
                 var companyExists = await _context.Companies.AnyAsync(c => c.CompanyId == productCreateDto.CompanyId);
 
@@ -60,7 +58,7 @@ namespace Server.Business.Services
                     return ApiResult<Product>.Error(new Product { ProductName = "Company does not exist" });
                 }
 
-                // Tạo sản phẩm mới
+
                 var newProduct = new Product
                 {
                     ProductName = productCreateDto.ProductName,
@@ -74,16 +72,16 @@ namespace Server.Business.Services
                     UpdatedDate = DateTime.Now
                 };
 
-                // Thêm sản phẩm mới vào cơ sở dữ liệu
+
                 await _context.Products.AddAsync(newProduct);
                 await _context.SaveChangesAsync();
 
-                // Trả về kết quả thành công với sản phẩm vừa tạo
+
                 return ApiResult<Product>.Succeed(newProduct);
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
+
                 return ApiResult<Product>.Error(new Product { ProductName = $"Error: {ex.Message}" });
             }
         }
@@ -92,7 +90,7 @@ namespace Server.Business.Services
         {
             try
             {
-                // Lấy sản phẩm theo ID, bao gồm thông tin về Category và Company
+
                 var product = await _context.Products
                                              .Include(d => d.Category)
                                              .Include(d => d.Company)
@@ -102,9 +100,9 @@ namespace Server.Business.Services
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi (nếu có)
+
                 Console.WriteLine($"Error occurred: {ex.Message}");
-                return null;  // Trả về null nếu không tìm thấy sản phẩm hoặc có lỗi
+                return null;
             }
         }
 
@@ -228,26 +226,26 @@ namespace Server.Business.Services
         {
             try
             {
-                // Kiểm tra nếu productUpdateDto là null
+
                 if (productUpdateDto == null)
                 {
-                    return ApiResult<Product>.Error(null); // Trả về lỗi nếu productUpdateDto là null
+                    return ApiResult<Product>.Error(null);
                 }
 
-                // Kiểm tra nếu các trường bắt buộc không có giá trị hợp lệ
+
                 if (productUpdateDto.Price <= 0 || productUpdateDto.Quantity <= 0 || productUpdateDto.Discount < 0)
                 {
                     return ApiResult<Product>.Error(new Product { ProductName = "Invalid Price, Quantity, or Discount" });
                 }
 
-                // Tìm sản phẩm theo productId
+
                 var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
                 if (existingProduct == null)
                 {
                     return ApiResult<Product>.Error(new Product { ProductName = "Product not found" });
                 }
 
-                // Kiểm tra xem CategoryId và CompanyId có tồn tại trong cơ sở dữ liệu không
+
                 var categoryExists = await _context.Categorys.AnyAsync(c => c.CategoryId == productUpdateDto.CategoryId);
                 var companyExists = await _context.Companies.AnyAsync(c => c.CompanyId == productUpdateDto.CompanyId);
 
@@ -261,7 +259,7 @@ namespace Server.Business.Services
                     return ApiResult<Product>.Error(new Product { ProductName = "Company does not exist" });
                 }
 
-                // Cập nhật thông tin sản phẩm
+
                 existingProduct.ProductName = productUpdateDto.ProductName;
                 existingProduct.ProductDescription = productUpdateDto.ProductDescription;
                 existingProduct.Price = productUpdateDto.Price;
@@ -271,23 +269,23 @@ namespace Server.Business.Services
                 existingProduct.CompanyId = productUpdateDto.CompanyId;
                 existingProduct.UpdatedDate = DateTime.Now;
 
-                // Lưu các thay đổi vào cơ sở dữ liệu
+
                 _context.Products.Update(existingProduct);
                 await _context.SaveChangesAsync();
 
-                // Trả về kết quả thành công với sản phẩm vừa cập nhật
+
                 return ApiResult<Product>.Succeed(existingProduct);
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
+
                 return ApiResult<Product>.Error(new Product { ProductName = $"Error: {ex.Message}" });
             }
         }
 
         public async Task<bool> DeleteProductAsync(int productId)
         {
-            // Tìm sản phẩm trong cơ sở dữ liệu
+
             var product = await _context.Products
                 .Include(p => p.Branch_Products)
                 .FirstOrDefaultAsync(p => p.ProductId == productId);
@@ -295,20 +293,20 @@ namespace Server.Business.Services
             if (product == null)
                 throw new KeyNotFoundException("Product not found.");
 
-            // Kiểm tra xem có dịch vụ nào liên kết với danh mục của sản phẩm không
+
             var hasLinkedServices = await _context.Services
                 .AnyAsync(s => s.CategoryId == product.CategoryId);
 
             if (hasLinkedServices)
                 throw new InvalidOperationException("Cannot delete product as its category is linked to a service.");
 
-            // Xóa các liên kết trong bảng trung gian (nếu có)
+
             _context.Branch_Products.RemoveRange(product.Branch_Products);
 
-            // Xóa sản phẩm
+
             _context.Products.Remove(product);
 
-            // Lưu thay đổi vào cơ sở dữ liệu
+
             await _context.SaveChangesAsync();
             return true;
         }

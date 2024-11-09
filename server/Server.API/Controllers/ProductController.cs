@@ -26,7 +26,7 @@ namespace Server.API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
         {
-            // Kiểm tra nếu ProductDto là null hoặc không hợp lệ
+           
             if (productCreateDto == null)
             {
                 return BadRequest("Invalid product data.");
@@ -34,40 +34,40 @@ namespace Server.API.Controllers
 
             try
             {
-                // Gọi phương thức từ ProductService để tạo sản phẩm
+               
                 var result = await _productService.CreateProductAsync(productCreateDto);
 
                 if (result.Success)
                 {
-                    // Trả về kết quả thành công với sản phẩm mới
-                    return CreatedAtAction(nameof(GetProductById), new { id = result.Result.ProductId }, result);
+                   
+                    return CreatedAtAction(nameof(GetProductById), new { productId = result.Result.ProductId }, result);
                 }
                 else
                 {
-                    // Trả về thông báo lỗi nếu có
-                    return BadRequest(result.Result?.ProductName); // Hoặc trường thông báo lỗi khác từ Product
+                   
+                    return BadRequest(result.Result?.ProductName);
                 }
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
+                
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(int id)
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProductById(int productId)
         {
-            // Gọi phương thức từ ProductService để lấy sản phẩm theo ID
-            var product = await _productService.GetProductByIdAsync(id);
+          
+            var product = await _productService.GetProductByIdAsync(productId);
 
             if (product == null)
             {
-                // Nếu không tìm thấy sản phẩm, trả về mã lỗi 404 (Not Found)
-                return NotFound($"Product with ID {id} not found.");
+               
+                return NotFound($"Product with ID {productId} not found.");
             }
 
-            // Trả về thông tin sản phẩm nếu tìm thấy
+           
             var productDto = new ProductDto
             {
                 ProductId = product.ProductId,
@@ -105,10 +105,10 @@ namespace Server.API.Controllers
         {
             try
             {
-                // Gọi service để thực hiện logic lọc bất đồng bộ
+               
                 var filteredProducts = await _productService.FilterProductAsync(productName, productDescription, price, quantity, discount, categoryName, companyName);
 
-                // Kiểm tra nếu danh sách kết quả rỗng hoặc null
+              
                 if (filteredProducts == null || !filteredProducts.Any())
                 {
                     return NotFound("No products found matching the filter criteria.");
@@ -134,10 +134,10 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-                // Log lỗi nếu có (tùy chọn: có thể log lại với Serilog, NLog, hoặc bất kỳ framework logging nào)
+                
                 Console.WriteLine($"An error occurred: {ex.Message}");
 
-                // Trả về mã lỗi 500 (Internal Server Error) và thông báo lỗi
+               
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
@@ -150,16 +150,16 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<string>.Error("Invalid model state"));
             }
 
-            // Gọi đến service để thực hiện cập nhật sản phẩm
+           
             var result = await _productService.UpdateProductAsync(productId, productUpdateDto);
 
-            // Kiểm tra nếu cập nhật thất bại, trả về lỗi
+           
             if (!result.Success)
             {
                 return BadRequest(ApiResult<ProductDetailDto>.Error(null));
             }
 
-            // Tạo đối tượng ProductDetailDto từ kết quả trả về
+           
             var product = result.Result;
             var productDetailDto = new ProductDetailDto
             {
@@ -182,16 +182,16 @@ namespace Server.API.Controllers
                 UpdatedDate = product.UpdatedDate
             };
 
-            // Trả về kết quả thành công với ProductDetailDto
+            
             return Ok(ApiResult<ProductDetailDto>.Succeed(productDetailDto));
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        [HttpDelete("{productId}")]
+        public async Task<IActionResult> DeleteProduct(int productId)
         {
             try
             {
-                bool result = await _productService.DeleteProductAsync(id);
+                bool result = await _productService.DeleteProductAsync(productId);
                 if (result)
                 {
                     return Ok(new { message = "Product deleted successfully." });
