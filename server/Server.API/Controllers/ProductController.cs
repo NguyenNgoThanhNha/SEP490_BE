@@ -4,6 +4,9 @@ using Server.Business.Commons.Response;
 using Server.Business.Commons;
 using Server.Business.Dtos;
 using Server.Business.Services;
+using Server.Data.Entities;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.EntityFrameworkCore;
 
 namespace Server.API.Controllers
 {
@@ -12,10 +15,11 @@ namespace Server.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly ProductService _productService;
-
-        public ProductController(ProductService productService)
+        private readonly AppDbContext _context;
+        public ProductController(ProductService productService, AppDbContext context)
         {
             _productService = productService;
+            _context = context;
         }
 
 
@@ -119,7 +123,7 @@ namespace Server.API.Controllers
                     Quantity = d.Quantity,
                     Discount = d.Discount,
                     CategoryName = d.Category?.Name,
-                    CompanyName = d.Company?.Name,                    
+                    CompanyName = d.Company?.Name,
                 }).ToList();
 
 
@@ -135,6 +139,75 @@ namespace Server.API.Controllers
 
                 // Trả về mã lỗi 500 (Internal Server Error) và thông báo lỗi
                 return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpPut("update{productId}")]
+        public async Task<IActionResult> UpdateProduct(int productId, [FromBody] ProductUpdateDto productUpdateDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResult<string>.Error("Invalid model state"));
+            }
+
+            // Gọi đến service để thực hiện cập nhật sản phẩm
+            var result = await _productService.UpdateProductAsync(productId, productUpdateDto);
+
+            // Kiểm tra nếu cập nhật thất bại, trả về lỗi
+            if (!result.Success)
+            {
+                return BadRequest(ApiResult<ProductDetailDto>.Error(null));
+            }
+
+            // Tạo đối tượng ProductDetailDto từ kết quả trả về
+            var product = result.Result;
+            var productDetailDto = new ProductDetailDto
+            {
+                ProductName = product.ProductName,
+                ProductDescription = product.ProductDescription,
+                Price = product.Price,
+                Quantity = product.Quantity,
+                Discount = (decimal)product.Discount,
+                CategoryId = product.CategoryId,
+                CompanyId = product.CompanyId,
+                CategoryName = await _context.Categorys
+                                             .Where(c => c.CategoryId == product.CategoryId)
+                                             .Select(c => c.Name)
+                                             .FirstOrDefaultAsync(),
+                CompanyName = await _context.Companies
+                                             .Where(c => c.CompanyId == product.CompanyId)
+                                             .Select(c => c.Name)
+                                             .FirstOrDefaultAsync(),
+                CreatedDate = product.CreatedDate,
+                UpdatedDate = product.UpdatedDate
+            };
+
+            // Trả về kết quả thành công với ProductDetailDto
+            return Ok(ApiResult<ProductDetailDto>.Succeed(productDetailDto));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            try
+            {
+                bool result = await _productService.DeleteProductAsync(id);
+                if (result)
+                {
+                    return Ok(new { message = "Product deleted successfully." });
+                }
+                else
+                {
+                    return NotFound(new { message = "Product not found." });
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
             }
         }
     }

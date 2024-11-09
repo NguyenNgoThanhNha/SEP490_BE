@@ -115,8 +115,8 @@ namespace Server.Business.Services
                 const int pageSize = 4;
 
                 var products = await unitOfWorks.ProductRepository.GetAll()
-                    .Include(p => p.Category) 
-                    .Include(p => p.Company)   
+                    .Include(p => p.Category)
+                    .Include(p => p.Company)
                     .OrderByDescending(x => x.ProductId)
                     .ToListAsync();
 
@@ -125,11 +125,11 @@ namespace Server.Business.Services
                 var pagedProducts = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 var productModels = _mapper.Map<List<ProductModel>>(pagedProducts);
 
-               
+
                 foreach (var product in productModels)
                 {
-                    product.CategoryName = product.CategoryName;  
-                    product.CompanyName = product.CompanyName;   
+                    product.CategoryName = product.CategoryName;
+                    product.CompanyName = product.CompanyName;
                 }
 
                 return new GetAllProductPaginationResponse
@@ -221,6 +221,96 @@ namespace Server.Business.Services
 
                 return new List<Product>();
             }
+        }
+
+
+        public async Task<ApiResult<Product>> UpdateProductAsync(int productId, ProductUpdateDto productUpdateDto)
+        {
+            try
+            {
+                // Kiểm tra nếu productUpdateDto là null
+                if (productUpdateDto == null)
+                {
+                    return ApiResult<Product>.Error(null); // Trả về lỗi nếu productUpdateDto là null
+                }
+
+                // Kiểm tra nếu các trường bắt buộc không có giá trị hợp lệ
+                if (productUpdateDto.Price <= 0 || productUpdateDto.Quantity <= 0 || productUpdateDto.Discount < 0)
+                {
+                    return ApiResult<Product>.Error(new Product { ProductName = "Invalid Price, Quantity, or Discount" });
+                }
+
+                // Tìm sản phẩm theo productId
+                var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
+                if (existingProduct == null)
+                {
+                    return ApiResult<Product>.Error(new Product { ProductName = "Product not found" });
+                }
+
+                // Kiểm tra xem CategoryId và CompanyId có tồn tại trong cơ sở dữ liệu không
+                var categoryExists = await _context.Categorys.AnyAsync(c => c.CategoryId == productUpdateDto.CategoryId);
+                var companyExists = await _context.Companies.AnyAsync(c => c.CompanyId == productUpdateDto.CompanyId);
+
+                if (!categoryExists)
+                {
+                    return ApiResult<Product>.Error(new Product { ProductName = "Category does not exist" });
+                }
+
+                if (!companyExists)
+                {
+                    return ApiResult<Product>.Error(new Product { ProductName = "Company does not exist" });
+                }
+
+                // Cập nhật thông tin sản phẩm
+                existingProduct.ProductName = productUpdateDto.ProductName;
+                existingProduct.ProductDescription = productUpdateDto.ProductDescription;
+                existingProduct.Price = productUpdateDto.Price;
+                existingProduct.Quantity = productUpdateDto.Quantity;
+                existingProduct.Discount = productUpdateDto.Discount;
+                existingProduct.CategoryId = productUpdateDto.CategoryId;
+                existingProduct.CompanyId = productUpdateDto.CompanyId;
+                existingProduct.UpdatedDate = DateTime.Now;
+
+                // Lưu các thay đổi vào cơ sở dữ liệu
+                _context.Products.Update(existingProduct);
+                await _context.SaveChangesAsync();
+
+                // Trả về kết quả thành công với sản phẩm vừa cập nhật
+                return ApiResult<Product>.Succeed(existingProduct);
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi nếu có ngoại lệ
+                return ApiResult<Product>.Error(new Product { ProductName = $"Error: {ex.Message}" });
+            }
+        }
+
+        public async Task<bool> DeleteProductAsync(int productId)
+        {
+            // Tìm sản phẩm trong cơ sở dữ liệu
+            var product = await _context.Products
+                .Include(p => p.Branch_Products)
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
+
+            if (product == null)
+                throw new KeyNotFoundException("Product not found.");
+
+            // Kiểm tra xem có dịch vụ nào liên kết với danh mục của sản phẩm không
+            var hasLinkedServices = await _context.Services
+                .AnyAsync(s => s.CategoryId == product.CategoryId);
+
+            if (hasLinkedServices)
+                throw new InvalidOperationException("Cannot delete product as its category is linked to a service.");
+
+            // Xóa các liên kết trong bảng trung gian (nếu có)
+            _context.Branch_Products.RemoveRange(product.Branch_Products);
+
+            // Xóa sản phẩm
+            _context.Products.Remove(product);
+
+            // Lưu thay đổi vào cơ sở dữ liệu
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
