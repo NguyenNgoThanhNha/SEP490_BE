@@ -70,6 +70,7 @@ namespace Server.Business.Services
                     CompanyId = productCreateDto.CompanyId,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
+
                 };
 
 
