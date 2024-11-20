@@ -32,6 +32,8 @@ public class Branch
     public ICollection<Branch_Service> Branch_Services { get; set; }
     public ICollection<Branch_Product> Branch_Products { get; set; }
     
+    public ICollection<Branch_Promotion> Branch_Promotion { get; set; }
+    
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }
