@@ -89,6 +89,12 @@ namespace Server.Data.SeedData
                     await SeedServices();
                 }
                 
+                // Promotion
+                if (!_context.Promotions.Any())
+                {
+                    await SeedPromotions();
+                }
+                
                 // Company
                 if (!_context.Companies.Any())
                 {
@@ -111,6 +117,12 @@ namespace Server.Data.SeedData
                 if (!_context.Branch_Services.Any())
                 {
                     await SeedBranchServices();
+                }
+                
+                // Branch_Promotion
+                if (!_context.Branch_Promotions.Any())
+                {
+                    await SeedBranchPromotions();
                 }
                 
                 await Task.CompletedTask;
@@ -303,32 +315,32 @@ namespace Server.Data.SeedData
             var products = new List<Product>
             {
                 // Các sản phẩm chăm sóc da
-                new Product { ProductName = "Facial Cleanser", ProductDescription = "Sản phẩm làm sạch sâu da mặt", Price = 150_000m, Quantity = 100, Discount = 0.1m, CategoryId = 1, CompanyId = 1 },
-                new Product { ProductName = "Hydrating Toner", ProductDescription = "Toner dưỡng ẩm", Price = 120_000m, Quantity = 150, Discount = 0.05m, CategoryId = 2, CompanyId = 1 },
-                new Product { ProductName = "Anti-Aging Serum", ProductDescription = "Serum chống lão hóa", Price = 250_000m, Quantity = 80, Discount = 0.15m, CategoryId = 3, CompanyId = 1 },
-                new Product { ProductName = "Sunscreen SPF50+", ProductDescription = "Kem chống nắng bảo vệ da SPF50+", Price = 200_000m, Quantity = 200, Discount = 0.1m, CategoryId = 4, CompanyId = 1 },
-                new Product { ProductName = "Moisturizing Cream", ProductDescription = "Kem dưỡng ẩm sâu", Price = 180_000m, Quantity = 120, Discount = 0.1m, CategoryId = 5, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Facial Cleanser", ProductDescription = "Sản phẩm làm sạch sâu da mặt", Price = 150_000m, Quantity = 100, Discount = 0.1m, CategoryId = 1, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Hydrating Toner", ProductDescription = "Toner dưỡng ẩm", Price = 120_000m, Quantity = 150, Discount = 0.05m, CategoryId = 2, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Anti-Aging Serum", ProductDescription = "Serum chống lão hóa", Price = 250_000m, Quantity = 80, Discount = 0.15m, CategoryId = 3, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Sunscreen SPF50+", ProductDescription = "Kem chống nắng bảo vệ da SPF50+", Price = 200_000m, Quantity = 200, Discount = 0.1m, CategoryId = 4, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Moisturizing Cream", ProductDescription = "Kem dưỡng ẩm sâu", Price = 180_000m, Quantity = 120, Discount = 0.1m, CategoryId = 5, CompanyId = 1 },
                 
                 // Các sản phẩm trị liệu
-                new Product { ProductName = "Acne Treatment Gel", ProductDescription = "Gel điều trị mụn hiệu quả", Price = 140_000m, Quantity = 90, Discount = 0.2m, CategoryId = 6, CompanyId = 1 },
-                new Product { ProductName = "Skin Brightening Mask", ProductDescription = "Mặt nạ làm sáng da", Price = 160_000m, Quantity = 110, Discount = 0.1m, CategoryId = 7, CompanyId = 1 },
-                new Product { ProductName = "Exfoliating Scrub", ProductDescription = "Tẩy da chết nhẹ nhàng", Price = 130_000m, Quantity = 100, Discount = 0.05m, CategoryId = 8, CompanyId = 1 },
-                new Product { ProductName = "Eye Cream", ProductDescription = "Kem dưỡng vùng mắt", Price = 210_000m, Quantity = 85, Discount = 0.1m, CategoryId = 9, CompanyId = 1 },
-                new Product { ProductName = "Lip Balm", ProductDescription = "Sản phẩm dưỡng môi", Price = 80_000m, Quantity = 200, Discount = 0.05m, CategoryId = 10, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Acne Treatment Gel", ProductDescription = "Gel điều trị mụn hiệu quả", Price = 140_000m, Quantity = 90, Discount = 0.2m, CategoryId = 6, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Skin Brightening Mask", ProductDescription = "Mặt nạ làm sáng da", Price = 160_000m, Quantity = 110, Discount = 0.1m, CategoryId = 7, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Exfoliating Scrub", ProductDescription = "Tẩy da chết nhẹ nhàng", Price = 130_000m, Quantity = 100, Discount = 0.05m, CategoryId = 8, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Eye Cream", ProductDescription = "Kem dưỡng vùng mắt", Price = 210_000m, Quantity = 85, Discount = 0.1m, CategoryId = 9, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Lip Balm", ProductDescription = "Sản phẩm dưỡng môi", Price = 80_000m, Quantity = 200, Discount = 0.05m, CategoryId = 10, CompanyId = 1 },
                 
                 // Các sản phẩm chăm sóc cơ thể
-                new Product { ProductName = "Body Lotion", ProductDescription = "Sữa dưỡng thể dưỡng ẩm", Price = 170_000m, Quantity = 140, Discount = 0.1m, CategoryId = 1, CompanyId = 1 },
-                new Product { ProductName = "Hand Cream", ProductDescription = "Kem dưỡng da tay", Price = 90_000m, Quantity = 200, Discount = 0.05m, CategoryId = 2, CompanyId = 1 },
-                new Product { ProductName = "Foot Scrub", ProductDescription = "Tẩy da chết cho chân", Price = 150_000m, Quantity = 130, Discount = 0.15m, CategoryId = 3, CompanyId = 1 },
-                new Product { ProductName = "Massage Oil", ProductDescription = "Dầu massage dưỡng da", Price = 200_000m, Quantity = 120, Discount = 0.1m, CategoryId = 4, CompanyId = 1 },
-                new Product { ProductName = "Hot Stone Therapy Kit", ProductDescription = "Bộ liệu pháp đá nóng", Price = 300_000m, Quantity = 50, Discount = 0.2m, CategoryId = 5, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Body Lotion", ProductDescription = "Sữa dưỡng thể dưỡng ẩm", Price = 170_000m, Quantity = 140, Discount = 0.1m, CategoryId = 1, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Hand Cream", ProductDescription = "Kem dưỡng da tay", Price = 90_000m, Quantity = 200, Discount = 0.05m, CategoryId = 2, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Foot Scrub", ProductDescription = "Tẩy da chết cho chân", Price = 150_000m, Quantity = 130, Discount = 0.15m, CategoryId = 3, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Massage Oil", ProductDescription = "Dầu massage dưỡng da", Price = 200_000m, Quantity = 120, Discount = 0.1m, CategoryId = 4, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Hot Stone Therapy Kit", ProductDescription = "Bộ liệu pháp đá nóng", Price = 300_000m, Quantity = 50, Discount = 0.2m, CategoryId = 5, CompanyId = 1 },
                 
                 // Các sản phẩm dưỡng da ban đêm
-                new Product { ProductName = "Night Repair Cream", ProductDescription = "Kem dưỡng phục hồi ban đêm", Price = 250_000m, Quantity = 90, Discount = 0.1m, CategoryId = 6, CompanyId = 1 },
-                new Product { ProductName = "Overnight Mask", ProductDescription = "Mặt nạ dưỡng da ban đêm", Price = 220_000m, Quantity = 75, Discount = 0.15m, CategoryId = 7, CompanyId = 1 },
-                new Product { ProductName = "Night Serum", ProductDescription = "Serum dưỡng da ban đêm", Price = 230_000m, Quantity = 85, Discount = 0.1m, CategoryId = 8, CompanyId = 1 },
-                new Product { ProductName = "Night Eye Cream", ProductDescription = "Kem dưỡng vùng mắt ban đêm", Price = 240_000m, Quantity = 70, Discount = 0.1m, CategoryId = 9, CompanyId = 1 },
-                new Product { ProductName = "Rejuvenating Balm", ProductDescription = "Kem dưỡng phục hồi da", Price = 260_000m, Quantity = 60, Discount = 0.2m, CategoryId = 10, CompanyId = 1 }
+                new Product { Status = "Active",ProductName = "Night Repair Cream", ProductDescription = "Kem dưỡng phục hồi ban đêm", Price = 250_000m, Quantity = 90, Discount = 0.1m, CategoryId = 6, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Overnight Mask", ProductDescription = "Mặt nạ dưỡng da ban đêm", Price = 220_000m, Quantity = 75, Discount = 0.15m, CategoryId = 7, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Night Serum", ProductDescription = "Serum dưỡng da ban đêm", Price = 230_000m, Quantity = 85, Discount = 0.1m, CategoryId = 8, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Night Eye Cream", ProductDescription = "Kem dưỡng vùng mắt ban đêm", Price = 240_000m, Quantity = 70, Discount = 0.1m, CategoryId = 9, CompanyId = 1 },
+                new Product { Status = "Active",ProductName = "Rejuvenating Balm", ProductDescription = "Kem dưỡng phục hồi da", Price = 260_000m, Quantity = 60, Discount = 0.2m, CategoryId = 10, CompanyId = 1 }
             };
 
             // Thêm sản phẩm vào cơ sở dữ liệu
@@ -341,32 +353,32 @@ namespace Server.Data.SeedData
             var services = new List<Service>
             {
                 // Các dịch vụ chăm sóc da mặt
-                new Service { Name = "Basic Facial", Description = "Dịch vụ làm sạch và dưỡng da mặt cơ bản", Price = 300_000m, Duration = "60 phút", CategoryId = 1 },
-                new Service { Name = "Advanced Facial", Description = "Liệu pháp dưỡng da mặt chuyên sâu", Price = 500_000m, Duration = "90 phút", CategoryId = 1 },
-                new Service { Name = "Acne Treatment", Description = "Điều trị mụn và phục hồi da", Price = 400_000m, Duration = "75 phút", CategoryId = 2 },
-                new Service { Name = "Hydration Therapy", Description = "Liệu pháp cấp ẩm sâu cho da", Price = 450_000m, Duration = "80 phút", CategoryId = 3 },
-                new Service { Name = "Anti-Aging Facial", Description = "Liệu pháp chống lão hóa da", Price = 600_000m, Duration = "90 phút", CategoryId = 4 },
+                new Service { Status = "Active", Name = "Basic Facial", Description = "Dịch vụ làm sạch và dưỡng da mặt cơ bản", Price = 300_000m, Duration = "60 phút", CategoryId = 1 },
+                new Service { Status = "Active", Name = "Advanced Facial", Description = "Liệu pháp dưỡng da mặt chuyên sâu", Price = 500_000m, Duration = "90 phút", CategoryId = 1 },
+                new Service { Status = "Active", Name = "Acne Treatment", Description = "Điều trị mụn và phục hồi da", Price = 400_000m, Duration = "75 phút", CategoryId = 2 },
+                new Service { Status = "Active", Name = "Hydration Therapy", Description = "Liệu pháp cấp ẩm sâu cho da", Price = 450_000m, Duration = "80 phút", CategoryId = 3 },
+                new Service { Status = "Active", Name = "Anti-Aging Facial", Description = "Liệu pháp chống lão hóa da", Price = 600_000m, Duration = "90 phút", CategoryId = 4 },
                 
                 // Các dịch vụ chăm sóc cơ thể
-                new Service { Name = "Body Scrub", Description = "Tẩy tế bào chết toàn thân", Price = 350_000m, Duration = "60 phút", CategoryId = 5 },
-                new Service { Name = "Body Wrap", Description = "Liệu pháp quấn nóng toàn thân", Price = 500_000m, Duration = "75 phút", CategoryId = 5 },
-                new Service { Name = "Aromatherapy Massage", Description = "Massage với tinh dầu thư giãn", Price = 400_000m, Duration = "70 phút", CategoryId = 6 },
-                new Service { Name = "Hot Stone Massage", Description = "Massage bằng đá nóng", Price = 600_000m, Duration = "90 phút", CategoryId = 6 },
-                new Service { Name = "Swedish Massage", Description = "Massage kiểu Thụy Điển thư giãn", Price = 450_000m, Duration = "80 phút", CategoryId = 6 },
+                new Service { Status = "Active", Name = "Body Scrub", Description = "Tẩy tế bào chết toàn thân", Price = 350_000m, Duration = "60 phút", CategoryId = 5 },
+                new Service { Status = "Active", Name = "Body Wrap", Description = "Liệu pháp quấn nóng toàn thân", Price = 500_000m, Duration = "75 phút", CategoryId = 5 },
+                new Service { Status = "Active", Name = "Aromatherapy Massage", Description = "Massage với tinh dầu thư giãn", Price = 400_000m, Duration = "70 phút", CategoryId = 6 },
+                new Service { Status = "Active", Name = "Hot Stone Massage", Description = "Massage bằng đá nóng", Price = 600_000m, Duration = "90 phút", CategoryId = 6 },
+                new Service { Status = "Active", Name = "Swedish Massage", Description = "Massage kiểu Thụy Điển thư giãn", Price = 450_000m, Duration = "80 phút", CategoryId = 6 },
                 
                 // Các dịch vụ chăm sóc móng
-                new Service { Name = "Classic Manicure", Description = "Dịch vụ làm móng tay cơ bản", Price = 200_000m, Duration = "45 phút", CategoryId = 7 },
-                new Service { Name = "Gel Manicure", Description = "Làm móng tay với sơn gel", Price = 300_000m, Duration = "60 phút", CategoryId = 7 },
-                new Service { Name = "Classic Pedicure", Description = "Dịch vụ làm móng chân cơ bản", Price = 250_000m, Duration = "50 phút", CategoryId = 8 },
-                new Service { Name = "Spa Pedicure", Description = "Chăm sóc móng chân và massage chân", Price = 350_000m, Duration = "75 phút", CategoryId = 8 },
-                new Service { Name = "Nail Art Design", Description = "Trang trí móng nghệ thuật", Price = 200_000m, Duration = "45 phút", CategoryId = 9 },
+                new Service { Status = "Active", Name = "Classic Manicure", Description = "Dịch vụ làm móng tay cơ bản", Price = 200_000m, Duration = "45 phút", CategoryId = 7 },
+                new Service { Status = "Active", Name = "Gel Manicure", Description = "Làm móng tay với sơn gel", Price = 300_000m, Duration = "60 phút", CategoryId = 7 },
+                new Service { Status = "Active", Name = "Classic Pedicure", Description = "Dịch vụ làm móng chân cơ bản", Price = 250_000m, Duration = "50 phút", CategoryId = 8 },
+                new Service { Status = "Active", Name = "Spa Pedicure", Description = "Chăm sóc móng chân và massage chân", Price = 350_000m, Duration = "75 phút", CategoryId = 8 },
+                new Service { Status = "Active", Name = "Nail Art Design", Description = "Trang trí móng nghệ thuật", Price = 200_000m, Duration = "45 phút", CategoryId = 9 },
                 
                 // Các dịch vụ chăm sóc tóc
-                new Service { Name = "Hair Wash & Blow Dry", Description = "Gội và sấy tạo kiểu tóc", Price = 150_000m, Duration = "40 phút", CategoryId = 10 },
-                new Service { Name = "Hair Treatment", Description = "Dưỡng và phục hồi tóc hư tổn", Price = 300_000m, Duration = "60 phút", CategoryId = 10 },
-                new Service { Name = "Hair Cut", Description = "Cắt tóc và tạo kiểu", Price = 200_000m, Duration = "45 phút", CategoryId = 10 },
-                new Service { Name = "Hair Color", Description = "Nhuộm tóc theo màu yêu thích", Price = 400_000m, Duration = "90 phút", CategoryId = 10 },
-                new Service { Name = "Keratin Treatment", Description = "Phục hồi tóc bằng liệu pháp keratin", Price = 500_000m, Duration = "100 phút", CategoryId = 10 }
+                new Service { Status = "Active", Name = "Hair Wash & Blow Dry", Description = "Gội và sấy tạo kiểu tóc", Price = 150_000m, Duration = "40 phút", CategoryId = 10 },
+                new Service { Status = "Active", Name = "Hair Treatment", Description = "Dưỡng và phục hồi tóc hư tổn", Price = 300_000m, Duration = "60 phút", CategoryId = 10 },
+                new Service { Status = "Active", Name = "Hair Cut", Description = "Cắt tóc và tạo kiểu", Price = 200_000m, Duration = "45 phút", CategoryId = 10 },
+                new Service { Status = "Active", Name = "Hair Color", Description = "Nhuộm tóc theo màu yêu thích", Price = 400_000m, Duration = "90 phút", CategoryId = 10 },
+                new Service { Status = "Active", Name = "Keratin Treatment", Description = "Phục hồi tóc bằng liệu pháp keratin", Price = 500_000m, Duration = "100 phút", CategoryId = 10 }
             };
 
             // Thêm dịch vụ vào cơ sở dữ liệu
@@ -385,6 +397,7 @@ namespace Server.Data.SeedData
                     BranchPhone = "0123456789",
                     LongAddress = "106.7009",
                     LatAddress = "10.7769",
+                    Status = "Active",
                     ManagerId = 2, // ID của quản lý chi nhánh này
                     CompanyId = 1 // ID của công ty đã seed trước đó
                 },
@@ -395,6 +408,7 @@ namespace Server.Data.SeedData
                     BranchPhone = "0123456790",
                     LongAddress = "106.6834",
                     LatAddress = "10.7757",
+                    Status = "Active",
                     ManagerId = 3,
                     CompanyId = 1
                 },
@@ -405,6 +419,7 @@ namespace Server.Data.SeedData
                     BranchPhone = "0123456791",
                     LongAddress = "106.6665",
                     LatAddress = "10.7564",
+                    Status = "Active",
                     ManagerId = 4,
                     CompanyId = 1
                 },
@@ -415,6 +430,7 @@ namespace Server.Data.SeedData
                     BranchPhone = "0123456792",
                     LongAddress = "106.7505",
                     LatAddress = "10.8414",
+                    Status = "Active",
                     ManagerId = 5,
                     CompanyId = 1
                 },
@@ -425,6 +441,7 @@ namespace Server.Data.SeedData
                     BranchPhone = "0123456793",
                     LongAddress = "106.7038",
                     LatAddress = "10.8039",
+                    Status = "Active",
                     ManagerId = 6,
                     CompanyId = 1
                 }
@@ -434,6 +451,62 @@ namespace Server.Data.SeedData
             await _context.Branchs.AddRangeAsync(branches);
             await _context.SaveChangesAsync();
         }
+        
+        private async Task SeedPromotions()
+        {
+            var random = new Random();
+            
+            // Danh sách mẫu tên và mô tả khuyến mãi
+            var promotionNames = new[]
+            {
+                "Holiday Sale",
+                "Black Friday Discount",
+                "New Year Promotion",
+                "Summer Special Offer",
+                "Flash Sale",
+                "Clearance Discount",
+                "Buy More Save More"
+            };
+
+            var promotionDescriptions = new[]
+            {
+                "Get amazing discounts this holiday season!",
+                "Biggest sale of the year on Black Friday!",
+                "Celebrate the new year with exclusive offers!",
+                "Cool down this summer with hot discounts!",
+                "Limited time offer – don't miss out!",
+                "Clearance sale on selected items!",
+                "Buy more and save more with our special offer!"
+            };
+
+            var promotions = new List<Promotion>();
+
+            for (int i = 0; i < 20; i++) // Tạo 20 chương trình khuyến mãi
+            {
+                var isPercentage = random.Next(0, 2) == 1; // 50% xác suất là giảm giá theo % hoặc số tiền cố định
+                var discountAmount = isPercentage ? random.Next(5, 51) : random.Next(10000, 500001); // 5-50% hoặc 10,000 - 500,000
+
+                var startDate = DateTime.Now.AddDays(random.Next(-30, 1)); // Ngày bắt đầu trong khoảng 30 ngày trước đến hôm nay
+                var endDate = startDate.AddDays(random.Next(10, 31)); // Ngày kết thúc từ 10-30 ngày sau ngày bắt đầu
+
+                promotions.Add(new Promotion
+                {
+                    PromotionName = promotionNames[random.Next(promotionNames.Length)],
+                    PromotionDescription = promotionDescriptions[random.Next(promotionDescriptions.Length)],
+                    DiscountPercent = random.Next(10, 30),
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    Status = "Active",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                });
+            }
+
+            // Thêm danh sách promotions vào cơ sở dữ liệu
+            await _context.Promotions.AddRangeAsync(promotions);
+            await _context.SaveChangesAsync();
+        }
+
 
         private async Task SeedBranchProducts()
         {
@@ -457,6 +530,7 @@ namespace Server.Data.SeedData
                     {
                         BranchId = branch.BranchId,
                         ProductId = product.ProductId,
+                        Status = "Active",
                         StockQuantity = random.Next(5, 51), // Số lượng tồn kho từ 5 đến 50
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
@@ -493,6 +567,7 @@ namespace Server.Data.SeedData
                     {
                         BranchId = branch.BranchId,
                         ServiceId = service.ServiceId,
+                        Status = "Active",
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
                     };
@@ -505,8 +580,44 @@ namespace Server.Data.SeedData
             await _context.Branch_Services.AddRangeAsync(branchServices);
             await _context.SaveChangesAsync();
         }
+        
+        private async Task SeedBranchPromotions()
+        {
+            var random = new Random();
+    
+            // Lấy danh sách các chi nhánh và chương trình khuyến mãi
+            var branches = await _context.Branchs.ToListAsync();
+            var promotions = await _context.Promotions.ToListAsync();
 
+            var branchPromotions = new List<Branch_Promotion>();
 
+            foreach (var branch in branches)
+            {
+                // Chọn ngẫu nhiên số lượng chương trình khuyến mãi từ 5 đến 10 cho mỗi chi nhánh
+                int promotionCount = random.Next(5, 11);
+        
+                // Chọn ngẫu nhiên các chương trình khuyến mãi cho chi nhánh này
+                var selectedPromotions = promotions.OrderBy(x => random.Next()).Take(promotionCount);
+
+                foreach (var promotion in selectedPromotions)
+                {
+                    var branchPromotion = new Branch_Promotion
+                    {
+                        BranchId = branch.BranchId,
+                        PromotionId = promotion.PromotionId,
+                        Status = "Active", // Có thể là "Pending" hoặc trạng thái khác
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+            
+                    branchPromotions.Add(branchPromotion);
+                }
+            }
+
+            // Thêm danh sách branchPromotions vào cơ sở dữ liệu
+            await _context.Branch_Promotions.AddRangeAsync(branchPromotions);
+            await _context.SaveChangesAsync();
+        }
     }
 
     public static class DatabaseInitialiserExtension
