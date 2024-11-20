@@ -52,8 +52,6 @@ namespace Server.API
                 option.AddPolicy("CORS", builder =>
                     builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed((host) => true)));
 
-
-            builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloundSettings"));
             var app = builder.Build();
 
             // Hook into application lifetime events and trigger only application fully started 

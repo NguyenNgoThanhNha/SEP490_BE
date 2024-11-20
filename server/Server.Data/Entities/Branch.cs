@@ -19,6 +19,8 @@ public class Branch
     
     public string? LatAddress { get; set; }
     
+    public string? Status { get; set; }
+    
     [ForeignKey("ManagerBranch")]
     public int ManagerId { get; set; }
     public virtual User ManagerBranch { get; set; }

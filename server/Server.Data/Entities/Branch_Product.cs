@@ -16,6 +16,8 @@ public class Branch_Product
     public int BranchId { get; set; }
     public  Branch Branch { get; set; }
     
+    public string? Status { get; set; }
+    
     public int StockQuantity { get; set; } // Số lượng hàng tồn kho tại chi nhánh
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;

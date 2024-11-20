@@ -16,9 +16,9 @@ namespace Server.Business.Services
             var cloudSettings = cloundSettingsOptions.Value;
 
             Account account = new Account(
-                cloudSettings.CloundName,
-                cloudSettings.CloundKey,
-                cloudSettings.CloundSecret);
+                cloudSettings.CloudName,
+                cloudSettings.CloudKey,
+                cloudSettings.CloudSecret);
 
             _cloudinary = new Cloudinary(account);
             _cloudinary.Api.Secure = true;
