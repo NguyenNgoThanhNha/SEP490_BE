@@ -55,7 +55,7 @@ namespace Server.API.Extensions
             services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
 
             // cloud
-            /*services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));*/
+            services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));
 
             services.AddAuthorization();
 

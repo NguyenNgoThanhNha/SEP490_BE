@@ -202,6 +202,9 @@ namespace Server.Data.Migrations
                     b.Property<int>("ManagerId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
@@ -229,6 +232,12 @@ namespace Server.Data.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PromotionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
 
@@ -239,10 +248,45 @@ namespace Server.Data.Migrations
 
                     b.HasIndex("BranchId");
 
+                    b.HasIndex("PromotionId");
+
                     b.HasIndex("ProductId", "BranchId")
                         .IsUnique();
 
                     b.ToTable("Branch_Product", (string)null);
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Branch_Promotion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PromotionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("StockQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("PromotionId");
+
+                    b.ToTable("Branch_Promotion");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Branch_Service", b =>
@@ -259,6 +303,9 @@ namespace Server.Data.Migrations
 
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
@@ -516,6 +563,9 @@ namespace Server.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
@@ -526,6 +576,42 @@ namespace Server.Data.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Product");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Promotion", b =>
+                {
+                    b.Property<int>("PromotionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PromotionDescription")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PromotionName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("PromotionId");
+
+                    b.ToTable("Promotion");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
@@ -595,6 +681,9 @@ namespace Server.Data.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
@@ -1003,9 +1092,32 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Branch_Product_Product");
 
+                    b.HasOne("Server.Data.Entities.Promotion", null)
+                        .WithMany("Branch_Promotions")
+                        .HasForeignKey("PromotionId");
+
                     b.Navigation("Branch");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Branch_Promotion", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Branch", "Branch")
+                        .WithMany("Branch_Promotion")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.Promotion", "Promotion")
+                        .WithMany()
+                        .HasForeignKey("PromotionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Promotion");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Branch_Service", b =>
@@ -1204,6 +1316,8 @@ namespace Server.Data.Migrations
                 {
                     b.Navigation("Branch_Products");
 
+                    b.Navigation("Branch_Promotion");
+
                     b.Navigation("Branch_Services");
                 });
 
@@ -1222,6 +1336,11 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.Product", b =>
                 {
                     b.Navigation("Branch_Products");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Promotion", b =>
+                {
+                    b.Navigation("Branch_Promotions");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Service", b =>

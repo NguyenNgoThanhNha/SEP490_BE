@@ -13,6 +13,8 @@ public class Branch_Service
     public int BranchId { get; set; }
     public Branch Branch { get; set; }
     
+    public string? Status { get; set; }
+    
     public int ServiceId { get; set; }
     public Service Service { get; set; }
     

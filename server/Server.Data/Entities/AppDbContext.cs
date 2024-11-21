@@ -21,6 +21,7 @@ namespace Server.Data.Entities
         public DbSet<Category> Categorys { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Service> Services { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Appointments> Appointments { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -33,6 +34,7 @@ namespace Server.Data.Entities
         public DbSet<BlogRating> BlogRatings { get; set; }
         public DbSet<Branch_Service> Branch_Services { get; set; }
         public DbSet<Branch_Product> Branch_Products { get; set; }
+        public DbSet<Branch_Promotion> Branch_Promotions { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
         
       

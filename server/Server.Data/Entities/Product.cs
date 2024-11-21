@@ -17,6 +17,8 @@ public class Product
     public decimal Price { get; set; }
     
     public int Quantity { get; set; } // Số lượng hàng tồn kho tại công ty
+    
+    public string? Status { get; set; }
 
     public decimal? Discount { get; set; }
     

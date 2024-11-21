@@ -3,13 +3,14 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Server.Business.Dtos;
+using Server.Business.Ultils;
 
 namespace Server.Business.Services
 {
     public class CloudianryService
     {
         private readonly Cloudinary _cloudinary;
-        public CloudianryService(IOptions<CloudinarySettings> cloudinaryConfig)
+        public CloudianryService(IOptions<CloundSettings> cloudinaryConfig)
         {
             var account = new Account(
                 cloudinaryConfig.Value.CloudName,
