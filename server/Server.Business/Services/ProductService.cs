@@ -4,17 +4,9 @@ using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Models;
-using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Linq.Expressions;
 
 namespace Server.Business.Services
 {
@@ -30,6 +22,68 @@ namespace Server.Business.Services
             _mapper = mapper;
         }
 
+
+        public async Task<Pagination<Product>> GetListAsync(Expression<Func<Product, bool>> filter = null,
+                                    Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null,
+                                    string includeProperties = "",
+                                    int? pageIndex = null, // Optional parameter for pagination (page number)
+                                    int? pageSize = null)
+        {
+            IQueryable<Product> query = _context.Products;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            foreach (var includeProperty in includeProperties.Split
+                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            var totalItemsCount = await query.CountAsync();
+
+            if (pageIndex.HasValue && pageIndex.Value == -1)
+            {
+                pageSize = totalItemsCount; // Set pageSize to total count
+                pageIndex = 0; // Reset pageIndex to 0
+            }
+            else if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            var items = await query.Select(x => new Product
+            {
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                ProductDescription = x.ProductName,
+                Price = x.Price,
+                Quantity = x.Quantity,
+                Status = x.Status,
+                Discount = x.Discount,
+                CategoryId = x.CategoryId,
+                CompanyId = x.CompanyId,
+                CreatedDate = x.CreatedDate,
+                UpdatedDate = x.UpdatedDate,
+            }).ToListAsync();
+
+            return new Pagination<Product>
+            {
+                TotalItemsCount = totalItemsCount,
+                PageSize = pageSize ?? totalItemsCount,
+                PageIndex = pageIndex ?? 0,
+                Items = items
+            };
+        }
 
         public async Task<ApiResult<Product>> CreateProductAsync(ProductCreateDto productCreateDto)
         {

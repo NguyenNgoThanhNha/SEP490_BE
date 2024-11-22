@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
-using Server.Business.Dtos;
 using Server.Business.Middlewares;
 using Server.Business.Services;
 using Server.Data.Entities;
@@ -52,6 +51,11 @@ namespace Server.API
                 option.AddPolicy("CORS", builder =>
                     builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed((host) => true)));
 
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
             var app = builder.Build();
 
             // Hook into application lifetime events and trigger only application fully started 

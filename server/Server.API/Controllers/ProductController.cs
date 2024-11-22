@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Server.Business.Commons.Response;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Server.API.Extensions;
 using Server.Business.Commons;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
 using Server.Data.Entities;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Server.API.Controllers
 {
@@ -22,11 +22,57 @@ namespace Server.API.Controllers
             _context = context;
         }
 
+        [HttpGet("get-list")]
+        public async Task<IActionResult> GetList(string? productName,
+                        string? description,
+                        string? categoryName,
+                        string? companyName,
+                        decimal? price,
+                        decimal? endPrice,
+                        int? filterTypePrice = 0,
+                        int pageIndex = 0,
+                        int pageSize = 10)
+        {
+            Expression<Func<Product, bool>> filter = c => (string.IsNullOrEmpty(productName) || c.ProductName.ToLower().Contains(productName.ToLower()))
+                && (string.IsNullOrEmpty(description) || c.ProductDescription.ToLower().Contains(description.ToLower()))
+                && (string.IsNullOrEmpty(categoryName) || c.Category.Name.ToLower().Contains(categoryName.ToLower()))
+                && (string.IsNullOrEmpty(companyName) || c.Company.Name.ToLower().Contains(companyName.ToLower()));
+
+            Expression<Func<Product, bool>> priceFilter = null;
+            if (price != null && price > 0)
+            {
+                if (filterTypePrice == 0 && (endPrice != null && endPrice > 0)) // khoảng
+                {
+                    priceFilter = c => c.Price >= price && c.Price <= endPrice;
+                }
+                else if (filterTypePrice == 1) // nhỏ hơn
+                {
+                    priceFilter = c => c.Price <= price;
+                }
+                else  // lớn hơn
+                {
+                    priceFilter = c => c.Price >= price;
+                }
+                filter = filter.And(priceFilter);
+            }
+
+            var response = await _productService.GetListAsync(
+                filter: filter,
+                includeProperties: "Category,Company",
+                pageIndex: pageIndex,
+                pageSize: pageSize);
+
+            return Ok(new ApiResult<Pagination<Product>>
+            {
+                Success = true,
+                Result = response
+            });
+        }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
         {
-           
+
             if (productCreateDto == null)
             {
                 return BadRequest("Invalid product data.");
@@ -34,23 +80,23 @@ namespace Server.API.Controllers
 
             try
             {
-               
+
                 var result = await _productService.CreateProductAsync(productCreateDto);
 
                 if (result.Success)
                 {
-                   
+
                     return CreatedAtAction(nameof(GetProductById), new { productId = result.Result.ProductId }, result);
                 }
                 else
                 {
-                   
+
                     return BadRequest(result.Result?.ProductName);
                 }
             }
             catch (Exception ex)
             {
-                
+
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
@@ -58,16 +104,16 @@ namespace Server.API.Controllers
         [HttpGet("{productId}")]
         public async Task<IActionResult> GetProductById(int productId)
         {
-          
+
             var product = await _productService.GetProductByIdAsync(productId);
 
             if (product == null)
             {
-               
+
                 return NotFound($"Product with ID {productId} not found.");
             }
 
-           
+
             var productDto = new ProductDto
             {
                 ProductId = product.ProductId,
@@ -105,10 +151,10 @@ namespace Server.API.Controllers
         {
             try
             {
-               
+
                 var filteredProducts = await _productService.FilterProductAsync(productName, productDescription, price, quantity, discount, categoryName, companyName);
 
-              
+
                 if (filteredProducts == null || !filteredProducts.Any())
                 {
                     return NotFound("No products found matching the filter criteria.");
@@ -134,10 +180,10 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-                
+
                 Console.WriteLine($"An error occurred: {ex.Message}");
 
-               
+
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
@@ -150,16 +196,16 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<string>.Error("Invalid model state"));
             }
 
-           
+
             var result = await _productService.UpdateProductAsync(productId, productUpdateDto);
 
-           
+
             if (!result.Success)
             {
                 return BadRequest(ApiResult<ProductDetailDto>.Error(null));
             }
 
-           
+
             var product = result.Result;
             var productDetailDto = new ProductDetailDto
             {
@@ -182,7 +228,7 @@ namespace Server.API.Controllers
                 UpdatedDate = product.UpdatedDate
             };
 
-            
+
             return Ok(ApiResult<ProductDetailDto>.Succeed(productDetailDto));
         }
 
