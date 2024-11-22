@@ -84,16 +84,20 @@ public class PromotionService
         if (!request.PromotionName.Equals(null))
         {
             promotionModel.PromotionName = request.PromotionName;
-        }else if (!request.PromotionDescription.Equals(null))
+        }
+        if (!request.PromotionDescription.Equals(null))
         {
             promotionModel.PromotionDescription = request.PromotionDescription;
-        }else if (!request.DiscountPercent.Equals(null))
+        }
+        if (!request.DiscountPercent.Equals(null))
         {
             promotionModel.DiscountPercent = request.DiscountPercent;
-        }else if (!request.StartDate.Equals(null))
+        }
+        if (!request.StartDate.Equals(null))
         {
             promotionModel.StartDate = request.StartDate;
-        }else if (!request.EndDate.Equals(null))
+        }
+        if (!request.EndDate.Equals(null))
         {
             promotionModel.EndDate = request.EndDate;
         }

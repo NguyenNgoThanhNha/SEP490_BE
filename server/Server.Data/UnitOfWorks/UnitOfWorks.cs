@@ -11,6 +11,8 @@ namespace Server.Data.UnitOfWorks
         private UserRoleRepository _userRoleRepo;
         private ServiceRepository _serviceRepo;
         private PromotionRepository _promotionRepo;
+        private BranchPromotionRepository _branchpromotionRepo;
+        private BranchRepository _branchRepo;
 
 
         public UnitOfWorks(AppDbContext dbContext)
@@ -41,6 +43,16 @@ namespace Server.Data.UnitOfWorks
         public PromotionRepository PromotionRepository
         {
             get { return _promotionRepo ??= new PromotionRepository(_dbContext); }
+        }
+        
+        public BranchPromotionRepository BranchPromotionRepository
+        {
+            get { return _branchpromotionRepo ??= new BranchPromotionRepository(_dbContext); }
+        }
+        
+        public BranchRepository BranchRepository
+        {
+            get { return _branchRepo ??= new BranchRepository(_dbContext); }
         }
     }
 }

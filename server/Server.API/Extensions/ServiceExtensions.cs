@@ -104,6 +104,7 @@ namespace Server.API.Extensions
             services.AddScoped<UserService>();
             services.AddScoped<MailService>();
             services.AddScoped<PromotionService>();
+            services.AddScoped<BranchPromotionService>();
             services.AddScoped<CloudianryService>();
 
             return services;

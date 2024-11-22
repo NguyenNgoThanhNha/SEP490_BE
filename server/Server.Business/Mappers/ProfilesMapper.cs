@@ -18,6 +18,12 @@ namespace Server.Business.Mappers
             CreateMap<Promotion, PromotionModel>().ReverseMap();
             CreateMap<Promotion, PromotionDTO>().ReverseMap();
             CreateMap<PromotionModel, PromotionDTO>().ReverseMap();
+            CreateMap<Branch, BranchModel>().ReverseMap();
+            CreateMap<Branch, BranchDTO>().ReverseMap();
+            CreateMap<BranchModel, BranchDTO>().ReverseMap();
+            CreateMap<Branch_Promotion, BranchPromotionModel>().ReverseMap();
+            CreateMap<Branch_Promotion, BranchPromotionDTO>().ReverseMap();
+            CreateMap<BranchPromotionModel, BranchPromotionDTO>().ReverseMap();
         }
     }
 }
