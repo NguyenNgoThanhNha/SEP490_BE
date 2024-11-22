@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
-using Server.Business.Dtos;
 using Server.Business.Middlewares;
 using Server.Business.Services;
 using Server.Data.Entities;
