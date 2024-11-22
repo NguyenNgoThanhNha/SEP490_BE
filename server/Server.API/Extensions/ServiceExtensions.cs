@@ -33,9 +33,7 @@ namespace Server.API.Extensions
 
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
-
-
-
+            
             // jwt
             var jwtSettings = configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
             services.Configure<JwtSettings>(configuration.GetSection(nameof(JwtSettings)));
@@ -105,6 +103,7 @@ namespace Server.API.Extensions
             services.AddScoped<AuthService>();
             services.AddScoped<UserService>();
             services.AddScoped<MailService>();
+            services.AddScoped<PromotionService>();
             services.AddScoped<CloudianryService>();
 
             return services;

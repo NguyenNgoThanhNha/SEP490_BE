@@ -15,7 +15,9 @@ namespace Server.Business.Mappers
             CreateMap<Service, ServiceModel>().ReverseMap();
             CreateMap<Service, ServiceDto>().ReverseMap();
             CreateMap<ServiceModel, ServiceDto>().ReverseMap();
-
+            CreateMap<Promotion, PromotionModel>().ReverseMap();
+            CreateMap<Promotion, PromotionDTO>().ReverseMap();
+            CreateMap<PromotionModel, PromotionDTO>().ReverseMap();
         }
     }
 }
