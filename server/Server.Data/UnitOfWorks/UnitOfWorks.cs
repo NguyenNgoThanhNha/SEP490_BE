@@ -10,6 +10,9 @@ namespace Server.Data.UnitOfWorks
         private AuthRepository _authRepo;
         private UserRoleRepository _userRoleRepo;
         private ServiceRepository _serviceRepo;
+        private PromotionRepository _promotionRepo;
+        private BranchPromotionRepository _branchpromotionRepo;
+        private BranchRepository _branchRepo;
         private ProductRepository _productRepo;
         private CategoryRepository _categoryRepo;
 
