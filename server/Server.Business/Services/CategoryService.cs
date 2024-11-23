@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
@@ -7,11 +6,7 @@ using Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace Server.Business.Services
 {
@@ -26,6 +21,48 @@ namespace Server.Business.Services
             _context = context;
             this.unitOfWorks = unitOfWorks;
             _mapper = mapper;
+        }
+
+        public async Task<Pagination<Category>> GetListAsync(Expression<Func<Category, bool>> filter = null,
+                                    Func<IQueryable<Category>, IOrderedQueryable<Category>> orderBy = null,
+                                    int? pageIndex = null, // Optional parameter for pagination (page number)
+                                    int? pageSize = null)
+        {
+            IQueryable<Category> query = _context.Categorys;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            var totalItemsCount = await query.CountAsync();
+
+            if (pageIndex.HasValue && pageIndex.Value == -1)
+            {
+                pageSize = totalItemsCount; // Set pageSize to total count
+                pageIndex = 0; // Reset pageIndex to 0
+            }
+            else if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            var items = await query.ToListAsync();
+
+            return new Pagination<Category>
+            {
+                TotalItemsCount = totalItemsCount,
+                PageSize = pageSize ?? totalItemsCount,
+                PageIndex = pageIndex ?? 0,
+                Items = items
+            };
         }
 
         public async Task<ApiResult<Category>> CreateCategoryAsync(CategoryCreateDto categoryCreateDto)
@@ -101,13 +138,13 @@ namespace Server.Business.Services
             {
                 const int pageSize = 4;
 
-                var categories = await unitOfWorks.CategoryRepository.GetAll()                  
+                var categories = await unitOfWorks.CategoryRepository.GetAll()
                     .ToListAsync();
 
                 var totalCount = categories.Count();
                 var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
                 var pagedCategories = categories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-                var categoryModels = _mapper.Map<List<CategoryModel>>(pagedCategories);               
+                var categoryModels = _mapper.Map<List<CategoryModel>>(pagedCategories);
                 return new GetAllCategoryPaginationResponse
                 {
                     data = categoryModels,

@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Server.Business.Commons.Response;
+﻿using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
 using Server.Data.Entities;
@@ -18,6 +17,22 @@ namespace Server.API.Controllers
         {
             _categoryService = categoryService;
             _context = context;
+        }
+
+        [HttpGet("get-list")]
+        public async Task<IActionResult> GetList(string? name, string? description, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _categoryService.GetListAsync(
+                filter: c => (string.IsNullOrEmpty(name) || c.Name.ToLower().Contains(name.ToLower()))
+                && (string.IsNullOrEmpty(description) || c.Description.ToLower().Contains(description.ToLower())),
+                pageIndex: pageIndex,
+                pageSize: pageSize);
+
+            return Ok(new ApiResult<Pagination<Category>>
+            {
+                Success = true,
+                Result = response
+            });
         }
 
 
