@@ -50,5 +50,20 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _categoryRepo ??= new CategoryRepository(_dbContext); }
         }
+
+        public PromotionRepository PromotionRepository
+        {
+            get { return _promotionRepo ??= new PromotionRepository(_dbContext); }
+        }
+
+        public BranchPromotionRepository BranchPromotionRepository
+        {
+            get { return _branchpromotionRepo ??= new BranchPromotionRepository(_dbContext); }
+        }
+
+        public BranchRepository BranchRepository
+        {
+            get { return _branchRepo ??= new BranchRepository(_dbContext); }
+        }
     }
 }
