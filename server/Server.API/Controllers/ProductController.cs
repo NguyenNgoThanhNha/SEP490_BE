@@ -176,7 +176,10 @@ namespace Server.API.Controllers
 
 
 
-                return Ok(ApiResult<List<ProductDto>>.Succeed(result));
+                return Ok(ApiResult<FilterProductResponse>.Succeed(new FilterProductResponse()
+                {
+                    data = result
+                }));
             }
             catch (Exception ex)
             {
