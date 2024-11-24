@@ -22,7 +22,7 @@ public class BranchPromotionService
 
     public async Task<GetAllBranchPromotionResponse> GetAllBranchPromotion(int page = 1, int pageSize = 5)
     {
-        var listBranchPromotion = await _unitOfWorks.BranchPromotionRepository.GetAll().Include(x =>x.Promotion).Include(x=>x.Branch).OrderByDescending(x =>x.Id).ToListAsync();
+        var listBranchPromotion = await _unitOfWorks.BranchPromotionRepository.FindByCondition(x=> x.Status == "Active").Include(x =>x.Promotion).Include(x=>x.Branch).OrderByDescending(x =>x.Id).ToListAsync();
         if (listBranchPromotion.Equals(null))
         {
             return null;
