@@ -23,7 +23,7 @@ public class PromotionService
 
     public async Task<GetAllPromotionResponse> GetAllPromotion(int page = 1, int pageSize = 5)
     {
-        var listPromotion = await _unitOfWorks.PromotionRepository.GetAll().OrderByDescending(x => x.PromotionId).ToListAsync();
+        var listPromotion = await _unitOfWorks.PromotionRepository.FindByCondition(x => x.Status == "Active").OrderByDescending(x => x.PromotionId).ToListAsync();
         if (listPromotion.Equals(null))
         {
             return null;
