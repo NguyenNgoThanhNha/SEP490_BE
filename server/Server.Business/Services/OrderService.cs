@@ -66,7 +66,7 @@ namespace Server.Business.Services
                 TotalItemsCount = totalItemsCount,
                 PageSize = pageSize ?? totalItemsCount,
                 PageIndex = pageIndex ?? 0,
-                Items = items
+                Data = items
             };
         }
     }
