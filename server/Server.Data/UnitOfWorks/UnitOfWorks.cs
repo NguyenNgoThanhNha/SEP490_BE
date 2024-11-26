@@ -10,6 +10,9 @@ namespace Server.Data.UnitOfWorks
         private AuthRepository _authRepo;
         private UserRoleRepository _userRoleRepo;
         private ServiceRepository _serviceRepo;
+        private PromotionRepository _promotionRepo;
+        private BranchPromotionRepository _branchpromotionRepo;
+        private BranchRepository _branchRepo;
         private ProductRepository _productRepo;
         private CategoryRepository _categoryRepo;
 
@@ -22,12 +25,12 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _userRepo ??= new UserRepository(_dbContext); }
         }
-        
+
         public AuthRepository AuthRepository
         {
             get { return _authRepo ??= new AuthRepository(_dbContext); }
         }
-        
+
         public UserRoleRepository UserRoleRepository
         {
             get { return _userRoleRepo ??= new UserRoleRepository(_dbContext); }
@@ -46,6 +49,21 @@ namespace Server.Data.UnitOfWorks
         public CategoryRepository CategoryRepository
         {
             get { return _categoryRepo ??= new CategoryRepository(_dbContext); }
+        }
+
+        public PromotionRepository PromotionRepository
+        {
+            get { return _promotionRepo ??= new PromotionRepository(_dbContext); }
+        }
+
+        public BranchPromotionRepository BranchPromotionRepository
+        {
+            get { return _branchpromotionRepo ??= new BranchPromotionRepository(_dbContext); }
+        }
+
+        public BranchRepository BranchRepository
+        {
+            get { return _branchRepo ??= new BranchRepository(_dbContext); }
         }
     }
 }

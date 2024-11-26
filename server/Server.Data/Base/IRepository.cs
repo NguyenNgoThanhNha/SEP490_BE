@@ -6,7 +6,7 @@ namespace Server.Data.Base
     {
         IQueryable<TEntity> GetAll();
         IQueryable<TEntity> FindByCondition(Expression<Func<TEntity, bool>> predicate);
-        TEntity? FirstOrDefault(Expression<Func<TEntity, bool>> predicate);
+        Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity?> GetByIdAsync(TKey id);
         Task<TEntity?> GetByIdCompositeKeyAsync(TKey id1, TKey id2);
         Task<TEntity> AddAsync(TEntity entity);

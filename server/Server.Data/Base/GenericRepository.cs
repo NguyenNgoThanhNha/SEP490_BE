@@ -17,12 +17,12 @@ namespace Server.Data.Base
         }
 
         public IQueryable<TEntity> GetAll()
-            => _dbSet;
+            => _dbSet.AsNoTracking();
 
         public IQueryable<TEntity> FindByCondition(Expression<Func<TEntity, bool>> predicate)
-            => _dbSet.Where(predicate);
+            => _dbSet.AsNoTracking().Where(predicate);
 
-        public TEntity? FirstOrDefault(Expression<Func<TEntity, bool>> predicate) => _dbSet.FirstOrDefault(predicate);
+        public async Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate) => await _dbSet.AsNoTracking().FirstOrDefaultAsync(predicate);
 
         public async Task<TEntity?> GetByIdAsync(TKey id)
             => await _dbSet.FindAsync(id);
