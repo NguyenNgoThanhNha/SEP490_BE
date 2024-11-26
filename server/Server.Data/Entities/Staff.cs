@@ -11,11 +11,13 @@ public class Staff
 
     [ForeignKey("StaffInfo")]
     public int UserId { get; set; }
-    
+
+    [ForeignKey("Branch")]
     public int BranchId { get; set; }
-    
+
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
     public virtual User StaffInfo { get; set; }
+    public virtual Branch Branch { get; set; }
 }
