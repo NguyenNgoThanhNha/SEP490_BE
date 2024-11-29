@@ -172,6 +172,7 @@ namespace Server.Business.Services;
                 Avatar = req.Avatar,
                 OTPCode = "0",
                 TypeLogin = "Google",
+                Status = "Active",
                 CreateDate = DateTimeOffset.Now,
                 BirthDate = DateTime.Now,
                 RoleID = req.TypeAccount == "Admin" ? 1 : req.TypeAccount == "Manager" ? 2 : req.TypeAccount == "Customer" ? 3 : req.TypeAccount == "Staff" ? 4 : 3
@@ -200,6 +201,71 @@ namespace Server.Business.Services;
                 Token = null
             };
         }
+        
+        
+        public async Task<LoginResult> SignInWithFacebook(LoginWithGGRequest req)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            SecurityToken refreshToken = null;
+            var user = _unitOfWorks.AuthRepository.FindByCondition(u => u.Email.ToLower() == req.Email.ToLower()).FirstOrDefault();
+
+            if (user != null)
+            {
+                refreshToken = CreateJwtToken(user, false);
+                user.RefreshToken =  handler.WriteToken(refreshToken);
+                // Generate JWT or another token here if needed.
+                _unitOfWorks.UserRepository.Update(user);
+                var resultExist =  await _unitOfWorks.UserRepository.Commit();
+                if (resultExist > 0)
+                {
+                    return new LoginResult
+                    {
+                        Authenticated = true,
+                        Token = CreateJwtToken(user, true),
+                        Refresh = refreshToken
+                    };
+                }
+            }
+
+            var userModel = new UserModel
+            {
+                Email = req.Email,
+                FullName = req.FullName,
+                UserName = req.UserName,
+                Password = SecurityUtil.Hash("123456"),
+                Avatar = req.Avatar,
+                Status = "Active",
+                OTPCode = "0",
+                TypeLogin = "Facebook",
+                CreateDate = DateTimeOffset.Now,
+                BirthDate = DateTime.Now,
+                RoleID = req.TypeAccount == "Admin" ? 1 : req.TypeAccount == "Manager" ? 2 : req.TypeAccount == "Customer" ? 3 : req.TypeAccount == "Staff" ? 4 : 3
+            };
+            
+            var userRegister = _mapper.Map<User>(userModel);
+            refreshToken = CreateJwtToken(userRegister, false);
+            userRegister.RefreshToken =  handler.WriteToken(refreshToken);
+            
+            await _unitOfWorks.UserRepository.AddAsync(userRegister);
+            int result = await _unitOfWorks.UserRepository.Commit();
+
+            if (result > 0)
+            {
+                // Generate JWT or another token here if needed.
+                return new LoginResult
+                {
+                    Authenticated = true,
+                    Token = CreateJwtToken(userRegister, true)
+                };
+            }
+
+            return new LoginResult
+            {
+                Authenticated = false,
+                Token = null
+            };
+        }
+
 
 
         public async Task<UserModel> GetUserByEmail(string email)
