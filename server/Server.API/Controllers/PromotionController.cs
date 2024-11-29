@@ -46,7 +46,7 @@ namespace Server.API.Controllers
         public async Task<IActionResult> GetByPromotionId([FromRoute] int id)
         {
             var promotionModel = await _promotionService.GetPromotionById(id);
-            if (promotionModel.Equals(null))
+            if (promotionModel == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {

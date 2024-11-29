@@ -15,6 +15,8 @@ namespace Server.Data.UnitOfWorks
         private BranchRepository _branchRepo;
         private ProductRepository _productRepo;
         private CategoryRepository _categoryRepo;
+        private AppointmentsRepository _apointmentRepo;
+        private StaffRepository _staffRepo;
 
         public UnitOfWorks(AppDbContext dbContext)
         {
@@ -64,6 +66,16 @@ namespace Server.Data.UnitOfWorks
         public BranchRepository BranchRepository
         {
             get { return _branchRepo ??= new BranchRepository(_dbContext); }
+        }
+        
+        public AppointmentsRepository AppointmentsRepository
+        {
+            get { return _apointmentRepo ??= new AppointmentsRepository(_dbContext); }
+        }
+        
+        public StaffRepository StaffRepository
+        {
+            get { return _staffRepo ??= new StaffRepository(_dbContext); }
         }
     }
 }
