@@ -308,6 +308,40 @@ namespace Server.API.Controllers
                 message = "Error in login with Google!"
             }));
         }
+        
+        [AllowAnonymous]
+        [HttpPost("login-facebook")]
+        public async Task<IActionResult> LoginWithFaceBook([FromBody] LoginWithGGRequest req)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<List<string>>.Error(errors));
+            }
+
+            var loginResult = await authService.SignInWithFacebook(req);
+
+            if (loginResult.Authenticated)
+            {
+                var handler = new JwtSecurityTokenHandler();
+                
+                var res = new ApiResponse()
+                {
+                    message = "Sign In Successfully",
+                    data = handler.WriteToken(loginResult.Token)
+                };
+                return Ok(ApiResult<ApiResponse>.Succeed(res));
+            }
+
+            return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+            {
+                message = "Error in login with Google!"
+            }));
+        }
 
         [HttpPost("forget-password")]
         public async Task<IActionResult> ForgotPassword([FromQuery] string email)
