@@ -51,7 +51,7 @@ public class PromotionService
     public async Task<PromotionModel> GetPromotionById(int id)
     {
         var promotionExist = await _unitOfWorks.PromotionRepository.FirstOrDefaultAsync(x => x.PromotionId.Equals(id));
-        if (promotionExist.Equals(null))
+        if (promotionExist == null)
         {
             return null;
         }

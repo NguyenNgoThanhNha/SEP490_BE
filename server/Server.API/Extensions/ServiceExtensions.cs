@@ -108,6 +108,7 @@ namespace Server.API.Extensions
             services.AddScoped<CloudianryService>();
             services.AddScoped<ProductService>();
             services.AddScoped<CategoryService>();
+            services.AddScoped<AppointmentsService>();
 
             return services;
         }

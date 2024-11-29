@@ -66,7 +66,7 @@ namespace Server.API.Controllers
         public async Task<IActionResult> GetByPromotionId([FromRoute] int id)
         {
             var branchPromotionModel = await _branchPromotionService.GetBranchPromotionById(id);
-            if (branchPromotionModel.Equals(null))
+            if (branchPromotionModel == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
