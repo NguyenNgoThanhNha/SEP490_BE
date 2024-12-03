@@ -124,7 +124,7 @@ namespace Server.Data.SeedData
                 {
                     await SeedBranchPromotions();
                 }
-                
+
                 // Staff
                 if (!_context.Staffs.Any())
                 {
@@ -190,7 +190,7 @@ namespace Server.Data.SeedData
             users.Add(admin);
 
             // Manager
-// Thêm 5 người quản lý
+            // Thêm 5 người quản lý
             for (int i = 1; i <= 5; i++)
             {
                 var manager = new User

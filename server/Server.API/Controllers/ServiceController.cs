@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Server.API.Extensions;
-using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
@@ -56,11 +55,7 @@ namespace Server.API.Controllers
                 filter: filter,
                 pageIndex: pageIndex,
                 pageSize: pageSize);
-            return Ok(new ApiResult<Pagination<Service>>
-            {
-                Success = true,
-                Result = response
-            });
+            return Ok(ApiResponse.Succeed(response));
         }
 
 
@@ -68,7 +63,7 @@ namespace Server.API.Controllers
         public async Task<IActionResult> Get([FromQuery] int page = 1)
         {
             var services = await _serviceService.GetAllService(page);
-            return Ok(ApiResult<GetAllServicePaginationResponse>.Succeed(new GetAllServicePaginationResponse()
+            return Ok(ApiResponse.Succeed(new GetAllServicePaginationResponse()
             {
                 data = services.data,
                 pagination = services.pagination
@@ -82,20 +77,13 @@ namespace Server.API.Controllers
             {
                 var service = await _serviceService.GetServiceByIdAsync(id);
                 if (service == null)
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Service not found."
-                    }));
+                    return NotFound(ApiResponse.Error("Service not found."));
 
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    message = "Service retrieved successfully.",
-                    data = service
-                }));
+                return Ok(ApiResponse.Succeed(service, "Service retrieved successfully."));
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResult<object>.Fail(ex));
+                return BadRequest(ApiResponse.Error(ex.Message));
             }
         }
 
@@ -111,23 +99,19 @@ namespace Server.API.Controllers
                         .Select(e => e.ErrorMessage)
                         .ToList();
 
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Validation failed",
-                        data = errors
-                    }));
+                    return BadRequest(ApiResponse.Error(string.Join(", ", errors)));
                 }
 
                 var service = await _serviceService.CreateServiceAsync(serviceDto);
-                return CreatedAtAction(nameof(GetServiceById), new { id = service.ServiceId }, ApiResult<ApiResponse>.Succeed(new ApiResponse
+                return CreatedAtAction(nameof(GetServiceById), new { id = service.ServiceId }, new ApiResponse
                 {
                     message = "Service created successfully.",
                     data = service
-                }));
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResult<object>.Fail(ex));
+                return BadRequest(ApiResponse.Error(ex.Message));
             }
         }
 
@@ -143,30 +127,30 @@ namespace Server.API.Controllers
                         .Select(e => e.ErrorMessage)
                         .ToList();
 
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return BadRequest(new ApiResponse
                     {
                         message = "Validation failed",
                         data = errors
-                    }));
+                    });
                 }
 
                 // Bỏ qua kiểm tra ServiceId trong body
                 var updatedService = await _serviceService.UpdateServiceAsync(serviceDto, serviceId);
                 if (updatedService == null)
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return NotFound(new ApiResponse
                     {
                         message = "Service not found."
-                    }));
+                    });
 
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                return Ok(new ApiResponse
                 {
                     message = "Service updated successfully.",
                     data = updatedService
-                }));
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResult<object>.Fail(ex));
+                return BadRequest(ApiResponse.Error(ex.Message));
             }
         }
 
@@ -177,20 +161,20 @@ namespace Server.API.Controllers
             {
                 var deletedService = await _serviceService.DeleteServiceAsync(serviceId);
                 if (deletedService == null)
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return NotFound(new ApiResponse
                     {
                         message = "Service not found."
-                    }));
+                    });
 
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                return Ok(new ApiResponse
                 {
                     message = "Service deleted successfully.",
                     data = new { ServiceId = deletedService.ServiceId } // Trả về ServiceId đã xóa
-                }));
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResult<object>.Fail(ex));
+                return BadRequest(ApiResponse.Error(ex.Message));
             }
         }
     }

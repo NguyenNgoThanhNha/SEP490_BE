@@ -1,10 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Common;
 using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
@@ -13,6 +9,7 @@ using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Business.Services;
 using Server.Business.Ultils;
+using System.IdentityModel.Tokens.Jwt;
 using LoginRequest = Server.Business.Commons.Request.LoginRequest;
 using Token = Server.Business.Ultils.Token;
 
@@ -45,14 +42,11 @@ namespace Server.API.Controllers
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResult<List<string>>.Error(errors));
+                return BadRequest(ApiResponse.Error(string.Join(", ", errors)));
             }
             if (req.TypeAccount == null)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = "Please select type account"
-                }));
+                return BadRequest(ApiResponse.Error("Please select type account"));
             }
             var otp = 0;
             var Password = req.Password;
@@ -61,18 +55,12 @@ namespace Server.API.Controllers
             var user = await authService.GetUserByEmail(email);
             if (user != null && user.OTPCode == "0")
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = "Account Already Exists"
-                }));
+                return BadRequest(ApiResponse.Error("Account Already Exists"));
             }
 
             if (user != null && user.CreateDate > DateTime.Now && user.OTPCode != "0")
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = "OTP Code is not expired"
-                }));
+                return BadRequest(ApiResponse.Error("OTP Code is not expired"));
             }
 
             if (user == null)
@@ -95,13 +83,10 @@ namespace Server.API.Controllers
                 };
 
 
-                var result = await mailService.SendEmailAsync(mailData , false);
+                var result = await mailService.SendEmailAsync(mailData, false);
                 if (!result)
                 {
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Send Email Fail",
-                    }));
+                    return BadRequest(ApiResponse.Error("Send Email Fail"));
                 }
             }
             var createUserModel = new UserModel
@@ -137,17 +122,11 @@ namespace Server.API.Controllers
                 var rsUpdate = await mailService.SendEmailAsync(mailUpdateData, false);
                 if (!rsUpdate)
                 {
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Send Email Fail",
-                    }));
+                    return BadRequest(ApiResponse.Error("Send Email Fail"));
                 }
             }
 
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-            {
-                message = "Check Email and Verify OTP",
-            }));
+            return Ok(ApiResponse.Succeed(null, "Check Email and Verify OTP"));
         }
 
         [HttpPost("submit-otp")]
@@ -160,17 +139,17 @@ namespace Server.API.Controllers
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResult<List<string>>.Error(errors));
+                return BadRequest(ApiResponse.Error(string.Join(", ", errors)));
             }
             var result = await authService.SubmitOTP(req);
             if (!result)
             {
                 throw new BadRequestException("OTP Code is not Correct");
             }
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            return Ok(new ApiResponse
             {
                 message = $"Verify Account Success for email: {req.Email}"
-            }));
+            });
         }
 
 
@@ -184,25 +163,25 @@ namespace Server.API.Controllers
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResult<List<string>>.Error(errors));
+                return BadRequest(ApiResponse.Error(string.Join(", ", errors)));
             }
             var user = await authService.GetUserByEmail(email);
             if (user == null)
             {
-                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                return NotFound(new ApiResponse
                 {
                     message = "User Not Found"
-                }));
+                });
             }
 
             else
             {
                 DateTimeOffset utcTime = DateTimeOffset.Parse(user.CreateDate.ToString());
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                return Ok(new ApiResponse
                 {
                     message = "Success",
                     data = utcTime
-                }));
+                });
 
             }
         }
@@ -218,28 +197,28 @@ namespace Server.API.Controllers
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResult<List<string>>.Error(errors));
+                return BadRequest(ApiResponse.Error(string.Join(", ", errors)));
             }
 
             var loginResult = await authService.SignIn(req.email, req.password);
             if (loginResult.Token == null)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return BadRequest(new ApiResponse()
                 {
                     message = "Username or password is invalid"
-                }));
+                });
             }
-            
+
             var handler = new JwtSecurityTokenHandler();
-            
+
             var res = new ApiResponse()
             {
                 message = "Sign In Successfully",
                 data = handler.WriteToken(loginResult.Token)
             };
-            return Ok(ApiResult<ApiResponse>.Succeed(res));
+            return Ok(res);
         }
-        
+
         [AllowAnonymous]
         [HttpPost("login-mobile")]
         public async Task<IActionResult> LoginMobile([FromBody] LoginRequest req)
@@ -251,18 +230,18 @@ namespace Server.API.Controllers
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResult<List<string>>.Error(errors));
+                return BadRequest(ApiResponse.Error(string.Join(", ", errors)));
             }
 
             var loginResult = await authService.SignIn(req.email, req.password);
             if (loginResult.Token == null)
             {
-                var result = ApiResult<Dictionary<string, string[]>>.Fail(new Exception("Username or password is invalid"));
+                var result = ApiResponse.Error("Username or password is invalid");
                 return BadRequest(result);
             }
-            
+
             var handler = new JwtSecurityTokenHandler();
-            
+
             var res = new ApiResponse
             {
                 message = "Sign In Successfully",
@@ -272,7 +251,7 @@ namespace Server.API.Controllers
                     refreshToken = handler.WriteToken(loginResult.Refresh)
                 }
             };
-            return Ok(ApiResult<ApiResponse>.Succeed(res));
+            return Ok(res);
         }
 
         [AllowAnonymous]
@@ -286,7 +265,7 @@ namespace Server.API.Controllers
                     .Select(e => e.ErrorMessage)
                     .ToList();
 
-                return BadRequest(ApiResult<List<string>>.Error(errors));
+                return BadRequest(ApiResponse.Error(string.Join(", ", errors)));
             }
 
             var loginResult = await authService.SignInWithGG(req);
@@ -294,19 +273,19 @@ namespace Server.API.Controllers
             if (loginResult.Authenticated)
             {
                 var handler = new JwtSecurityTokenHandler();
-                
+
                 var res = new ApiResponse()
                 {
                     message = "Sign In Successfully",
                     data = handler.WriteToken(loginResult.Token)
                 };
-                return Ok(ApiResult<ApiResponse>.Succeed(res));
+                return Ok(res);
             }
 
-            return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+            return BadRequest(new ApiResponse
             {
                 message = "Error in login with Google!"
-            }));
+            });
         }
         
         [AllowAnonymous]
@@ -348,28 +327,28 @@ namespace Server.API.Controllers
         {
             if (string.IsNullOrEmpty(email))
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Invalid request data!"
-                }));
+                });
             }
 
             var user = await authService.GetUserByEmail(email);
             if (user == null)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Account not found!"
-                }));
+                });
             }
 
             var result = await authService.ForgotPass(user);
             if (result == null)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Failed to generate OTP!"
-                }));
+                });
             }
 
             var mailUpdateData = new MailData()
@@ -388,16 +367,16 @@ namespace Server.API.Controllers
             var rsUpdate = await mailService.SendEmailAsync(mailUpdateData, false);
             if (!rsUpdate)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Failed to send email!"
-                }));
+                });
             }
 
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            return Ok(new ApiResponse
             {
                 message = "OTP sent successfully!"
-            }));
+            });
         }
 
         [HttpPost("update-password")]
@@ -405,35 +384,35 @@ namespace Server.API.Controllers
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(req.Password) || string.IsNullOrEmpty(req.ConfirmPassword))
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Invalid request data!"
-                }));
+                });
             }
 
             if (req.Password != req.ConfirmPassword)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Passwords do not match!"
-                }));
+                });
             }
 
             var result = await authService.UpdatePass(email, req.Password);
 
             if (result)
             {
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                return Ok(new ApiResponse
                 {
                     message = "Password updated successfully!"
-                }));
+                });
             }
             else
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Failed to update password! Please make sure verify otp code to update new password!"
-                }));
+                });
             }
         }
 
@@ -442,27 +421,27 @@ namespace Server.API.Controllers
         {
             if (string.IsNullOrEmpty(email))
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Invalid request data!"
-                }));
+                });
             }
 
             var user = await authService.GetUserByEmail(email);
             if (user == null)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Account not found!"
-                }));
+                });
             }
-            
+
             if (user != null && user.CreateDate > DateTime.Now && user.OTPCode != "0")
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "OTP Code is not expired"
-                }));
+                });
             }
 
             var result = await authService.ResendOtp(email);
@@ -486,25 +465,25 @@ namespace Server.API.Controllers
                 var emailSent = await mailService.SendEmailAsync(mailData, false);
                 if (emailSent)
                 {
-                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                    return Ok(new ApiResponse
                     {
                         message = "OTP resent successfully!"
-                    }));
+                    });
                 }
                 else
                 {
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return BadRequest(new ApiResponse
                     {
                         message = "Failed to send email!"
-                    }));
+                    });
                 }
             }
             else
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Failed to resend OTP!"
-                }));
+                });
             }
         }
 
@@ -514,12 +493,12 @@ namespace Server.API.Controllers
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Authorization header is missing."
-                }));
+                });
             }
-            
+
             // Chia tách token
             var tokenValue = token.ToString().Split(' ')[1];
             // accessUser
@@ -529,20 +508,20 @@ namespace Server.API.Controllers
 
             if (string.IsNullOrEmpty(refreshToken))
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return BadRequest(new ApiResponse()
                 {
                     message = "No refresh token provided, Please login again!"
-                }));
+                });
             }
-            
+
             // refreshUser
             var refreshUser = await _userService.GetUserInToken(refreshToken);
             if (currentUser.UserId != refreshUser.UserId)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return BadRequest(new ApiResponse()
                 {
                     message = "AccessToken are invalid!"
-                }));
+                });
             }
 
             try
@@ -552,10 +531,10 @@ namespace Server.API.Controllers
 
                 if (!loginResult.Authenticated)
                 {
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    return BadRequest(new ApiResponse()
                     {
                         message = "Refresh token expired or invalid, please log in again"
-                    }));
+                    });
                 }
 
                 // Return the new access token
@@ -570,10 +549,10 @@ namespace Server.API.Controllers
             }
             catch (BadRequestException ex)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return BadRequest(new ApiResponse()
                 {
                     message = ex.Message
-                }));
+                });
             }
         }
 
@@ -584,29 +563,29 @@ namespace Server.API.Controllers
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(new ApiResponse
                 {
                     message = "Authorization header is missing."
-                }));
+                });
             }
-            
+
             // Chia tách token
             var tokenValue = token.ToString().Split(' ')[1];
             // accessUser
             var currentUser = await authService.GetUserInToken(tokenValue);
             if (currentUser == null)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return BadRequest(new ApiResponse()
                 {
                     message = "User info not found!"
-                }));
+                });
             }
 
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            return Ok(new ApiResponse()
             {
                 message = "Get user info success!",
                 data = _mapper.Map<UserDTO>(currentUser)
-            }));
+            });
         }
     }
 }

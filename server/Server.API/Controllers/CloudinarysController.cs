@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Services;
 
@@ -27,28 +26,19 @@ namespace Server.API.Controllers
 
                 if (uploadResult != null)
                 {
-                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                    return Ok(ApiResponse.Succeed(new
                     {
-                        message = "Upload image successfully.",
-                        data = new
-                        {
-                            Url = uploadResult.Uri.ToString(),
-                            PublicId = uploadResult.PublicId
-                        }
-                    }));
+                        Url = uploadResult.Uri.ToString(),
+                        PublicId = uploadResult.PublicId
+                    }, "Upload image successfully."));
                 }
 
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = "Upload fail",
-                }));
+                return BadRequest(ApiResponse.Error("Upload fail"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, ApiResponse.Error("Internal server error"));
             }
-
-
         }
     }
 }

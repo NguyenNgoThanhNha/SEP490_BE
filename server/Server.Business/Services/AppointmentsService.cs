@@ -34,11 +34,11 @@ public class AppointmentsService
             return null;
         }
         var totalCount = listAppointments.Count();
-        
+
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        
+
         var pagedServices = listAppointments.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-        
+
         var appointmentsModels = _mapper.Map<List<AppointmentsModel>>(pagedServices);
 
         return new GetAllAppointmentResponse()
@@ -85,22 +85,22 @@ public class AppointmentsService
         {
             throw new BadRequestException("Staff not found!");
         }
-        
+
         if (service == null)
         {
             throw new BadRequestException("Service not found!");
         }
-        
+
         if (branch == null)
         {
             throw new BadRequestException("Branch not found!");
         }
-        
+
         if (staff.BranchId != request.BranchId)
         {
             throw new BadRequestException("Staff does not in branch!");
         }
-        
+
         var createNewAppointments = new AppointmentsModel()
         {
             CustomerId = request.CustomerId,
@@ -120,7 +120,7 @@ public class AppointmentsService
         }
         return null;
     }
-    
+
     public async Task<AppointmentsModel> UpdateAppointments(AppointmentsModel appointmentsModel, ApointmentRequest request)
     {
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId);
@@ -137,12 +137,12 @@ public class AppointmentsService
         {
             throw new BadRequestException("Staff not found!");
         }
-        
+
         if (service == null)
         {
             throw new BadRequestException("Service not found!");
         }
-        
+
         if (branch == null)
         {
             throw new BadRequestException("Branch not found!");
@@ -152,7 +152,7 @@ public class AppointmentsService
         {
             throw new BadRequestException("Staff does not in branch!");
         }
-        
+
         if (!request.CustomerId.Equals(null))
         {
             appointmentsModel.CustomerId = request.CustomerId;
@@ -185,7 +185,7 @@ public class AppointmentsService
         {
             appointmentsModel.Feedback = request.Feedback;
         }
-        
+
         var appointmentsEntity = _unitOfWorks.AppointmentsRepository.Update(_mapper.Map<Appointments>(appointmentsModel));
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
         if (result > 0)
@@ -220,11 +220,11 @@ public class AppointmentsService
             return null;
         }
         var totalCount = listAppointments.Count();
-        
+
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        
+
         var pagedServices = listAppointments.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-        
+
         var appointmentsModels = _mapper.Map<List<AppointmentsModel>>(pagedServices);
 
         return new GetAllAppointmentResponse()

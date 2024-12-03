@@ -27,12 +27,12 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _userRepo ??= new UserRepository(_dbContext); }
         }
-        
+
         public AuthRepository AuthRepository
         {
             get { return _authRepo ??= new AuthRepository(_dbContext); }
         }
-        
+
         public UserRoleRepository UserRoleRepository
         {
             get { return _userRoleRepo ??= new UserRoleRepository(_dbContext); }

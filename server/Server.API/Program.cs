@@ -18,6 +18,13 @@ namespace Server.API
             builder.Services.AddInfrastructure(builder.Configuration);
 
             builder.Services.AddScoped<ServiceService>();
+            builder.Services.AddScoped<StaffService>();
+            builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<AppointmentsService>();
+            builder.Services.AddScoped<OrderService>();
+            builder.Services.AddScoped<BranchService>();
+            builder.Services.AddScoped<ProductService>();
+            builder.Services.AddScoped<OrderDetailService>();
 
             builder.Services.AddSwaggerGen(option =>
             {
@@ -52,9 +59,12 @@ namespace Server.API
                 option.AddPolicy("CORS", builder =>
                     builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed((host) => true)));
 
-            builder.Services.AddControllers().AddJsonOptions(options => 
-                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-            
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
+
             var app = builder.Build();
 
             // Hook into application lifetime events and trigger only application fully started 

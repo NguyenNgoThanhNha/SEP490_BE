@@ -11,9 +11,9 @@
             return new ApiResult<T> { Success = true, Result = result };
         }
 
-        public static ApiResult<T> Error(T? result)
+        public static ApiResult<T> Error(T? result, string? messeage = null)
         {
-            return new ApiResult<T> { Success = false, Result = result };
+            return new ApiResult<T> { Success = false, Result = result, ErrorMessage = messeage };
         }
 
         public static ApiResult<object> Fail(Exception ex)

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Server.Data.Entities;
 
@@ -10,9 +11,11 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241122210946_Update-Staff")]
+    partial class UpdateStaff
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1195,7 +1198,7 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.OrderDetail", b =>
                 {
                     b.HasOne("Server.Data.Entities.Order", "Order")
-                        .WithMany("OrderDetails")
+                        .WithMany()
                         .HasForeignKey("OrderId");
 
                     b.HasOne("Server.Data.Entities.Product", "Product")
@@ -1343,11 +1346,6 @@ namespace Server.Data.Migrations
                     b.Navigation("Branches");
 
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Order", b =>
-                {
-                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Product", b =>
