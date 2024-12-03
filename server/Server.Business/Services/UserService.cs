@@ -1,9 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Server.Business.Commons;
+using Server.Business.Commons.Response;
+using Server.Business.Constants;
 using Server.Business.Exceptions;
 using Server.Business.Models;
+using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Expressions;
 
 namespace Server.Business.Services
 {
@@ -11,13 +16,85 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+        private readonly AppDbContext _context;
 
-        public UserService(UnitOfWorks unitOfWorks, IMapper mapper)
+        public UserService(UnitOfWorks unitOfWorks, IMapper mapper, AppDbContext context)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _context = context;
         }
-        
+
+
+        public async Task<Pagination<User>> GetListAsync(Expression<Func<User, bool>> filter = null,
+                                    Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null,
+                                    int? pageIndex = null, // Optional parameter for pagination (page number)
+                                    int? pageSize = null)
+        {
+            IQueryable<User> query = _context.Users;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            var totalItemsCount = await query.CountAsync();
+
+            if (pageIndex.HasValue && pageIndex.Value == -1)
+            {
+                pageSize = totalItemsCount; // Set pageSize to total count
+                pageIndex = 0; // Reset pageIndex to 0
+            }
+            else if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            var items = await query.ToListAsync();
+
+            return new Pagination<User>
+            {
+                TotalItemsCount = totalItemsCount,
+                PageSize = pageSize ?? totalItemsCount,
+                PageIndex = pageIndex ?? 0,
+                Items = items
+            };
+        }
+
+        public async Task<User> GetCustomerById(int id)
+        {
+            return await _context.Users.SingleOrDefaultAsync(x => x.UserId == id && x.RoleID == (int)RoleConstant.RoleType.Customer && x.Status == "Active");
+        }
+
+        public async Task<ApiResponse> GetAccountDetail(string username)
+        {
+            var user = await _context.Users.Select(x => new User()
+            {
+                UserName = x.UserName,
+                FullName = x.FullName,
+                Email = x.Email,
+                Gender = x.Gender,
+                City = x.City,
+                Address = x.Address,
+                BirthDate = x.BirthDate,
+                PhoneNumber = x.PhoneNumber
+            }).SingleOrDefaultAsync(x => x.UserName == username);
+
+            if (user == null)
+            {
+                return ApiResponse.Error("User not found");
+            }
+
+            return ApiResponse.Succeed(user);
+        }
+
         public async Task<UserModel> GetUserInToken(string token)
         {
             if (string.IsNullOrWhiteSpace(token))

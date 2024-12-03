@@ -55,76 +55,91 @@ namespace Server.Data.SeedData
             {
                 // User Roles
                 if (!_context.UserRoles.Any())
-                { 
+                {
                     await SeedUserRole();
                 }
-            
+
                 // User
                 if (!_context.Users.Any())
                 {
                     await SeedUser();
                 }
-                
+
                 // Company
                 if (!_context.Companies.Any())
                 {
                     await SeedCompany();
                 }
-                
+
                 // Category
                 if (!_context.Categorys.Any())
                 {
                     await SeedCategories();
                 }
-                
+
                 // Product
                 if (!_context.Products.Any())
                 {
                     await SeedProducts();
                 }
-                
+
                 // Service
                 if (!_context.Services.Any())
                 {
                     await SeedServices();
                 }
-                
+
                 // Promotion
                 if (!_context.Promotions.Any())
                 {
                     await SeedPromotions();
                 }
-                
+
                 // Company
                 if (!_context.Companies.Any())
                 {
                     await SeedCompany();
                 }
-                
+
                 // Branch
                 if (!_context.Branchs.Any())
                 {
                     await SeedBranches();
                 }
-                
+
                 // Branch_Product
                 if (!_context.Branch_Products.Any())
                 {
                     await SeedBranchProducts();
                 }
-                
+
                 // Branch_Service
                 if (!_context.Branch_Services.Any())
                 {
                     await SeedBranchServices();
                 }
-                
+
                 // Branch_Promotion
                 if (!_context.Branch_Promotions.Any())
                 {
                     await SeedBranchPromotions();
                 }
-                
+
+                if (!_context.Appointments.Any())
+                {
+                    await SeedAppointments();
+                }
+
+                if (!_context.Vouchers.Any())
+                {
+                    await SeedVoucherData();
+                }
+
+                if (!_context.Orders.Any() && !_context.OrderDetails.Any())
+                {
+                    await SeedOrderData();
+                }
+
                 await Task.CompletedTask;
             }
             catch (Exception ex)
@@ -152,11 +167,146 @@ namespace Server.Data.SeedData
             await _context.SaveChangesAsync();
         }
 
+        private async Task SeedAppointments()
+        {
+            var random = new Random();
+
+            // Lấy dữ liệu từ các bảng liên quan
+            var customers = await _context.Users.ToListAsync(); // Assuming 'Users' is for Customers
+            var staffList = await _context.Staffs.ToListAsync();
+            var services = await _context.Services.ToListAsync();
+            var branches = await _context.Branchs.ToListAsync();
+
+            var appointments = new List<Appointments>();
+
+            // Tạo 100 - 200 cuộc hẹn ngẫu nhiên
+            int appointmentCount = random.Next(100, 201);
+
+            for (int i = 0; i < appointmentCount; i++)
+            {
+                var appointment = new Appointments
+                {
+                    CustomerId = customers[random.Next(customers.Count)].UserId, // Random CustomerId
+                    StaffId = staffList[random.Next(staffList.Count)].StaffId,   // Random StaffId
+                    ServiceId = services[random.Next(services.Count)].ServiceId, // Random ServiceId
+                    BranchId = branches[random.Next(branches.Count)].BranchId,   // Random BranchId
+
+                    // Random thời gian hẹn trong khoảng 30 ngày tới
+                    AppointmentsTime = DateTime.Now.AddDays(random.Next(1, 31)).AddHours(random.Next(8, 18)),
+
+                    Status = random.Next(2) == 0 ? "Pending" : "Confirmed", // Ngẫu nhiên trạng thái
+                    Notes = "Note " + random.Next(1, 1000), // Ghi chú ngẫu nhiên
+                    Feedback = "No feedback yet", // Feedback hoặc null
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                appointments.Add(appointment);
+            }
+
+            // Thêm vào cơ sở dữ liệu
+            try
+            {
+                await _context.Appointments.AddRangeAsync(appointments);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
+            }
+
+        }
+
+        private async Task SeedVoucherData()
+        {
+            var random = new Random();
+
+            // Create a list of Voucher objects
+            var vouchers = new List<Voucher>();
+
+            for (int i = 0; i < 10; i++) // Create 10 vouchers as an example
+            {
+                var voucher = new Voucher
+                {
+                    Code = "VOUCHER" + random.Next(1000, 9999), // Random code like "VOUCHER1234"
+                    Quantity = random.Next(50, 100), // Random quantity between 50 and 100
+                    RemainQuantity = random.Next(0, 50), // Random remaining quantity (less than or equal to Quantity)
+                    Status = random.NextDouble() < 0.5 ? "Active" : "Inactive", // Random status (50% chance for active or inactive)
+                    Description = "Discount voucher for various products", // Example description
+                    Discount = random.Next(5, 50), // Random discount between 5% and 50%
+                    ValidFrom = DateTime.Now.AddDays(-random.Next(30, 60)), // Random start date (between 30 and 60 days ago)
+                    ValidTo = DateTime.Now.AddDays(random.Next(30, 60)), // Random expiration date (30 to 60 days from now)
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                vouchers.Add(voucher);
+            }
+
+            // Add the vouchers to the context
+            await _context.Vouchers.AddRangeAsync(vouchers);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedOrderData()
+        {
+            var random = new Random();
+
+            // Step 1: Seed Orders first
+            var orders = new List<Order>();
+
+            for (int i = 0; i < 10; i++) // Create 10 orders
+            {
+                var order = new Order
+                {
+                    OrderCode = random.Next(1000, 9999), // Random order code
+                    CustomerId = 1, // Assume CustomerId is 1 for simplicity; adjust as needed
+                    VoucherId = 1, // Assume VoucherId is 1 for simplicity; adjust as needed
+                    TotalAmount = random.Next(100, 500), // Random total amount
+                    Status = random.NextDouble() < 0.5 ? "Pending" : "Completed", // Random status
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                orders.Add(order);
+            }
+
+            await _context.Orders.AddRangeAsync(orders);
+            await _context.SaveChangesAsync(); // Save Orders to DB
+
+            // Step 2: Seed OrderDetails with valid OrderId
+            var orderDetails = new List<OrderDetail>();
+
+            foreach (var order in orders)
+            {
+                for (int i = 0; i < random.Next(1, 5); i++) // Random number of order details (1 to 5)
+                {
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = order.OrderId, // Use valid OrderId
+                        ProductId = random.Next(1, 10), // Random ProductId; adjust as needed
+                        ServiceId = random.Next(1, 10), // Random ServiceId; adjust as needed
+                        Quantity = random.Next(1, 3), // Random quantity between 1 and 2
+                        Price = random.Next(10, 100), // Random price between 10 and 100
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    orderDetails.Add(orderDetail);
+                }
+            }
+
+            await _context.OrderDetails.AddRangeAsync(orderDetails);
+            await _context.SaveChangesAsync(); // Save OrderDetails to DB
+        }
+
         // Seed các user
         private async Task SeedUser()
         {
             var users = new List<User>();
-            
+
             var adminRole = await _context.UserRoles.FirstOrDefaultAsync(r => r.RoleName == "Admin");
             var managerRole = await _context.UserRoles.FirstOrDefaultAsync(r => r.RoleName == "Manager");
             var customerRole = await _context.UserRoles.FirstOrDefaultAsync(r => r.RoleName == "Customer");
@@ -184,7 +334,7 @@ namespace Server.Data.SeedData
             users.Add(admin);
 
             // Manager
-// Thêm 5 người quản lý
+            // Thêm 5 người quản lý
             for (int i = 1; i <= 5; i++)
             {
                 var manager = new User
@@ -257,7 +407,7 @@ namespace Server.Data.SeedData
             await _context.Users.AddRangeAsync(users);
             await _context.SaveChangesAsync();
         }
-        
+
         private async Task SeedCompany()
         {
             var company = new Company
@@ -275,7 +425,7 @@ namespace Server.Data.SeedData
             await _context.Companies.AddAsync(company);
             await _context.SaveChangesAsync();
         }
-        
+
         private async Task SeedCategories()
         {
             var categories = new List<Category>
@@ -385,7 +535,7 @@ namespace Server.Data.SeedData
             await _context.Services.AddRangeAsync(services);
             await _context.SaveChangesAsync();
         }
-        
+
         private async Task SeedBranches()
         {
             var branches = new List<Branch>
@@ -451,11 +601,11 @@ namespace Server.Data.SeedData
             await _context.Branchs.AddRangeAsync(branches);
             await _context.SaveChangesAsync();
         }
-        
+
         private async Task SeedPromotions()
         {
             var random = new Random();
-            
+
             // Danh sách mẫu tên và mô tả khuyến mãi
             var promotionNames = new[]
             {
@@ -520,7 +670,7 @@ namespace Server.Data.SeedData
             {
                 // Chọn ngẫu nhiên số lượng sản phẩm từ 16 đến 20 cho mỗi chi nhánh
                 int productCount = random.Next(16, 21);
-        
+
                 // Chọn ngẫu nhiên các sản phẩm cho chi nhánh này
                 var selectedProducts = products.OrderBy(x => random.Next()).Take(productCount);
 
@@ -535,7 +685,7 @@ namespace Server.Data.SeedData
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
                     };
-            
+
                     branchProducts.Add(branchProduct);
                 }
             }
@@ -544,7 +694,7 @@ namespace Server.Data.SeedData
             await _context.Branch_Products.AddRangeAsync(branchProducts);
             await _context.SaveChangesAsync();
         }
-        
+
         private async Task SeedBranchServices()
         {
             var random = new Random();
@@ -557,7 +707,7 @@ namespace Server.Data.SeedData
             {
                 // Chọn ngẫu nhiên số lượng dịch vụ từ 16 đến 21 cho mỗi chi nhánh
                 int serviceCount = random.Next(16, 21);
-        
+
                 // Chọn ngẫu nhiên các dịch vụ cho chi nhánh này
                 var selectedServices = services.OrderBy(x => random.Next()).Take(serviceCount);
 
@@ -571,7 +721,7 @@ namespace Server.Data.SeedData
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
                     };
-            
+
                     branchServices.Add(branchService);
                 }
             }
@@ -580,11 +730,11 @@ namespace Server.Data.SeedData
             await _context.Branch_Services.AddRangeAsync(branchServices);
             await _context.SaveChangesAsync();
         }
-        
+
         private async Task SeedBranchPromotions()
         {
             var random = new Random();
-    
+
             // Lấy danh sách các chi nhánh và chương trình khuyến mãi
             var branches = await _context.Branchs.ToListAsync();
             var promotions = await _context.Promotions.ToListAsync();
@@ -595,7 +745,7 @@ namespace Server.Data.SeedData
             {
                 // Chọn ngẫu nhiên số lượng chương trình khuyến mãi từ 5 đến 10 cho mỗi chi nhánh
                 int promotionCount = random.Next(5, 11);
-        
+
                 // Chọn ngẫu nhiên các chương trình khuyến mãi cho chi nhánh này
                 var selectedPromotions = promotions.OrderBy(x => random.Next()).Take(promotionCount);
 
@@ -609,7 +759,7 @@ namespace Server.Data.SeedData
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
                     };
-            
+
                     branchPromotions.Add(branchPromotion);
                 }
             }

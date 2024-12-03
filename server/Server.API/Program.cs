@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
-using Server.Business.Dtos;
 using Server.Business.Middlewares;
 using Server.Business.Services;
 using Server.Data.Entities;
@@ -18,6 +17,13 @@ namespace Server.API
             builder.Services.AddInfrastructure(builder.Configuration);
 
             builder.Services.AddScoped<ServiceService>();
+            builder.Services.AddScoped<StaffService>();
+            builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<AppointmentsService>();
+            builder.Services.AddScoped<OrderService>();
+            builder.Services.AddScoped<BranchService>();
+            builder.Services.AddScoped<ProductService>();
+            builder.Services.AddScoped<OrderDetailService>();
 
             builder.Services.AddSwaggerGen(option =>
             {
@@ -51,6 +57,12 @@ namespace Server.API
             builder.Services.AddCors(option =>
                 option.AddPolicy("CORS", builder =>
                     builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed((host) => true)));
+
+            builder.Services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
 
             var app = builder.Build();
 

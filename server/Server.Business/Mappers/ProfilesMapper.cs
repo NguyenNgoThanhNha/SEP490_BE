@@ -15,15 +15,22 @@ namespace Server.Business.Mappers
             CreateMap<Service, ServiceModel>().ReverseMap();
             CreateMap<Service, ServiceDto>().ReverseMap();
             CreateMap<ServiceModel, ServiceDto>().ReverseMap();
-            CreateMap<Product, ProductModel>().ReverseMap();            
+            CreateMap<Product, ProductModel>().ReverseMap();
             CreateMap<ProductModel, ProductDto>().ReverseMap();
             CreateMap<Product, ProductDto>()
-    .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))  
-    .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name)) 
+    .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+    .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.Company.Name))
     .ReverseMap();
             CreateMap<Category, CategoryModel>().ReverseMap();
             CreateMap<Category, CategoryDetailDto>().ReverseMap();
             CreateMap<CategoryModel, CategoryDetailDto>().ReverseMap();
+
+
+            CreateMap<CUOrderDto, Order>();
+
+            CreateMap<CUOrderDetailDto, OrderDetail>();
+
+            CreateMap<CUAppointmentDto, Appointments>();
 
         }
     }

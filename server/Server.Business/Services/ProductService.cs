@@ -4,17 +4,9 @@ using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Models;
-using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Linq.Expressions;
 
 namespace Server.Business.Services
 {
@@ -31,18 +23,89 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<Product>> CreateProductAsync(ProductCreateDto productCreateDto)
+        public async Task<Pagination<Product>> GetListAsync(Expression<Func<Product, bool>> filter = null,
+                                    Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null,
+                                    string includeProperties = "",
+                                    int? pageIndex = null, // Optional parameter for pagination (page number)
+                                    int? pageSize = null)
+        {
+            IQueryable<Product> query = _context.Products;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            foreach (var includeProperty in includeProperties.Split
+                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                query = query.Include(includeProperty);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            var totalItemsCount = await query.CountAsync();
+
+            if (pageIndex.HasValue && pageIndex.Value == -1)
+            {
+                pageSize = totalItemsCount; // Set pageSize to total count
+                pageIndex = 0; // Reset pageIndex to 0
+            }
+            else if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            var items = await query.Select(x => new Product
+            {
+                ProductId = x.ProductId,
+                ProductName = x.ProductName,
+                ProductDescription = x.ProductName,
+                Price = x.Price,
+                Quantity = x.Quantity,
+                Status = x.Status,
+                Discount = x.Discount,
+                CategoryId = x.CategoryId,
+                CompanyId = x.CompanyId,
+                CreatedDate = x.CreatedDate,
+                UpdatedDate = x.UpdatedDate,
+            }).ToListAsync();
+
+            return new Pagination<Product>
+            {
+                TotalItemsCount = totalItemsCount,
+                PageSize = pageSize ?? totalItemsCount,
+                PageIndex = pageIndex ?? 0,
+                Items = items
+            };
+        }
+
+
+        public async Task<Branch_Product> GetProductInBranch(int productId, int branchId)
+        {
+            var product = await _context.Branch_Products
+                .Include(x => x.Product)
+                .SingleOrDefaultAsync(x => x.ProductId == productId && x.BranchId == branchId && x.Status == "Active");
+            return product;
+        }
+
+        public async Task<ApiResponse> CreateProductAsync(ProductCreateDto productCreateDto)
         {
             try
             {
                 if (productCreateDto == null)
                 {
-                    return ApiResult<Product>.Error(null);
+                    return ApiResponse.Error("Please enter complete information");
                 }
 
                 if (productCreateDto.Price <= 0 || productCreateDto.Quantity <= 0 || productCreateDto.Discount < 0)
                 {
-                    return ApiResult<Product>.Error(new Product { ProductName = "Invalid Price, Quantity, or Discount" });
+                    return ApiResponse.Error("Invalid Price, Quantity, or Discount");
                 }
 
                 var categoryExists = await _context.Categorys.AnyAsync(c => c.CategoryId == productCreateDto.CategoryId);
@@ -50,12 +113,12 @@ namespace Server.Business.Services
 
                 if (!categoryExists)
                 {
-                    return ApiResult<Product>.Error(new Product { ProductName = "Category does not exist" });
+                    return ApiResponse.Error("Category does not exist");
                 }
 
                 if (!companyExists)
                 {
-                    return ApiResult<Product>.Error(new Product { ProductName = "Company does not exist" });
+                    return ApiResponse.Error("Company does not exist");
                 }
 
 
@@ -78,12 +141,12 @@ namespace Server.Business.Services
                 await _context.SaveChangesAsync();
 
 
-                return ApiResult<Product>.Succeed(newProduct);
+                return ApiResponse.Succeed(newProduct);
             }
             catch (Exception ex)
             {
 
-                return ApiResult<Product>.Error(new Product { ProductName = $"Error: {ex.Message}" });
+                return ApiResponse.Error($"Error: {ex.Message}");
             }
         }
 
@@ -149,13 +212,13 @@ namespace Server.Business.Services
         }
 
         public async Task<List<Product>> FilterProductAsync(
-    string? productName,
-    string? productDescription,
-    decimal? price,
-    int? quantity,
-    decimal? discount,
-    string? categoryName,
-    string? companyName)
+            string? productName,
+            string? productDescription,
+            decimal? price,
+            int? quantity,
+            decimal? discount,
+            string? categoryName,
+            string? companyName)
         {
             try
             {
@@ -223,27 +286,27 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<Product>> UpdateProductAsync(int productId, ProductUpdateDto productUpdateDto)
+        public async Task<ApiResponse> UpdateProductAsync(int productId, ProductUpdateDto productUpdateDto)
         {
             try
             {
 
                 if (productUpdateDto == null)
                 {
-                    return ApiResult<Product>.Error(null);
+                    return ApiResponse.Error(null);
                 }
 
 
                 if (productUpdateDto.Price <= 0 || productUpdateDto.Quantity <= 0 || productUpdateDto.Discount < 0)
                 {
-                    return ApiResult<Product>.Error(new Product { ProductName = "Invalid Price, Quantity, or Discount" });
+                    return ApiResponse.Error("Invalid Price, Quantity, or Discount");
                 }
 
 
                 var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
                 if (existingProduct == null)
                 {
-                    return ApiResult<Product>.Error(new Product { ProductName = "Product not found" });
+                    return ApiResponse.Error("Product not found");
                 }
 
 
@@ -252,12 +315,12 @@ namespace Server.Business.Services
 
                 if (!categoryExists)
                 {
-                    return ApiResult<Product>.Error(new Product { ProductName = "Category does not exist" });
+                    return ApiResponse.Error("Category does not exist");
                 }
 
                 if (!companyExists)
                 {
-                    return ApiResult<Product>.Error(new Product { ProductName = "Company does not exist" });
+                    return ApiResponse.Error("Company does not exist");
                 }
 
 
@@ -275,12 +338,12 @@ namespace Server.Business.Services
                 await _context.SaveChangesAsync();
 
 
-                return ApiResult<Product>.Succeed(existingProduct);
+                return ApiResponse.Succeed(existingProduct);
             }
             catch (Exception ex)
             {
 
-                return ApiResult<Product>.Error(new Product { ProductName = $"Error: {ex.Message}" });
+                return ApiResponse.Error($"Error: {ex.Message}");
             }
         }
 

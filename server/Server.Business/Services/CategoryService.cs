@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
@@ -7,11 +6,7 @@ using Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace Server.Business.Services
 {
@@ -28,19 +23,61 @@ namespace Server.Business.Services
             _mapper = mapper;
         }
 
-        public async Task<ApiResult<Category>> CreateCategoryAsync(CategoryCreateDto categoryCreateDto)
+        public async Task<Pagination<Category>> GetListAsync(Expression<Func<Category, bool>> filter = null,
+                                    Func<IQueryable<Category>, IOrderedQueryable<Category>> orderBy = null,
+                                    int? pageIndex = null, // Optional parameter for pagination (page number)
+                                    int? pageSize = null)
+        {
+            IQueryable<Category> query = _context.Categorys;
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            var totalItemsCount = await query.CountAsync();
+
+            if (pageIndex.HasValue && pageIndex.Value == -1)
+            {
+                pageSize = totalItemsCount; // Set pageSize to total count
+                pageIndex = 0; // Reset pageIndex to 0
+            }
+            else if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            var items = await query.ToListAsync();
+
+            return new Pagination<Category>
+            {
+                TotalItemsCount = totalItemsCount,
+                PageSize = pageSize ?? totalItemsCount,
+                PageIndex = pageIndex ?? 0,
+                Items = items
+            };
+        }
+
+        public async Task<ApiResponse> CreateCategoryAsync(CategoryCreateDto categoryCreateDto)
         {
             try
             {
                 if (categoryCreateDto == null)
                 {
-                    return ApiResult<Category>.Error(null);
+                    return ApiResponse.Error("Please enter complete information");
                 }
 
                 if (string.IsNullOrEmpty(categoryCreateDto.Name) || string.IsNullOrEmpty(categoryCreateDto.Description) ||
                     string.IsNullOrEmpty(categoryCreateDto.SkinTypeSuitable) || string.IsNullOrEmpty(categoryCreateDto.ImageUrl))
                 {
-                    return ApiResult<Category>.Error(null);
+                    return ApiResponse.Error("Please enter complete information");
                 }
 
                 // Tạo danh mục mới
@@ -60,17 +97,11 @@ namespace Server.Business.Services
                 await _context.SaveChangesAsync();
 
                 // Trả về kết quả thành công với danh mục vừa tạo
-                return ApiResult<Category>.Succeed(newCategory);
+                return ApiResponse.Succeed(newCategory);
             }
             catch (Exception ex)
             {
-                // Trả về lỗi với ngoại lệ
-                return new ApiResult<Category>
-                {
-                    Success = false,
-                    Result = null,
-                    ErrorMessage = ex.Message
-                };
+                return ApiResponse.Error(ex.Message);
             }
         }
 
@@ -101,13 +132,13 @@ namespace Server.Business.Services
             {
                 const int pageSize = 4;
 
-                var categories = await unitOfWorks.CategoryRepository.GetAll()                  
+                var categories = await unitOfWorks.CategoryRepository.GetAll()
                     .ToListAsync();
 
                 var totalCount = categories.Count();
                 var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
                 var pagedCategories = categories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-                var categoryModels = _mapper.Map<List<CategoryModel>>(pagedCategories);               
+                var categoryModels = _mapper.Map<List<CategoryModel>>(pagedCategories);
                 return new GetAllCategoryPaginationResponse
                 {
                     data = categoryModels,
@@ -175,52 +206,32 @@ namespace Server.Business.Services
         //    }
         //}
 
-        public async Task<ApiResult<Category>> UpdateCategoryAsync(int categoryId, CategoryUpdateDto categoryUpdateDto)
+        public async Task<ApiResponse> UpdateCategoryAsync(int categoryId, CategoryUpdateDto categoryUpdateDto)
         {
             try
             {
                 if (categoryUpdateDto == null)
                 {
-                    return new ApiResult<Category>
-                    {
-                        Success = false,
-                        Result = null,
-                        ErrorMessage = "Category data is required."
-                    };
+                    return ApiResponse.Error("Category data is required.");
                 }
 
                 if (string.IsNullOrEmpty(categoryUpdateDto.Name) || string.IsNullOrEmpty(categoryUpdateDto.Description) ||
                     string.IsNullOrEmpty(categoryUpdateDto.SkinTypeSuitable) || string.IsNullOrEmpty(categoryUpdateDto.ImageUrl) ||
                     string.IsNullOrEmpty(categoryUpdateDto.Status))
                 {
-                    return new ApiResult<Category>
-                    {
-                        Success = false,
-                        Result = null,
-                        ErrorMessage = "Invalid value input"
-                    };
+                    return ApiResponse.Error("Invalid value input");
                 }
 
                 // Kiểm tra giá trị của Status
                 if (categoryUpdateDto.Status != "Active" && categoryUpdateDto.Status != "Inactive")
                 {
-                    return new ApiResult<Category>
-                    {
-                        Success = false,
-                        Result = null,
-                        ErrorMessage = "Status must be either 'Active' or 'Inactive'"
-                    };
+                    return ApiResponse.Error("Status must be either 'Active' or 'Inactive'");
                 }
 
                 var existingCategory = await _context.Categorys.FirstOrDefaultAsync(p => p.CategoryId == categoryId);
                 if (existingCategory == null)
                 {
-                    return new ApiResult<Category>
-                    {
-                        Success = false,
-                        Result = null,
-                        ErrorMessage = "Category not found"
-                    };
+                    return ApiResponse.Error("Category not found");
                 }
 
                 // Cập nhật thông tin
@@ -238,34 +249,23 @@ namespace Server.Business.Services
                 var updatedCategory = await _context.Categorys.FindAsync(categoryId);
 
                 // Trả về kết quả thành công với danh mục đã cập nhật
-                return ApiResult<Category>.Succeed(updatedCategory);
+                return ApiResponse.Succeed(updatedCategory);
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
-                return new ApiResult<Category>
-                {
-                    Success = false,
-                    Result = null,
-                    ErrorMessage = $"Error: {ex.Message}"
-                };
+                return ApiResponse.Error($"Error: {ex.Message}");
             }
         }
 
 
-        public async Task<ApiResult<string>> DeleteCategoryAsync(int categoryId)
+        public async Task<ApiResponse> DeleteCategoryAsync(int categoryId)
         {
             // Tìm danh mục trong cơ sở dữ liệu
             var category = await _context.Categorys.FirstOrDefaultAsync(p => p.CategoryId == categoryId);
 
             if (category == null)
             {
-                return new ApiResult<string>
-                {
-                    Success = false,
-                    Result = null,
-                    ErrorMessage = "Category not found."
-                };
+                return ApiResponse.Error("Category not found.");
             }
 
             // Kiểm tra xem có dịch vụ nào liên kết với danh mục không
@@ -273,12 +273,7 @@ namespace Server.Business.Services
 
             if (hasLinkedServices)
             {
-                return new ApiResult<string>
-                {
-                    Success = false,
-                    Result = null,
-                    ErrorMessage = "Cannot delete category as it is linked to a service."
-                };
+                return ApiResponse.Error("Cannot delete category as it is linked to a service.");
             }
 
             // Nếu không có dịch vụ nào liên kết, cập nhật trạng thái thành "Inactive"
@@ -288,11 +283,7 @@ namespace Server.Business.Services
             // Lưu thay đổi vào cơ sở dữ liệu
             await _context.SaveChangesAsync();
 
-            return new ApiResult<string>
-            {
-                Success = true,
-                Result = "Category status updated."
-            };
+            return ApiResponse.Succeed(category, "Category status updated.");
         }
 
 

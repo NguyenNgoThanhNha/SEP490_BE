@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons.Response;
-using Server.Business.Commons;
 using Server.Business.Dtos;
 using Server.Business.Services;
 using Server.Data.Entities;
@@ -20,33 +18,43 @@ namespace Server.API.Controllers
             _context = context;
         }
 
+        [HttpGet("get-list")]
+        public async Task<IActionResult> GetList(string? name, string? description, int pageIndex = 0, int pageSize = 10)
+        {
+            var response = await _categoryService.GetListAsync(
+                filter: c => (string.IsNullOrEmpty(name) || c.Name.ToLower().Contains(name.ToLower()))
+                && (string.IsNullOrEmpty(description) || c.Description.ToLower().Contains(description.ToLower())),
+                pageIndex: pageIndex,
+                pageSize: pageSize);
+
+            return Ok(ApiResponse.Succeed(response));
+        }
+
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto categoryCreateDto)
         {
             if (categoryCreateDto == null)
             {
-                return BadRequest("Invalid category data.");
+                return BadRequest(ApiResponse.Error("Invalid category data."));
             }
 
             try
             {
                 var result = await _categoryService.CreateCategoryAsync(categoryCreateDto);
-
-                if (result.Success)
+                if (result.message == null)
                 {
-
-                    return CreatedAtAction(nameof(GetCategoryById), new { categoryId = result.Result?.CategoryId }, result.Result);
+                    return Ok(result);
                 }
                 else
                 {
-                    return BadRequest("Invalid Name, Description, SkinTypeSuitable, or ImageUrl.");
+                    return BadRequest(result);
                 }
             }
             catch (Exception ex)
             {
 
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, ApiResponse.Error($"Internal server error: {ex.Message}"));
             }
         }
 
@@ -59,7 +67,7 @@ namespace Server.API.Controllers
             if (category == null)
             {
 
-                return NotFound($"Category with ID {categoryId} not found.");
+                return NotFound(ApiResponse.Error($"Category with ID {categoryId} not found."));
             }
 
 
@@ -75,14 +83,14 @@ namespace Server.API.Controllers
                 UpdatedDate = category.UpdatedDate
             };
 
-            return Ok(categoryDto);
+            return Ok(ApiResponse.Succeed(categoryDto));
         }
 
         [HttpGet("get-all-categories")]
         public async Task<IActionResult> Get([FromQuery] int page = 1)
         {
             var categories = await _categoryService.GetAllCategory(page);
-            return Ok(ApiResult<GetAllCategoryPaginationResponse>.Succeed(new GetAllCategoryPaginationResponse()
+            return Ok(ApiResponse.Succeed(new GetAllCategoryPaginationResponse()
             {
                 data = categories.data,
                 pagination = categories.pagination
@@ -95,25 +103,20 @@ namespace Server.API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResult<string>.Error("Invalid model state"));
+                return BadRequest(ApiResponse.Error("Invalid model state"));
             }
 
 
             var result = await _categoryService.UpdateCategoryAsync(categoryId, categoryUpdateDto);
 
 
-            if (!result.Success)
+            if (result.message != null)
             {
-                return BadRequest(new ApiResult<string>
-                {
-                    Success = false,
-                    Result = null,
-                    ErrorMessage = result.ErrorMessage
-                });
+                return BadRequest(ApiResponse.Error(result.message));
             }
 
 
-            var category = result.Result;
+            dynamic category = result.data;
             var categoryDetailDto = new CategoryDetailDto
             {
                 CategoryId = category.CategoryId,
@@ -126,7 +129,7 @@ namespace Server.API.Controllers
             };
 
 
-            return Ok(ApiResult<CategoryDetailDto>.Succeed(categoryDetailDto));
+            return Ok(ApiResponse.Succeed(categoryDetailDto));
         }
 
         [HttpDelete("delete/{categoryId}")]
@@ -138,17 +141,16 @@ namespace Server.API.Controllers
                 var result = await _categoryService.DeleteCategoryAsync(categoryId);
 
 
-                if (!result.Success)
+                if (result.message != null)
                 {
-                    return BadRequest(new { message = result.ErrorMessage });
+                    return BadRequest(result);
                 }
 
 
-                return Ok(new { message = result.Result });
+                return Ok(result);
             }
             catch (KeyNotFoundException ex)
             {
-
                 return NotFound(new { message = ex.Message });
             }
             catch (InvalidOperationException ex)
