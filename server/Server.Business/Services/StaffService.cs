@@ -60,7 +60,7 @@ namespace Server.Business.Services
                 TotalItemsCount = totalItemsCount,
                 PageSize = pageSize ?? totalItemsCount,
                 PageIndex = pageIndex ?? 0,
-                Data = items
+                Items = items
             };
         }
 
@@ -113,8 +113,6 @@ namespace Server.Business.Services
         {
             try
             {
-                ApiResult<Staff> result = new ApiResult<Staff>();
-                result.Success = true;
 
                 if (!await _context.Staffs.AnyAsync(x => x.StaffId == staffId))
                 {
@@ -125,8 +123,6 @@ namespace Server.Business.Services
                     return ApiResponse.Error("Role not found");
                 }
 
-                if (!result.Success)
-                    return result;
                 var staff = _context.Staffs.Find(staffId);
                 if (staff != null)
                 {
@@ -159,9 +155,6 @@ namespace Server.Business.Services
         {
             try
             {
-                ApiResult<Staff> result = new ApiResult<Staff>();
-                result.Success = true;
-
                 if (!await _context.Staffs.AnyAsync(x => x.StaffId == staffId))
                 {
                     return ApiResponse.Error("Staff not found");
@@ -195,8 +188,6 @@ namespace Server.Business.Services
         {
             try
             {
-                ApiResult<Staff> result = new ApiResult<Staff>();
-                result.Success = true;
                 if (staffDto == null)
                 {
                     return ApiResponse.Error(null);
@@ -216,9 +207,6 @@ namespace Server.Business.Services
                 {
                     return ApiResponse.Error("This user already exists");
                 }
-
-                if (!result.Success)
-                    return result;
 
                 // Tạo danh mục mới
                 var newStaff = new Staff
@@ -269,8 +257,6 @@ namespace Server.Business.Services
         {
             try
             {
-                ApiResult<Staff> result = new ApiResult<Staff>();
-                result.Success = true;
                 if (staffUpdateDto == null)
                 {
                     return ApiResponse.Error("Staff data is required.");
@@ -289,9 +275,6 @@ namespace Server.Business.Services
                 {
                     return ApiResponse.Error("This user already exists");
                 }
-                if (!result.Success)
-                    return result;
-
 
                 var existingStaff = await _context.Staffs.FirstOrDefaultAsync(p => p.StaffId == staffUpdateDto.StaffId);
                 if (existingStaff == null)

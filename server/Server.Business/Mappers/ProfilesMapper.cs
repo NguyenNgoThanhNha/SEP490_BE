@@ -39,6 +39,8 @@ namespace Server.Business.Mappers
             CreateMap<CUOrderDetailDto, OrderDetail>();
 
             CreateMap<CUAppointmentDto, Appointments>();
+
+
         }
     }
 }
