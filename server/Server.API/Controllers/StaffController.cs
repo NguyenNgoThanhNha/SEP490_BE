@@ -92,6 +92,7 @@ namespace Server.API.Controllers
 
             if (staff == null)
             {
+
                 return NotFound($"Staff with ID {staffId} not found.");
             }
 
@@ -115,10 +116,12 @@ namespace Server.API.Controllers
 
 
             if (result.message != null)
-            {
+                {
                 return BadRequest(result);
             }
 
+
+            var staff = result.Result;
 
             return Ok(result);
         }

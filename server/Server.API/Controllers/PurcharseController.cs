@@ -34,6 +34,7 @@ namespace Server.API.Controllers
             int pageIndex = 0,
             int pageSize = 10)
         {
+
             Expression<Func<Order, bool>> filter = c => (orderCode == null || c.OrderCode == orderCode)
                 && (string.IsNullOrEmpty(customerName) || c.Customer.FullName.ToLower().Contains(customerName.ToLower()))
                 && (string.IsNullOrEmpty(voucherCode) || c.Voucher.Code.ToLower().Contains(voucherCode.ToLower()));
@@ -49,7 +50,7 @@ namespace Server.API.Controllers
 
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrderAsync(CUOrderDto model)
-        {
+            {
             if (ModelState.IsValid)
             {
                 model.OrderId = 0;
