@@ -11,7 +11,6 @@ using Server.Business.Ultils;
 
 namespace Server.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AppointmentsController : ControllerBase
@@ -26,7 +25,7 @@ namespace Server.API.Controllers
             _mapper = mapper;
             _mailService = mailService;
         }
-        
+
         [Authorize]
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllAppointment([FromQuery] int page = 1, int pageSize = 5)
@@ -88,7 +87,7 @@ namespace Server.API.Controllers
                     message = "Error in create appointments!"
                 }));
             }
-            
+
             var appointmentExist = await _appointmentsService.GetAppointmentsById(appointmentsModel.AppointmentsId);
 
             // Thông tin chi tiết về lịch hẹn
@@ -122,7 +121,7 @@ namespace Server.API.Controllers
             <p style=""text-align: center; color: #888; font-size: 14px;"">Powered by Team Solace</p>
         </div>"
             };
-            
+
             _ = Task.Run(async () =>
             {
                 var emailResult = await _mailService.SendEmailAsync(mailData, false);
@@ -139,7 +138,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        
+
         [Authorize]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateAppointment([FromRoute] int id, [FromBody] ApointmentRequest request)
@@ -163,7 +162,7 @@ namespace Server.API.Controllers
                 }));
             }
 
-            var appointmentsModel = await _appointmentsService.UpdateAppointments(appointmentsExist,request);
+            var appointmentsModel = await _appointmentsService.UpdateAppointments(appointmentsExist, request);
             if (appointmentsModel.Equals(null))
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -171,14 +170,14 @@ namespace Server.API.Controllers
                     message = "Error in update appointments!"
                 }));
             }
-            
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Update appointments successfully!",
                 data = _mapper.Map<AppointmentsDTO>(appointmentsModel)
             }));
         }
-        
+
         [Authorize]
         [HttpPut("delete/{id}")]
         public async Task<IActionResult> DeleteAppointment([FromRoute] int id)
@@ -210,7 +209,7 @@ namespace Server.API.Controllers
                     message = "Error in delete appointments!"
                 }));
             }
-            
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Delete appointments successfully!",
@@ -238,7 +237,7 @@ namespace Server.API.Controllers
                 pagination = appointments.pagination
             }));
         }
-        
+
         [Authorize]
         [HttpPut("cancel-booking/{id}")]
         public async Task<IActionResult> CancleBooking([FromRoute] int id)

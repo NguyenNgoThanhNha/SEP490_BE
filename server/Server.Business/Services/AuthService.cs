@@ -1,4 +1,7 @@
-﻿using AutoMapper;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Server.Business.Commons.Request;
@@ -9,9 +12,6 @@ using Server.Business.Ultils;
 using Server.Data.Entities;
 using Server.Data.Helpers;
 using Server.Data.UnitOfWorks;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace Server.Business.Services;
 
@@ -172,6 +172,7 @@ public class AuthService
             Avatar = req.Avatar,
             OTPCode = "0",
             TypeLogin = "Google",
+            Status = "Active",
             CreateDate = DateTimeOffset.Now,
             BirthDate = DateTime.Now,
             RoleID = req.TypeAccount == "Admin" ? 1 : req.TypeAccount == "Manager" ? 2 : req.TypeAccount == "Customer" ? 3 : req.TypeAccount == "Staff" ? 4 : 3
@@ -200,6 +201,71 @@ public class AuthService
             Token = null
         };
     }
+
+
+    public async Task<LoginResult> SignInWithFacebook(LoginWithGGRequest req)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        SecurityToken refreshToken = null;
+        var user = _unitOfWorks.AuthRepository.FindByCondition(u => u.Email.ToLower() == req.Email.ToLower()).FirstOrDefault();
+
+        if (user != null)
+        {
+            refreshToken = CreateJwtToken(user, false);
+            user.RefreshToken = handler.WriteToken(refreshToken);
+            // Generate JWT or another token here if needed.
+            _unitOfWorks.UserRepository.Update(user);
+            var resultExist = await _unitOfWorks.UserRepository.Commit();
+            if (resultExist > 0)
+            {
+                return new LoginResult
+                {
+                    Authenticated = true,
+                    Token = CreateJwtToken(user, true),
+                    Refresh = refreshToken
+                };
+            }
+        }
+
+        var userModel = new UserModel
+        {
+            Email = req.Email,
+            FullName = req.FullName,
+            UserName = req.UserName,
+            Password = SecurityUtil.Hash("123456"),
+            Avatar = req.Avatar,
+            Status = "Active",
+            OTPCode = "0",
+            TypeLogin = "Facebook",
+            CreateDate = DateTimeOffset.Now,
+            BirthDate = DateTime.Now,
+            RoleID = req.TypeAccount == "Admin" ? 1 : req.TypeAccount == "Manager" ? 2 : req.TypeAccount == "Customer" ? 3 : req.TypeAccount == "Staff" ? 4 : 3
+        };
+
+        var userRegister = _mapper.Map<User>(userModel);
+        refreshToken = CreateJwtToken(userRegister, false);
+        userRegister.RefreshToken = handler.WriteToken(refreshToken);
+
+        await _unitOfWorks.UserRepository.AddAsync(userRegister);
+        int result = await _unitOfWorks.UserRepository.Commit();
+
+        if (result > 0)
+        {
+            // Generate JWT or another token here if needed.
+            return new LoginResult
+            {
+                Authenticated = true,
+                Token = CreateJwtToken(userRegister, true)
+            };
+        }
+
+        return new LoginResult
+        {
+            Authenticated = false,
+            Token = null
+        };
+    }
+
 
 
     public async Task<UserModel> GetUserByEmail(string email)
@@ -387,14 +453,14 @@ public class AuthService
         var utcNow = DateTime.UtcNow;
         var userRole = _unitOfWorks.UserRoleRepository.FindByCondition(u => u.RoleId == user.RoleID).FirstOrDefault();
         var authClaims = new List<Claim>
-            {
-                new(JwtRegisteredClaimNames.NameId, user.UserId.ToString()),
-    /*            new(JwtRegisteredClaimNames.Sub, user.UserName),*/
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new(ClaimTypes.Role, userRole.RoleName),
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                /*new Claim("IsCustomer", userRole.RoleName == "Customer" ? "Customer" : "Admin")*/
-            };
+        {
+            new(JwtRegisteredClaimNames.NameId, user.UserId.ToString()),
+/*            new(JwtRegisteredClaimNames.Sub, user.UserName),*/
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new(ClaimTypes.Role, userRole.RoleName),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            /*new Claim("IsCustomer", userRole.RoleName == "Customer" ? "Customer" : "Admin")*/
+        };
         byte[] key;
 
         if (isAccess)

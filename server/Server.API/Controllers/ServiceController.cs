@@ -55,50 +55,6 @@ namespace Server.API.Controllers
                 filter: filter,
                 pageIndex: pageIndex,
                 pageSize: pageSize);
-            return Ok(new ApiResult<Pagination<Service>>
-            {
-                Success = true,
-                Result = response
-            });
-        }
-
-
-        [HttpGet("get-list")]
-        public async Task<IActionResult> GetList(string? name,
-                        string? description,
-                        decimal? price,
-                        decimal? endPrice,
-                        int? filterTypePrice = 0,
-                        int pageIndex = 0,
-                        int pageSize = 10)
-        {
-            Expression<Func<Service, bool>> filter = null;
-            filter = c => (string.IsNullOrEmpty(name) || c.Name.ToLower().Contains(name.ToLower()))
-                && (string.IsNullOrEmpty(description) || c.Description.ToLower().Contains(description.ToLower()));
-
-            Expression<Func<Service, bool>> priceFilter = null;
-            if (price != null && price > 0)
-            {
-                if (filterTypePrice == 0 && (endPrice != null && endPrice > 0)) // khoảng
-                {
-                    priceFilter = c => c.Price >= price && c.Price <= endPrice;
-                }
-                else if (filterTypePrice == 1) // nhỏ hơn
-                {
-                    priceFilter = c => c.Price <= price;
-                }
-                else  // lớn hơn
-                {
-                    priceFilter = c => c.Price >= price;
-                }
-                filter = filter.And(priceFilter);
-            }
-
-
-            var response = await _serviceService.GetListAsync(
-                filter: filter,
-                pageIndex: pageIndex,
-                pageSize: pageSize);
             return Ok(ApiResponse.Succeed(response));
         }
 
