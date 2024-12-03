@@ -1,6 +1,6 @@
-﻿namespace Server.Business.Dtos;
+﻿namespace Server.Business.Models;
 
-public class StaffDTO
+public class StaffModel
 {
     public int StaffId { get; set; }
 
@@ -11,5 +11,5 @@ public class StaffDTO
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
-    public virtual UserDTO StaffInfo { get; set; }
+    public virtual UserModel StaffInfo { get; set; }
 }
