@@ -15,7 +15,7 @@ nupkg/
 .vs/
 
 compose.yaml
-Server.API/appsettings.json
+
 
 # Fleet
 .fleet/
