@@ -1,0 +1,38 @@
+name: Compose Docker Cloud Project
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker-compose:
+    runs-on: self-hosted
+    environment: docker
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Run Docker Compose
+        run: |
+          docker compose -f server/compose.production.yaml up --build -d
+        env:
+          PgPassword: ${{ secrets.PgPassword }}
+          JwtKey: ${{ secrets.JwtKey }}
+          JwtRefreshKey: ${{ secrets.JwtRefreshKey }}
+          MailServer: ${{ secrets.MailServer }}
+          MailPort: ${{ secrets.MailPort }}
+          MailSenderName: ${{ secrets.MailSenderName }}
+          MailSenderEmail: ${{ secrets.MailSenderEmail }}
+          MailUserName: ${{ secrets.MailUserName }}
+          MailPassword: ${{ secrets.MailPassword }}
+          CloundName: ${{ secrets.CloundName }}
+          CloundKey: ${{ secrets.CloundKey }}
+          CloundSecret: ${{ secrets.CloundSecret }}
+          ZaloPayAppId: ${{ secrets.ZaloPayAppId }}
+          ZaloPayKey1: ${{ secrets.ZaloPayKey1 }}
+          ZaloPayKey2: ${{ secrets.ZaloPayKey2 }}
+          PayOSClientId: ${{ secrets.PayOSClientId }}
+          PayOSApiKey: ${{ secrets.PayOSApiKey }}
+          PayOSChecksumKey: ${{ secrets.PayOSChecksumKey }}
+          PayOSDomain: ${{ secrets.PayOSDomain }}
