@@ -17,6 +17,7 @@ namespace Server.Data.UnitOfWorks
         private CategoryRepository _categoryRepo;
         private AppointmentsRepository _apointmentRepo;
         private StaffRepository _staffRepo;
+        private BlogRepository _blogRepo;
 
         public UnitOfWorks(AppDbContext dbContext)
         {
@@ -76,6 +77,11 @@ namespace Server.Data.UnitOfWorks
         public StaffRepository StaffRepository
         {
             get { return _staffRepo ??= new StaffRepository(_dbContext); }
+        }
+
+        public BlogRepository BlogRepository
+        {
+            get { return _blogRepo ??= new BlogRepository(_dbContext);}
         }
     }
 }

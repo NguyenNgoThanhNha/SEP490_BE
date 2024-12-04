@@ -132,6 +132,11 @@ namespace Server.Data.SeedData
                 }
 
                 await Task.CompletedTask;
+
+                if (!_context.Blogs.Any())
+                {
+                    await SeedBlogs();
+                }
             }
             catch (Exception ex)
             {
@@ -902,6 +907,26 @@ namespace Server.Data.SeedData
 
             // Lưu danh sách Staff vào cơ sở dữ liệu
             await _context.Staffs.AddRangeAsync(staffList);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedBlogs()
+        {
+            var blogs = new List<Blog>
+    {
+        new Blog { Title = "How to Relax at a Spa", Content = "Learn the best ways to enjoy a relaxing spa day.", AuthorId = 1, Status = "Published", Note = "Popular blog" },
+        new Blog { Title = "Benefits of Facial Treatments", Content = "Explore the advantages of getting a facial treatment.", AuthorId = 2, Status = "Published", Note = "Informative"},
+        new Blog {Title = "Top 5 Spa Treatments for Stress Relief", Content = "A guide to the most effective spa treatments for stress relief.", AuthorId = 3, Status = "Draft", Note = "Needs review"},
+        new Blog {Title = "Skincare Tips for Beginners", Content = "Simple and effective skincare tips for beginners.", AuthorId = 4, Status = "Published", Note = "Great for beginners"},
+        new Blog {Title = "The Art of Aromatherapy", Content = "Discover the benefits and techniques of aromatherapy.", AuthorId = 5, Status = "Pending Review", Note = "Awaiting approval"},
+        new Blog {Title = "How to Choose the Right Spa Package", Content = "Tips on selecting the perfect spa package for your needs.", AuthorId = 1, Status = "Published", Note = "Customer favorite"},
+        new Blog {Title = "The Importance of Self-Care", Content = "Why self-care is essential for mental and physical health.", AuthorId = 2, Status = "Published", Note = "Motivational"},
+        new Blog {Title = "Exploring Hot Stone Therapy", Content = "Everything you need to know about hot stone therapy.", AuthorId = 3, Status = "Draft", Note = "Needs additional content"},
+        new Blog {Title = "Tips for Maintaining Healthy Skin", Content = "Best practices for keeping your skin healthy and radiant.", AuthorId = 4, Status = "Published", Note = "Well-researched"},
+        new Blog {Title = "The Science Behind Spa Therapies", Content = "Understanding how spa therapies benefit your body and mind.", AuthorId = 5, Status = "Pending Review", Note = "Detailed insights"}
+    };
+
+            await _context.Blogs.AddRangeAsync(blogs);
             await _context.SaveChangesAsync();
         }
 
