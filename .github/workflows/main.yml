@@ -17,7 +17,9 @@ jobs:
         run: |
           docker compose -f server/compose.production.yaml up --build -d
         env:
-          PgPassword: ${{ secrets.PgPassword }}
+          MySQLPassword: ${{ secrets.MySQLPassword }}
+          PortServer: ${{ secrets.PortServer }}
+          PortDatabase: ${{ secrets.PortDatabase }}
           JwtKey: ${{ secrets.JwtKey }}
           JwtRefreshKey: ${{ secrets.JwtRefreshKey }}
           MailServer: ${{ secrets.MailServer }}
