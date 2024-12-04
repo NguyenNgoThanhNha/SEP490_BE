@@ -29,20 +29,20 @@ namespace Server.Business.Mappers
             CreateMap<Branch_Promotion, BranchPromotionDTO>().ReverseMap();
             CreateMap<BranchPromotionModel, BranchPromotionDTO>().ReverseMap();
            
-        
+            CreateMap<Staff, StaffModel>().ReverseMap();
+            CreateMap<Staff, StaffDTO>().ReverseMap();
+            CreateMap<StaffModel, StaffDTO>().ReverseMap();
 
             CreateMap<Product, ProductModel>().ReverseMap();
             CreateMap<ProductModel, ProductDto>().ReverseMap();
             CreateMap<Product, ProductDto>().ReverseMap();
+            
             CreateMap<Category, CategoryModel>().ReverseMap();
             CreateMap<Category, CategoryDetailDto>().ReverseMap();
             CreateMap<CategoryModel, CategoryDetailDto>().ReverseMap();
-
-
+            
             CreateMap<CUOrderDto, Order>();
-
             CreateMap<CUOrderDetailDto, OrderDetail>();
-
             CreateMap<CUAppointmentDto, Appointments>();
 
             CreateMap<Appointments, AppointmentsModel>().ReverseMap();
