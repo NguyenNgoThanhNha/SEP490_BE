@@ -13,9 +13,11 @@ public class Product
     public string ProductName { get; set; }
     
     public string ProductDescription { get; set; }
-    
     public decimal Price { get; set; }
     
+    public string? Dimension { get; set; }    
+    
+    public decimal? Volume { get; set; }
     public int Quantity { get; set; } // Số lượng hàng tồn kho tại công ty
     
     public string? Status { get; set; }

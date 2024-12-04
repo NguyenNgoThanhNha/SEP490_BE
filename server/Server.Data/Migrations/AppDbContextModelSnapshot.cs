@@ -546,6 +546,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Dimension")
+                        .HasColumnType("longtext");
+
                     b.Property<decimal?>("Discount")
                         .HasColumnType("decimal(18,2)");
 
@@ -569,6 +572,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<decimal?>("Volume")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("ProductId");
 
                     b.HasIndex("CategoryId");
@@ -576,6 +582,26 @@ namespace Server.Data.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Product");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.ProductImages", b =>
+                {
+                    b.Property<int>("ProductImagesId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("image")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("ProductImagesId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Promotion", b =>
@@ -693,6 +719,26 @@ namespace Server.Data.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Service");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.ServiceImages", b =>
+                {
+                    b.Property<int>("ServiceImagesId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("image")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("ServiceImagesId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("ServiceImages");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Shipping", b =>
@@ -1232,6 +1278,17 @@ namespace Server.Data.Migrations
                     b.Navigation("Company");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.ProductImages", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
                 {
                     b.HasOne("Server.Data.Entities.Branch", "Branch")
@@ -1260,6 +1317,17 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.ServiceImages", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Shipping", b =>
