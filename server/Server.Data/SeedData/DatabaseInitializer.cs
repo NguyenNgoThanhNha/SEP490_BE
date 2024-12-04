@@ -130,6 +130,18 @@ namespace Server.Data.SeedData
                 {
                     await SeedStaff();
                 }
+                
+                // Product Image
+                if (!_context.ProductImages.Any())
+                {
+                    await SeedProductImages();
+                }
+                
+                // Service Image
+                if (!_context.ServiceImages.Any())
+                {
+                    await SeedServiceImages();
+                }
 
                 await Task.CompletedTask;
             }
@@ -405,28 +417,31 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active", ProductName = "Facial Cleanser",
                     ProductDescription = "Sản phẩm làm sạch sâu da mặt", Price = 150_000m, Quantity = 100,
-                    Discount = 0.1m, CategoryId = 1, CompanyId = 1
+                    Discount = 0.1m, CategoryId = 1, CompanyId = 1, Dimension = "200ml", Volume = 200m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Hydrating Toner", ProductDescription = "Toner dưỡng ẩm",
-                    Price = 120_000m, Quantity = 150, Discount = 0.05m, CategoryId = 2, CompanyId = 1
+                    Price = 120_000m, Quantity = 150, Discount = 0.05m, CategoryId = 2, CompanyId = 1,
+                    Dimension = "150ml", Volume = 150m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Anti-Aging Serum", ProductDescription = "Serum chống lão hóa",
-                    Price = 250_000m, Quantity = 80, Discount = 0.15m, CategoryId = 3, CompanyId = 1
+                    Price = 250_000m, Quantity = 80, Discount = 0.15m, CategoryId = 3, CompanyId = 1,
+                    Dimension = "50ml", Volume = 50m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Sunscreen SPF50+",
                     ProductDescription = "Kem chống nắng bảo vệ da SPF50+", Price = 200_000m, Quantity = 200,
-                    Discount = 0.1m, CategoryId = 4, CompanyId = 1
+                    Discount = 0.1m, CategoryId = 4, CompanyId = 1, Dimension = "100ml", Volume = 100m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Moisturizing Cream", ProductDescription = "Kem dưỡng ẩm sâu",
-                    Price = 180_000m, Quantity = 120, Discount = 0.1m, CategoryId = 5, CompanyId = 1
+                    Price = 180_000m, Quantity = 120, Discount = 0.1m, CategoryId = 5, CompanyId = 1,
+                    Dimension = "250g", Volume = 250m
                 },
 
                 // Các sản phẩm trị liệu
@@ -434,55 +449,63 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active", ProductName = "Acne Treatment Gel",
                     ProductDescription = "Gel điều trị mụn hiệu quả", Price = 140_000m, Quantity = 90, Discount = 0.2m,
-                    CategoryId = 6, CompanyId = 1
+                    CategoryId = 6, CompanyId = 1, Dimension = "30ml", Volume = 30m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Skin Brightening Mask", ProductDescription = "Mặt nạ làm sáng da",
-                    Price = 160_000m, Quantity = 110, Discount = 0.1m, CategoryId = 7, CompanyId = 1
+                    Price = 160_000m, Quantity = 110, Discount = 0.1m, CategoryId = 7, CompanyId = 1,
+                    Dimension = "1 sheet", Volume = null
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Exfoliating Scrub", ProductDescription = "Tẩy da chết nhẹ nhàng",
-                    Price = 130_000m, Quantity = 100, Discount = 0.05m, CategoryId = 8, CompanyId = 1
+                    Price = 130_000m, Quantity = 100, Discount = 0.05m, CategoryId = 8, CompanyId = 1,
+                    Dimension = "150ml", Volume = 150m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Eye Cream", ProductDescription = "Kem dưỡng vùng mắt",
-                    Price = 210_000m, Quantity = 85, Discount = 0.1m, CategoryId = 9, CompanyId = 1
+                    Price = 210_000m, Quantity = 85, Discount = 0.1m, CategoryId = 9, CompanyId = 1,
+                    Dimension = "30ml", Volume = 30m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Lip Balm", ProductDescription = "Sản phẩm dưỡng môi",
-                    Price = 80_000m, Quantity = 200, Discount = 0.05m, CategoryId = 10, CompanyId = 1
+                    Price = 80_000m, Quantity = 200, Discount = 0.05m, CategoryId = 10, CompanyId = 1,
+                    Dimension = "15g", Volume = 15m
                 },
 
                 // Các sản phẩm chăm sóc cơ thể
                 new Product
                 {
                     Status = "Active", ProductName = "Body Lotion", ProductDescription = "Sữa dưỡng thể dưỡng ẩm",
-                    Price = 170_000m, Quantity = 140, Discount = 0.1m, CategoryId = 1, CompanyId = 1
+                    Price = 170_000m, Quantity = 140, Discount = 0.1m, CategoryId = 1, CompanyId = 1,
+                    Dimension = "400ml", Volume = 400m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Hand Cream", ProductDescription = "Kem dưỡng da tay",
-                    Price = 90_000m, Quantity = 200, Discount = 0.05m, CategoryId = 2, CompanyId = 1
+                    Price = 90_000m, Quantity = 200, Discount = 0.05m, CategoryId = 2, CompanyId = 1,
+                    Dimension = "50ml", Volume = 50m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Foot Scrub", ProductDescription = "Tẩy da chết cho chân",
-                    Price = 150_000m, Quantity = 130, Discount = 0.15m, CategoryId = 3, CompanyId = 1
+                    Price = 150_000m, Quantity = 130, Discount = 0.15m, CategoryId = 3, CompanyId = 1,
+                    Dimension = "200ml", Volume = 200m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Massage Oil", ProductDescription = "Dầu massage dưỡng da",
-                    Price = 200_000m, Quantity = 120, Discount = 0.1m, CategoryId = 4, CompanyId = 1
+                    Price = 200_000m, Quantity = 120, Discount = 0.1m, CategoryId = 4, CompanyId = 1,
+                    Dimension = "300ml", Volume = 300m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Hot Stone Therapy Kit",
                     ProductDescription = "Bộ liệu pháp đá nóng", Price = 300_000m, Quantity = 50, Discount = 0.2m,
-                    CategoryId = 5, CompanyId = 1
+                    CategoryId = 5, CompanyId = 1, Dimension = "1 kit", Volume = null
                 },
 
                 // Các sản phẩm dưỡng da ban đêm
@@ -490,28 +513,31 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active", ProductName = "Night Repair Cream",
                     ProductDescription = "Kem dưỡng phục hồi ban đêm", Price = 250_000m, Quantity = 90, Discount = 0.1m,
-                    CategoryId = 6, CompanyId = 1
+                    CategoryId = 6, CompanyId = 1, Dimension = "50ml", Volume = 50m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Overnight Mask", ProductDescription = "Mặt nạ dưỡng da ban đêm",
-                    Price = 220_000m, Quantity = 75, Discount = 0.15m, CategoryId = 7, CompanyId = 1
+                    Price = 220_000m, Quantity = 75, Discount = 0.15m, CategoryId = 7, CompanyId = 1,
+                    Dimension = "100ml", Volume = 100m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Night Serum", ProductDescription = "Serum dưỡng da ban đêm",
-                    Price = 230_000m, Quantity = 85, Discount = 0.1m, CategoryId = 8, CompanyId = 1
+                    Price = 230_000m, Quantity = 85, Discount = 0.1m, CategoryId = 8, CompanyId = 1,
+                    Dimension = "50ml", Volume = 50m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Night Eye Cream",
                     ProductDescription = "Kem dưỡng vùng mắt ban đêm", Price = 240_000m, Quantity = 70, Discount = 0.1m,
-                    CategoryId = 9, CompanyId = 1
+                    CategoryId = 9, CompanyId = 1, Dimension = "30ml", Volume = 30m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Rejuvenating Balm", ProductDescription = "Kem dưỡng phục hồi da",
-                    Price = 260_000m, Quantity = 60, Discount = 0.2m, CategoryId = 10, CompanyId = 1
+                    Price = 260_000m, Quantity = 60, Discount = 0.2m, CategoryId = 10, CompanyId = 1,
+                    Dimension = "50ml", Volume = 50m
                 }
             };
 
@@ -904,7 +930,82 @@ namespace Server.Data.SeedData
             await _context.Staffs.AddRangeAsync(staffList);
             await _context.SaveChangesAsync();
         }
+        
+        private async Task SeedProductImages()
+        {
+            // Lấy danh sách tất cả các sản phẩm hiện có
+            var products = await _context.Products.ToListAsync();
 
+            // Khởi tạo danh sách ProductImages
+            var productImages = new List<ProductImages>();
+
+            // Danh sách URL ảnh ngẫu nhiên
+            var randomUrls = new List<string>
+            {
+                "https://png.pngtree.com/png-vector/20240802/ourlarge/pngtree-tranquil-spa-products-png-image_13337692.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547713.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547710.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547711.png",
+                "https://png.pngtree.com/thumb_back/fw800/background/20230903/pngtree-all-natural-beauty-spa-products-image_13209386.jpg",
+                "https://png.pngtree.com/png-vector/20240619/ourmid/pngtree-natural-spa-products-soaps-with-brushes-and-plants-png-image_12797870.png"
+            };
+
+            // Tạo 3 ảnh cho mỗi sản phẩm
+            foreach (var product in products)
+            {
+                for (int i = 1; i <= 3; i++)
+                {
+                    var randomImageUrl = randomUrls[new Random().Next(randomUrls.Count)]; // Chọn URL ngẫu nhiên
+                    productImages.Add(new ProductImages
+                    {
+                        ProductId = product.ProductId,
+                        image = randomImageUrl
+                    });
+                }
+            }
+
+            // Thêm dữ liệu vào bảng ProductImages
+            await _context.ProductImages.AddRangeAsync(productImages);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedServiceImages()
+        {
+            // Lấy danh sách tất cả các dịch vụ hiện có
+            var services = await _context.Services.ToListAsync();
+
+            // Khởi tạo danh sách ServiceImages
+            var serviceImages = new List<ServiceImages>();
+
+            // Danh sách URL ảnh ngẫu nhiên
+            var randomUrls = new List<string>
+            {
+                "https://diva.edu.vn/wp-content/uploads/2023/10/spa-gom-nhung-dich-vu-gi-1.jpeg",
+                "https://posapp.vn/wp-content/uploads/2020/07/mun-2.jpg",
+                "https://bizweb.dktcdn.net/100/385/697/files/spa-co-nhung-dich-vu-gi-5.jpg?v=1711425862233",
+                "https://chefjob.vn/wp-content/uploads/2020/07/dich-vu-spa-trong-khach-san.jpg",
+                "https://easysalon.vn/wp-content/uploads/2019/11/tim-hieu-cac-mo-hinh-spa-tren-the-gioi-5.png",
+                "https://thanhtrucmed.com/wp-content/uploads/2024/05/spa-cham-soc-da-2_1684512418.jpg"
+            };
+
+            // Tạo 3 ảnh cho mỗi dịch vụ
+            foreach (var service in services)
+            {
+                for (int i = 1; i <= 3; i++)
+                {
+                    var randomImageUrl = randomUrls[new Random().Next(randomUrls.Count)]; // Chọn URL ngẫu nhiên
+                    serviceImages.Add(new ServiceImages
+                    {
+                        ServiceId = service.ServiceId,
+                        image = randomImageUrl
+                    });
+                }
+            }
+
+            // Thêm dữ liệu vào bảng ServiceImages
+            await _context.ServiceImages.AddRangeAsync(serviceImages);
+            await _context.SaveChangesAsync();
+        }
 
     }
 
