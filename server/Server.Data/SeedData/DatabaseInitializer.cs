@@ -936,7 +936,85 @@ namespace Server.Data.SeedData
             await _context.SaveChangesAsync();
         }
 
-        private async Task SeedBlogs()
+        private async Task SeedProductImages()
+        {
+            // Lấy danh sách tất cả các sản phẩm hiện có
+            var products = await _context.Products.ToListAsync();
+
+            // Khởi tạo danh sách ProductImages
+            var productImages = new List<ProductImages>();
+
+            // Danh sách URL ảnh ngẫu nhiên
+            var randomUrls = new List<string>
+            {
+                "https://png.pngtree.com/png-vector/20240802/ourlarge/pngtree-tranquil-spa-products-png-image_13337692.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547713.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547710.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547711.png",
+                "https://png.pngtree.com/thumb_back/fw800/background/20230903/pngtree-all-natural-beauty-spa-products-image_13209386.jpg",
+                "https://png.pngtree.com/png-vector/20240619/ourmid/pngtree-natural-spa-products-soaps-with-brushes-and-plants-png-image_12797870.png"
+            };
+
+            // Tạo 3 ảnh cho mỗi sản phẩm
+            foreach (var product in products)
+            {
+                for (int i = 1; i <= 3; i++)
+                {
+                    var randomImageUrl = randomUrls[new Random().Next(randomUrls.Count)]; // Chọn URL ngẫu nhiên
+                    productImages.Add(new ProductImages
+                    {
+                        ProductId = product.ProductId,
+                        image = randomImageUrl
+                    });
+                }
+            }
+
+            // Thêm dữ liệu vào bảng ProductImages
+            await _context.ProductImages.AddRangeAsync(productImages);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedServiceImages()
+        {
+            // Lấy danh sách tất cả các dịch vụ hiện có
+            var services = await _context.Services.ToListAsync();
+
+            // Khởi tạo danh sách ServiceImages
+            var serviceImages = new List<ServiceImages>();
+
+            // Danh sách URL ảnh ngẫu nhiên
+            var randomUrls = new List<string>
+            {
+                "https://diva.edu.vn/wp-content/uploads/2023/10/spa-gom-nhung-dich-vu-gi-1.jpeg",
+                "https://posapp.vn/wp-content/uploads/2020/07/mun-2.jpg",
+                "https://bizweb.dktcdn.net/100/385/697/files/spa-co-nhung-dich-vu-gi-5.jpg?v=1711425862233",
+                "https://chefjob.vn/wp-content/uploads/2020/07/dich-vu-spa-trong-khach-san.jpg",
+                "https://easysalon.vn/wp-content/uploads/2019/11/tim-hieu-cac-mo-hinh-spa-tren-the-gioi-5.png",
+                "https://thanhtrucmed.com/wp-content/uploads/2024/05/spa-cham-soc-da-2_1684512418.jpg"
+            };
+
+            // Tạo 3 ảnh cho mỗi dịch vụ
+            foreach (var service in services)
+            {
+                for (int i = 1; i <= 3; i++)
+                {
+                    var randomImageUrl = randomUrls[new Random().Next(randomUrls.Count)]; // Chọn URL ngẫu nhiên
+                    serviceImages.Add(new ServiceImages
+                    {
+                        ServiceId = service.ServiceId,
+                        image = randomImageUrl
+                    });
+                }
+            }
+
+            // Thêm dữ liệu vào bảng ServiceImages
+            await _context.ServiceImages.AddRangeAsync(serviceImages);
+            await _context.SaveChangesAsync();
+        }
+
+    
+
+    private async Task SeedBlogs()
         {
             var blogs = new List<Blog>
     {
