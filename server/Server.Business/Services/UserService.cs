@@ -26,16 +26,23 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<Pagination<User>> GetListAsync(Expression<Func<User, bool>> filter = null,
-                                    Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null,
-                                    int? pageIndex = null, // Optional parameter for pagination (page number)
-                                    int? pageSize = null)
+        public async Task<Pagination<UserModel>> GetListAsync(
+     Expression<Func<User, bool>> filter = null,
+     Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = null,
+     int? pageIndex = 0,
+     int? pageSize = 10)
         {
-            IQueryable<User> query = _context.Users;
+            IQueryable<User> query = _unitOfWorks.UserRepository.GetAll()
+                .Include(u => u.Staff)         
+                .Include(u => u.UserRole);    
+
+
+
             if (filter != null)
             {
                 query = query.Where(filter);
             }
+
 
             if (orderBy != null)
             {
@@ -44,27 +51,24 @@ namespace Server.Business.Services
 
             var totalItemsCount = await query.CountAsync();
 
-            if (pageIndex.HasValue && pageIndex.Value == -1)
-            {
-                pageSize = totalItemsCount; // Set pageSize to total count
-                pageIndex = 0; // Reset pageIndex to 0
-            }
-            else if (pageIndex.HasValue && pageSize.HasValue)
-            {
-                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
-                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
 
-                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                query = query.Skip(pageIndex.Value * pageSize.Value).Take(pageSize.Value);
             }
 
-            var items = await query.ToListAsync();
 
-            return new Pagination<User>
+            var users = await query.ToListAsync();
+
+
+            var userModels = _mapper.Map<List<UserModel>>(users);
+
+            return new Pagination<UserModel>
             {
                 TotalItemsCount = totalItemsCount,
                 PageSize = pageSize ?? totalItemsCount,
                 PageIndex = pageIndex ?? 0,
-                Data = items
+                Data = userModels
             };
         }
 
@@ -73,26 +77,19 @@ namespace Server.Business.Services
             return await _context.Users.SingleOrDefaultAsync(x => x.UserId == id && x.RoleID == (int)RoleConstant.RoleType.Customer && x.Status == "Active");
         }
 
-        public async Task<ApiResponse> GetAccountDetail(string username)
+        public async Task<UserModel> GetAccountDetail(string username)
         {
-            var user = await _context.Users.Select(x => new User()
-            {
-                UserName = x.UserName,
-                FullName = x.FullName,
-                Email = x.Email,
-                Gender = x.Gender,
-                City = x.City,
-                Address = x.Address,
-                BirthDate = x.BirthDate,
-                PhoneNumber = x.PhoneNumber
-            }).SingleOrDefaultAsync(x => x.UserName == username);
+            var user = await _unitOfWorks.UserRepository
+                .FindByCondition(x => x.UserName == username && x.Status == "Active")
+                .FirstOrDefaultAsync();
 
             if (user == null)
             {
-                return ApiResponse.Error("User not found");
+                return null;
             }
 
-            return ApiResponse.Succeed(user);
+
+            return _mapper.Map<UserModel>(user);
         }
 
         public async Task<UserModel> GetUserInToken(string token)

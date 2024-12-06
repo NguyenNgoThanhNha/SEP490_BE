@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
+using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
@@ -13,22 +14,25 @@ namespace Server.Business.Services
     public class CategoryService
     {
 
-        private readonly AppDbContext _context;
-        private readonly UnitOfWorks unitOfWorks;
+        private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
-        public CategoryService(AppDbContext context, UnitOfWorks unitOfWorks, IMapper mapper)
+        public CategoryService(UnitOfWorks unitOfWorks, IMapper mapper)
         {
-            _context = context;
-            this.unitOfWorks = unitOfWorks;
+            _unitOfWorks = unitOfWorks;
             _mapper = mapper;
         }
 
-        public async Task<Pagination<Category>> GetListAsync(Expression<Func<Category, bool>> filter = null,
-                                    Func<IQueryable<Category>, IOrderedQueryable<Category>> orderBy = null,
-                                    int? pageIndex = null, // Optional parameter for pagination (page number)
-                                    int? pageSize = null)
+        public async Task<Pagination<CategoryDto>> GetListAsync(
+    Expression<Func<Category, bool>> filter = null,
+    Func<IQueryable<Category>, IOrderedQueryable<Category>> orderBy = null,
+    int? pageIndex = 0,
+    int? pageSize = 10)
         {
-            IQueryable<Category> query = _context.Categorys;
+            IQueryable<Category> query = _unitOfWorks.CategoryRepository.GetAll()
+      .Include(c => c.Products) // Bao gồm danh sách sản phẩm
+          .ThenInclude(p => p.Company); // Bao gồm thông tin công ty của sản phẩm
+
+
             if (filter != null)
             {
                 query = query.Where(filter);
@@ -41,104 +45,200 @@ namespace Server.Business.Services
 
             var totalItemsCount = await query.CountAsync();
 
-            if (pageIndex.HasValue && pageIndex.Value == -1)
+            if (totalItemsCount == 0)
             {
-                pageSize = totalItemsCount; // Set pageSize to total count
-                pageIndex = 0; // Reset pageIndex to 0
-            }
-            else if (pageIndex.HasValue && pageSize.HasValue)
-            {
-                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
-                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
-
-                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+                return new Pagination<CategoryDto>
+                {
+                    TotalItemsCount = 0,
+                    PageSize = pageSize ?? 10,
+                    PageIndex = pageIndex ?? 0,
+                    Data = new List<CategoryDto>()
+                };
             }
 
-            var items = await query.ToListAsync();
+            pageIndex = pageIndex.HasValue && pageIndex.Value >= 0 ? pageIndex.Value : 0;
+            pageSize = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : 10;
 
-            return new Pagination<Category>
+            query = query.Skip(pageIndex.Value * pageSize.Value).Take(pageSize.Value);
+
+            var categories = await query.ToListAsync();
+
+            var categoryDtos = categories.Select(c => new CategoryDto
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name,
+                Description = c.Description,
+                SkinTypeSuitable = c.SkinTypeSuitable,
+                Status = c.Status,
+                ImageUrl = c.ImageUrl,
+                CreatedDate = c.CreatedDate,
+                UpdatedDate = c.UpdatedDate,
+                Products = c.Products?.Select(p => new ProductDto
+                {
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
+                    ProductDescription = p.ProductDescription,
+                    Price = p.Price,
+                    Quantity = p.Quantity,
+                    Discount = p.Discount,
+                    Status = p.Status,
+                    CategoryId = p.CategoryId,
+                    CompanyId = p.CompanyId,
+                    CompanyName = p.Company.Name,
+                    CategoryName = p.Category.Name,
+                    CreatedDate = p.CreatedDate,
+                    UpdatedDate = p.UpdatedDate
+                }).ToList() ?? new List<ProductDto>()
+            }).ToList();
+
+            var totalPagesCount = (int)Math.Ceiling(totalItemsCount / (double)pageSize.Value);
+
+            return new Pagination<CategoryDto>
             {
                 TotalItemsCount = totalItemsCount,
-                PageSize = pageSize ?? totalItemsCount,
-                PageIndex = pageIndex ?? 0,
-                Data = items
+                PageSize = pageSize.Value,
+                PageIndex = pageIndex.Value,
+                Data = categoryDtos
             };
         }
 
-        public async Task<ApiResponse> CreateCategoryAsync(CategoryCreateDto categoryCreateDto)
+        public async Task<CategoryDto> CreateCategoryAsync(CategoryCreateDto categoryCreateDto)
         {
-            try
+            // Kiểm tra danh mục đã tồn tại hay chưa
+            var existingCategory = await _unitOfWorks.CategoryRepository
+                .FindByCondition(c => c.Name.ToLower() == categoryCreateDto.Name.ToLower())
+                .FirstOrDefaultAsync();
+
+            if (existingCategory != null)
             {
-                if (categoryCreateDto == null)
-                {
-                    return ApiResponse.Error("Please enter complete information");
-                }
+                return null; // Indicate failure due to duplicate
+            }
 
-                if (string.IsNullOrEmpty(categoryCreateDto.Name) || string.IsNullOrEmpty(categoryCreateDto.Description) ||
-                    string.IsNullOrEmpty(categoryCreateDto.SkinTypeSuitable) || string.IsNullOrEmpty(categoryCreateDto.ImageUrl))
-                {
-                    return ApiResponse.Error("Please enter complete information");
-                }
+            // Tạo danh mục mới
+            var newCategory = new Category
+            {
+                Name = categoryCreateDto.Name,
+                Description = categoryCreateDto.Description,
+                SkinTypeSuitable = categoryCreateDto.SkinTypeSuitable,
+                Status = "Active",
+                ImageUrl = categoryCreateDto.ImageUrl,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
 
-                // Tạo danh mục mới
-                var newCategory = new Category
+            // Thêm vào cơ sở dữ liệu
+            await _unitOfWorks.CategoryRepository.AddAsync(newCategory);
+
+            // Lưu thay đổi
+            var result = await _unitOfWorks.CategoryRepository.Commit();
+
+            if (result > 0)
+            {
+                // Map entity sang DTO
+                var categoryDto = new CategoryDto
                 {
-                    Name = categoryCreateDto.Name,
-                    Description = categoryCreateDto.Description,
-                    SkinTypeSuitable = categoryCreateDto.SkinTypeSuitable,
-                    Status = "Active",
-                    ImageUrl = categoryCreateDto.ImageUrl,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
+                    CategoryId = newCategory.CategoryId,
+                    Name = newCategory.Name,
+                    Description = newCategory.Description,
+                    SkinTypeSuitable = newCategory.SkinTypeSuitable,
+                    Status = newCategory.Status,
+                    ImageUrl = newCategory.ImageUrl,
+                    CreatedDate = newCategory.CreatedDate,
+                    UpdatedDate = newCategory.UpdatedDate,
+                    Products = new List<ProductDto>() // Mặc định chưa có sản phẩm
                 };
 
-                // Thêm danh mục mới vào cơ sở dữ liệu
-                await _context.Categorys.AddAsync(newCategory);
-                await _context.SaveChangesAsync();
+                return categoryDto;
+            }
 
-                // Trả về kết quả thành công với danh mục vừa tạo
-                return ApiResponse.Succeed(newCategory);
-            }
-            catch (Exception ex)
-            {
-                return ApiResponse.Error(ex.Message);
-            }
+            return null; // Indicate failure due to database issues
         }
 
+        public async Task<CategoryModel> GetCategoryByIdAsync(int categoryId)
+        {
+            // Lấy danh mục từ repository
+            var category = await _unitOfWorks.CategoryRepository
+    .FindByCondition(c => c.CategoryId == categoryId)
+    .Include(c => c.Products) // Bao gồm sản phẩm
+    .ThenInclude(p => p.Company) // Bao gồm thông tin công ty
+    .FirstOrDefaultAsync();
 
+            // Kiểm tra nếu không tìm thấy danh mục
+            if (category == null)
+            {
+                throw new NotFoundException("Category not found.");
+            }
 
-        public async Task<Category?> GetCategoryByIdAsync(int categoryId)
+            // Map dữ liệu sang CategoryModel (hoặc DTO)
+            var categoryModel = new CategoryModel
+            {
+                CategoryId = category.CategoryId,
+                Name = category.Name,
+                Description = category.Description,
+                SkinTypeSuitable = category.SkinTypeSuitable,
+                Status = category.Status,
+                ImageUrl = category.ImageUrl,
+                CreatedDate = category.CreatedDate,
+                UpdatedDate = category.UpdatedDate,
+                Products = category.Products?.Select(p => new ProductModel
+                {
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
+                    ProductDescription = p.ProductDescription,
+                    Price = p.Price,
+                    Quantity = p.Quantity,
+                    Discount = p.Discount,
+                    Status = p.Status,
+                    CategoryId = p.CategoryId,
+                    CompanyId = p.CompanyId,
+                    CompanyName = p.Company.Name,
+                    CategoryName = p.Category.Name,
+                    CreatedDate = p.CreatedDate,
+                    UpdatedDate = p.UpdatedDate
+                }).ToList()
+            };
+
+            return categoryModel;
+        }
+
+        public async Task<GetAllCategoryPaginationResponse> GetAllCategoryAsync(int page = 1, int pageSize = 4)
         {
             try
             {
+                // Lấy danh sách tất cả các danh mục từ repository
+                var categoriesQuery = _unitOfWorks.CategoryRepository.GetAll()
+                    .Include(c => c.Products) // Bao gồm danh sách sản phẩm nếu cần
+                    .ThenInclude(p => p.Company); // Bao gồm thông tin công ty của sản phẩm
 
-                var category = await _context.Categorys
-            .Include(c => c.Products) // Bao gồm danh sách sản phẩm nếu cần
-            .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
+                // Lấy danh sách danh mục
+                var categories = await categoriesQuery.OrderBy(c => c.CategoryId).ToListAsync();
 
-                return category;
-            }
-            catch (Exception ex)
-            {
-                // Xử lý lỗi (nếu có)
-                Console.WriteLine($"Error occurred: {ex.Message}");
-                return null;  // Trả về null nếu không tìm thấy sản phẩm hoặc có lỗi
-            }
-        }
+                if (categories == null || categories.Count == 0)
+                {
+                    return new GetAllCategoryPaginationResponse
+                    {
+                        data = new List<CategoryModel>(),
+                        pagination = new Pagination
+                        {
+                            page = page,
+                            totalPage = 0,
+                            totalCount = 0
+                        }
+                    };
+                }
 
-        public async Task<GetAllCategoryPaginationResponse> GetAllCategory(int page)
-        {
-            try
-            {
-                const int pageSize = 4;
+                // Tổng số danh mục
+                var totalCount = categories.Count;
 
-                var categories = await unitOfWorks.CategoryRepository.GetAll()
-                    .ToListAsync();
-
-                var totalCount = categories.Count();
+                // Tính tổng số trang
                 var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+                // Phân trang
                 var pagedCategories = categories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+                // Map từ entity sang model
                 var categoryModels = _mapper.Map<List<CategoryModel>>(pagedCategories);
+
                 return new GetAllCategoryPaginationResponse
                 {
                     data = categoryModels,
@@ -152,142 +252,99 @@ namespace Server.Business.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error retrieving products", ex);
+                throw new Exception($"Error retrieving categories: {ex.Message}", ex);
             }
         }
 
-        //public async Task<ApiResult<Category>> UpdateCategoryAsync(int categoryId, CategoryUpdateDto categoryUpdateDto)
-        //{
-        //    try
-        //    {
-        //        if (categoryUpdateDto == null)
-        //        {
-        //            return ApiResult<Category>.Error(null);
-        //        }
-
-        //        if (string.IsNullOrEmpty(categoryUpdateDto.Name) || string.IsNullOrEmpty(categoryUpdateDto.Description) ||
-        //            string.IsNullOrEmpty(categoryUpdateDto.SkinTypeSuitable) || string.IsNullOrEmpty(categoryUpdateDto.ImageUrl) ||
-        //            string.IsNullOrEmpty(categoryUpdateDto.Status))
-        //        {
-        //            return ApiResult<Category>.Error(new Category { Description = "Invalid value input" });
-        //        }
-
-        //        // Kiểm tra giá trị của Status
-        //        if (categoryUpdateDto.Status != "Active" && categoryUpdateDto.Status != "Inactive")
-        //        {
-        //            return ApiResult<Category>.Error(new Category { Description = "Status must be either 'Active' or 'Inactive'" });
-        //        }
-
-        //        var existingCategory = await _context.Categorys.FirstOrDefaultAsync(p => p.CategoryId == categoryId);
-        //        if (existingCategory == null)
-        //        {
-        //            return ApiResult<Category>.Error(new Category { Description = "Category not found" });
-        //        }
-
-        //        // Cập nhật thông tin
-        //        existingCategory.Name = categoryUpdateDto.Name;
-        //        existingCategory.Description = categoryUpdateDto.Description;
-        //        existingCategory.SkinTypeSuitable = categoryUpdateDto.SkinTypeSuitable;
-        //        existingCategory.Status = categoryUpdateDto.Status;
-        //        existingCategory.ImageUrl = categoryUpdateDto.ImageUrl;
-        //        existingCategory.UpdatedDate = DateTime.Now;
-
-        //        // Lưu các thay đổi vào cơ sở dữ liệu
-        //        _context.Categorys.Update(existingCategory);
-        //        await _context.SaveChangesAsync();
-
-        //        // Trả về kết quả thành công với sản phẩm vừa cập nhật
-        //        return ApiResult<Category>.Succeed(existingCategory);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Trả về lỗi nếu có ngoại lệ
-        //        return ApiResult<Category>.Error(new Category { Description = $"Error: {ex.Message}" });
-        //    }
-        //}
-
-        public async Task<ApiResponse> UpdateCategoryAsync(int categoryId, CategoryUpdateDto categoryUpdateDto)
+        public async Task<CategoryModel> UpdateCategoryAsync(int categoryId, CategoryUpdateDto categoryUpdateDto)
         {
-            try
+            // Kiểm tra đầu vào
+            if (categoryUpdateDto == null)
             {
-                if (categoryUpdateDto == null)
-                {
-                    return ApiResponse.Error("Category data is required.");
-                }
-
-                if (string.IsNullOrEmpty(categoryUpdateDto.Name) || string.IsNullOrEmpty(categoryUpdateDto.Description) ||
-                    string.IsNullOrEmpty(categoryUpdateDto.SkinTypeSuitable) || string.IsNullOrEmpty(categoryUpdateDto.ImageUrl) ||
-                    string.IsNullOrEmpty(categoryUpdateDto.Status))
-                {
-                    return ApiResponse.Error("Invalid value input");
-                }
-
-                // Kiểm tra giá trị của Status
-                if (categoryUpdateDto.Status != "Active" && categoryUpdateDto.Status != "Inactive")
-                {
-                    return ApiResponse.Error("Status must be either 'Active' or 'Inactive'");
-                }
-
-                var existingCategory = await _context.Categorys.FirstOrDefaultAsync(p => p.CategoryId == categoryId);
-                if (existingCategory == null)
-                {
-                    return ApiResponse.Error("Category not found");
-                }
-
-                // Cập nhật thông tin
-                existingCategory.Name = categoryUpdateDto.Name;
-                existingCategory.Description = categoryUpdateDto.Description;
-                existingCategory.SkinTypeSuitable = categoryUpdateDto.SkinTypeSuitable;
-                existingCategory.Status = categoryUpdateDto.Status;
-                existingCategory.ImageUrl = categoryUpdateDto.ImageUrl;
-                existingCategory.UpdatedDate = DateTime.Now;
-
-                // Lưu các thay đổi vào cơ sở dữ liệu
-                await _context.SaveChangesAsync();
-
-                // Truy vấn lại bản ghi đã cập nhật từ cơ sở dữ liệu để đảm bảo CategoryId chính xác
-                var updatedCategory = await _context.Categorys.FindAsync(categoryId);
-
-                // Trả về kết quả thành công với danh mục đã cập nhật
-                return ApiResponse.Succeed(updatedCategory);
+                throw new BadRequestException("Category data is required.");
             }
-            catch (Exception ex)
+
+            if (string.IsNullOrEmpty(categoryUpdateDto.Name) ||
+                string.IsNullOrEmpty(categoryUpdateDto.Description) ||
+                string.IsNullOrEmpty(categoryUpdateDto.SkinTypeSuitable) ||
+                string.IsNullOrEmpty(categoryUpdateDto.ImageUrl) ||
+                string.IsNullOrEmpty(categoryUpdateDto.Status))
             {
-                return ApiResponse.Error($"Error: {ex.Message}");
+                throw new BadRequestException("Invalid value input.");
             }
+
+            // Kiểm tra giá trị của Status
+            if (categoryUpdateDto.Status != "Active" && categoryUpdateDto.Status != "Inactive")
+            {
+                throw new BadRequestException("Status must be either 'Active' or 'Inactive'.");
+            }
+
+            // Lấy danh mục hiện tại từ repository
+            var existingCategory = await _unitOfWorks.CategoryRepository.GetByIdAsync(categoryId);
+            if (existingCategory == null)
+            {
+                throw new NotFoundException("Category not found.");
+            }
+
+            // Cập nhật thông tin danh mục
+            existingCategory.Name = categoryUpdateDto.Name;
+            existingCategory.Description = categoryUpdateDto.Description;
+            existingCategory.SkinTypeSuitable = categoryUpdateDto.SkinTypeSuitable;
+            existingCategory.Status = categoryUpdateDto.Status;
+            existingCategory.ImageUrl = categoryUpdateDto.ImageUrl;
+            existingCategory.UpdatedDate = DateTime.Now;
+
+            // Cập nhật danh mục thông qua repository
+            _unitOfWorks.CategoryRepository.Update(existingCategory);
+
+            // Lưu các thay đổi vào cơ sở dữ liệu
+            var result = await _unitOfWorks.CategoryRepository.Commit();
+            if (result <= 0)
+            {
+                throw new Exception("Failed to update category.");
+            }
+
+            // Ánh xạ sang model
+            var updatedCategoryModel = _mapper.Map<CategoryModel>(existingCategory);
+            return updatedCategoryModel;
         }
-
-
-        public async Task<ApiResponse> DeleteCategoryAsync(int categoryId)
+        public async Task<CategoryModel> DeleteCategoryAsync(int categoryId)
         {
-            // Tìm danh mục trong cơ sở dữ liệu
-            var category = await _context.Categorys.FirstOrDefaultAsync(p => p.CategoryId == categoryId);
+            // Tìm danh mục từ cơ sở dữ liệu thông qua UnitOfWork
+            var category = await _unitOfWorks.CategoryRepository.GetByIdAsync(categoryId);
 
             if (category == null)
             {
-                return ApiResponse.Error("Category not found.");
+                throw new BadRequestException("Category not found!");
             }
 
             // Kiểm tra xem có dịch vụ nào liên kết với danh mục không
-            var hasLinkedServices = await _context.Services.AnyAsync(s => s.CategoryId == category.CategoryId);
+            var hasLinkedServices = await _unitOfWorks.ServiceRepository
+                .FindByCondition(s => s.CategoryId == category.CategoryId)
+                .AnyAsync();
 
             if (hasLinkedServices)
             {
-                return ApiResponse.Error("Cannot delete category as it is linked to a service.");
+                throw new BadRequestException("Cannot delete category as it is linked to a service!");
             }
 
-            // Nếu không có dịch vụ nào liên kết, cập nhật trạng thái thành "Inactive"
+            // Cập nhật trạng thái thành "Inactive"
             category.Status = "Inactive";
-            _context.Categorys.Update(category);
+            category.UpdatedDate = DateTime.Now;
 
-            // Lưu thay đổi vào cơ sở dữ liệu
-            await _context.SaveChangesAsync();
+            // Cập nhật danh mục trong cơ sở dữ liệu
+            _unitOfWorks.CategoryRepository.Update(category);
 
-            return ApiResponse.Succeed(category, "Category status updated.");
+            // Lưu thay đổi
+            var result = await _unitOfWorks.CategoryRepository.Commit();
+
+            if (result <= 0)
+            {
+                throw new InvalidOperationException("Failed to update category status.");
+            }
+
+            // Map dữ liệu danh mục thành CategoryModel và trả về
+            return _mapper.Map<CategoryModel>(category);
         }
-
-
-
-
     }
 }

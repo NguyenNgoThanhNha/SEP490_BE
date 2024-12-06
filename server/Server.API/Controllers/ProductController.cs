@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Server.API.Controllers.Gaurd;
 using Server.API.Extensions;
+using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
@@ -10,14 +11,14 @@ using System.Linq.Expressions;
 
 namespace Server.API.Controllers
 {
-    [Authorize]
+    // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductController : ControllerBase
     {
         private readonly ProductService _productService;
         private readonly BranchService _branchService;
-        private readonly AppDbContext _context;
+
         public ProductController(ProductService productService, BranchService branchService)
         {
             _productService = productService;
@@ -25,161 +26,140 @@ namespace Server.API.Controllers
         }
 
         [HttpGet("get-list")]
-        public async Task<IActionResult> GetList(string? productName,
-                        string? description,
-                        string? categoryName,
-                        string? companyName,
-                        decimal? price,
-                        decimal? endPrice,
-                        int? filterTypePrice = 0,
-                        int pageIndex = 0,
-                        int pageSize = 10)
+        public async Task<IActionResult> GetList(
+    string? productName,
+    string? description,
+    string? categoryName,
+    string? companyName,
+    decimal? price,
+    decimal? endPrice,
+    int? filterTypePrice = 0,
+    int pageIndex = 0,
+    int pageSize = 10)
         {
-            Expression<Func<Product, bool>> filter = c => (string.IsNullOrEmpty(productName) || c.ProductName.ToLower().Contains(productName.ToLower()))
-                && (string.IsNullOrEmpty(description) || c.ProductDescription.ToLower().Contains(description.ToLower()))
-                && (string.IsNullOrEmpty(categoryName) || c.Category.Name.ToLower().Contains(categoryName.ToLower()))
-                && (string.IsNullOrEmpty(companyName) || c.Company.Name.ToLower().Contains(companyName.ToLower()));
+            Expression<Func<Product, bool>> filter = p =>
+                (string.IsNullOrEmpty(productName) || p.ProductName.ToLower().Contains(productName.ToLower()))
+                && (string.IsNullOrEmpty(description) || p.ProductDescription.ToLower().Contains(description.ToLower()))
+                && (string.IsNullOrEmpty(categoryName) || p.Category.Name.ToLower().Contains(categoryName.ToLower()))
+                && (string.IsNullOrEmpty(companyName) || p.Company.Name.ToLower().Contains(companyName.ToLower()))
+                && p.Status == "Active";
 
-            Expression<Func<Product, bool>> priceFilter = null;
-            if (price != null && price > 0)
+            if (price.HasValue && price > 0)
             {
-                if (filterTypePrice == 0 && (endPrice != null && endPrice > 0)) // khoảng
+                if (filterTypePrice == 0 && endPrice.HasValue && endPrice > 0) // khoảng
                 {
-                    priceFilter = c => c.Price >= price && c.Price <= endPrice;
+                    filter = filter.And(p => p.Price >= price && p.Price <= endPrice);
                 }
                 else if (filterTypePrice == 1) // nhỏ hơn
                 {
-                    priceFilter = c => c.Price <= price;
+                    filter = filter.And(p => p.Price <= price);
                 }
-                else  // lớn hơn
+                else // lớn hơn
                 {
-                    priceFilter = c => c.Price >= price;
+                    filter = filter.And(p => p.Price >= price);
                 }
-                filter = filter.And(priceFilter);
             }
 
-            var response = await _productService.GetListAsync(
+            var products = await _productService.GetListAsync(
                 filter: filter,
-                includeProperties: "Category,Company",
+                includeProperties: "Category,Company", // Include bảng liên quan
                 pageIndex: pageIndex,
-                pageSize: pageSize);
+                pageSize: pageSize
+            );
 
-            return Ok(ApiResponse.Succeed(response));
-        }
-
-        [CustomAuthorize("Admin,Manager")]
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
-        {
-
-            if (productCreateDto == null)
+            if (products == null || !products.Data.Any())
             {
-                return BadRequest("Invalid product data.");
-            }
-
-            try
-            {
-                var result = await _productService.CreateProductAsync(productCreateDto);
-
-                if (result.message == null)
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-
-                    return Ok(result);
-                }
-                else
-                {
-
-                    return BadRequest(result.message);
-                }
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(500, ApiResponse.Error($"Internal server error: {ex.Message}"));
-            }
-        }
-
-        [HttpGet("{productId}")]
-        public async Task<IActionResult> GetProductById(int productId)
-        {
-
-            var product = await _productService.GetProductByIdAsync(productId);
-
-            if (product == null)
-            {
-
-                return NotFound(ApiResponse.Error($"Product with ID {productId} not found."));
+                    message = "No products found!"
+                }));
             }
 
-
-            var productDto = new ProductDto
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                ProductId = product.ProductId,
-                ProductName = product.ProductName,
-                ProductDescription = product.ProductDescription,
-                Price = product.Price,
-                Quantity = product.Quantity,
-                Discount = product.Discount,
-                CategoryId = product.CategoryId,
-                CompanyId = product.CompanyId,
-                CategoryName = product.Category?.Name,
-                CompanyName = product.Company?.Name,
-                CreatedDate = product.CreatedDate,
-                UpdatedDate = product.UpdatedDate
-            };
-
-            return Ok(ApiResponse.Succeed(productDto));
-        }
-
-
-        [HttpGet("get-all-products")]
-        public async Task<IActionResult> Get([FromQuery] int page = 1)
-        {
-            var products = await _productService.GetAllProduct(page);
-            return Ok(ApiResponse.Succeed(new GetAllProductPaginationResponse()
-            {
-                data = products.data,
-                pagination = products.pagination
+                message = "Get products successfully!",
+                data = products
             }));
         }
 
 
-        [HttpGet("filter")]
-        public async Task<IActionResult> FilterProductsAsync([FromQuery] string? productName, [FromQuery] string? productDescription, [FromQuery] decimal? price, [FromQuery] int? quantity, [FromQuery] decimal? discount, [FromQuery] string? categoryName, [FromQuery] string? companyName)
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
         {
-            try
+            if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
 
-                var filteredProducts = await _productService.FilterProductAsync(productName, productDescription, price, quantity, discount, categoryName, companyName);
-
-
-                if (filteredProducts == null || !filteredProducts.Any())
-                {
-                    return NotFound(ApiResponse.Error("No products found matching the filter criteria."));
-                }
-
-                var result = filteredProducts.Select(d => new ProductDto
-                {
-                    ProductId = d.ProductId,
-                    ProductName = d.ProductName,
-                    ProductDescription = d.ProductDescription,
-                    Price = d.Price,
-                    Quantity = d.Quantity,
-                    Discount = d.Discount,
-                    CategoryName = d.Category?.Name,
-                    CompanyName = d.Company?.Name,
-                }).ToList();
-
-
-                return Ok(ApiResponse.Succeed(result));
+                return BadRequest(ApiResult<List<string>>.Error(errors));
             }
-            catch (Exception ex)
+
+            // Gọi service để tạo sản phẩm
+            var result = await _productService.CreateProductAsync(productCreateDto);
+
+            // Kiểm tra nếu có lỗi
+            if (!result.Success) // Nếu `Success` là false
             {
-                return StatusCode(500, ApiResponse.Error("An error occurred while processing your request."));
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = result.Result?.message
+                }));
             }
+
+            // Trả về phản hồi thành công
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Product created successfully!",
+                data = result.Result?.data
+            }));
         }
 
 
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProductById(int productId)
+        {
+            var product = await _productService.GetProductByIdAsync(productId);
+
+            if (product == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Product with ID {productId} not found."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Get product successfully!",
+                data = product
+            }));
+        }
+
+
+        [HttpGet("get-all-products")]
+        public async Task<IActionResult> GetAllProducts(int page = 1)
+        {
+            var products = await _productService.GetAllProduct(page);
+
+            if (products == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "No products found!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Get all products successfully!",
+                data = products
+            }));
+        }
+
+        [Authorize(Roles = "Admin, Manager,Staff")]
         [HttpGet("check-quantity-branch")]
         public async Task<IActionResult> CheckProductInBranchAsync(int productId, int branchId)
         {
@@ -194,7 +174,7 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResponse.Error("Branch not found"));
             }
 
-            var productBranch = await _productService.GetProductInBranch(productId, branchId);
+            var productBranch = await _productService.GetProductInBranchAsync(productId, branchId);
             if (productBranch == null)
             {
                 return BadRequest(ApiResponse.Error("This product not exist in branch"));
@@ -203,75 +183,91 @@ namespace Server.API.Controllers
             return Ok(ApiResponse.Succeed(productBranch));
         }
 
-        [CustomAuthorize("Admin,Manager")]
-        [HttpPut("update{productId}")]
+
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpPut("update/{productId}")]
         public async Task<IActionResult> UpdateProduct(int productId, [FromBody] ProductUpdateDto productUpdateDto)
         {
+            // Kiểm tra tính hợp lệ của ModelState
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse.Error("Invalid model state"));
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-
+            // Gọi service để cập nhật sản phẩm
             var result = await _productService.UpdateProductAsync(productId, productUpdateDto);
 
-
-            if (result.message != null)
+            // Xử lý nếu kết quả thất bại
+            if (!result.Success)
             {
-                return BadRequest(result);
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = result.Result?.message // Lấy thông báo lỗi từ service
+                }));
             }
 
-
-            Product product = (Product)result.data;
-            var productDetailDto = new ProductDetailDto
+            // Trả về phản hồi thành công
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                ProductName = product.ProductName,
-                ProductDescription = product.ProductDescription,
-                Price = product.Price,
-                Quantity = product.Quantity,
-                Discount = (decimal)product.Discount,
-                CategoryId = product.CategoryId,
-                CompanyId = product.CompanyId,
-                CategoryName = _context.Categorys
-                                             .Where(c => c.CategoryId == product.CategoryId)
-                                             .Select(c => c.Name)
-                                             .FirstOrDefault(),
-                CompanyName = _context.Companies
-                                             .Where(c => c.CompanyId == product.CompanyId)
-                                             .Select(c => c.Name)
-                                             .FirstOrDefault(),
-                CreatedDate = product.CreatedDate,
-                UpdatedDate = product.UpdatedDate
-            };
-
-
-            return Ok(ApiResponse.Succeed(productDetailDto));
+                message = "Product updated successfully!",
+                data = result.Result?.data // Dữ liệu sản phẩm sau khi cập nhật
+            }));
         }
 
-        [CustomAuthorize("Admin,Manager")]
+
+        [Authorize(Roles = "Admin, Manager")]
         [HttpDelete("{productId}")]
+
         public async Task<IActionResult> DeleteProduct(int productId)
         {
             try
             {
-                bool result = await _productService.DeleteProductAsync(productId);
-                if (result)
+                // Gọi service để thực hiện xóa sản phẩm
+                var result = await _productService.DeleteProductAsync(productId);
+
+                // Kiểm tra kết quả
+                if (result == null || string.IsNullOrEmpty(result.message))
                 {
-                    return Ok(ApiResponse.Succeed(null, "Product deleted successfully."));
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Product not found or cannot be deleted."
+                    }));
                 }
-                else
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    return NotFound(ApiResponse.Error("Product not found."));
-                }
+                    message = "Product deleted successfully!"
+                }));
             }
             catch (InvalidOperationException ex)
             {
-                return BadRequest(ApiResponse.Error(ex.Message));
+                // Xử lý lỗi liên quan đến ràng buộc dữ liệu
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = ex.Message
+                }));
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ApiResponse.Error(ex.Message));
+                // Xử lý lỗi nếu không tìm thấy sản phẩm
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = ex.Message
+                }));
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi chung
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"An error occurred while deleting the product: {ex.Message}"
+                }));
             }
         }
+
     }
 }
