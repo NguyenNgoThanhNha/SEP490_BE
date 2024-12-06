@@ -8,18 +8,19 @@ using Server.Data.Entities;
 
 namespace Server.API.Controllers
 {
-    [Authorize]
-    [CustomAuthorize("Admin,Manager")]
+    [Authorize]    
     [Route("api/[controller]")]
     [ApiController]
     public class StaffController : ControllerBase
     {
         private readonly StaffService _staffService;
+        private readonly UserService _userService;
         private readonly AppDbContext _context;
-        public StaffController(StaffService staffService, AppDbContext context)
+        public StaffController(StaffService staffService, UserService userService, AppDbContext context)
         {
             _staffService = staffService;
             _context = context;
+            _userService = userService;
         }
 
         [HttpGet("get-list")]
@@ -155,6 +156,32 @@ namespace Server.API.Controllers
 
                 return StatusCode(500, new { message = $"Internal server error: {ex.Message}" });
             }
+        }
+        [CustomAuthorize("Admin,Manager,Customer")]
+        [HttpGet("get-staff-familiar")]
+        public async Task<IActionResult> GetStaffFamiliarAsync(int customerId)
+        {
+            if (customerId == 0 || await _userService.GetCustomerById(customerId) == null)
+                return BadRequest(new ApiResponse
+                {
+                    message = "Customer not found"
+                });
+            var staffs = await _staffService.GetStaffByCustomerIdAsync(customerId);
+            if (staffs == null)
+                return BadRequest(ApiResponse.Error("No staff data"));
+            return Ok(ApiResponse.Succeed(staffs));
+        }
+
+
+        [HttpGet("get-staff-familiar-last")]
+        public async Task<IActionResult> GetStaffFamiliarLastAsync(int customerId)
+        {
+            if (customerId == 0 || await _userService.GetCustomerById(customerId) == null)
+                return BadRequest(ApiResponse.Error("Customer not found"));
+            var staff = await _staffService.GetStaffLastByCustomerIdAsync(customerId);
+            if (staff == null)
+                return BadRequest(ApiResponse.Error("No staff data"));
+            return Ok(ApiResponse.Succeed(staff));
         }
 
 

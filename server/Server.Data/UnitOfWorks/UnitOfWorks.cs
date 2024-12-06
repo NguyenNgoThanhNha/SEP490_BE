@@ -1,4 +1,5 @@
-﻿using Server.Data.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Server.Data.Entities;
 using Server.Data.Repositories;
 
 namespace Server.Data.UnitOfWorks
@@ -17,6 +18,8 @@ namespace Server.Data.UnitOfWorks
         private CategoryRepository _categoryRepo;
         private AppointmentsRepository _apointmentRepo;
         private StaffRepository _staffRepo;
+        private BlogRepository _blogRepo;
+        private Brand_ProductRepository _branchProductRepository;
 
         public UnitOfWorks(AppDbContext dbContext)
         {
@@ -77,5 +80,32 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _staffRepo ??= new StaffRepository(_dbContext); }
         }
+
+        public BlogRepository BlogRepository
+        {
+            get { return _blogRepo ??= new BlogRepository(_dbContext);}
+        }
+        public Brand_ProductRepository Brand_ProductRepository
+        {
+            get { return _branchProductRepository ??= new Brand_ProductRepository(_dbContext); }
+        }
+
+        public async Task<int> Commit()
+        {
+            return await _dbContext.SaveChangesAsync();
+        }
+
+        public DbSet<Product> Products => _dbContext.Products;
+        public DbSet<Category> Categories => _dbContext.Categorys;
+        public DbSet<Company> Companies => _dbContext.Companies;
+        public DbSet<Service> Services => _dbContext.Services;
+        public DbSet<Order> Orders => _dbContext.Orders;
+        public DbSet<OrderDetail> OrderDetails => _dbContext.OrderDetails;      
+        public DbSet<User> Users => _dbContext.Users;
+        public DbSet<Voucher> Vouchers => _dbContext.Vouchers;
+
+
+
+
     }
 }

@@ -7,13 +7,10 @@ using System.Threading.Tasks;
 
 namespace Server.Business.Commons.Response
 {
-    public class GetAllCategoryPaginationResponse
+    public class GetAllBlogResponse
     {
         public string message { get; set; }
-        public List<CategoryModel> data {get;set;}
-        public Pagination pagination {get;set;}
-
+        public List<BlogModel> data { get; set; }
+        public Pagination pagination { get; set; }
     }
-
-   
 }

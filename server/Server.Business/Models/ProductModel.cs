@@ -22,6 +22,8 @@ namespace Server.Business.Models
 
         public decimal? Discount { get; set; }
 
+        public string? Status { get; set; }
+
 
         public int CategoryId { get; set; }
         public int CompanyId { get; set; }

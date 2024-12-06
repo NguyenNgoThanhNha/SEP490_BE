@@ -143,7 +143,27 @@ namespace Server.Data.SeedData
                     await SeedServiceImages();
                 }
 
+                if (!_context.Appointments.Any())
+                {
+                    await SeedAppointments();
+                }
+
+                if (!_context.Vouchers.Any())
+                {
+                    await SeedVoucherData();
+                }
+
+                if (!_context.Orders.Any() && !_context.OrderDetails.Any())
+                {
+                    await SeedOrderData();
+                }
+
                 await Task.CompletedTask;
+
+                if (!_context.Blogs.Any())
+                {
+                    await SeedBlogs();
+                }
             }
             catch (Exception ex)
             {
@@ -930,7 +950,7 @@ namespace Server.Data.SeedData
             await _context.Staffs.AddRangeAsync(staffList);
             await _context.SaveChangesAsync();
         }
-        
+
         private async Task SeedProductImages()
         {
             // Lấy danh sách tất cả các sản phẩm hiện có
@@ -1007,7 +1027,171 @@ namespace Server.Data.SeedData
             await _context.SaveChangesAsync();
         }
 
+    
+
+    private async Task SeedBlogs()
+        {
+            var blogs = new List<Blog>
+    {
+        new Blog { Title = "How to Relax at a Spa", Content = "Learn the best ways to enjoy a relaxing spa day.", AuthorId = 1, Status = "Accept", Note = "Popular blog" },
+        new Blog { Title = "Benefits of Facial Treatments", Content = "Explore the advantages of getting a facial treatment.", AuthorId = 2, Status = "Published", Note = "Informative"},
+        new Blog {Title = "Top 5 Spa Treatments for Stress Relief", Content = "A guide to the most effective spa treatments for stress relief.", AuthorId = 3, Status = "Draft", Note = "Needs review"},
+        new Blog {Title = "Skincare Tips for Beginners", Content = "Simple and effective skincare tips for beginners.", AuthorId = 4, Status = "Accept", Note = "Great for beginners"},
+        new Blog {Title = "The Art of Aromatherapy", Content = "Discover the benefits and techniques of aromatherapy.", AuthorId = 5, Status = "Pending", Note = "Awaiting approval"},
+        new Blog {Title = "How to Choose the Right Spa Package", Content = "Tips on selecting the perfect spa package for your needs.", AuthorId = 1, Status = "Accept", Note = "Customer favorite"},
+        new Blog {Title = "The Importance of Self-Care", Content = "Why self-care is essential for mental and physical health.", AuthorId = 2, Status = "Accept", Note = "Motivational"},
+        new Blog {Title = "Exploring Hot Stone Therapy", Content = "Everything you need to know about hot stone therapy.", AuthorId = 3, Status = "Rejected", Note = "Needs additional content"},
+        new Blog {Title = "Tips for Maintaining Healthy Skin", Content = "Best practices for keeping your skin healthy and radiant.", AuthorId = 4, Status = "Accept", Note = "Well-researched"},
+        new Blog {Title = "The Science Behind Spa Therapies", Content = "Understanding how spa therapies benefit your body and mind.", AuthorId = 5, Status = "Pending", Note = "Detailed insights"}
+    };
+
+            await _context.Blogs.AddRangeAsync(blogs);
+            await _context.SaveChangesAsync();
+        }
+
+
+
+
+
+        private async Task SeedAppointments()
+        {
+            var random = new Random();
+
+            // Lấy dữ liệu từ các bảng liên quan
+            var customers = await _context.Users.ToListAsync(); // Assuming 'Users' is for Customers
+            var staffList = await _context.Staffs.ToListAsync();
+            var services = await _context.Services.ToListAsync();
+            var branches = await _context.Branchs.ToListAsync();
+
+            var appointments = new List<Appointments>();
+
+            // Tạo 100 - 200 cuộc hẹn ngẫu nhiên
+            int appointmentCount = random.Next(100, 201);
+
+            for (int i = 0; i < appointmentCount; i++)
+            {
+                var appointment = new Appointments
+                {
+                    CustomerId = customers[random.Next(customers.Count)].UserId, // Random CustomerId
+                    StaffId = staffList[random.Next(staffList.Count)].StaffId,   // Random StaffId
+                    ServiceId = services[random.Next(services.Count)].ServiceId, // Random ServiceId
+                    BranchId = branches[random.Next(branches.Count)].BranchId,   // Random BranchId
+
+                    // Random thời gian hẹn trong khoảng 30 ngày tới
+                    AppointmentsTime = DateTime.Now.AddDays(random.Next(1, 31)).AddHours(random.Next(8, 18)),
+
+                    Status = random.Next(2) == 0 ? "Pending" : "Confirmed", // Ngẫu nhiên trạng thái
+                    Notes = "Note " + random.Next(1, 1000), // Ghi chú ngẫu nhiên
+                    Feedback = "No feedback yet", // Feedback hoặc null
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                appointments.Add(appointment);
+            }
+
+            // Thêm vào cơ sở dữ liệu
+            try
+            {
+                await _context.Appointments.AddRangeAsync(appointments);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
+            }
+
+        }
+
+        private async Task SeedVoucherData()
+        {
+            var random = new Random();
+
+            // Create a list of Voucher objects
+            var vouchers = new List<Voucher>();
+
+            for (int i = 0; i < 10; i++) // Create 10 vouchers as an example
+            {
+                var voucher = new Voucher
+                {
+                    Code = "VOUCHER" + random.Next(1000, 9999), // Random code like "VOUCHER1234"
+                    Quantity = random.Next(50, 100), // Random quantity between 50 and 100
+                    RemainQuantity = random.Next(0, 50), // Random remaining quantity (less than or equal to Quantity)
+                    Status = random.NextDouble() < 0.5 ? "Active" : "Inactive", // Random status (50% chance for active or inactive)
+                    Description = "Discount voucher for various products", // Example description
+                    Discount = random.Next(5, 50), // Random discount between 5% and 50%
+                    ValidFrom = DateTime.Now.AddDays(-random.Next(30, 60)), // Random start date (between 30 and 60 days ago)
+                    ValidTo = DateTime.Now.AddDays(random.Next(30, 60)), // Random expiration date (30 to 60 days from now)
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                vouchers.Add(voucher);
+            }
+
+            // Add the vouchers to the context
+            await _context.Vouchers.AddRangeAsync(vouchers);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedOrderData()
+        {
+            var random = new Random();
+
+            // Step 1: Seed Orders first
+            var orders = new List<Order>();
+
+            for (int i = 0; i < 10; i++) // Create 10 orders
+            {
+                var order = new Order
+                {
+                    OrderCode = random.Next(1000, 9999), // Random order code
+                    CustomerId = 1, // Assume CustomerId is 1 for simplicity; adjust as needed
+                    VoucherId = 1, // Assume VoucherId is 1 for simplicity; adjust as needed
+                    TotalAmount = random.Next(100, 500), // Random total amount
+                    Status = random.NextDouble() < 0.5 ? "Pending" : "Completed", // Random status
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                orders.Add(order);
+            }
+
+            await _context.Orders.AddRangeAsync(orders);
+            await _context.SaveChangesAsync(); // Save Orders to DB
+
+            // Step 2: Seed OrderDetails with valid OrderId
+            var orderDetails = new List<OrderDetail>();
+
+            foreach (var order in orders)
+            {
+                for (int i = 0; i < random.Next(1, 5); i++) // Random number of order details (1 to 5)
+                {
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = order.OrderId, // Use valid OrderId
+                        ProductId = random.Next(1, 10), // Random ProductId; adjust as needed
+                        ServiceId = random.Next(1, 10), // Random ServiceId; adjust as needed
+                        Quantity = random.Next(1, 3), // Random quantity between 1 and 2
+                        Price = random.Next(10, 100), // Random price between 10 and 100
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    orderDetails.Add(orderDetail);
+                }
+            }
+
+            await _context.OrderDetails.AddRangeAsync(orderDetails);
+            await _context.SaveChangesAsync(); // Save OrderDetails to DB
+        }
+
+
     }
+
+
 
     public static class DatabaseInitialiserExtension
     {

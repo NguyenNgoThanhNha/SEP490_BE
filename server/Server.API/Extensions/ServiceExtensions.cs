@@ -109,6 +109,9 @@ namespace Server.API.Extensions
             services.AddScoped<ProductService>();
             services.AddScoped<CategoryService>();
             services.AddScoped<AppointmentsService>();
+            services.AddScoped<BlogService>();
+            services.AddScoped<StaffService>();
+
 
             return services;
         }
