@@ -11,41 +11,69 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
-        private readonly AppDbContext _context;
 
-        public OrderDetailService(UnitOfWorks unitOfWorks, IMapper mapper, AppDbContext context)
+        public OrderDetailService(UnitOfWorks unitOfWorks, IMapper mapper)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
-            _context = context;
         }
 
         public async Task<ApiResult<OrderDetail>> CreateOrderDetailAsync(CUOrderDetailDto model)
         {
-            if (!await _context.Orders.AnyAsync(x => x.OrderId == model.OrderId))
+            // Kiểm tra sự tồn tại của Order
+            var orderExists = await _unitOfWorks.Orders
+                .AnyAsync(x => x.OrderId == model.OrderId);
+            if (!orderExists)
             {
                 return ApiResult<OrderDetail>.Error(null, "Order not found");
             }
-            if (!await _context.Products.AnyAsync(x => x.ProductId == model.ProductId && x.Status == "Active"))
+
+            // Kiểm tra sự tồn tại của Product với trạng thái Active
+            var productExists = await _unitOfWorks.Products
+                .AnyAsync(x => x.ProductId == model.ProductId && x.Status == "Active");
+            if (!productExists)
             {
                 return ApiResult<OrderDetail>.Error(null, "Product not found");
             }
-            if (!await _context.Services.AnyAsync(x => x.ServiceId == model.ServiceId && x.Status == "Active"))
+
+            // Kiểm tra sự tồn tại của Service với trạng thái Active
+            var serviceExists = await _unitOfWorks.Services
+                .AnyAsync(x => x.ServiceId == model.ServiceId && x.Status == "Active");
+            if (!serviceExists)
             {
                 return ApiResult<OrderDetail>.Error(null, "Service not found");
             }
 
-            var order = _mapper.Map<OrderDetail>(model);
+            // Tạo OrderDetail từ DTO
+            var orderDetail = _mapper.Map<OrderDetail>(model);
+
             try
             {
-                _context.OrderDetails.Add(order);
-                await _context.SaveChangesAsync();
+                // Thêm vào cơ sở dữ liệu qua UnitOfWork
+                await _unitOfWorks.OrderDetails.AddAsync(orderDetail);
+                await _unitOfWorks.Commit();
+
+                // Lấy lại thông tin với các bảng liên kết
+                var orderDetailWithIncludes = await _unitOfWorks.OrderDetails
+                    .Include(od => od.Product)
+                    .Include(od => od.Service)
+                    .Include(od => od.Order)
+                    .FirstOrDefaultAsync(od => od.OrderDetailId == orderDetail.OrderDetailId);
+
+                if (orderDetailWithIncludes == null)
+                {
+                    return ApiResult<OrderDetail>.Error(null, "Failed to retrieve the created order detail.");
+                }
+
+                // Map sang DTO để trả về thông tin
+                var orderDetailDto = _mapper.Map<OrderDetail>(orderDetailWithIncludes);
+                return ApiResult<OrderDetail>.Succeed(orderDetailDto);
             }
             catch (Exception ex)
             {
-                return ApiResult<OrderDetail>.Error(null, ex.Message.ToString());
+                return ApiResult<OrderDetail>.Error(null, ex.Message);
             }
-            return ApiResult<OrderDetail>.Succeed(order);
         }
+
     }
 }

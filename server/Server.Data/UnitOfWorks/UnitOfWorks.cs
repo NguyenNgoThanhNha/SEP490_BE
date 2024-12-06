@@ -98,6 +98,14 @@ namespace Server.Data.UnitOfWorks
         public DbSet<Product> Products => _dbContext.Products;
         public DbSet<Category> Categories => _dbContext.Categorys;
         public DbSet<Company> Companies => _dbContext.Companies;
+        public DbSet<Service> Services => _dbContext.Services;
+        public DbSet<Order> Orders => _dbContext.Orders;
+        public DbSet<OrderDetail> OrderDetails => _dbContext.OrderDetails;      
+        public DbSet<User> Users => _dbContext.Users;
+        public DbSet<Voucher> Vouchers => _dbContext.Vouchers;
+
+
+
 
     }
 }
