@@ -14,50 +14,49 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
-        private readonly AppDbContext _context;
 
-        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, AppDbContext context)
+        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
-            _context = context;
         }
 
-
-        public async Task<Pagination<Order>> GetListAsync(Expression<Func<Order, bool>> filter = null,
-                                    Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = null,
-                                    string includeProperties = "",
-                                    int? pageIndex = null, // Optional parameter for pagination (page number)
-                                    int? pageSize = null)
+        public async Task<Pagination<Order>> GetListAsync(
+    Expression<Func<Order, bool>> filter = null,
+    Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = null,
+    string includeProperties = "",
+    int? pageIndex = null,
+    int? pageSize = null)
         {
-            IQueryable<Order> query = _context.Orders;
+            IQueryable<Order> query = _unitOfWorks.Orders; // Không cần GetAll()
+
+            // Áp dụng bộ lọc nếu có
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties.Split
-                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            // Include các bảng liên quan
+            foreach (var includeProperty in includeProperties.Split(
+                         new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 query = query.Include(includeProperty);
             }
 
+            // Sắp xếp nếu có
             if (orderBy != null)
             {
                 query = orderBy(query);
             }
 
+            // Tổng số bản ghi
             var totalItemsCount = await query.CountAsync();
 
-            if (pageIndex.HasValue && pageIndex.Value == -1)
+            // Phân trang
+            if (pageIndex.HasValue && pageSize.HasValue)
             {
-                pageSize = totalItemsCount; // Set pageSize to total count
-                pageIndex = 0; // Reset pageIndex to 0
-            }
-            else if (pageIndex.HasValue && pageSize.HasValue)
-            {
-                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
-                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+                int validPageIndex = Math.Max(pageIndex.Value, 0);
+                int validPageSize = Math.Max(pageSize.Value, 1);
 
                 query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
             }
@@ -74,34 +73,84 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResponse> CreateOrderAsync(CUOrderDto model)
+        public async Task<ApiResult<object>> CreateOrderAsync(CUOrderDto model)
         {
-            if (await _context.Orders.AnyAsync(x => x.OrderCode == model.OrderCode && x.Status == "Active"))
-            {
-                return ApiResponse.Error("Order code is existed");
-            }
-            if (!await _context.Users.AnyAsync(x => x.UserId == model.CustomerId && x.RoleID == (int)RoleConstant.RoleType.Customer && x.Status == "Active"))
-            {
-                return ApiResponse.Error("Customer not found");
-            }
-            if (model.VoucherId != 0 && !await _context.Vouchers.AnyAsync(x => x.VoucherId == model.VoucherId && x.Status == "Active"))
-            {
-                return ApiResponse.Error("Voucher not found");
-            }
-
-            var order = _mapper.Map<Order>(model);
             try
             {
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
+                // Kiểm tra tồn tại mã đơn hàng
+                var isOrderCodeExists = await _unitOfWorks.Orders
+                    .AnyAsync(x => x.OrderCode == model.OrderCode && x.Status == "Active");
+                if (isOrderCodeExists)
+                {
+                    return ApiResult<object>.Error(null, "Order code already exists.");
+                }
+
+                // Kiểm tra tồn tại khách hàng
+                var isCustomerExists = await _unitOfWorks.Users
+                    .AnyAsync(x => x.UserId == model.CustomerId &&
+                                   x.RoleID == (int)RoleConstant.RoleType.Customer &&
+                                   x.Status == "Active");
+                if (!isCustomerExists)
+                {
+                    return ApiResult<object>.Error(null, "Customer not found.");
+                }
+
+                // Kiểm tra tồn tại voucher (nếu có)
+                int? voucherId = null;
+                if (model.VoucherId.HasValue && model.VoucherId.Value > 0)
+                {
+                    var isVoucherExists = await _unitOfWorks.Vouchers
+                        .AnyAsync(x => x.VoucherId == model.VoucherId && x.Status == "Active");
+                    if (!isVoucherExists)
+                    {
+                        return ApiResult<object>.Error(null, "Voucher not found.");
+                    }
+                    voucherId = model.VoucherId; // Chỉ gán nếu voucher hợp lệ
+                }
+
+                // Tạo đơn hàng mới
+                var order = new Order
+                {
+                    OrderCode = model.OrderCode,
+                    CustomerId = model.CustomerId,
+                    VoucherId = voucherId ?? 0,
+                    TotalAmount = model.TotalAmount,
+                    Status = "Pending",
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                };
+
+                await _unitOfWorks.Orders.AddAsync(order);
+                await _unitOfWorks.Commit();
+
+                // Lấy lại dữ liệu sau khi tạo
+                var createdOrder = await _unitOfWorks.Orders
+                    .Include(o => o.Customer)
+                    .Include(o => o.Voucher)
+                    .FirstOrDefaultAsync(o => o.OrderId == order.OrderId);
+
+                if (createdOrder == null)
+                {
+                    return ApiResult<object>.Error(null, "Failed to fetch created order details.");
+                }
+
+                // Trả về dữ liệu
+                return ApiResult<object>.Succeed(new
+                {
+                    OrderId = createdOrder.OrderId,
+                    OrderCode = createdOrder.OrderCode,
+                    CustomerName = createdOrder.Customer?.FullName ?? "N/A",
+                    VoucherCode = createdOrder.Voucher?.Code,
+                    TotalAmount = createdOrder.TotalAmount,
+                    Status = createdOrder.Status,
+                    CreatedDate = createdOrder.CreatedDate,
+                    UpdatedDate = createdOrder.UpdatedDate
+                });
             }
             catch (Exception ex)
             {
-                return ApiResponse.Error(ex.Message.ToString());
+                return ApiResult<object>.Error(null, $"An error occurred: {ex.Message}");
             }
-            return ApiResponse.Succeed(order);
         }
-
-
     }
 }

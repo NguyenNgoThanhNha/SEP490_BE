@@ -9,6 +9,7 @@ namespace Server.Business.Commons.Response
 {
     public class GetAllCategoryPaginationResponse
     {
+        public string message { get; set; }
         public List<CategoryModel> data {get;set;}
         public Pagination pagination {get;set;}
 

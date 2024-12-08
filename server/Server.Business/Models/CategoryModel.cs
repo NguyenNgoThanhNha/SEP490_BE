@@ -21,6 +21,8 @@ namespace Server.Business.Models
 
         public string? ImageUrl { get; set; }
 
+        public List<ProductModel>? Products { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
 

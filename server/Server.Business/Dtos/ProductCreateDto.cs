@@ -11,6 +11,8 @@ namespace Server.Business.Dtos
         public string ProductName { get; set; }
 
         public string ProductDescription { get; set; }
+             public string Dimension { get; set; }
+        public decimal Volume { get; set; }
 
         public decimal Price { get; set; }
 

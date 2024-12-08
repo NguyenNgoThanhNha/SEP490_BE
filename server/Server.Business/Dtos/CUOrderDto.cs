@@ -2,7 +2,7 @@
 {
     public class CUOrderDto
     {
-        public int OrderId { get; set; }
+        //public int OrderId { get; set; }
         public int OrderCode { get; set; }
         public int CustomerId { get; set; }
         public int? VoucherId { get; set; }

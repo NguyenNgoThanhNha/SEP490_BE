@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.API.Controllers.Gaurd;
+using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
@@ -8,182 +8,250 @@ using Server.Data.Entities;
 
 namespace Server.API.Controllers
 {
-    [Authorize]    
+    
     [Route("api/[controller]")]
     [ApiController]
     public class StaffController : ControllerBase
     {
         private readonly StaffService _staffService;
         private readonly UserService _userService;
-        private readonly AppDbContext _context;
-        public StaffController(StaffService staffService, UserService userService, AppDbContext context)
+
+        public StaffController(StaffService staffService, UserService userService)
         {
             _staffService = staffService;
-            _context = context;
             _userService = userService;
         }
 
         [HttpGet("get-list")]
-        public async Task<IActionResult> GetList(string? name, string? description, int pageIndex = 0, int pageSize = 10)
+        public async Task<ApiResult<ApiResponse>> GetList(string? name, int pageIndex = 0, int pageSize = 10)
         {
-            var response = await _staffService.GetListAsync(
-                pageIndex: pageIndex,
-                pageSize: pageSize);
+            var response = await _staffService.GetListAsync(pageIndex: pageIndex, pageSize: pageSize, name: name);
 
-            return Ok(ApiResponse.Succeed(response));
+            if (response == null || response.Data == null || response.Data.Count == 0)
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "No staff data found."
+                });
+            }
+
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Staff list retrieved successfully.",
+                data = response
+            });
         }
+
 
         [HttpPost("assign-role")]
-        public async Task<IActionResult> AssignRoleAsync(int staffId, int roleId)
+        public async Task<ApiResult<ApiResponse>> AssignRoleAsync(int staffId, int roleId)
         {
             var response = await _staffService.AssignRoleAsync(staffId, roleId);
+
+            // Kiểm tra nếu response.message == null thì coi như thành công
             if (response.message == null)
             {
-                return Ok(response);
+                return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Role assigned successfully.",
+                    data = response.data
+                });
             }
-            return BadRequest(response);
+
+            // Trường hợp thất bại, trả về lỗi
+            return ApiResult<ApiResponse>.Error(new ApiResponse
+            {
+                message = response.message,
+                data = response.data
+            });
         }
+
 
         [HttpPost("assign-branch")]
-        public async Task<IActionResult> AssignBranchAsync(int staffId, int branchId)
+        public async Task<ApiResult<ApiResponse>> AssignBranchAsync(int staffId, int branchId)
         {
             var response = await _staffService.AssignBranchAsync(staffId, branchId);
+
             if (response.message == null)
             {
-                return Ok(response);
+                return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Branch assigned successfully.",
+                    data = response.data
+                });
             }
-            return BadRequest(response);
+
+            return ApiResult<ApiResponse>.Error(new ApiResponse
+            {
+                message = response.message
+            });
         }
 
-
         [HttpPost("create")]
-        public async Task<IActionResult> CreateStaff([FromBody] CUStaffDto staffDto)
+        public async Task<ApiResult<ApiResponse>> CreateStaff([FromBody] CUStaffDto staffDto)
         {
             if (staffDto == null)
             {
-                return BadRequest("Invalid staff data.");
-            }
-
-            try
-            {
-                staffDto.StaffId = 0;
-                var result = await _staffService.CreateStaffAsync(staffDto);
-
-                if (result.message == null)
+                return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    return Ok(result);
-                }
-                else
-                {
-                    return BadRequest(result);
-                }
+                    message = "Invalid staff data."
+                });
             }
-            catch (Exception ex)
-            {
 
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+            var response = await _staffService.CreateStaffAsync(staffDto);
+
+            if (response.message == null)
+            {
+                return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Staff created successfully.",
+                    data = response.data
+                });
             }
+
+            return ApiResult<ApiResponse>.Error(new ApiResponse
+            {
+                message = response.message
+            });
         }
 
         [HttpGet("{staffId}")]
-        public async Task<IActionResult> GetStaffById(int staffId)
+        public async Task<ApiResult<ApiResponse>> GetStaffById(int staffId)
         {
+            var response = await _staffService.GetStaffByIdAsync(staffId);
 
-            var staff = await _staffService.GetStaffByIdAsync(staffId);
-
-            if (staff == null)
+            // Kiểm tra nếu response không null thì coi như thành công
+            if (response != null)
             {
-                return NotFound($"Staff with ID {staffId} not found.");
+                return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Staff retrieved successfully.",
+                    data = response
+                });
             }
 
-            return Ok(staff);
+            // Trường hợp thất bại, trả về lỗi
+            return ApiResult<ApiResponse>.Error(new ApiResponse
+            {
+                message = $"Staff with ID {staffId} not found.",
+                data = null
+            });
         }
 
-        [HttpPut("update{staffId}")]
-        public async Task<IActionResult> UpdateStaff(int staffId, [FromBody] CUStaffDto staffUpdateDto)
+        [HttpPut("update/{staffId}")]
+        public async Task<ApiResult<ApiResponse>> UpdateStaff(int staffId, [FromBody] UpdateStaffDto staffUpdateDto)
         {
-            if (!ModelState.IsValid)
+            if (staffUpdateDto == null)
             {
-                return BadRequest(ApiResponse.Error("Invalid model state"));
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Invalid staff data."
+                });
             }
 
-            if (staffId != staffUpdateDto.StaffId)
+            // Gọi service để cập nhật staff
+            var response = await _staffService.UpdateStaffAsync(staffId, staffUpdateDto);
+
+            if (response == null)
             {
-                return BadRequest(ApiResponse.Error("Staff id not alike"));
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Failed to update staff.",
+                    data = null
+                });
             }
 
-            var result = await _staffService.UpdateStaffAsync(staffUpdateDto);
-
-
-            if (result.message != null)
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                return BadRequest(result);
-            }
-
-
-            return Ok(result);
+                message = response.message,
+                data = response.data
+            });
         }
+
+
+
+
+
 
         [HttpDelete("delete/{staffId}")]
-        public async Task<IActionResult> DeleteStaff(int staffId)
+        public async Task<ApiResult<ApiResponse>> DeleteStaff(int staffId)
         {
-            try
+            // Gọi service để xử lý logic xóa Staff
+            var response = await _staffService.DeleteStaffAsync(staffId);
+
+            // Kiểm tra phản hồi từ service
+            if (response.data == null)
             {
-
-                var result = await _staffService.DeleteStaffAsync(staffId);
-
-
-                if (result.message != null)
+                return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    return BadRequest(result);
-                }
-
-
-                return Ok(result);
+                    message = response.message,
+                    data = null
+                });
             }
-            catch (KeyNotFoundException ex)
+
+            // Trả về thành công nếu xóa thành công
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-
-                return NotFound(ApiResponse.Error(ex.Message));
-            }
-            catch (InvalidOperationException ex)
-            {
-
-                return BadRequest(ApiResponse.Error(ex.Message));
-            }
-            catch (Exception ex)
-            {
-
-                return StatusCode(500, new { message = $"Internal server error: {ex.Message}" });
-            }
+                message = response.message,
+                data = response.data
+            });
         }
-        [CustomAuthorize("Admin,Manager,Customer")]
+
+
         [HttpGet("get-staff-familiar")]
-        public async Task<IActionResult> GetStaffFamiliarAsync(int customerId)
+        public async Task<ApiResult<ApiResponse>> GetStaffFamiliarAsync(int customerId)
         {
             if (customerId == 0 || await _userService.GetCustomerById(customerId) == null)
-                return BadRequest(new ApiResponse
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Customer not found"
+                    message = "Customer not found."
                 });
-            var staffs = await _staffService.GetStaffByCustomerIdAsync(customerId);
-            if (staffs == null)
-                return BadRequest(ApiResponse.Error("No staff data"));
-            return Ok(ApiResponse.Succeed(staffs));
-        }
+            }
 
+            var staffs = await _staffService.GetStaffByCustomerIdAsync(customerId);
+
+            if (staffs == null || staffs.Count == 0)
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "No staff data found."
+                });
+            }
+
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Staff list retrieved successfully.",
+                data = staffs
+            });
+        }
 
         [HttpGet("get-staff-familiar-last")]
-        public async Task<IActionResult> GetStaffFamiliarLastAsync(int customerId)
+        public async Task<ApiResult<ApiResponse>> GetStaffFamiliarLastAsync(int customerId)
         {
             if (customerId == 0 || await _userService.GetCustomerById(customerId) == null)
-                return BadRequest(ApiResponse.Error("Customer not found"));
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Customer not found."
+                });
+            }
+
             var staff = await _staffService.GetStaffLastByCustomerIdAsync(customerId);
+
             if (staff == null)
-                return BadRequest(ApiResponse.Error("No staff data"));
-            return Ok(ApiResponse.Succeed(staff));
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "No staff data found."
+                });
+            }
+
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Staff retrieved successfully.",
+                data = staff
+            });
         }
-
-
     }
 }
