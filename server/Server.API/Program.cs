@@ -65,7 +65,7 @@ namespace Server.API
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
 
-            //builder.Services.AddElasticSearch(builder.Configuration);
+            builder.Services.AddElasticSearch(builder.Configuration);
             var app = builder.Build();
 
             // Hook into application lifetime events and trigger only application fully started 
