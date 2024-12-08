@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Nest;
 using Server.API.Extensions;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
@@ -15,10 +16,14 @@ namespace Server.API.Controllers
     public class ServiceController : ControllerBase
     {
         private readonly ServiceService _serviceService;
+        private readonly IElasticClient _elasticClient;
+        private readonly ElasticService<ServiceDto> _elasticService;
 
-        public ServiceController(ServiceService serviceService)
+        public ServiceController(ServiceService serviceService, IElasticClient elasticClient)
         {
             _serviceService = serviceService;
+            _elasticClient = elasticClient;
+            _elasticService = new ElasticService<ServiceDto>(_elasticClient, "services");
         }
 
         [HttpGet("get-list")]
@@ -125,7 +130,47 @@ namespace Server.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin, Manager,Staff")]
+        [HttpGet("elasticsearch")]
+        public async Task<IActionResult> ElasticSearch(string? keyword)
+        {
+            var list = new List<ServiceDto>();
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                list = (await _elasticService.SearchAsync(keyword)).ToList();
+            }
+            else
+                list = (await _elasticService.GetAllAsync()).ToList();
+            return Ok(ApiResponse.Succeed(list));
+        }
+
+        [HttpPost("create-elastic")]
+        public async Task<IActionResult> CreateElastic(ServiceDto model)
+        {
+            try
+            {
+                await _elasticService.IndexDocumentAsync(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok(model);
+        }
+
+        [HttpPost("import-elastic")]
+        public async Task<IActionResult> ImportElasticAsync(IFormFile file)
+        {
+            try
+            {
+                var result = await _elasticService.ImportFromJsonFileAsync(file);
+                return Ok(ApiResponse.Succeed(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("create-service")]
         public async Task<IActionResult> CreateService([FromBody] ServiceCreateDto serviceDto)
         {

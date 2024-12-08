@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Server.Business.Commons.Response;
+using Nest;
 using Server.Business.Commons;
-using Server.Business.Services;
-using Server.Business.Dtos;
 using Server.Business.Commons.Request;
-using Server.Business.Ultils;
+using Server.Business.Commons.Response;
+using Server.Business.Dtos;
+using Server.Business.Services;
 
 namespace Server.API.Controllers
 {
@@ -17,14 +15,19 @@ namespace Server.API.Controllers
     {
         private readonly BlogService _blogService;
         private readonly IMapper _mapper;
+        private readonly IElasticClient _elasticClient;
+        private readonly ElasticService<BlogDTO> _elasticService;
 
-        public BlogController(BlogService blogService, IMapper mapper)
+
+        public BlogController(BlogService blogService, IMapper mapper, IElasticClient elasticClient)
         {
             _blogService = blogService;
-            _mapper = mapper;           
+            _mapper = mapper;
+            _elasticClient = elasticClient;
+            _elasticService = new ElasticService<BlogDTO>(_elasticClient, "blogs");
         }
 
-       // [Authorize]
+        // [Authorize]
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllBlog([FromQuery] int page = 1, int pageSize = 5)
         {
@@ -44,7 +47,7 @@ namespace Server.API.Controllers
             }));
         }
 
-       // [Authorize]
+        // [Authorize]
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetByBlogId([FromRoute] int id)
         {
@@ -61,6 +64,47 @@ namespace Server.API.Controllers
                 message = "Get blogs successfully!",
                 data = _mapper.Map<BlogDTO>(blogsModel)
             }));
+        }
+
+        [HttpGet("elasticsearch")]
+        public async Task<IActionResult> ElasticSearch(string? keyword)
+        {
+            var list = new List<BlogDTO>();
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                list = (await _elasticService.SearchAsync(keyword)).ToList();
+            }
+            else
+                list = (await _elasticService.GetAllAsync()).ToList();
+            return Ok(ApiResponse.Succeed(list));
+        }
+
+        [HttpPost("create-elastic")]
+        public async Task<IActionResult> CreateElastic(BlogDTO model)
+        {
+            try
+            {
+                await _elasticService.IndexDocumentAsync(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok(model);
+        }
+
+        [HttpPost("import-elastic")]
+        public async Task<IActionResult> ImportElasticAsync(IFormFile file)
+        {
+            try
+            {
+                var result = await _elasticService.ImportFromJsonFileAsync(file);
+                return Ok(ApiResponse.Succeed(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         //[Authorize]
@@ -84,7 +128,7 @@ namespace Server.API.Controllers
                 {
                     message = "Error in create blogs!"
                 }));
-            }    
+            }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
