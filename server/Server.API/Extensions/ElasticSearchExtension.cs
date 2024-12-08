@@ -38,31 +38,31 @@ namespace Server.API.Extensions
         }
 
 
-        private static void CreateIndex(IElasticClient client)
-        {
-            CreateIndexForType<ProductDto>(client, $"products");
-            CreateIndexForType<BlogDTO>(client, $"blogs");
-            CreateIndexForType<ServiceDto>(client, $"services");
-        }
+        //private static void CreateIndex(IElasticClient client)
+        //{
+        //    CreateIndexForType<ProductDto>(client, $"products");
+        //    CreateIndexForType<BlogDTO>(client, $"blogs");
+        //    CreateIndexForType<ServiceDto>(client, $"services");
+        //}
 
-        private static void CreateIndexForType<T>(IElasticClient client, string indexName) where T : class
-        {
-            var existsResponse = client.Indices.Exists(indexName);
+        //private static void CreateIndexForType<T>(IElasticClient client, string indexName) where T : class
+        //{
+        //    var existsResponse = client.Indices.Exists(indexName);
 
-            if (!existsResponse.Exists)
-            {
-                var createIndexResponse = client.Indices.Create(indexName, index => index
-                    .Map<T>(x => x.AutoMap()) // AutoMap tự động ánh xạ các thuộc tính
-                    .Settings(s => s
-                        .NumberOfReplicas(1) // Số lượng bản sao
-                        .NumberOfShards(1))  // Số lượng shards
-                );
+        //    if (!existsResponse.Exists)
+        //    {
+        //        var createIndexResponse = client.Indices.Create(indexName, index => index
+        //            .Map<T>(x => x.AutoMap()) // AutoMap tự động ánh xạ các thuộc tính
+        //            .Settings(s => s
+        //                .NumberOfReplicas(1) // Số lượng bản sao
+        //                .NumberOfShards(1))  // Số lượng shards
+        //        );
 
-                if (!createIndexResponse.IsValid)
-                {
-                    throw new Exception($"Failed to create index {indexName}: {createIndexResponse.ServerError?.Error.Reason}");
-                }
-            }
-        }
+        //        if (!createIndexResponse.IsValid)
+        //        {
+        //            throw new Exception($"Failed to create index {indexName}: {createIndexResponse.ServerError?.Error.Reason}");
+        //        }
+        //    }
+        //}
     }
 }
