@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Server.API.Controllers.Gaurd;
 using Server.API.Extensions;
@@ -80,7 +81,12 @@ namespace Server.API.Controllers
                     message = "No products found!"
                 }));
             }
-            return Ok(ApiResponse.Succeed(response));
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Get products successfully!",
+                data = products
+            }));
         }
 
         [HttpGet("elasticsearch")]
@@ -122,14 +128,6 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-            {
-                message = "Get products successfully!",
-                data = products
-            }));
         }
 
 
