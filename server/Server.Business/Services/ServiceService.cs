@@ -15,7 +15,6 @@ namespace Server.Business.Services
         private readonly AppDbContext _context;
         private readonly UnitOfWorks unitOfWorks;
         private readonly IMapper _mapper;
-
         public ServiceService(AppDbContext context, UnitOfWorks unitOfWorks, IMapper mapper)
         {
             _context = context;
