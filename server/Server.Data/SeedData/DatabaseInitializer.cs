@@ -130,8 +130,40 @@ namespace Server.Data.SeedData
                 {
                     await SeedStaff();
                 }
+                
+                // Product Image
+                if (!_context.ProductImages.Any())
+                {
+                    await SeedProductImages();
+                }
+                
+                // Service Image
+                if (!_context.ServiceImages.Any())
+                {
+                    await SeedServiceImages();
+                }
+
+                if (!_context.Appointments.Any())
+                {
+                    await SeedAppointments();
+                }
+
+                if (!_context.Vouchers.Any())
+                {
+                    await SeedVoucherData();
+                }
+
+                if (!_context.Orders.Any() && !_context.OrderDetails.Any())
+                {
+                    await SeedOrderData();
+                }
 
                 await Task.CompletedTask;
+
+                if (!_context.Blogs.Any())
+                {
+                    await SeedBlogs();
+                }
             }
             catch (Exception ex)
             {
@@ -405,28 +437,31 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active", ProductName = "Facial Cleanser",
                     ProductDescription = "Sản phẩm làm sạch sâu da mặt", Price = 150_000m, Quantity = 100,
-                    Discount = 0.1m, CategoryId = 1, CompanyId = 1
+                    Discount = 0.1m, CategoryId = 1, CompanyId = 1, Dimension = "200ml", Volume = 200m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Hydrating Toner", ProductDescription = "Toner dưỡng ẩm",
-                    Price = 120_000m, Quantity = 150, Discount = 0.05m, CategoryId = 2, CompanyId = 1
+                    Price = 120_000m, Quantity = 150, Discount = 0.05m, CategoryId = 2, CompanyId = 1,
+                    Dimension = "150ml", Volume = 150m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Anti-Aging Serum", ProductDescription = "Serum chống lão hóa",
-                    Price = 250_000m, Quantity = 80, Discount = 0.15m, CategoryId = 3, CompanyId = 1
+                    Price = 250_000m, Quantity = 80, Discount = 0.15m, CategoryId = 3, CompanyId = 1,
+                    Dimension = "50ml", Volume = 50m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Sunscreen SPF50+",
                     ProductDescription = "Kem chống nắng bảo vệ da SPF50+", Price = 200_000m, Quantity = 200,
-                    Discount = 0.1m, CategoryId = 4, CompanyId = 1
+                    Discount = 0.1m, CategoryId = 4, CompanyId = 1, Dimension = "100ml", Volume = 100m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Moisturizing Cream", ProductDescription = "Kem dưỡng ẩm sâu",
-                    Price = 180_000m, Quantity = 120, Discount = 0.1m, CategoryId = 5, CompanyId = 1
+                    Price = 180_000m, Quantity = 120, Discount = 0.1m, CategoryId = 5, CompanyId = 1,
+                    Dimension = "250g", Volume = 250m
                 },
 
                 // Các sản phẩm trị liệu
@@ -434,55 +469,63 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active", ProductName = "Acne Treatment Gel",
                     ProductDescription = "Gel điều trị mụn hiệu quả", Price = 140_000m, Quantity = 90, Discount = 0.2m,
-                    CategoryId = 6, CompanyId = 1
+                    CategoryId = 6, CompanyId = 1, Dimension = "30ml", Volume = 30m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Skin Brightening Mask", ProductDescription = "Mặt nạ làm sáng da",
-                    Price = 160_000m, Quantity = 110, Discount = 0.1m, CategoryId = 7, CompanyId = 1
+                    Price = 160_000m, Quantity = 110, Discount = 0.1m, CategoryId = 7, CompanyId = 1,
+                    Dimension = "1 sheet", Volume = null
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Exfoliating Scrub", ProductDescription = "Tẩy da chết nhẹ nhàng",
-                    Price = 130_000m, Quantity = 100, Discount = 0.05m, CategoryId = 8, CompanyId = 1
+                    Price = 130_000m, Quantity = 100, Discount = 0.05m, CategoryId = 8, CompanyId = 1,
+                    Dimension = "150ml", Volume = 150m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Eye Cream", ProductDescription = "Kem dưỡng vùng mắt",
-                    Price = 210_000m, Quantity = 85, Discount = 0.1m, CategoryId = 9, CompanyId = 1
+                    Price = 210_000m, Quantity = 85, Discount = 0.1m, CategoryId = 9, CompanyId = 1,
+                    Dimension = "30ml", Volume = 30m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Lip Balm", ProductDescription = "Sản phẩm dưỡng môi",
-                    Price = 80_000m, Quantity = 200, Discount = 0.05m, CategoryId = 10, CompanyId = 1
+                    Price = 80_000m, Quantity = 200, Discount = 0.05m, CategoryId = 10, CompanyId = 1,
+                    Dimension = "15g", Volume = 15m
                 },
 
                 // Các sản phẩm chăm sóc cơ thể
                 new Product
                 {
                     Status = "Active", ProductName = "Body Lotion", ProductDescription = "Sữa dưỡng thể dưỡng ẩm",
-                    Price = 170_000m, Quantity = 140, Discount = 0.1m, CategoryId = 1, CompanyId = 1
+                    Price = 170_000m, Quantity = 140, Discount = 0.1m, CategoryId = 1, CompanyId = 1,
+                    Dimension = "400ml", Volume = 400m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Hand Cream", ProductDescription = "Kem dưỡng da tay",
-                    Price = 90_000m, Quantity = 200, Discount = 0.05m, CategoryId = 2, CompanyId = 1
+                    Price = 90_000m, Quantity = 200, Discount = 0.05m, CategoryId = 2, CompanyId = 1,
+                    Dimension = "50ml", Volume = 50m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Foot Scrub", ProductDescription = "Tẩy da chết cho chân",
-                    Price = 150_000m, Quantity = 130, Discount = 0.15m, CategoryId = 3, CompanyId = 1
+                    Price = 150_000m, Quantity = 130, Discount = 0.15m, CategoryId = 3, CompanyId = 1,
+                    Dimension = "200ml", Volume = 200m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Massage Oil", ProductDescription = "Dầu massage dưỡng da",
-                    Price = 200_000m, Quantity = 120, Discount = 0.1m, CategoryId = 4, CompanyId = 1
+                    Price = 200_000m, Quantity = 120, Discount = 0.1m, CategoryId = 4, CompanyId = 1,
+                    Dimension = "300ml", Volume = 300m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Hot Stone Therapy Kit",
                     ProductDescription = "Bộ liệu pháp đá nóng", Price = 300_000m, Quantity = 50, Discount = 0.2m,
-                    CategoryId = 5, CompanyId = 1
+                    CategoryId = 5, CompanyId = 1, Dimension = "1 kit", Volume = null
                 },
 
                 // Các sản phẩm dưỡng da ban đêm
@@ -490,28 +533,31 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active", ProductName = "Night Repair Cream",
                     ProductDescription = "Kem dưỡng phục hồi ban đêm", Price = 250_000m, Quantity = 90, Discount = 0.1m,
-                    CategoryId = 6, CompanyId = 1
+                    CategoryId = 6, CompanyId = 1, Dimension = "50ml", Volume = 50m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Overnight Mask", ProductDescription = "Mặt nạ dưỡng da ban đêm",
-                    Price = 220_000m, Quantity = 75, Discount = 0.15m, CategoryId = 7, CompanyId = 1
+                    Price = 220_000m, Quantity = 75, Discount = 0.15m, CategoryId = 7, CompanyId = 1,
+                    Dimension = "100ml", Volume = 100m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Night Serum", ProductDescription = "Serum dưỡng da ban đêm",
-                    Price = 230_000m, Quantity = 85, Discount = 0.1m, CategoryId = 8, CompanyId = 1
+                    Price = 230_000m, Quantity = 85, Discount = 0.1m, CategoryId = 8, CompanyId = 1,
+                    Dimension = "50ml", Volume = 50m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Night Eye Cream",
                     ProductDescription = "Kem dưỡng vùng mắt ban đêm", Price = 240_000m, Quantity = 70, Discount = 0.1m,
-                    CategoryId = 9, CompanyId = 1
+                    CategoryId = 9, CompanyId = 1, Dimension = "30ml", Volume = 30m
                 },
                 new Product
                 {
                     Status = "Active", ProductName = "Rejuvenating Balm", ProductDescription = "Kem dưỡng phục hồi da",
-                    Price = 260_000m, Quantity = 60, Discount = 0.2m, CategoryId = 10, CompanyId = 1
+                    Price = 260_000m, Quantity = 60, Discount = 0.2m, CategoryId = 10, CompanyId = 1,
+                    Dimension = "50ml", Volume = 50m
                 }
             };
 
@@ -905,8 +951,247 @@ namespace Server.Data.SeedData
             await _context.SaveChangesAsync();
         }
 
+        private async Task SeedProductImages()
+        {
+            // Lấy danh sách tất cả các sản phẩm hiện có
+            var products = await _context.Products.ToListAsync();
+
+            // Khởi tạo danh sách ProductImages
+            var productImages = new List<ProductImages>();
+
+            // Danh sách URL ảnh ngẫu nhiên
+            var randomUrls = new List<string>
+            {
+                "https://png.pngtree.com/png-vector/20240802/ourlarge/pngtree-tranquil-spa-products-png-image_13337692.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547713.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547710.png",
+                "https://png.pngtree.com/png-vector/20240205/ourlarge/pngtree-spa-products-spa-concept-png-image_11547711.png",
+                "https://png.pngtree.com/thumb_back/fw800/background/20230903/pngtree-all-natural-beauty-spa-products-image_13209386.jpg",
+                "https://png.pngtree.com/png-vector/20240619/ourmid/pngtree-natural-spa-products-soaps-with-brushes-and-plants-png-image_12797870.png"
+            };
+
+            // Tạo 3 ảnh cho mỗi sản phẩm
+            foreach (var product in products)
+            {
+                for (int i = 1; i <= 3; i++)
+                {
+                    var randomImageUrl = randomUrls[new Random().Next(randomUrls.Count)]; // Chọn URL ngẫu nhiên
+                    productImages.Add(new ProductImages
+                    {
+                        ProductId = product.ProductId,
+                        image = randomImageUrl
+                    });
+                }
+            }
+
+            // Thêm dữ liệu vào bảng ProductImages
+            await _context.ProductImages.AddRangeAsync(productImages);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedServiceImages()
+        {
+            // Lấy danh sách tất cả các dịch vụ hiện có
+            var services = await _context.Services.ToListAsync();
+
+            // Khởi tạo danh sách ServiceImages
+            var serviceImages = new List<ServiceImages>();
+
+            // Danh sách URL ảnh ngẫu nhiên
+            var randomUrls = new List<string>
+            {
+                "https://diva.edu.vn/wp-content/uploads/2023/10/spa-gom-nhung-dich-vu-gi-1.jpeg",
+                "https://posapp.vn/wp-content/uploads/2020/07/mun-2.jpg",
+                "https://bizweb.dktcdn.net/100/385/697/files/spa-co-nhung-dich-vu-gi-5.jpg?v=1711425862233",
+                "https://chefjob.vn/wp-content/uploads/2020/07/dich-vu-spa-trong-khach-san.jpg",
+                "https://easysalon.vn/wp-content/uploads/2019/11/tim-hieu-cac-mo-hinh-spa-tren-the-gioi-5.png",
+                "https://thanhtrucmed.com/wp-content/uploads/2024/05/spa-cham-soc-da-2_1684512418.jpg"
+            };
+
+            // Tạo 3 ảnh cho mỗi dịch vụ
+            foreach (var service in services)
+            {
+                for (int i = 1; i <= 3; i++)
+                {
+                    var randomImageUrl = randomUrls[new Random().Next(randomUrls.Count)]; // Chọn URL ngẫu nhiên
+                    serviceImages.Add(new ServiceImages
+                    {
+                        ServiceId = service.ServiceId,
+                        image = randomImageUrl
+                    });
+                }
+            }
+
+            // Thêm dữ liệu vào bảng ServiceImages
+            await _context.ServiceImages.AddRangeAsync(serviceImages);
+            await _context.SaveChangesAsync();
+        }
+
+    
+
+    private async Task SeedBlogs()
+        {
+            var blogs = new List<Blog>
+    {
+        new Blog { Title = "How to Relax at a Spa", Content = "Learn the best ways to enjoy a relaxing spa day.", AuthorId = 1, Status = "Accept", Note = "Popular blog" },
+        new Blog { Title = "Benefits of Facial Treatments", Content = "Explore the advantages of getting a facial treatment.", AuthorId = 2, Status = "Published", Note = "Informative"},
+        new Blog {Title = "Top 5 Spa Treatments for Stress Relief", Content = "A guide to the most effective spa treatments for stress relief.", AuthorId = 3, Status = "Draft", Note = "Needs review"},
+        new Blog {Title = "Skincare Tips for Beginners", Content = "Simple and effective skincare tips for beginners.", AuthorId = 4, Status = "Accept", Note = "Great for beginners"},
+        new Blog {Title = "The Art of Aromatherapy", Content = "Discover the benefits and techniques of aromatherapy.", AuthorId = 5, Status = "Pending", Note = "Awaiting approval"},
+        new Blog {Title = "How to Choose the Right Spa Package", Content = "Tips on selecting the perfect spa package for your needs.", AuthorId = 1, Status = "Accept", Note = "Customer favorite"},
+        new Blog {Title = "The Importance of Self-Care", Content = "Why self-care is essential for mental and physical health.", AuthorId = 2, Status = "Accept", Note = "Motivational"},
+        new Blog {Title = "Exploring Hot Stone Therapy", Content = "Everything you need to know about hot stone therapy.", AuthorId = 3, Status = "Rejected", Note = "Needs additional content"},
+        new Blog {Title = "Tips for Maintaining Healthy Skin", Content = "Best practices for keeping your skin healthy and radiant.", AuthorId = 4, Status = "Accept", Note = "Well-researched"},
+        new Blog {Title = "The Science Behind Spa Therapies", Content = "Understanding how spa therapies benefit your body and mind.", AuthorId = 5, Status = "Pending", Note = "Detailed insights"}
+    };
+
+            await _context.Blogs.AddRangeAsync(blogs);
+            await _context.SaveChangesAsync();
+        }
+
+
+
+
+
+        private async Task SeedAppointments()
+        {
+            var random = new Random();
+
+            // Lấy dữ liệu từ các bảng liên quan
+            var customers = await _context.Users.ToListAsync(); // Assuming 'Users' is for Customers
+            var staffList = await _context.Staffs.ToListAsync();
+            var services = await _context.Services.ToListAsync();
+            var branches = await _context.Branchs.ToListAsync();
+
+            var appointments = new List<Appointments>();
+
+            // Tạo 100 - 200 cuộc hẹn ngẫu nhiên
+            int appointmentCount = random.Next(100, 201);
+
+            for (int i = 0; i < appointmentCount; i++)
+            {
+                var appointment = new Appointments
+                {
+                    CustomerId = customers[random.Next(customers.Count)].UserId, // Random CustomerId
+                    StaffId = staffList[random.Next(staffList.Count)].StaffId,   // Random StaffId
+                    ServiceId = services[random.Next(services.Count)].ServiceId, // Random ServiceId
+                    BranchId = branches[random.Next(branches.Count)].BranchId,   // Random BranchId
+
+                    // Random thời gian hẹn trong khoảng 30 ngày tới
+                    AppointmentsTime = DateTime.Now.AddDays(random.Next(1, 31)).AddHours(random.Next(8, 18)),
+
+                    Status = random.Next(2) == 0 ? "Pending" : "Confirmed", // Ngẫu nhiên trạng thái
+                    Notes = "Note " + random.Next(1, 1000), // Ghi chú ngẫu nhiên
+                    Feedback = "No feedback yet", // Feedback hoặc null
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                appointments.Add(appointment);
+            }
+
+            // Thêm vào cơ sở dữ liệu
+            try
+            {
+                await _context.Appointments.AddRangeAsync(appointments);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
+            }
+
+        }
+
+        private async Task SeedVoucherData()
+        {
+            var random = new Random();
+
+            // Create a list of Voucher objects
+            var vouchers = new List<Voucher>();
+
+            for (int i = 0; i < 10; i++) // Create 10 vouchers as an example
+            {
+                var voucher = new Voucher
+                {
+                    Code = "VOUCHER" + random.Next(1000, 9999), // Random code like "VOUCHER1234"
+                    Quantity = random.Next(50, 100), // Random quantity between 50 and 100
+                    RemainQuantity = random.Next(0, 50), // Random remaining quantity (less than or equal to Quantity)
+                    Status = random.NextDouble() < 0.5 ? "Active" : "Inactive", // Random status (50% chance for active or inactive)
+                    Description = "Discount voucher for various products", // Example description
+                    Discount = random.Next(5, 50), // Random discount between 5% and 50%
+                    ValidFrom = DateTime.Now.AddDays(-random.Next(30, 60)), // Random start date (between 30 and 60 days ago)
+                    ValidTo = DateTime.Now.AddDays(random.Next(30, 60)), // Random expiration date (30 to 60 days from now)
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                vouchers.Add(voucher);
+            }
+
+            // Add the vouchers to the context
+            await _context.Vouchers.AddRangeAsync(vouchers);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task SeedOrderData()
+        {
+            var random = new Random();
+
+            // Step 1: Seed Orders first
+            var orders = new List<Order>();
+
+            for (int i = 0; i < 10; i++) // Create 10 orders
+            {
+                var order = new Order
+                {
+                    OrderCode = random.Next(1000, 9999), // Random order code
+                    CustomerId = 1, // Assume CustomerId is 1 for simplicity; adjust as needed
+                    VoucherId = 1, // Assume VoucherId is 1 for simplicity; adjust as needed
+                    TotalAmount = random.Next(100, 500), // Random total amount
+                    Status = random.NextDouble() < 0.5 ? "Pending" : "Completed", // Random status
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+
+                orders.Add(order);
+            }
+
+            await _context.Orders.AddRangeAsync(orders);
+            await _context.SaveChangesAsync(); // Save Orders to DB
+
+            // Step 2: Seed OrderDetails with valid OrderId
+            var orderDetails = new List<OrderDetail>();
+
+            foreach (var order in orders)
+            {
+                for (int i = 0; i < random.Next(1, 5); i++) // Random number of order details (1 to 5)
+                {
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = order.OrderId, // Use valid OrderId
+                        ProductId = random.Next(1, 10), // Random ProductId; adjust as needed
+                        ServiceId = random.Next(1, 10), // Random ServiceId; adjust as needed
+                        Quantity = random.Next(1, 3), // Random quantity between 1 and 2
+                        Price = random.Next(10, 100), // Random price between 10 and 100
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    orderDetails.Add(orderDetail);
+                }
+            }
+
+            await _context.OrderDetails.AddRangeAsync(orderDetails);
+            await _context.SaveChangesAsync(); // Save OrderDetails to DB
+        }
+
 
     }
+
+
 
     public static class DatabaseInitialiserExtension
     {

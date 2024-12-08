@@ -1,6 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
+using Server.Business.Exceptions;
+using Server.Business.Models;
 using Server.Business.Services;
 using Server.Data.Entities;
 
@@ -11,160 +16,244 @@ namespace Server.API.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly CategoryService _categoryService;
-        private readonly AppDbContext _context;
-        public CategoryController(CategoryService categoryService, AppDbContext context)
+
+        public CategoryController(CategoryService categoryService)
         {
             _categoryService = categoryService;
-            _context = context;
         }
 
         [HttpGet("get-list")]
         public async Task<IActionResult> GetList(string? name, string? description, int pageIndex = 0, int pageSize = 10)
         {
             var response = await _categoryService.GetListAsync(
-                filter: c => (string.IsNullOrEmpty(name) || c.Name.ToLower().Contains(name.ToLower()))
-                && (string.IsNullOrEmpty(description) || c.Description.ToLower().Contains(description.ToLower())),
+                filter: c => (string.IsNullOrEmpty(name) || c.Name.ToLower().Contains(name.ToLower())) &&
+                             (string.IsNullOrEmpty(description) || c.Description.ToLower().Contains(description.ToLower())),
                 pageIndex: pageIndex,
                 pageSize: pageSize);
 
-            return Ok(ApiResponse.Succeed(response));
-        }
-
-
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto categoryCreateDto)
-        {
-            if (categoryCreateDto == null)
+            if (response.Data.Count == 0)
             {
-                return BadRequest(ApiResponse.Error("Invalid category data."));
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "No categories found."
+                }));
             }
 
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Categories retrieved successfully.",
+                data = response
+            }));
+        }
+
+        [HttpGet("get-all-categories")]
+        public async Task<IActionResult> GetAllCategory([FromQuery] int page = 1, int pageSize = 4)
+        {
             try
             {
-                var result = await _categoryService.CreateCategoryAsync(categoryCreateDto);
-                if (result.message == null)
+                // Gọi service để lấy danh sách danh mục
+                var listCategory = await _categoryService.GetAllCategoryAsync(page, pageSize);
+
+                // Kiểm tra nếu không có danh mục nào
+                if (listCategory == null || listCategory.data.Count == 0)
                 {
-                    return Ok(result);
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Currently, there are no categories!"
+                    }));
                 }
-                else
+
+                // Trả về kết quả thành công
+                return Ok(ApiResult<GetAllCategoryPaginationResponse>.Succeed(new GetAllCategoryPaginationResponse
                 {
-                    return BadRequest(result);
-                }
+                    message = "Categories retrieved successfully!",
+                    data = listCategory.data,
+                    pagination = listCategory.pagination
+                }));
             }
             catch (Exception ex)
             {
-
-                return StatusCode(500, ApiResponse.Error($"Internal server error: {ex.Message}"));
+                // Xử lý lỗi nếu có
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Internal server error: {ex.Message}"
+                }));
             }
         }
+
+
 
         [HttpGet("{categoryId}")]
         public async Task<IActionResult> GetCategoryById(int categoryId)
         {
-
-            var category = await _categoryService.GetCategoryByIdAsync(categoryId);
-
-            if (category == null)
+            try
             {
+                // Gọi service để lấy dữ liệu
+                var category = await _categoryService.GetCategoryByIdAsync(categoryId);
 
-                return NotFound(ApiResponse.Error($"Category with ID {categoryId} not found."));
+                // Trả về kết quả thành công
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Category retrieved successfully.",
+                    data = category
+                }));
             }
-
-
-            var categoryDto = new CategoryDetailDto
+            catch (NotFoundException ex)
             {
-                CategoryId = category.CategoryId,
-                Name = category.Name,
-                Description = category.Description,
-                SkinTypeSuitable = category.SkinTypeSuitable,
-                Status = category.Status,
-                ImageUrl = category.ImageUrl,
-                CreatedDate = category.CreatedDate,
-                UpdatedDate = category.UpdatedDate
-            };
-
-            return Ok(ApiResponse.Succeed(categoryDto));
+                // Trả về lỗi nếu không tìm thấy
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = ex.Message
+                }));
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi nếu có lỗi hệ thống
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Error: {ex.Message}"
+                }));
+            }
         }
 
-        [HttpGet("get-all-categories")]
-        public async Task<IActionResult> Get([FromQuery] int page = 1)
+
+
+
+        [Authorize(Roles = "Admin, Manager")]        
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto categoryCreateDto)
         {
-            var categories = await _categoryService.GetAllCategory(page);
-            return Ok(ApiResponse.Succeed(new GetAllCategoryPaginationResponse()
+            // Kiểm tra ModelState
+            if (!ModelState.IsValid)
             {
-                data = categories.data,
-                pagination = categories.pagination
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Invalid category data.",
+                    data = errors
+                }));
+            }
+
+            // Gọi service để tạo danh mục
+            var category = await _categoryService.CreateCategoryAsync(categoryCreateDto);
+
+            // Kiểm tra nếu không thành công (category = null do lỗi hoặc đã tồn tại)
+            if (category == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Category with the same name already exists or failed to create."
+                }));
+            }
+
+            // Trả về kết quả thành công
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Category created successfully.",
+                data = category
             }));
         }
 
 
-        [HttpPut("update{categoryId}")]
+
+
+
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpPut("update/{categoryId}")]
         public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] CategoryUpdateDto categoryUpdateDto)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResponse.Error("Invalid model state"));
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Invalid category data.",
+                    data = errors
+                }));
             }
 
-
-            var result = await _categoryService.UpdateCategoryAsync(categoryId, categoryUpdateDto);
-
-
-            if (result.message != null)
+            try
             {
-                return BadRequest(ApiResponse.Error(result.message));
+                // Gọi service để cập nhật danh mục
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(categoryId, categoryUpdateDto);
+
+                // Trả về kết quả thành công
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Category updated successfully.",
+                    data = updatedCategory
+                }));
             }
-
-
-            dynamic category = result.data;
-            var categoryDetailDto = new CategoryDetailDto
+            catch (BadRequestException ex)
             {
-                CategoryId = category.CategoryId,
-                Name = category.Name,
-                Description = category.Description,
-                SkinTypeSuitable = category.SkinTypeSuitable,
-                Status = category.Status,
-                ImageUrl = category.ImageUrl,
-                UpdatedDate = category.UpdatedDate
-            };
-
-
-            return Ok(ApiResponse.Succeed(categoryDetailDto));
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = ex.Message
+                }));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = ex.Message
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Internal server error: {ex.Message}"
+                }));
+            }
         }
 
+
+
+        [Authorize(Roles = "Admin, Manager")]
         [HttpDelete("delete/{categoryId}")]
         public async Task<IActionResult> DeleteCategory(int categoryId)
         {
             try
             {
+                // Gọi service để xử lý logic
+                var updatedCategory = await _categoryService.DeleteCategoryAsync(categoryId);
 
-                var result = await _categoryService.DeleteCategoryAsync(categoryId);
-
-
-                if (result.message != null)
+                // Trả về kết quả thành công
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    return BadRequest(result);
-                }
-
-
-                return Ok(result);
+                    message = "Category status updated to Inactive successfully.",
+                    data = updatedCategory
+                }));
             }
-            catch (KeyNotFoundException ex)
+            catch (BadRequestException ex)
             {
-                return NotFound(new { message = ex.Message });
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = ex.Message
+                }));
             }
             catch (InvalidOperationException ex)
             {
-
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = ex.Message
+                }));
             }
             catch (Exception ex)
             {
-
-                return StatusCode(500, new { message = $"Internal server error: {ex.Message}" });
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Internal server error: {ex.Message}"
+                }));
             }
         }
-
-
     }
 }

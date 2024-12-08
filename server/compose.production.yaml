@@ -14,10 +14,28 @@ services:
       context: .
       target: final
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__MySqlConnection=Server=database_spa;Database=SPA;User ID=root;Password=123456;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__MySqlConnection=Server=database_spa;Database=SPA;User ID=root;Password=${MySQLPassword};
+      - JwtSettings__Key=${JwtKey}
+      - JwtSettings__Refresh=${JwtRefreshKey}
+      - MailSettings__Server=${MailServer}
+      - MailSettings__Port=${MailPort}
+      - MailSettings__SenderName=${MailSenderName}
+      - MailSettings__SenderEmail=${MailSenderEmail}
+      - MailSettings__UserName=${MailUserName}
+      - MailSettings__PassWord=${MailPassword}
+      - CloundSettings__CloundName=${CloundName}
+      - CloundSettings__CloundKey=${CloundKey}
+      - CloundSettings__CloundSecret=${CloundSecret}
+      - ZaloPaySetting__app_id=${ZaloPayAppId}
+      - ZaloPaySetting__key1=${ZaloPayKey1}
+      - ZaloPaySetting__key2=${ZaloPayKey2}
+      - PayOSSetting__ClientId=${PayOSClientId}
+      - PayOSSetting__ApiKey=${PayOSApiKey}
+      - PayOSSetting__ChecksumKey=${PayOSChecksumKey}
+      - PayOSSetting__Domain=${PayOSDomain}
     ports:
-      - 8081:8080
+      - ${PortServer}:8080
     depends_on:
       database_spa:
         condition: service_started
@@ -26,11 +44,11 @@ services:
     container_name: database_spa
     environment:
       - MYSQL_DATABASE=SPA
-      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_ROOT_PASSWORD=${MySQLPassword}
     volumes:
       - spa_mysql_data:/var/lib/mysql
     ports:
-      - 3308:3306
+      - ${PortDatabase}:3306
 volumes:
   spa_mysql_data:
 

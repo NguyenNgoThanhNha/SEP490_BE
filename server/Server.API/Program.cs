@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
@@ -25,6 +24,7 @@ namespace Server.API
             builder.Services.AddScoped<BranchService>();
             builder.Services.AddScoped<ProductService>();
             builder.Services.AddScoped<OrderDetailService>();
+            builder.Services.AddScoped<BlogService>();
 
             builder.Services.AddSwaggerGen(option =>
             {
@@ -65,6 +65,7 @@ namespace Server.API
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
 
+            builder.Services.AddElasticSearch(builder.Configuration);
             var app = builder.Build();
 
             // Hook into application lifetime events and trigger only application fully started 

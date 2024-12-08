@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.API.Controllers.Gaurd;
+using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
@@ -9,20 +10,17 @@ using System.Linq.Expressions;
 
 namespace Server.API.Controllers
 {
-    [Authorize]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class PurcharseController : ControllerBase
     {
         private readonly OrderService _orderService;
         private readonly OrderDetailService _orderDetailService;
-        private readonly AppDbContext _context;
-        public PurcharseController(OrderService orderService,
-            OrderDetailService orderDetailService,
-            AppDbContext context)
+
+        public PurcharseController(OrderService orderService, OrderDetailService orderDetailService)
         {
             _orderService = orderService;
-            _context = context;
             _orderDetailService = orderDetailService;
         }
 
@@ -34,46 +32,109 @@ namespace Server.API.Controllers
             int pageIndex = 0,
             int pageSize = 10)
         {
+            try
+            {
+                Expression<Func<Order, bool>> filter = c => (orderCode == null || c.OrderCode == orderCode)
+                    && (string.IsNullOrEmpty(customerName) || c.Customer.FullName.ToLower().Contains(customerName.ToLower()))
+                    && (string.IsNullOrEmpty(voucherCode) || c.Voucher.Code.ToLower().Contains(voucherCode.ToLower()));
 
-            Expression<Func<Order, bool>> filter = c => (orderCode == null || c.OrderCode == orderCode)
-                && (string.IsNullOrEmpty(customerName) || c.Customer.FullName.ToLower().Contains(customerName.ToLower()))
-                && (string.IsNullOrEmpty(voucherCode) || c.Voucher.Code.ToLower().Contains(voucherCode.ToLower()));
+                var response = await _orderService.GetListAsync(
+                    filter: filter,
+                    includeProperties: "Customer,Voucher,OrderDetails",
+                    pageIndex: pageIndex,
+                    pageSize: pageSize);
 
-            var response = await _orderService.GetListAsync(
-                filter: filter,
-                includeProperties: "Customer,Voucher,OrderDetails",
-                pageIndex: pageIndex,
-                pageSize: pageSize);
+                if (response == null || response.Data == null || !response.Data.Any())
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "No orders found."
+                    }));
 
-            return Ok(ApiResponse.Succeed(response));
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Orders retrieved successfully.",
+                    data = response
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Error occurred: {ex.Message}"
+                }));
+            }
         }
 
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrderAsync(CUOrderDto model)
+        {
+            try
             {
-            if (ModelState.IsValid)
-            {
-                model.OrderId = 0;
-                var order = await _orderService.CreateOrderAsync(model);
-                if (order.message == null)
-                    return Ok(order);
-                return BadRequest(order);
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                                  .Select(e => e.ErrorMessage)
+                                                  .ToList();
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Validation failed.",
+                        data = errors
+                    }));
+                }
+
+                var orderResult = await _orderService.CreateOrderAsync(model);
+                if (!orderResult.Success)
+                    return BadRequest(orderResult);
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Order created successfully.",
+                    data = orderResult.Result
+                }));
             }
-            return BadRequest(ApiResponse.Error("Vui lòng nhập đầy đủ thông tin"));
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Error occurred: {ex.Message}"
+                }));
+            }
         }
 
         [HttpPost("create-order-detail")]
         public async Task<IActionResult> CreateOrderDetailAsync(CUOrderDetailDto model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                model.OrderDetailId = 0;
-                var order = await _orderDetailService.CreateOrderDetailAsync(model);
-                if (order.Success)
-                    return Ok(order);
-                return BadRequest(order);
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values.SelectMany(v => v.Errors)
+                                                  .Select(e => e.ErrorMessage)
+                                                  .ToList();
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Validation failed.",
+                        data = errors
+                    }));
+                }
+
+                var orderDetailResult = await _orderDetailService.CreateOrderDetailAsync(model);
+                if (!orderDetailResult.Success)
+                    return BadRequest(orderDetailResult);
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Order detail created successfully.",
+                    data = orderDetailResult.Result
+                }));
             }
-            return BadRequest(ApiResponse.Error("Vui lòng nhập đầy đủ thông tin"));
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Error occurred: {ex.Message}"
+                }));
+            }
         }
     }
 }

@@ -2,8 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
+using Server.Business.Constants;
 using Server.Business.Dtos;
+using Server.Business.Ultils;
 using Server.Data.Entities;
+using Server.Data.Helpers;
 using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
 
@@ -12,45 +15,45 @@ namespace Server.Business.Services
     public class StaffService
     {
 
-        private readonly AppDbContext _context;
-        private readonly UnitOfWorks unitOfWorks;
+        private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
-        public StaffService(AppDbContext context, UnitOfWorks unitOfWorks, IMapper mapper)
+        private readonly MailService _mailService;
+
+        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService)
         {
-            _context = context;
-            this.unitOfWorks = unitOfWorks;
+            _unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _mailService = mailService;
         }
 
-        public async Task<Pagination<Staff>> GetListAsync(Expression<Func<Staff, bool>> filter = null,
-                                    Func<IQueryable<Staff>, IOrderedQueryable<Staff>> orderBy = null,
-                                    int? pageIndex = null, // Optional parameter for pagination (page number)
-                                    int? pageSize = null)
+        public async Task<Pagination<Staff>> GetListAsync(
+    Expression<Func<Staff, bool>> filter = null,
+    Func<IQueryable<Staff>, IOrderedQueryable<Staff>> orderBy = null,
+    int? pageIndex = null,
+    int? pageSize = null,
+    string name = null)
         {
-            IQueryable<Staff> query = _context.Staffs;
-            if (filter != null)
+            IQueryable<Staff> query = _unitOfWorks.StaffRepository.GetAll()
+                .Include(s => s.StaffInfo)
+                .Include(s => s.Branch);
+
+            if (!string.IsNullOrEmpty(name))
             {
-                query = query.Where(filter);
+                name = name.Trim().ToLower();
+                query = query.Where(s => s.StaffInfo.FullName.ToLower().Contains(name));
             }
 
+            if (filter != null)
+                query = query.Where(filter);
+
             if (orderBy != null)
-            {
                 query = orderBy(query);
-            }
 
             var totalItemsCount = await query.CountAsync();
 
-            if (pageIndex.HasValue && pageIndex.Value == -1)
+            if (pageIndex.HasValue && pageSize.HasValue)
             {
-                pageSize = totalItemsCount; // Set pageSize to total count
-                pageIndex = 0; // Reset pageIndex to 0
-            }
-            else if (pageIndex.HasValue && pageSize.HasValue)
-            {
-                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value : 0;
-                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
-
-                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+                query = query.Skip(pageIndex.Value * pageSize.Value).Take(pageSize.Value);
             }
 
             var items = await query.ToListAsync();
@@ -64,12 +67,115 @@ namespace Server.Business.Services
             };
         }
 
+
+
+
+
+        public async Task<ApiResponse> CreateStaffAsync(CUStaffDto staffDto)
+        {
+            try
+            {
+                if (staffDto == null)
+                    return ApiResponse.Error("Staff data is required.");
+
+                // Kiểm tra Branch tồn tại
+                var branchExists = await _unitOfWorks.Branches.AnyAsync(x => x.BranchId == staffDto.BranchId);
+                if (!branchExists)
+                    return ApiResponse.Error("Branch not found.");
+
+                // Tạo User mới
+                var newUser = new User
+                {
+                    UserName = staffDto.UserName,
+                    Email = staffDto.Email,
+                    FullName = staffDto.FullName,
+                    Password = SecurityUtil.Hash("123456"), // Bạn có thể thêm logic băm mật khẩu ở đây
+                    RoleID = (int)RoleConstant.RoleType.Staff, // Vai trò Staff
+                    Status = "Active",
+                    CreatedDate = DateTime.UtcNow,
+                    TypeLogin = "Normal" // Thêm giá trị mặc định cho TypeLogin
+                };
+
+                await _unitOfWorks.Users.AddAsync(newUser);
+                await _unitOfWorks.Commit();
+
+                // Tạo Staff mới liên kết với User
+                var newStaff = new Staff
+                {
+                    UserId = newUser.UserId,
+                    BranchId = staffDto.BranchId,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                };
+
+                await _unitOfWorks.StaffRepository.AddAsync(newStaff);
+                await _unitOfWorks.Commit();
+
+                // Gửi email thông báo tài khoản và mật khẩu
+                var mailData = new MailData
+                {
+                    EmailToId = newUser.Email,
+                    EmailToName = newUser.FullName,
+                    EmailSubject = "Welcome to Our Team!",
+                    EmailBody = $@"
+<div style=""max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
+    <h2 style=""text-align: center; color: #3498db; font-weight: bold;"">Welcome to Our Team!</h2>
+    <p style=""font-size: 16px; color: #555;"">Dear {newUser.FullName},</p>
+    <p style=""font-size: 16px; color: #555;"">You have been added as a staff member in our system.</p>
+    <p style=""font-size: 16px; color: #555;"">Here are your login credentials:</p>
+    <ul style=""font-size: 16px; color: #555; list-style-type: none; padding: 0;"">
+        <li><strong>Username:</strong> {newUser.UserName}</li>
+        <li><strong>Password:</strong> 123456</li>
+    </ul>
+    <p style=""font-size: 16px; color: #555;"">Please log in and update your password as soon as possible.</p>
+    <p style=""text-align: center; color: #888; font-size: 14px;"">Powered by Team Solace</p>
+</div>"
+                };
+
+                _ = Task.Run(async () =>
+                {
+                    var emailResult = await _mailService.SendEmailAsync(mailData, false);
+                    if (!emailResult)
+                    {
+                        Console.WriteLine("Failed to send email.");
+                    }
+                });
+
+                // Lấy dữ liệu Staff đã tạo
+                var createdStaff = await _unitOfWorks.StaffRepository
+                    .GetAll()
+                    .Include(s => s.Branch)
+                    .Include(s => s.StaffInfo)
+                    .FirstOrDefaultAsync(s => s.StaffId == newStaff.StaffId);
+
+                return ApiResponse.Succeed(createdStaff, "Staff created successfully.");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                return ApiResponse.Error($"Database Update Error: {dbEx.InnerException?.Message ?? dbEx.Message}");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse.Error($"Error: {ex.Message}");
+            }
+        }
+
+
+
+
+
+
         public async Task<List<Staff>> GetStaffByCustomerIdAsync(int customerId)
         {
-            var staffs = _context.Appointments
+            // Lấy danh sách Appointments có liên quan đến CustomerId thông qua UnitOfWorks
+            var appointments = await _unitOfWorks.AppointmentsRepository
+                .GetAll()
                 .Include(x => x.Staff).ThenInclude(x => x.StaffInfo)
                 .Where(x => x.CustomerId == customerId)
-                .AsEnumerable()
+                .ToListAsync();
+
+            // Nhóm theo StaffId, loại bỏ trùng lặp, và tạo danh sách Staff
+            var staffs = appointments
                 .GroupBy(x => x.StaffId)
                 .Select(g => g.First())
                 .Select(x => new Staff
@@ -86,13 +192,19 @@ namespace Server.Business.Services
             return staffs;
         }
 
+
         public async Task<Staff> GetStaffLastByCustomerIdAsync(int customerId)
         {
-            var staffs = _context.Appointments
+            // Lấy tất cả các cuộc hẹn liên quan đến khách hàng qua UnitOfWorks
+            var appointments = await _unitOfWorks.AppointmentsRepository
+                .GetAll()
                 .Include(x => x.Staff).ThenInclude(x => x.StaffInfo)
                 .Where(x => x.CustomerId == customerId)
                 .OrderByDescending(x => x.AppointmentsTime)
-                .AsEnumerable()
+                .ToListAsync();
+
+            // Nhóm các cuộc hẹn theo StaffId và lấy cuộc hẹn cuối cùng của mỗi nhân viên
+            var staff = appointments
                 .GroupBy(x => x.StaffId)
                 .Select(g => g.First())
                 .Select(x => new Staff
@@ -104,222 +216,238 @@ namespace Server.Business.Services
                     UpdatedDate = x.Staff.UpdatedDate,
                     StaffInfo = x.Staff.StaffInfo
                 })
-                .ToList();
+                .FirstOrDefault();
 
-            return staffs.FirstOrDefault();
+            return staff;
         }
+
 
         public async Task<ApiResponse> AssignRoleAsync(int staffId, int roleId)
         {
             try
             {
-
-                if (!await _context.Staffs.AnyAsync(x => x.StaffId == staffId))
+                // Kiểm tra sự tồn tại của Staff
+                var staffExists = await _unitOfWorks.Staffs.AnyAsync(x => x.StaffId == staffId);
+                if (!staffExists)
                 {
                     return ApiResponse.Error("Staff not found");
                 }
-                if (!await _context.UserRoles.AnyAsync(x => x.RoleId == roleId))
+
+                // Kiểm tra sự tồn tại của Role
+                var roleExists = await _unitOfWorks.Users.AnyAsync(x => x.UserRole.RoleId == roleId);
+                if (!roleExists)
                 {
                     return ApiResponse.Error("Role not found");
                 }
 
-                var staff = _context.Staffs.Find(staffId);
-                if (staff != null)
+                // Lấy Staff
+                var staff = await _unitOfWorks.Staffs.FirstOrDefaultAsync(x => x.StaffId == staffId);
+                if (staff == null)
                 {
-                    var user = _context.Users.Find(staff.UserId);
-                    if (user != null)
-                    {
-                        user.RoleID = roleId;
-                        user.UpdatedDate = DateTime.UtcNow;
-                        _context.Users.Update(user);
-                        await _context.SaveChangesAsync();
-
-                        return new ApiResponse
-                        {
-                            data = staff,
-                        };
-                    }
+                    return ApiResponse.Error("Staff not found");
                 }
 
+                // Lấy User liên kết với Staff
+                var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == staff.UserId);
+                if (user == null)
+                {
+                    return ApiResponse.Error("User not found");
+                }
+
+                // Cập nhật Role cho User
+                user.RoleID = roleId;
+                user.UpdatedDate = DateTime.UtcNow;
+
+                // Cập nhật vào database qua UnitOfWorks
+                _unitOfWorks.UserRepository.Update(user);
+                await _unitOfWorks.Commit();
+
+                // Trả về kết quả thành công
+                return ApiResponse.Succeed(new
+                {
+                    staff.StaffId,
+                    user.UserId,
+                    user.RoleID,
+                    UpdatedDate = user.UpdatedDate
+                }, "Role assigned to staff successfully.");
             }
             catch (Exception ex)
             {
-                return ApiResponse.Error(ex.Message);
+                return ApiResponse.Error($"An error occurred: {ex.Message}");
             }
-
-            return ApiResponse.Error(null);
         }
+
 
 
         public async Task<ApiResponse> AssignBranchAsync(int staffId, int branchId)
         {
             try
             {
-                if (!await _context.Staffs.AnyAsync(x => x.StaffId == staffId))
+                // Kiểm tra sự tồn tại của Staff
+                var staffExists = await _unitOfWorks.Staffs.AnyAsync(x => x.StaffId == staffId);
+                if (!staffExists)
                 {
                     return ApiResponse.Error("Staff not found");
                 }
-                if (!await _context.Branchs.AnyAsync(x => x.BranchId == branchId))
+
+                // Kiểm tra sự tồn tại của Branch
+                var branchExists = await _unitOfWorks.Branches.AnyAsync(x => x.BranchId == branchId);
+                if (!branchExists)
                 {
                     return ApiResponse.Error("Branch not found");
                 }
 
-                var staff = _context.Staffs.Find(staffId);
-                if (staff != null)
+                // Lấy thông tin Staff cần cập nhật
+                var staff = await _unitOfWorks.Staffs.FirstOrDefaultAsync(x => x.StaffId == staffId);
+                if (staff == null)
                 {
-                    staff.BranchId = branchId;
-                    staff.UpdatedDate = DateTime.UtcNow;
-                    _context.Staffs.Update(staff);
-                    await _context.SaveChangesAsync();
-
-                    return ApiResponse.Succeed(staff);
+                    return ApiResponse.Error("Staff not found");
                 }
 
+                // Cập nhật BranchId và thời gian cập nhật
+                staff.BranchId = branchId;
+                staff.UpdatedDate = DateTime.UtcNow;
+
+                // Cập nhật Staff vào database qua UnitOfWorks
+                _unitOfWorks.Staffs.Update(staff);
+                await _unitOfWorks.Commit();
+
+                // Trả về kết quả
+                return ApiResponse.Succeed(staff, "Branch assigned to staff successfully.");
             }
             catch (Exception ex)
             {
-                return ApiResponse.Error(ex.Message);
+                return ApiResponse.Error($"An error occurred: {ex.Message}");
             }
+        }      
 
-            return ApiResponse.Error(null);
-        }
 
-        public async Task<ApiResponse> CreateStaffAsync(CUStaffDto staffDto)
+
+        public async Task<ApiResponse> GetStaffByIdAsync(int staffId)
         {
             try
             {
-                if (staffDto == null)
+                // Sử dụng UnitOfWorks để lấy thông tin Staff
+                var staff = await _unitOfWorks.StaffRepository
+                    .GetAll() // Lấy tất cả dữ liệu từ repository
+                    .Include(s => s.StaffInfo)  // Bao gồm thông tin người dùng (User)
+                    .Include(s => s.Branch) // Bao gồm thông tin chi nhánh (Branch)
+                    .FirstOrDefaultAsync(s => s.StaffId == staffId);
+
+                // Kiểm tra nếu không tìm thấy staff
+                if (staff == null)
                 {
-                    return ApiResponse.Error(null);
+                    return ApiResponse.Error("Staff not found.");
                 }
 
-                if (!_context.Users.Any(x => x.UserId == staffDto.UserId))
-                {
-                    return ApiResponse.Error("User not found");
-                }
-
-                if (!_context.Branchs.Any(x => x.BranchId == staffDto.BranchId))
-                {
-                    return ApiResponse.Error("Branch not found");
-                }
-
-                if (_context.Staffs.Any(x => x.UserId == staffDto.UserId))
-                {
-                    return ApiResponse.Error("This user already exists");
-                }
-
-                // Tạo danh mục mới
-                var newStaff = new Staff
-                {
-                    StaffId = staffDto.StaffId,
-                    UserId = staffDto.UserId,
-                    BranchId = staffDto.BranchId,
-                    CreatedDate = DateTime.Now,
-                };
-
-                // Thêm danh mục mới vào cơ sở dữ liệu
-                await _context.Staffs.AddAsync(newStaff);
-                await _context.SaveChangesAsync();
-
-                // Trả về kết quả thành công với danh mục vừa tạo
-                return ApiResponse.Succeed(newStaff);
+                // Trả về dữ liệu staff
+                return ApiResponse.Succeed(staff, "Staff retrieved successfully.");
             }
             catch (Exception ex)
             {
-                // Trả về lỗi với ngoại lệ
-                return ApiResponse.Error(ex.Message);
+                // Xử lý lỗi và trả về phản hồi lỗi
+                return ApiResponse.Error($"An error occurred: {ex.Message}");
             }
         }
 
 
 
-        public async Task<Staff?> GetStaffByIdAsync(int staffId)
+        public async Task<ApiResponse> UpdateStaffAsync(int staffId, UpdateStaffDto staffUpdateDto)
         {
             try
             {
-                var staff = await _context.Staffs
-                    .Include(c => c.StaffInfo) // Bao gồm danh sách sản phẩm nếu cần
-                    .Include(c => c.Branch) // Bao gồm danh sách sản phẩm nếu cần
-                    .FirstOrDefaultAsync(c => c.StaffId == staffId);
+                // Tìm kiếm Staff dựa trên staffId từ route
+                var existingStaff = await _unitOfWorks.Staffs
+                    .Include(s => s.StaffInfo) // Bao gồm thông tin từ bảng User
+                    .Include(s => s.Branch)   // Bao gồm thông tin từ bảng Branch
+                    .FirstOrDefaultAsync(s => s.StaffId == staffId);
 
-                return staff;
-            }
-            catch (Exception ex)
-            {
-                // Xử lý lỗi (nếu có)
-                Console.WriteLine($"Error occurred: {ex.Message}");
-                return null;  // Trả về null nếu không tìm thấy sản phẩm hoặc có lỗi
-            }
-        }
-
-
-        public async Task<ApiResponse> UpdateStaffAsync(CUStaffDto staffUpdateDto)
-        {
-            try
-            {
-                if (staffUpdateDto == null)
-                {
-                    return ApiResponse.Error("Staff data is required.");
-                }
-
-                if (!_context.Users.Any(x => x.UserId == staffUpdateDto.UserId))
-                {
-                    return ApiResponse.Error("User not found");
-                }
-
-                if (!_context.Branchs.Any(x => x.BranchId == staffUpdateDto.BranchId))
-                {
-                    return ApiResponse.Error("Branch not found");
-                }
-                if (_context.Staffs.Any(x => x.UserId == staffUpdateDto.UserId && x.StaffId != staffUpdateDto.StaffId))
-                {
-                    return ApiResponse.Error("This user already exists");
-                }
-
-                var existingStaff = await _context.Staffs.FirstOrDefaultAsync(p => p.StaffId == staffUpdateDto.StaffId);
                 if (existingStaff == null)
                 {
-                    return ApiResponse.Error("Staff not found");
+                    return new ApiResponse
+                    {
+                        message = "Staff not found."
+                    };
                 }
 
-                existingStaff.UserId = staffUpdateDto.UserId;
+                // Cập nhật thông tin Staff
+                if (existingStaff.StaffInfo != null)
+                {
+                    existingStaff.StaffInfo.UserName = staffUpdateDto.UserName ?? existingStaff.StaffInfo.UserName;
+                    existingStaff.StaffInfo.FullName = staffUpdateDto.FullName ?? existingStaff.StaffInfo.FullName;
+                    existingStaff.StaffInfo.Email = staffUpdateDto.Email ?? existingStaff.StaffInfo.Email;
+                    existingStaff.StaffInfo.Avatar = staffUpdateDto.Avatar ?? existingStaff.StaffInfo.Avatar;
+                }
+
                 existingStaff.BranchId = staffUpdateDto.BranchId;
-                existingStaff.UpdatedDate = DateTime.Now;
+                existingStaff.UpdatedDate = DateTime.UtcNow;
 
-                await _context.SaveChangesAsync();
+                // Lưu thay đổi
+                _unitOfWorks.Staffs.Update(existingStaff);
+                await _unitOfWorks.Commit();
 
-                var updatedStaff = await _context.Staffs.FindAsync(staffUpdateDto.StaffId);
-
-                return ApiResponse.Succeed(updatedStaff);
+                // Trả về thông tin staff sau khi cập nhật
+                return new ApiResponse
+                {
+                    message = "Staff updated successfully.",
+                    data = existingStaff
+                };
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
-                return ApiResponse.Error($"Error: {ex.Message}");
+                // Xử lý lỗi nếu có ngoại lệ
+                return new ApiResponse
+                {
+                    message = $"Error: {ex.Message}"
+                };
             }
         }
+
+
+
+
 
 
         public async Task<ApiResponse> DeleteStaffAsync(int staffId)
         {
-            // Tìm danh mục trong cơ sở dữ liệu
-            var staff = await _context.Staffs.FirstOrDefaultAsync(p => p.StaffId == staffId);
-
-            if (staff == null)
+            try
             {
-                return ApiResponse.Error("Staff not found.");
+                // Tìm Staff trong database
+                var staff = await _unitOfWorks.Staffs.FirstOrDefaultAsync(p => p.StaffId == staffId);
+
+                // Nếu không tìm thấy Staff
+                if (staff == null)
+                {
+                    return new ApiResponse
+                    {
+                        message = "Staff not found.",
+                        data = null
+                    };
+                }
+
+                // Tiến hành xóa Staff
+                _unitOfWorks.Staffs.Remove(staff);
+
+                // Lưu thay đổi
+                await _unitOfWorks.Commit();
+
+                // Trả về phản hồi thành công
+                return new ApiResponse
+                {
+                    message = "Staff deleted successfully.",
+                    data = staff // Trả về dữ liệu Staff vừa bị xóa nếu cần
+                };
             }
-
-
-            _context.Staffs.Remove(staff);
-            // Lưu thay đổi vào cơ sở dữ liệu
-            await _context.SaveChangesAsync();
-
-            return ApiResponse.Succeed(staff, "Staff deleted.");
+            catch (Exception ex)
+            {
+                // Xử lý lỗi và trả về phản hồi lỗi
+                return new ApiResponse
+                {
+                    message = $"An error occurred: {ex.Message}",
+                    data = null
+                };
+            }
         }
-
-
-
 
     }
 }
