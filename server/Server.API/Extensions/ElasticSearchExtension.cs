@@ -7,9 +7,9 @@ namespace Server.API.Extensions
     {
         public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
         {
-            var baseUrl = configuration["ElasticSettings:baseUrl"];
-            var finger = configuration["ElasticSettings:finger"];
-            var password = configuration["ElasticSettings:password"];
+            var baseUrl = /*configuration["ElasticSettings:baseUrl"];*/ "https://localhost:9200/";
+            var finger =/* configuration["ElasticSettings:finger"];*/ "cdefc270eec9957bb8dcfd2e1581f0d172229fc167089f2a86391df96a21161c";
+            var password = /*configuration["ElasticSettings:password"];*/ "q66nd9kbqUiG*fQQrJKz";
             var settings = new ConnectionSettings(new Uri(baseUrl ?? ""))
                 .PrettyJson()
                 .CertificateFingerprint(finger)
