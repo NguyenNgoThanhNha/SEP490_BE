@@ -103,7 +103,8 @@ namespace Server.Data.UnitOfWorks
         public DbSet<OrderDetail> OrderDetails => _dbContext.OrderDetails;      
         public DbSet<User> Users => _dbContext.Users;
         public DbSet<Voucher> Vouchers => _dbContext.Vouchers;
-
+        public DbSet<Branch> Branches => _dbContext.Branchs;
+        public DbSet<Staff> Staffs => _dbContext.Staffs;
 
 
 

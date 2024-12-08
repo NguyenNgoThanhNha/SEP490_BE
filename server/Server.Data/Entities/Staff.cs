@@ -9,6 +9,8 @@ public class Staff
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int StaffId { get; set; }
 
+
+
     [ForeignKey("StaffInfo")]
     public int UserId { get; set; }
 
