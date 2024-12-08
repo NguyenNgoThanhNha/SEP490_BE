@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Nest;
 using Server.API.Controllers.Gaurd;
 using Server.API.Extensions;
 using Server.Business.Commons;
@@ -18,11 +19,17 @@ namespace Server.API.Controllers
     {
         private readonly ProductService _productService;
         private readonly BranchService _branchService;
-
-        public ProductController(ProductService productService, BranchService branchService)
+        private readonly AppDbContext _context;
+        private readonly IElasticClient _elasticClient;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly ElasticService<ProductDto> _elasticService;
+        public ProductController(ProductService productService, BranchService branchService, IElasticClient elasticClient, IWebHostEnvironment hostingEnvironment)
         {
             _productService = productService;
             _branchService = branchService;
+            _elasticClient = elasticClient;
+            _hostingEnvironment = hostingEnvironment;
+            _elasticService = new ElasticService<ProductDto>(_elasticClient, "products");
         }
 
         [HttpGet("get-list")]
@@ -80,6 +87,47 @@ namespace Server.API.Controllers
                 message = "Get products successfully!",
                 data = products
             }));
+        }
+
+        [HttpGet("elasticsearch")]
+        public async Task<IActionResult> ElasticSearch(string? keyword)
+        {
+            var productList = new List<ProductDto>();
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                productList = (await _elasticService.SearchAsync(keyword)).ToList();
+            }
+            else
+                productList = (await _elasticService.GetAllAsync()).ToList();
+            return Ok(ApiResponse.Succeed(productList));
+        }
+
+        [HttpPost("create-elastic")]
+        public async Task<IActionResult> CreateElastic(ProductDto model)
+        {
+            try
+            {
+                await _elasticService.IndexDocumentAsync(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok(model);
+        }
+
+        [HttpPost("import-elastic")]
+        public async Task<IActionResult> ImportElasticAsync(IFormFile file)
+        {
+            try
+            {
+                var result = await _elasticService.ImportFromJsonFileAsync(file);
+                return Ok(ApiResponse.Succeed(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 

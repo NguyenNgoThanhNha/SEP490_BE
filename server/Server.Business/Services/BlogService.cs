@@ -6,12 +6,6 @@ using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server.Business.Services
 {
@@ -19,6 +13,7 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+
 
         public BlogService(UnitOfWorks unitOfWorks, IMapper mapper)
         {
