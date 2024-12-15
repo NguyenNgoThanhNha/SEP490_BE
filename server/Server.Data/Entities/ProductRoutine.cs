@@ -2,26 +2,22 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Server.Data.Entities;
-
-[Table("Blog")]
-public class Blog
+[Table("ProductRoutine")]
+public class ProductRoutine
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int BlogId { get; set; }
+    public int ProductRoutineId { get; set; }
     
-    public string Title { get; set; }
-
-    public string? Thumbnail { get; set; }
-    public string Content { get; set; }
+    [ForeignKey("ProductRoutine")]
+    public int ProductId { get; set; }
+    public virtual Product Products { get; set; }
     
-    [ForeignKey("AuthoBlog")]
-    public int AuthorId { get; set; }
-    public virtual User Author { get; set; }
+    [ForeignKey("RoutineProduct")]
+    public int RoutineId { get; set; }
+    public virtual SkincareRoutine Routine { get; set; }
     
     public string Status { get; set; }
-    
-    public string? Note { get; set; }
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;

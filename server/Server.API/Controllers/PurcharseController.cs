@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.API.Controllers.Gaurd;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
@@ -24,7 +23,7 @@ namespace Server.API.Controllers
             _orderDetailService = orderDetailService;
         }
 
-        [CustomAuthorize("Admin,Manager,Staff")]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         [HttpGet("get-list")]
         public async Task<IActionResult> GetList(int? orderCode,
             string? customerName,

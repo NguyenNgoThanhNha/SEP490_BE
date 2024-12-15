@@ -33,6 +33,7 @@ public class Product
     public virtual Company Company { get; set; }
     
     public ICollection<Branch_Product> Branch_Products { get; set; }
+    public ICollection<ProductRoutine> ProductRoutines { get; set; }
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
