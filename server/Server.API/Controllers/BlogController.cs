@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Server.Business.Commons;
@@ -28,15 +29,38 @@ namespace Server.API.Controllers
         }
 
         // [Authorize]
+        //[HttpGet("get-all")]
+        //public async Task<IActionResult> GetAllBlog([FromQuery] int page = 1, int pageSize = 5)
+        //{
+        //    var listBlog = await _blogService.GetAllBlogs(page, pageSize);
+        //    if (listBlog.Equals(null))
+        //    {
+        //        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+        //        {
+        //            message = "Currently, there is no blogs!"
+        //        }));
+        //    }
+        //    return Ok(ApiResult<GetAllBlogResponse>.Succeed(new GetAllBlogResponse()
+        //    {
+        //        message = "Get blogs successfully!",
+        //        data = listBlog.data,
+        //        pagination = listBlog.pagination
+        //    }));
+        //}
+
+        //[Authorize]
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllBlog([FromQuery] int page = 1, int pageSize = 5)
+        public async Task<IActionResult> GetAllBlog(
+    [FromQuery] string status,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 5)
         {
-            var listBlog = await _blogService.GetAllBlogs(page, pageSize);
-            if (listBlog.Equals(null))
+            var listBlog = await _blogService.GetAllBlogs(status, page, pageSize);
+            if (listBlog == null || listBlog.data == null || !listBlog.data.Any())
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there is no blogs!"
+                    message = "Currently, there are no blogs!"
                 }));
             }
             return Ok(ApiResult<GetAllBlogResponse>.Succeed(new GetAllBlogResponse()
@@ -46,6 +70,9 @@ namespace Server.API.Controllers
                 pagination = listBlog.pagination
             }));
         }
+
+
+
 
         // [Authorize]
         [HttpGet("get-by-id/{id}")]

@@ -5,6 +5,7 @@ using Server.Business.Commons.Response;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Data.Entities;
+using Server.Data.Repositories;
 using Server.Data.UnitOfWorks;
 
 namespace Server.Business.Services
@@ -21,23 +22,66 @@ namespace Server.Business.Services
             _mapper = mapper;
         }
 
-        public async Task<GetAllBlogResponse> GetAllBlogs(int page = 1, int pageSize = 5)
+        //public async Task<GetAllBlogResponse> GetAllBlogs(int page = 1, int pageSize = 5)
+        //{
+        //    var listBlogs = await _unitOfWorks.BlogRepository.FindByCondition(x => x.Status == "Accept").Include(x => x.Author).OrderByDescending(x => x.BlogId).ToListAsync();
+        //    if (listBlogs.Equals(null))
+        //    {
+        //        return null;
+        //    }
+        //    var totalCount = listBlogs.Count();
+
+        //    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        //    var pagedServices = listBlogs.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        //    var blogsModels = _mapper.Map<List<BlogModel>>(pagedServices);
+
+
+
+        //    return new GetAllBlogResponse()
+        //    {
+        //        data = blogsModels,
+        //        pagination = new Pagination
+        //        {
+        //            page = page,
+        //            totalPage = totalPages,
+        //            totalCount = totalCount
+        //        }
+        //    };
+        //}
+
+
+        public async Task<GetAllBlogResponse> GetAllBlogs(string status = null, int page = 1, int pageSize = 5)
         {
-            var listBlogs = await _unitOfWorks.BlogRepository.FindByCondition(x => x.Status == "Accept").Include(x => x.Author).OrderByDescending(x => x.BlogId).ToListAsync();
-            if (listBlogs.Equals(null))
+            // Truy vấn cơ bản với điều kiện lọc `status` nếu có
+            var query = _unitOfWorks.BlogRepository
+                .FindByCondition(x => string.IsNullOrEmpty(status) || x.Status == status)
+                .Include(x => x.Author)
+                .OrderByDescending(x => x.BlogId);
+
+            // Lấy tổng số lượng blog sau khi lọc
+            var totalCount = await query.CountAsync();
+
+            // Tính tổng số trang
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // Phân trang dữ liệu
+            var pagedBlogs = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Kiểm tra kết quả
+            if (pagedBlogs == null || !pagedBlogs.Any())
             {
                 return null;
             }
-            var totalCount = listBlogs.Count();
 
-            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            // Ánh xạ sang BlogModel
+            var blogsModels = _mapper.Map<List<BlogModel>>(pagedBlogs);
 
-            var pagedServices = listBlogs.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            var blogsModels = _mapper.Map<List<BlogModel>>(pagedServices);
-
-
-
+            // Trả về kết quả
             return new GetAllBlogResponse()
             {
                 data = blogsModels,
@@ -49,6 +93,12 @@ namespace Server.Business.Services
                 }
             };
         }
+
+
+
+
+
+
 
         public async Task<BlogModel> GetBlogsById(int id)
         {
