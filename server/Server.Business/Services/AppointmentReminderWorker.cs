@@ -26,16 +26,23 @@ namespace Server.Business.Services
         {
             _logger.LogInformation("Appointment Reminder Worker is running.");
 
+            // Kiểm tra khi nào đến 8:00 sáng và chạy công việc
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (true) // Chạy ngay lập tức, không phụ thuộc vào giờ
+                var now = DateTime.Now;
+
+                if (now.Hour == 8 && now.Minute == 0)
                 {
-                    _logger.LogInformation("Sending appointment reminders (Test Mode)...");
+                    _logger.LogInformation("Sending appointment reminders at 8:00 AM...");
                     await SendAppointmentRemindersAsync();
+
+                    _logger.LogInformation("Appointment reminders have been sent. Worker stopping...");
+
+                    break; // Dừng Worker sau khi hoàn thành công việc
                 }
 
-
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                // Chờ 30 giây trước khi kiểm tra lại thời gian
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
             }
         }
 
@@ -64,14 +71,19 @@ namespace Server.Business.Services
                     EmailToName = appointment.Customer.FullName,
                     EmailSubject = "Appointment Reminder",
                     EmailBody = $@"
-<p>Dear {appointment.Customer.FullName},</p>
-<p>This is a reminder for your upcoming appointment:</p>
-<ul>
-    <li>Service: {appointment.Service.Name}</li>
-    <li>Date: {appointment.AppointmentsTime:yyyy-MM-dd}</li>
-    <li>Time: {appointment.AppointmentsTime:HH:mm}</li>
-</ul>
-<p>Please arrive on time. Thank you!</p>"
+<div style=""max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
+    <h2 style=""text-align: center; color: #3498db; font-weight: bold;"">Appointment Reminder</h2>
+    <p style=""font-size: 16px; color: #555;"">Dear {appointment.Customer.FullName},</p>
+    <p style=""font-size: 16px; color: #555;"">This is a friendly reminder for your upcoming appointment:</p>
+    <ul style=""font-size: 16px; color: #555; list-style-type: none; padding: 0;"">
+        <li><strong>Service:</strong> {appointment.Service.Name}</li>
+        <li><strong>Date:</strong> {appointment.AppointmentsTime:yyyy-MM-dd}</li>
+        <li><strong>Time:</strong> {appointment.AppointmentsTime:HH:mm}</li>
+    </ul>
+    <p style=""font-size: 16px; color: #555;"">Please arrive on time. If you have any questions, feel free to contact us.</p>
+    <p style=""text-align: center; color: #888; font-size: 14px;"">Thank you for choosing our services!</p>
+    <p style=""text-align: center; color: #888; font-size: 14px;"">Powered by Team Solace</p>
+</div>"
                 };
 
                 var result = await mailService.SendEmailAsync(mailData, false);
@@ -85,6 +97,7 @@ namespace Server.Business.Services
                 }
             }
         }
+
 
     }
 }
