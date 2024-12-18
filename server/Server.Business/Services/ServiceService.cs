@@ -29,9 +29,11 @@ namespace Server.Business.Services
         {
             // Truy vấn dữ liệu từ repository với điều kiện ban đầu là `status == "Active"`
             IQueryable<Service> query = _unitOfWorks.ServiceRepository.GetAll()
-                .Include(s => s.Category) // Bao gồm thông tin Category
-                .Include(s => s.Branch_Services) // Bao gồm thông tin Branch_Services
-                .Where(s => s.Status == "Active"); // Chỉ lấy các Service có trạng thái Active
+      .Include(s => s.Category) // Bao gồm thông tin Category
+      .Include(s => s.Branch_Services) // Bao gồm Branch_Services
+          .ThenInclude(bs => bs.Branch) // Bao gồm thông tin Branch từ Branch_Services
+      .Where(s => s.Status == "Active"); // Chỉ lấy các Service có trạng thái Active
+
 
             // Áp dụng bộ lọc (nếu có)
             if (filter != null)
