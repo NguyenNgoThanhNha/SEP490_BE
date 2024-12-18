@@ -53,7 +53,9 @@ namespace Server.Business.Mappers
             CreateMap<Blog, BlogDTO>().ReverseMap();
             CreateMap<BlogModel, BlogDTO>().ReverseMap();
             CreateMap<Blog, BlogModel>()
-    .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author.FullName));
+     .ForMember(dest => dest.AuthorName, opt => opt.Ignore()) // AuthorName ánh xạ thủ công
+     .ForMember(dest => dest.Thumbnail, opt => opt.MapFrom(src => src.Thumbnail)); // Gán thumbnail
+
 
         }
     }

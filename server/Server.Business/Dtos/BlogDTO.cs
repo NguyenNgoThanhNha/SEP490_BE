@@ -18,7 +18,9 @@ namespace Server.Business.Dtos
 
         public string Content { get; set; }
 
-       
+        public string Thumbnail { get; set; }
+
+
         public int AuthorId { get; set; }
         public string AuthorName { get; set; }
 

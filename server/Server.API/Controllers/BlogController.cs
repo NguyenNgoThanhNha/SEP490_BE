@@ -18,14 +18,15 @@ namespace Server.API.Controllers
         private readonly IMapper _mapper;
         private readonly IElasticClient _elasticClient;
         private readonly ElasticService<BlogDTO> _elasticService;
+        private readonly CloudianryService _cloudianryService;
 
-
-        public BlogController(BlogService blogService, IMapper mapper, IElasticClient elasticClient)
+        public BlogController(BlogService blogService, IMapper mapper, IElasticClient elasticClient, CloudianryService cloudianryService)
         {
             _blogService = blogService;
             _mapper = mapper;
             _elasticClient = elasticClient;
             _elasticService = new ElasticService<BlogDTO>(_elasticClient, "blogs");
+            _cloudianryService = cloudianryService;
         }
 
         // [Authorize]
@@ -93,6 +94,35 @@ namespace Server.API.Controllers
             }));
         }
 
+
+        [HttpPost("upload-thumbnail")]
+        public async Task<IActionResult> UploadThumbnail(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest("No file provided");
+
+                var uploadResult = await _cloudianryService.UploadImageAsync(file);
+
+                if (uploadResult != null)
+                {
+                    return Ok(ApiResponse.Succeed(new
+                    {
+                        Url = uploadResult.Uri.ToString(),
+                        PublicId = uploadResult.PublicId
+                    }, "Upload thumbnail successfully."));
+                }
+
+                return BadRequest(ApiResponse.Error("Upload failed"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Error("Internal server error"));
+            }
+        }
+
+
         [HttpGet("elasticsearch")]
         public async Task<IActionResult> ElasticSearch(string? keyword)
         {
@@ -135,8 +165,38 @@ namespace Server.API.Controllers
         }
 
         //[Authorize]
+        //[HttpPost("create")]
+        //public async Task<IActionResult> CreateBlog([FromBody] BlogRequest request)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        var errors = ModelState.Values
+        //            .SelectMany(v => v.Errors)
+        //            .Select(e => e.ErrorMessage)
+        //            .ToList();
+
+        //        return BadRequest(ApiResult<List<string>>.Error(errors));
+        //    }
+
+        //    var blogsModel = await _blogService.CreateBlogs(request);
+        //    if (blogsModel == null)
+        //    {
+        //        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+        //        {
+        //            message = "Error in create blogs!"
+        //        }));
+        //    }
+
+        //    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+        //    {
+        //        message = "Blog created successfully!",
+        //        data = _mapper.Map<BlogDTO>(blogsModel)
+        //    }));
+        //}
+
+
         [HttpPost("create")]
-        public async Task<IActionResult> CreateBlog([FromBody] BlogRequest request)
+        public async Task<IActionResult> CreateBlog([FromForm] BlogRequest request, IFormFile thumbnail)
         {
             if (!ModelState.IsValid)
             {
@@ -148,12 +208,13 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            var blogsModel = await _blogService.CreateBlogs(request);
+            // Gọi service để tạo blog với thumbnail
+            var blogsModel = await _blogService.CreateBlogs(request, thumbnail);
             if (blogsModel == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in create blogs!"
+                    message = "Error in creating blog!"
                 }));
             }
 
@@ -163,6 +224,7 @@ namespace Server.API.Controllers
                 data = _mapper.Map<BlogDTO>(blogsModel)
             }));
         }
+
 
         //[Authorize]
         [HttpPut("update/{id}")]

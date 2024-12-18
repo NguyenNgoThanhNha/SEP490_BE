@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
@@ -14,12 +15,14 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+        private readonly CloudianryService _cloudianryService;
 
 
-        public BlogService(UnitOfWorks unitOfWorks, IMapper mapper)
+        public BlogService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _cloudianryService = cloudianryService;
         }
 
         //public async Task<GetAllBlogResponse> GetAllBlogs(int page = 1, int pageSize = 5)
@@ -122,9 +125,49 @@ namespace Server.Business.Services
             return blogModel;
         }
 
-        public async Task<BlogModel> CreateBlogs(BlogRequest request)
+        //public async Task<BlogModel> CreateBlogs(BlogRequest request)
+        //{
+        //    // Kiểm tra xem Author có tồn tại không
+        //    var user = await _unitOfWorks.UserRepository
+        //        .FirstOrDefaultAsync(x => x.UserId == request.AuthorId);
+
+        //    if (user == null)
+        //    {
+        //        throw new BadRequestException("Author not found!");
+        //    }
+
+        //    // Tạo thực thể Blog mới từ request
+        //    var newBlog = new Blog
+        //    {
+        //        Title = request.Title,
+        //        AuthorId = request.AuthorId,
+        //        Content = request.Content,
+        //        Status = "Pending",
+        //        Note = !string.IsNullOrEmpty(request.Note) ? request.Note : "",
+        //        CreatedDate = DateTime.Now,
+        //        UpdatedDate = DateTime.Now
+        //    };
+
+        //    // Thêm blog vào cơ sở dữ liệu
+        //    var blogEntity = await _unitOfWorks.BlogRepository.AddAsync(newBlog);
+
+        //    // Lưu thay đổi vào database
+        //    var result = await _unitOfWorks.BlogRepository.Commit();
+        //    if (result > 0)
+        //    {
+        //        // Map dữ liệu sang BlogModel và gán AuthorName
+        //        var blogModel = _mapper.Map<BlogModel>(blogEntity);
+        //        blogModel.AuthorName = user.FullName; // Gán tên của Author từ user
+
+        //        return blogModel;
+        //    }
+
+        //    return null;
+        //}
+
+
+        public async Task<BlogModel> CreateBlogs(BlogRequest request, IFormFile thumbnailFile)
         {
-            // Kiểm tra xem Author có tồn tại không
             var user = await _unitOfWorks.UserRepository
                 .FirstOrDefaultAsync(x => x.UserId == request.AuthorId);
 
@@ -133,34 +176,46 @@ namespace Server.Business.Services
                 throw new BadRequestException("Author not found!");
             }
 
-            // Tạo thực thể Blog mới từ request
+            string thumbnailUrl = null;
+            if (thumbnailFile != null)
+            {
+                var uploadResult = await _cloudianryService.UploadImageAsync(thumbnailFile);
+                if (uploadResult != null)
+                {
+                    thumbnailUrl = uploadResult.Uri.ToString();
+                    Console.WriteLine("Thumbnail URL: " + thumbnailUrl);
+                }
+            }
+
             var newBlog = new Blog
             {
                 Title = request.Title,
                 AuthorId = request.AuthorId,
                 Content = request.Content,
+                Thumbnail = thumbnailUrl,
                 Status = "Pending",
                 Note = !string.IsNullOrEmpty(request.Note) ? request.Note : "",
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
 
-            // Thêm blog vào cơ sở dữ liệu
             var blogEntity = await _unitOfWorks.BlogRepository.AddAsync(newBlog);
-
-            // Lưu thay đổi vào database
             var result = await _unitOfWorks.BlogRepository.Commit();
+
             if (result > 0)
             {
-                // Map dữ liệu sang BlogModel và gán AuthorName
                 var blogModel = _mapper.Map<BlogModel>(blogEntity);
-                blogModel.AuthorName = user.FullName; // Gán tên của Author từ user
+                blogModel.AuthorName = user.FullName;
+                blogModel.Thumbnail = blogEntity.Thumbnail;
 
+                Console.WriteLine($"BlogModel: {blogModel.Thumbnail}");
                 return blogModel;
             }
 
             return null;
         }
+
+
 
 
         public async Task<BlogModel> UpdateBlogs(BlogModel blogsModel, BlogRequest request)
