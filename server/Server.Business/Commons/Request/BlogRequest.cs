@@ -6,11 +6,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Server.Business.Commons.Request
 {
     public class BlogRequest
     {
+
+        public IFormFile ThumbnailFile { get; set; } // Thêm ThumbnailFile
         [Required(ErrorMessage = "Title is required!")]
         public string Title { get; set; }
 
@@ -19,6 +22,8 @@ namespace Server.Business.Commons.Request
 
         [Required(ErrorMessage = "AuthorId is required!")]
         public int AuthorId { get; set; }
+
+       // public string Thumbnail { get; set; }
 
         public string Status { get; set; }
 
