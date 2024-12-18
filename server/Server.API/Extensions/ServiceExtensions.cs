@@ -111,6 +111,7 @@ namespace Server.API.Extensions
             services.AddScoped<AppointmentsService>();
             services.AddScoped<BlogService>();
             services.AddScoped<StaffService>();
+            services.AddScoped<CustomerService>();
 
 
             return services;
