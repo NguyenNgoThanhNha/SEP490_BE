@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Server.API.Controllers.Gaurd;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Constants;

@@ -77,6 +77,26 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "SkincareRoutine",
+                columns: table => new
+                {
+                    SkincareRoutineId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: true),
+                    Description = table.Column<string>(type: "longtext", nullable: true),
+                    Steps = table.Column<string>(type: "longtext", nullable: true),
+                    Frequency = table.Column<string>(type: "longtext", nullable: true),
+                    TargetSkinTypes = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkincareRoutine", x => x.SkincareRoutineId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "UserRole",
                 columns: table => new
                 {
@@ -244,6 +264,36 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ServiceRoutine",
+                columns: table => new
+                {
+                    ServiceRoutineId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ServiceId = table.Column<int>(type: "int", nullable: false),
+                    RoutineId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceRoutine", x => x.ServiceRoutineId);
+                    table.ForeignKey(
+                        name: "FK_Service_Routine_Routine",
+                        column: x => x.RoutineId,
+                        principalTable: "SkincareRoutine",
+                        principalColumn: "SkincareRoutineId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Service_Routine_Service",
+                        column: x => x.ServiceId,
+                        principalTable: "Service",
+                        principalColumn: "ServiceId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "ProductImages",
                 columns: table => new
                 {
@@ -265,12 +315,43 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ProductRoutine",
+                columns: table => new
+                {
+                    ProductRoutineId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    RoutineId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductRoutine", x => x.ProductRoutineId);
+                    table.ForeignKey(
+                        name: "FK_Product_Routine_Product",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Product_Routine_Routine",
+                        column: x => x.RoutineId,
+                        principalTable: "SkincareRoutine",
+                        principalColumn: "SkincareRoutineId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Blog",
                 columns: table => new
                 {
                     BlogId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Title = table.Column<string>(type: "longtext", nullable: false),
+                    Thumbnail = table.Column<string>(type: "longtext", nullable: true),
                     Content = table.Column<string>(type: "longtext", nullable: false),
                     AuthorId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
@@ -409,6 +490,91 @@ namespace Server.Data.Migrations
                         column: x => x.VoucherId,
                         principalTable: "Voucher",
                         principalColumn: "VoucherId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SkinHealth",
+                columns: table => new
+                {
+                    SkinHealthId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    SkinColor = table.Column<string>(type: "longtext", nullable: true),
+                    SkinToneIta = table.Column<string>(type: "longtext", nullable: true),
+                    SkinTone = table.Column<string>(type: "longtext", nullable: true),
+                    SkinHueHa = table.Column<string>(type: "longtext", nullable: true),
+                    SkinAge = table.Column<string>(type: "longtext", nullable: true),
+                    SkinType = table.Column<string>(type: "longtext", nullable: true),
+                    LeftEyelids = table.Column<string>(type: "longtext", nullable: true),
+                    RightEyelids = table.Column<string>(type: "longtext", nullable: true),
+                    EyePouch = table.Column<string>(type: "longtext", nullable: true),
+                    EyePouchSeverity = table.Column<string>(type: "longtext", nullable: true),
+                    DarkCircle = table.Column<string>(type: "longtext", nullable: true),
+                    ForeheadWrinkle = table.Column<string>(type: "longtext", nullable: true),
+                    CrowsFeet = table.Column<string>(type: "longtext", nullable: true),
+                    EyeFineLines = table.Column<string>(type: "longtext", nullable: true),
+                    GlabellaWrinkle = table.Column<string>(type: "longtext", nullable: true),
+                    NasolabialFold = table.Column<string>(type: "longtext", nullable: true),
+                    NasolabialFoldSeverity = table.Column<string>(type: "longtext", nullable: true),
+                    PoresForehead = table.Column<string>(type: "longtext", nullable: true),
+                    PoresLeftCheek = table.Column<string>(type: "longtext", nullable: true),
+                    PoresRightCheek = table.Column<string>(type: "longtext", nullable: true),
+                    PoresJaw = table.Column<string>(type: "longtext", nullable: true),
+                    BlackHead = table.Column<string>(type: "longtext", nullable: true),
+                    Rectangle = table.Column<string>(type: "longtext", nullable: true),
+                    Mole = table.Column<string>(type: "longtext", nullable: true),
+                    ClosedComedones = table.Column<string>(type: "longtext", nullable: true),
+                    SkinSpot = table.Column<string>(type: "longtext", nullable: true),
+                    FaceMaps = table.Column<string>(type: "longtext", nullable: true),
+                    Sensitivity = table.Column<string>(type: "longtext", nullable: true),
+                    SensitivityArea = table.Column<string>(type: "longtext", nullable: true),
+                    SensitivityIntensity = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkinHealth", x => x.SkinHealthId);
+                    table.ForeignKey(
+                        name: "FK_SkinHealth_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "UserRoutine",
+                columns: table => new
+                {
+                    UserRoutineId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    RoutineId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    ProgressNotes = table.Column<string>(type: "longtext", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoutine", x => x.UserRoutineId);
+                    table.ForeignKey(
+                        name: "FK_User_Routine_Routine",
+                        column: x => x.RoutineId,
+                        principalTable: "SkincareRoutine",
+                        principalColumn: "SkincareRoutineId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User_Routine_User",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -926,6 +1092,17 @@ namespace Server.Data.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductRoutine_ProductId_RoutineId",
+                table: "ProductRoutine",
+                columns: new[] { "ProductId", "RoutineId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductRoutine_RoutineId",
+                table: "ProductRoutine",
+                column: "RoutineId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Schedule_BranchId",
                 table: "Schedule",
                 column: "BranchId");
@@ -946,9 +1123,25 @@ namespace Server.Data.Migrations
                 column: "ServiceId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ServiceRoutine_RoutineId",
+                table: "ServiceRoutine",
+                column: "RoutineId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceRoutine_ServiceId_RoutineId",
+                table: "ServiceRoutine",
+                columns: new[] { "ServiceId", "RoutineId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Shipping_OrderId",
                 table: "Shipping",
                 column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SkinHealth_UserId",
+                table: "SkinHealth",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Staff_BranchId",
@@ -975,6 +1168,17 @@ namespace Server.Data.Migrations
                 name: "IX_User_RoleID",
                 table: "User",
                 column: "RoleID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoutine_RoutineId",
+                table: "UserRoutine",
+                column: "RoutineId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoutine_UserId_RoutineId",
+                table: "UserRoutine",
+                columns: new[] { "UserId", "RoutineId" },
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -1011,16 +1215,28 @@ namespace Server.Data.Migrations
                 name: "ProductImages");
 
             migrationBuilder.DropTable(
+                name: "ProductRoutine");
+
+            migrationBuilder.DropTable(
                 name: "Schedule");
 
             migrationBuilder.DropTable(
                 name: "ServiceImages");
 
             migrationBuilder.DropTable(
+                name: "ServiceRoutine");
+
+            migrationBuilder.DropTable(
                 name: "Shipping");
 
             migrationBuilder.DropTable(
+                name: "SkinHealth");
+
+            migrationBuilder.DropTable(
                 name: "Transaction");
+
+            migrationBuilder.DropTable(
+                name: "UserRoutine");
 
             migrationBuilder.DropTable(
                 name: "Blog");
@@ -1039,6 +1255,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Order");
+
+            migrationBuilder.DropTable(
+                name: "SkincareRoutine");
 
             migrationBuilder.DropTable(
                 name: "Branch");

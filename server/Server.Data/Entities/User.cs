@@ -69,6 +69,7 @@ namespace Server.Data.Entities
         public int RoleID { get; set; }
         public virtual UserRole UserRole { get; set; }
         
+        public ICollection<UserRoutine>? UserRoutines { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
         

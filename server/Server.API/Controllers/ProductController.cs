@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
-using Server.API.Controllers.Gaurd;
 using Server.API.Extensions;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;

@@ -38,6 +38,11 @@ namespace Server.Data.Entities
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<ProductImages> ProductImages { get; set; }
         public DbSet<ServiceImages> ServiceImages { get; set; }
+        public DbSet<SkinHealth> SkinHealths { get; set; }
+        public DbSet<SkincareRoutine> SkincareRoutines { get; set; }
+        public DbSet<UserRoutine> UserRoutines { get; set; }
+        public DbSet<ProductRoutine> ProductRoutines { get; set; }
+        public DbSet<ServiceRoutine> ServiceRoutine { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -77,7 +82,78 @@ namespace Server.Data.Entities
                     .WithMany(e => e.Branch_Products)
                     .HasForeignKey(e => e.BranchId)
                     .HasConstraintName("FK_Branch_Product_Branch");
+            });
+            
+            // UserRoutines
+            modelBuilder.Entity<UserRoutine>(e =>
+            {
+                e.ToTable("UserRoutine");
+                e.HasKey(e => e.UserRoutineId);
+                e.HasIndex(e => new { e.UserId, e.RoutineId }).IsUnique();
 
+                e.HasOne(e => e.User)
+                    .WithMany(e => e.UserRoutines)
+                    .HasForeignKey(e => e.UserId)
+                    .HasConstraintName("FK_User_Routine_User");
+
+                e.HasOne(e => e.Routine)
+                    .WithMany(e => e.UserRoutines)
+                    .HasForeignKey(e => e.RoutineId)
+                    .HasConstraintName("FK_User_Routine_Routine");
+            });
+            
+            // UserRoutines
+            modelBuilder.Entity<UserRoutine>(e =>
+            {
+                e.ToTable("UserRoutine");
+                e.HasKey(e => e.UserRoutineId);
+                e.HasIndex(e => new { e.UserId, e.RoutineId }).IsUnique();
+
+                e.HasOne(e => e.User)
+                    .WithMany(e => e.UserRoutines)
+                    .HasForeignKey(e => e.UserId)
+                    .HasConstraintName("FK_User_Routine_User");
+
+                e.HasOne(e => e.Routine)
+                    .WithMany(e => e.UserRoutines)
+                    .HasForeignKey(e => e.RoutineId)
+                    .HasConstraintName("FK_User_Routine_Routine");
+            });
+            
+            // ProductRoutines
+            modelBuilder.Entity<ProductRoutine>(e =>
+            {
+                e.ToTable("ProductRoutine");
+                e.HasKey(e => e.ProductRoutineId);
+                e.HasIndex(e => new { e.ProductId, e.RoutineId }).IsUnique();
+
+                e.HasOne(e => e.Products)
+                    .WithMany(e => e.ProductRoutines)
+                    .HasForeignKey(e => e.ProductId)
+                    .HasConstraintName("FK_Product_Routine_Product");
+
+                e.HasOne(e => e.Routine)
+                    .WithMany(e => e.ProductRoutines)
+                    .HasForeignKey(e => e.RoutineId)
+                    .HasConstraintName("FK_Product_Routine_Routine");
+            });
+            
+            // ServiceRoutine
+            modelBuilder.Entity<ServiceRoutine>(e =>
+            {
+                e.ToTable("ServiceRoutine");
+                e.HasKey(e => e.ServiceRoutineId);
+                e.HasIndex(e => new { e.ServiceId, e.RoutineId }).IsUnique();
+
+                e.HasOne(e => e.Service)
+                    .WithMany(e => e.ServiceRoutines)
+                    .HasForeignKey(e => e.ServiceId)
+                    .HasConstraintName("FK_Service_Routine_Service");
+
+                e.HasOne(e => e.Routine)
+                    .WithMany(e => e.ServiceRoutines)
+                    .HasForeignKey(e => e.RoutineId)
+                    .HasConstraintName("FK_Service_Routine_Routine");
             });
         }
     }

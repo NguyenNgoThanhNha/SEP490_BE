@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241204072534_Update-Database")]
+    [Migration("20241215142141_Update-Database")]
     partial class UpdateDatabase
     {
         /// <inheritdoc />
@@ -95,6 +95,9 @@ namespace Server.Data.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Thumbnail")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Title")
@@ -607,6 +610,38 @@ namespace Server.Data.Migrations
                     b.ToTable("ProductImages");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.ProductRoutine", b =>
+                {
+                    b.Property<int>("ProductRoutineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoutineId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ProductRoutineId");
+
+                    b.HasIndex("RoutineId");
+
+                    b.HasIndex("ProductId", "RoutineId")
+                        .IsUnique();
+
+                    b.ToTable("ProductRoutine", (string)null);
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Promotion", b =>
                 {
                     b.Property<int>("PromotionId")
@@ -744,6 +779,38 @@ namespace Server.Data.Migrations
                     b.ToTable("ServiceImages");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.ServiceRoutine", b =>
+                {
+                    b.Property<int>("ServiceRoutineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("RoutineId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ServiceRoutineId");
+
+                    b.HasIndex("RoutineId");
+
+                    b.HasIndex("ServiceId", "RoutineId")
+                        .IsUnique();
+
+                    b.ToTable("ServiceRoutine", (string)null);
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Shipping", b =>
                 {
                     b.Property<int>("ShippingId")
@@ -788,6 +855,150 @@ namespace Server.Data.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("Shipping");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.SkinHealth", b =>
+                {
+                    b.Property<int>("SkinHealthId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("BlackHead")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ClosedComedones")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CrowsFeet")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("DarkCircle")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EyeFineLines")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EyePouch")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("EyePouchSeverity")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FaceMaps")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ForeheadWrinkle")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("GlabellaWrinkle")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LeftEyelids")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Mole")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NasolabialFold")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("NasolabialFoldSeverity")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PoresForehead")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PoresJaw")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PoresLeftCheek")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PoresRightCheek")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Rectangle")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RightEyelids")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Sensitivity")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SensitivityArea")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SensitivityIntensity")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SkinAge")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SkinColor")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SkinHueHa")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SkinSpot")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SkinTone")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SkinToneIta")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SkinType")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SkinHealthId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SkinHealth");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.SkincareRoutine", b =>
+                {
+                    b.Property<int>("SkincareRoutineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Frequency")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Steps")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TargetSkinTypes")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("SkincareRoutineId");
+
+                    b.ToTable("SkincareRoutine");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Staff", b =>
@@ -978,6 +1189,48 @@ namespace Server.Data.Migrations
                     b.HasKey("RoleId");
 
                     b.ToTable("UserRole");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.UserRoutine", b =>
+                {
+                    b.Property<int>("UserRoutineId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ProgressNotes")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("RoutineId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserRoutineId");
+
+                    b.HasIndex("RoutineId");
+
+                    b.HasIndex("UserId", "RoutineId")
+                        .IsUnique();
+
+                    b.ToTable("UserRoutine", (string)null);
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Voucher", b =>
@@ -1292,6 +1545,27 @@ namespace Server.Data.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.ProductRoutine", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Product", "Products")
+                        .WithMany("ProductRoutines")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Product_Routine_Product");
+
+                    b.HasOne("Server.Data.Entities.SkincareRoutine", "Routine")
+                        .WithMany("ProductRoutines")
+                        .HasForeignKey("RoutineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Product_Routine_Routine");
+
+                    b.Navigation("Products");
+
+                    b.Navigation("Routine");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
                 {
                     b.HasOne("Server.Data.Entities.Branch", "Branch")
@@ -1333,6 +1607,27 @@ namespace Server.Data.Migrations
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.ServiceRoutine", b =>
+                {
+                    b.HasOne("Server.Data.Entities.SkincareRoutine", "Routine")
+                        .WithMany("ServiceRoutines")
+                        .HasForeignKey("RoutineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Service_Routine_Routine");
+
+                    b.HasOne("Server.Data.Entities.Service", "Service")
+                        .WithMany("ServiceRoutines")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Service_Routine_Service");
+
+                    b.Navigation("Routine");
+
+                    b.Navigation("Service");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Shipping", b =>
                 {
                     b.HasOne("Server.Data.Entities.Order", "Order")
@@ -1342,6 +1637,17 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.SkinHealth", b =>
+                {
+                    b.HasOne("Server.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Staff", b =>
@@ -1393,6 +1699,27 @@ namespace Server.Data.Migrations
                     b.Navigation("UserRole");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.UserRoutine", b =>
+                {
+                    b.HasOne("Server.Data.Entities.SkincareRoutine", "Routine")
+                        .WithMany("UserRoutines")
+                        .HasForeignKey("RoutineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_User_Routine_Routine");
+
+                    b.HasOne("Server.Data.Entities.User", "User")
+                        .WithMany("UserRoutines")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_User_Routine_User");
+
+                    b.Navigation("Routine");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Branch", b =>
                 {
                     b.Navigation("Branch_Products");
@@ -1424,6 +1751,8 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.Product", b =>
                 {
                     b.Navigation("Branch_Products");
+
+                    b.Navigation("ProductRoutines");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Promotion", b =>
@@ -1434,12 +1763,25 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.Service", b =>
                 {
                     b.Navigation("Branch_Services");
+
+                    b.Navigation("ServiceRoutines");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.SkincareRoutine", b =>
+                {
+                    b.Navigation("ProductRoutines");
+
+                    b.Navigation("ServiceRoutines");
+
+                    b.Navigation("UserRoutines");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.User", b =>
                 {
                     b.Navigation("Staff")
                         .IsRequired();
+
+                    b.Navigation("UserRoutines");
                 });
 #pragma warning restore 612, 618
         }
