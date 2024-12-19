@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Server.Business.Commons;
@@ -17,26 +18,31 @@ namespace Server.API.Controllers
         private readonly IMapper _mapper;
         private readonly IElasticClient _elasticClient;
         private readonly ElasticService<BlogDTO> _elasticService;
+        private readonly CloudianryService _cloudianryService;
 
-
-        public BlogController(BlogService blogService, IMapper mapper, IElasticClient elasticClient)
+        public BlogController(BlogService blogService, IMapper mapper, IElasticClient elasticClient, CloudianryService cloudianryService)
         {
             _blogService = blogService;
             _mapper = mapper;
             _elasticClient = elasticClient;
             _elasticService = new ElasticService<BlogDTO>(_elasticClient, "blogs");
+            _cloudianryService = cloudianryService;
         }
 
-        // [Authorize]
+
+        //[Authorize]
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllBlog([FromQuery] int page = 1, int pageSize = 5)
+        public async Task<IActionResult> GetAllBlog(
+    [FromQuery] string status,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 5)
         {
-            var listBlog = await _blogService.GetAllBlogs(page, pageSize);
-            if (listBlog.Equals(null))
+            var listBlog = await _blogService.GetAllBlogs(status, page, pageSize);
+            if (listBlog == null || listBlog.data == null || !listBlog.data.Any())
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there is no blogs!"
+                    message = "Currently, there are no blogs!"
                 }));
             }
             return Ok(ApiResult<GetAllBlogResponse>.Succeed(new GetAllBlogResponse()
@@ -46,6 +52,9 @@ namespace Server.API.Controllers
                 pagination = listBlog.pagination
             }));
         }
+
+
+
 
         // [Authorize]
         [HttpGet("get-by-id/{id}")]
@@ -65,6 +74,35 @@ namespace Server.API.Controllers
                 data = _mapper.Map<BlogDTO>(blogsModel)
             }));
         }
+
+
+        [HttpPost("upload-thumbnail")]
+        public async Task<IActionResult> UploadThumbnail(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest("No file provided");
+
+                var uploadResult = await _cloudianryService.UploadImageAsync(file);
+
+                if (uploadResult != null)
+                {
+                    return Ok(ApiResponse.Succeed(new
+                    {
+                        Url = uploadResult.Uri.ToString(),
+                        PublicId = uploadResult.PublicId
+                    }, "Upload thumbnail successfully."));
+                }
+
+                return BadRequest(ApiResponse.Error("Upload failed"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Error("Internal server error"));
+            }
+        }
+
 
         [HttpGet("elasticsearch")]
         public async Task<IActionResult> ElasticSearch(string? keyword)
@@ -107,9 +145,10 @@ namespace Server.API.Controllers
             }
         }
 
-        //[Authorize]
+
+
         [HttpPost("create")]
-        public async Task<IActionResult> CreateBlog([FromBody] BlogRequest request)
+        public async Task<IActionResult> CreateBlog([FromForm] BlogRequest request, IFormFile thumbnail)
         {
             if (!ModelState.IsValid)
             {
@@ -121,12 +160,13 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            var blogsModel = await _blogService.CreateBlogs(request);
+            // Gọi service để tạo blog với thumbnail
+            var blogsModel = await _blogService.CreateBlogs(request, thumbnail);
             if (blogsModel == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in create blogs!"
+                    message = "Error in creating blog!"
                 }));
             }
 
@@ -137,10 +177,12 @@ namespace Server.API.Controllers
             }));
         }
 
-        //[Authorize]
+
+
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateBlog([FromRoute] int id, [FromBody] BlogRequest request)
+        public async Task<IActionResult> UpdateBlog([FromRoute] int id, [FromForm] BlogRequest request)
         {
+            // Kiểm tra dữ liệu đầu vào
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -151,30 +193,36 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            var blogsExist = await _blogService.GetBlogsById(id);
-            if (blogsExist.Equals(null))
+            // Kiểm tra blog tồn tại
+            var existingBlog = await _blogService.GetBlogsById(id);
+            if (existingBlog == null)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
                     message = "Blog not found!"
                 }));
             }
 
-            var blogsModel = await _blogService.UpdateBlogs(blogsExist, request);
-            if (blogsExist.Equals(null))
+            // Thực hiện cập nhật blog
+            var updatedBlog = await _blogService.UpdateBlogs(existingBlog, request, request.ThumbnailFile);
+            if (updatedBlog == null)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in update blogs!"
+                    message = "Error occurred while updating the blog!"
                 }));
             }
 
+            // Trả về kết quả
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Update blogs successfully!",
-                data = _mapper.Map<BlogDTO>(blogsModel)
+                message = "Blog updated successfully!",
+                data = _mapper.Map<BlogDTO>(updatedBlog)
             }));
         }
+
+
+
 
         //[Authorize]
         [HttpPut("delete/{id}")]

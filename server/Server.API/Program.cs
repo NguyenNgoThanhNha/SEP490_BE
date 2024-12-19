@@ -25,6 +25,8 @@ namespace Server.API
             builder.Services.AddScoped<ProductService>();
             builder.Services.AddScoped<OrderDetailService>();
             builder.Services.AddScoped<BlogService>();
+            builder.Services.AddHostedService<AppointmentReminderWorker>();
+
 
             builder.Services.AddSwaggerGen(option =>
             {
