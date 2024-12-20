@@ -24,9 +24,9 @@ services:
       - MailSettings__SenderEmail=${MailSenderEmail}
       - MailSettings__UserName=${MailUserName}
       - MailSettings__PassWord=${MailPassword}
-      - CloundSettings__CloundName=${CloundName}
-      - CloundSettings__CloundKey=${CloundKey}
-      - CloundSettings__CloundSecret=${CloundSecret}
+      - CloundSettings__CloudName=${CloundName}
+      - CloundSettings__CloudKey=${CloundKey}
+      - CloundSettings__CloudSecret=${CloundSecret}
       - ZaloPaySetting__app_id=${ZaloPayAppId}
       - ZaloPaySetting__key1=${ZaloPayKey1}
       - ZaloPaySetting__key2=${ZaloPayKey2}
