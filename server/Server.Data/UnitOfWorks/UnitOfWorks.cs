@@ -20,6 +20,7 @@ namespace Server.Data.UnitOfWorks
         private StaffRepository _staffRepo;
         private BlogRepository _blogRepo;
         private Brand_ProductRepository _branchProductRepository;
+        private Branch_ServiceRepository _branchServiceRepository;
 
         public UnitOfWorks(AppDbContext dbContext)
         {
@@ -88,6 +89,11 @@ namespace Server.Data.UnitOfWorks
         public Brand_ProductRepository Brand_ProductRepository
         {
             get { return _branchProductRepository ??= new Brand_ProductRepository(_dbContext); }
+        }
+        
+        public Branch_ServiceRepository Branch_ServiceRepository
+        {
+            get { return _branchServiceRepository ??= new Branch_ServiceRepository(_dbContext); }
         }
 
         public async Task<int> Commit()

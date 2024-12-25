@@ -23,11 +23,10 @@ namespace Server.Business.Models
         public string Duration { get; set; }
 
        
+        [ForeignKey("Service_Category")]
         public int CategoryId { get; set; }
-       
-
-       
-
+        public virtual CategoryModel Category { get; set; }
+        
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
     }

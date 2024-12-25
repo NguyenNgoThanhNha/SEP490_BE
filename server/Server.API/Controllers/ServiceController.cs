@@ -26,6 +26,7 @@ namespace Server.API.Controllers
             _elasticService = new ElasticService<ServiceDto>(_elasticClient, "services");
         }
 
+        [Authorize]
         [HttpGet("get-list")]
         public async Task<IActionResult> GetList(int page = 1, int pageSize = 10)
         {
@@ -56,14 +57,14 @@ namespace Server.API.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpGet("get-all-services")]
-        public async Task<IActionResult> Get([FromQuery] int page = 1)
+        public async Task<IActionResult> Get([FromQuery] int page = 1, int pageSize = 6)
         {
             try
             {
                 // Gọi Service để lấy danh sách dịch vụ
-                var services = await _serviceService.GetAllService(page);
+                var services = await _serviceService.GetAllService(page, pageSize);
 
                 // Kiểm tra nếu không có dữ liệu
                 if (services.data == null || !services.data.Any())
@@ -74,16 +75,39 @@ namespace Server.API.Controllers
                     }));
                 }
 
-                // Trả về dữ liệu nếu thành công
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                services.message = "Services retrieved successfully.";
+                return Ok(ApiResult<GetAllServicePaginationResponse>.Succeed(services));
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi và trả về phản hồi lỗi
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Services retrieved successfully.",
-                    data = new GetAllServicePaginationResponse
-                    {
-                        data = services.data,
-                        pagination = services.pagination
-                    }
+                    message = $"An error occurred while retrieving services: {ex.Message}"
                 }));
+            }
+        }
+        
+        [Authorize]
+        [HttpGet("get-all-services-for-branch")]
+        public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId ,int page = 1, int pageSize = 6)
+        {
+            try
+            {
+                // Gọi Service để lấy danh sách dịch vụ
+                var services = await _serviceService.GetAllServiceForBranch(page,pageSize, branchId);
+
+                // Kiểm tra nếu không có dữ liệu
+                if (services.data == null || !services.data.Any())
+                {
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "No services found."
+                    }));
+                }
+
+                services.message = "Services retrieved successfully.";
+                return Ok(ApiResult<GetAllServicePaginationResponse>.Succeed(services));
             }
             catch (Exception ex)
             {
