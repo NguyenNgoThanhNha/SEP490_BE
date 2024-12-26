@@ -27,8 +27,8 @@ namespace Server.Business.Models
 
         public int CategoryId { get; set; }
         public int CompanyId { get; set; }
-        public string CategoryName { get; set; }
-        public string CompanyName { get; set; }
+        public CategoryModel Category { get; set; }
+        /*public string CompanyName { get; set; }*/
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
     }

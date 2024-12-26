@@ -199,11 +199,8 @@ namespace Server.API.Controllers
                 }));
             }
 
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-            {
-                message = "Get all products successfully!",
-                data = products
-            }));
+            products.message = "Get all products successfully!";
+            return Ok(ApiResult<GetAllProductPaginationResponse>.Succeed(products));
         }
 
         [Authorize(Roles = "Admin, Manager,Staff")]

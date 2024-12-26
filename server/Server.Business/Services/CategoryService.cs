@@ -191,8 +191,8 @@ namespace Server.Business.Services
                     Status = p.Status,
                     CategoryId = p.CategoryId,
                     CompanyId = p.CompanyId,
-                    CompanyName = p.Company.Name,
-                    CategoryName = p.Category.Name,
+                    /*CompanyName = p.Company.Name,
+                    CategoryName = p.Category.Name,*/
                     CreatedDate = p.CreatedDate,
                     UpdatedDate = p.UpdatedDate
                 }).ToList()

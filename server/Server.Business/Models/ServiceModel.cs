@@ -22,7 +22,7 @@ namespace Server.Business.Models
 
         public string Duration { get; set; }
 
-       
+        public string? Status { get; set; }
         [ForeignKey("Service_Category")]
         public int CategoryId { get; set; }
         public virtual CategoryModel Category { get; set; }

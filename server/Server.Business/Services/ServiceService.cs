@@ -157,19 +157,7 @@ namespace Server.Business.Services
             if (service == null)
                 return null;
 
-            // Trả về DTO của dịch vụ
-            return new ServiceDto
-            {
-                ServiceId = service.ServiceId,
-                Name = service.Name,
-                Description = service.Description,
-                Price = service.Price,
-                Duration = service.Duration,
-                CategoryName = service.Category?.Name, // Kiểm tra null
-                CreatedDate = service.CreatedDate,
-                UpdatedDate = service.UpdatedDate,
-                Status = service.Status,
-            };
+            return _mapper.Map<ServiceDto>(service);
         }
 
 
@@ -204,19 +192,7 @@ namespace Server.Business.Services
                 var category = await _unitOfWorks.Categories
                     .FirstOrDefaultAsync(c => c.CategoryId == service.CategoryId);
 
-                // Trả về DTO
-                return new ServiceDto
-                {
-                    ServiceId = service.ServiceId,
-                    Name = service.Name,
-                    Description = service.Description,
-                    Price = service.Price,
-                    Duration = service.Duration,
-                    CategoryName = category?.Name, // Kiểm tra null cho Category
-                    CreatedDate = service.CreatedDate,
-                    UpdatedDate = service.UpdatedDate,
-                    Status = service.Status,
-                };
+                return _mapper.Map<ServiceDto>(service);
             }
             catch (Exception ex)
             {
@@ -255,24 +231,8 @@ namespace Server.Business.Services
                 // Lưu thay đổi qua UnitOfWork
                 _unitOfWorks.ServiceRepository.Update(service);
                 await _unitOfWorks.Commit();
-
-                // Lấy thông tin danh mục liên quan
-                var category = await _unitOfWorks.Categories
-                    .FirstOrDefaultAsync(c => c.CategoryId == service.CategoryId);
-
-                // Trả về DTO sau khi cập nhật
-                return new ServiceDto
-                {
-                    ServiceId = service.ServiceId,
-                    Name = service.Name,
-                    Description = service.Description,
-                    Price = service.Price,
-                    Duration = service.Duration,
-                    CategoryName = category?.Name, // Kiểm tra null cho Category
-                    CreatedDate = service.CreatedDate,
-                    UpdatedDate = service.UpdatedDate,
-                    Status = service.Status,
-                };
+                
+                return _mapper.Map<ServiceDto>(service);
             }
             catch (Exception ex)
             {

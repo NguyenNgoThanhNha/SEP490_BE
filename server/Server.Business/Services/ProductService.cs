@@ -221,13 +221,6 @@ namespace Server.Business.Services
                 var pagedProducts = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 var productModels = _mapper.Map<List<ProductModel>>(pagedProducts);
 
-
-                foreach (var product in productModels)
-                {
-                    product.CategoryName = product.CategoryName;
-                    product.CompanyName = product.CompanyName;
-                }
-
                 return new GetAllProductPaginationResponse
                 {
                     data = productModels,
