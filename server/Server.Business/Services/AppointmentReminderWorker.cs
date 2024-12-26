@@ -31,7 +31,7 @@ namespace Server.Business.Services
             {
                 var now = DateTime.Now;
 
-                if (now.Hour == 8 && now.Minute == 0)
+                if (now.Hour == 8 && now.Minute == 00)
                 {
                     _logger.LogInformation("Sending appointment reminders at 8:00 AM...");
                     await SendAppointmentRemindersAsync();
