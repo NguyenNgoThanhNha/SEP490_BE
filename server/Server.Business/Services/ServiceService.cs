@@ -186,11 +186,12 @@ namespace Server.Business.Services
 
                 // Thêm vào repository qua UnitOfWork
                 await _unitOfWorks.ServiceRepository.AddAsync(service);
-                await _unitOfWorks.Commit();
+                await _unitOfWorks.ServiceRepository.Commit();
 
                 // Lấy thông tin danh mục liên quan
-                var category = await _unitOfWorks.Categories
-                    .FirstOrDefaultAsync(c => c.CategoryId == service.CategoryId);
+                var category = await _unitOfWorks.CategoryRepository
+     .FindByCondition(c => c.CategoryId == service.CategoryId)
+     .FirstOrDefaultAsync();
 
                 return _mapper.Map<ServiceDto>(service);
             }
@@ -230,8 +231,8 @@ namespace Server.Business.Services
 
                 // Lưu thay đổi qua UnitOfWork
                 _unitOfWorks.ServiceRepository.Update(service);
-                await _unitOfWorks.Commit();
-                
+                await _unitOfWorks.ServiceRepository.Commit();
+
                 return _mapper.Map<ServiceDto>(service);
             }
             catch (Exception ex)
@@ -246,8 +247,10 @@ namespace Server.Business.Services
             try
             {
                 // Tìm dịch vụ cần xóa
-                var service = await _unitOfWorks.Services
-                    .FirstOrDefaultAsync(s => s.ServiceId == id);
+                var service = await _unitOfWorks.ServiceRepository
+    .FindByCondition(s => s.ServiceId == id)
+    .FirstOrDefaultAsync();
+
 
                 // Kiểm tra nếu không tìm thấy dịch vụ
                 if (service == null)
@@ -260,8 +263,8 @@ namespace Server.Business.Services
                 service.UpdatedDate = DateTime.Now; // Cập nhật thời gian sửa đổi
 
                 // Lưu thay đổi
-                _unitOfWorks.Services.Update(service); // Sử dụng DbSet trực tiếp để cập nhật
-                await _unitOfWorks.Commit();
+                _unitOfWorks.ServiceRepository.Update(service); // Sử dụng DbSet trực tiếp để cập nhật
+                await _unitOfWorks.ServiceRepository.Commit();
 
                 return service;
             }

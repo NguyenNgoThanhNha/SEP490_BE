@@ -57,7 +57,7 @@ namespace Server.Business.Services
             user.UpdatedDate = DateTime.Now;
 
             _unitOfWork.UserRepository.Update(user);
-            await _unitOfWork.Commit();
+            await _unitOfWork.UserRepository.Commit();
 
             // 6. Trả về kết quả
             return new ExchangePointResponse

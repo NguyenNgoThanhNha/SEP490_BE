@@ -97,12 +97,13 @@ namespace Server.Business.Services
             return blogModel;
         }
 
-       
 
-        public async Task<BlogModel> CreateBlogs(BlogRequest request, IFormFile thumbnailFile)
+
+        public async Task<BlogModel> CreateBlogs(BlogRequest request)
         {
             var user = await _unitOfWorks.UserRepository
-                .FirstOrDefaultAsync(x => x.UserId == request.AuthorId);
+                .FindByCondition(x => x.UserId == request.AuthorId)
+                .FirstOrDefaultAsync();
 
             if (user == null)
             {
@@ -110,9 +111,9 @@ namespace Server.Business.Services
             }
 
             string thumbnailUrl = null;
-            if (thumbnailFile != null)
+            if (request.ThumbnailFile != null)
             {
-                var uploadResult = await _cloudianryService.UploadImageAsync(thumbnailFile);
+                var uploadResult = await _cloudianryService.UploadImageAsync(request.ThumbnailFile);
                 if (uploadResult != null)
                 {
                     thumbnailUrl = uploadResult.Uri.ToString();
@@ -149,18 +150,20 @@ namespace Server.Business.Services
         }
 
 
-       
 
-        public async Task<BlogModel> UpdateBlogs(BlogModel blogsModel, BlogRequest request, IFormFile thumbnailFile)
+
+
+        public async Task<BlogModel> UpdateBlogs(BlogModel blogsModel, BlogRequest request)
         {
-            // 1. Kiểm tra xem Author (User) có tồn tại không
-            var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.AuthorId);
+            var user = await _unitOfWorks.UserRepository
+                .FindByCondition(x => x.UserId == request.AuthorId)
+                .FirstOrDefaultAsync();
+
             if (user == null)
             {
                 throw new BadRequestException("Author not found!");
             }
 
-            // 2. Cập nhật các trường nếu có thay đổi
             if (request.AuthorId != 0 && blogsModel.AuthorId != request.AuthorId)
             {
                 blogsModel.AuthorId = request.AuthorId;
@@ -182,26 +185,22 @@ namespace Server.Business.Services
                 blogsModel.Note = request.Note;
             }
 
-            // 3. Xử lý upload thumbnail nếu có file
-            if (thumbnailFile != null)
+            if (request.ThumbnailFile != null)
             {
-                var uploadResult = await _cloudianryService.UploadImageAsync(thumbnailFile);
+                var uploadResult = await _cloudianryService.UploadImageAsync(request.ThumbnailFile);
                 if (uploadResult != null)
                 {
                     blogsModel.Thumbnail = uploadResult.Uri.ToString();
                 }
             }
 
-            // 4. Cập nhật ngày sửa đổi
             blogsModel.UpdatedDate = DateTime.Now;
 
-            // 5. Lưu thay đổi vào database
             var blogEntity = _unitOfWorks.BlogRepository.Update(_mapper.Map<Blog>(blogsModel));
             var result = await _unitOfWorks.BlogRepository.Commit();
 
             if (result > 0)
             {
-                // 6. Map dữ liệu sang BlogModel và gán AuthorName
                 var updatedBlogModel = _mapper.Map<BlogModel>(blogEntity);
                 updatedBlogModel.AuthorName = user.FullName;
 
@@ -210,6 +209,7 @@ namespace Server.Business.Services
 
             return null;
         }
+
 
 
 
