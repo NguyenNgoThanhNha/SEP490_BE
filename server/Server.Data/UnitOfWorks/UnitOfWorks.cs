@@ -24,7 +24,7 @@ namespace Server.Data.UnitOfWorks
         private CompanyRepository _companyRepo;
         private OrderRepository _orderRepo;
         private OrderDetailRepository _orderDetail;
-
+        private Branch_ServiceRepository _branchServiceRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -112,6 +112,11 @@ namespace Server.Data.UnitOfWorks
         public OrderDetailRepository OrderDetailRepository
         {
             get { return _orderDetail ??= new OrderDetailRepository(_dbContext); }
+        }
+
+        public Branch_ServiceRepository Branch_ServiceRepository
+        {
+            get { return _branchServiceRepository ??= new Branch_ServiceRepository(_dbContext); }
         }
     }
 }
