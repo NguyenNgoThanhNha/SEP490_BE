@@ -25,6 +25,7 @@ namespace Server.API
             builder.Services.AddScoped<ProductService>();
             builder.Services.AddScoped<OrderDetailService>();
             builder.Services.AddScoped<BlogService>();
+            builder.Services.AddScoped<CloudianryService>();
             builder.Services.AddHostedService<AppointmentReminderWorker>();
 
 

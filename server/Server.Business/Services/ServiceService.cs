@@ -78,10 +78,9 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<GetAllServicePaginationResponse> GetAllService(int page)
+        public async Task<GetAllServicePaginationResponse> GetAllService(int page, int pageSize)
         {
-            const int pageSize = 4;
-            var services = await _unitOfWorks.ServiceRepository.GetAll().OrderByDescending(x => x.ServiceId).ToListAsync();
+            var services = await _unitOfWorks.ServiceRepository.GetAll().Include(x => x.Category).OrderByDescending(x => x.ServiceId).ToListAsync();
 
 
             var totalCount = services.Count();
@@ -106,6 +105,45 @@ namespace Server.Business.Services
                 }
             };
         }
+        
+        public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId)
+        {
+
+            // Lấy danh sách ServiceId thuộc về branchId cụ thể
+            var serviceIdsOfBranch = await _unitOfWorks.Branch_ServiceRepository.GetAll()
+                .Where(bs => bs.BranchId == branchId)
+                .Select(bs => bs.ServiceId)
+                .ToListAsync();
+
+            // Lấy danh sách Service dựa trên danh sách ServiceId
+            var services = await _unitOfWorks.ServiceRepository.GetAll()
+                .Include(s => s.Category) // Bao gồm thông tin Category nếu cần
+                .Where(s => serviceIdsOfBranch.Contains(s.ServiceId))
+                .OrderByDescending(s => s.ServiceId)
+                .ToListAsync();
+            
+            var totalCount = services.Count;
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var pagedServices = services
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            
+            var serviceModels = _mapper.Map<List<ServiceModel>>(pagedServices);
+            
+            return new GetAllServicePaginationResponse
+            {
+                data = serviceModels,
+                pagination = new Pagination
+                {
+                    page = page,
+                    totalPage = totalPages,
+                    totalCount = totalCount
+                }
+            };
+        }
+
 
         public async Task<ServiceDto> GetServiceByIdAsync(int id)
         {
@@ -119,19 +157,7 @@ namespace Server.Business.Services
             if (service == null)
                 return null;
 
-            // Trả về DTO của dịch vụ
-            return new ServiceDto
-            {
-                ServiceId = service.ServiceId,
-                Name = service.Name,
-                Description = service.Description,
-                Price = service.Price,
-                Duration = service.Duration,
-                CategoryName = service.Category?.Name, // Kiểm tra null
-                CreatedDate = service.CreatedDate,
-                UpdatedDate = service.UpdatedDate,
-                Status = service.Status,
-            };
+            return _mapper.Map<ServiceDto>(service);
         }
 
 
@@ -166,19 +192,7 @@ namespace Server.Business.Services
                 var category = await _unitOfWorks.Categories
                     .FirstOrDefaultAsync(c => c.CategoryId == service.CategoryId);
 
-                // Trả về DTO
-                return new ServiceDto
-                {
-                    ServiceId = service.ServiceId,
-                    Name = service.Name,
-                    Description = service.Description,
-                    Price = service.Price,
-                    Duration = service.Duration,
-                    CategoryName = category?.Name, // Kiểm tra null cho Category
-                    CreatedDate = service.CreatedDate,
-                    UpdatedDate = service.UpdatedDate,
-                    Status = service.Status,
-                };
+                return _mapper.Map<ServiceDto>(service);
             }
             catch (Exception ex)
             {
@@ -217,24 +231,8 @@ namespace Server.Business.Services
                 // Lưu thay đổi qua UnitOfWork
                 _unitOfWorks.ServiceRepository.Update(service);
                 await _unitOfWorks.Commit();
-
-                // Lấy thông tin danh mục liên quan
-                var category = await _unitOfWorks.Categories
-                    .FirstOrDefaultAsync(c => c.CategoryId == service.CategoryId);
-
-                // Trả về DTO sau khi cập nhật
-                return new ServiceDto
-                {
-                    ServiceId = service.ServiceId,
-                    Name = service.Name,
-                    Description = service.Description,
-                    Price = service.Price,
-                    Duration = service.Duration,
-                    CategoryName = category?.Name, // Kiểm tra null cho Category
-                    CreatedDate = service.CreatedDate,
-                    UpdatedDate = service.UpdatedDate,
-                    Status = service.Status,
-                };
+                
+                return _mapper.Map<ServiceDto>(service);
             }
             catch (Exception ex)
             {
