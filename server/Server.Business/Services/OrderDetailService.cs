@@ -21,24 +21,29 @@ namespace Server.Business.Services
         public async Task<ApiResult<OrderDetail>> CreateOrderDetailAsync(CUOrderDetailDto model)
         {
             // Kiểm tra sự tồn tại của Order
-            var orderExists = await _unitOfWorks.Orders
-                .AnyAsync(x => x.OrderId == model.OrderId);
+            var orderExists = await _unitOfWorks.OrderRepository
+      .FindByCondition(x => x.OrderId == model.OrderId)
+      .AnyAsync();
+
             if (!orderExists)
             {
                 return ApiResult<OrderDetail>.Error(null, "Order not found");
             }
 
             // Kiểm tra sự tồn tại của Product với trạng thái Active
-            var productExists = await _unitOfWorks.Products
-                .AnyAsync(x => x.ProductId == model.ProductId && x.Status == "Active");
+            var productExists = await _unitOfWorks.ProductRepository
+     .FindByCondition(x => x.ProductId == model.ProductId && x.Status == "Active")
+     .AnyAsync();
             if (!productExists)
             {
                 return ApiResult<OrderDetail>.Error(null, "Product not found");
             }
 
             // Kiểm tra sự tồn tại của Service với trạng thái Active
-            var serviceExists = await _unitOfWorks.Services
-                .AnyAsync(x => x.ServiceId == model.ServiceId && x.Status == "Active");
+            var serviceExists = await _unitOfWorks.ServiceRepository
+    .FindByCondition(x => x.ServiceId == model.ServiceId && x.Status == "Active")
+    .AnyAsync();
+
             if (!serviceExists)
             {
                 return ApiResult<OrderDetail>.Error(null, "Service not found");
@@ -50,15 +55,17 @@ namespace Server.Business.Services
             try
             {
                 // Thêm vào cơ sở dữ liệu qua UnitOfWork
-                await _unitOfWorks.OrderDetails.AddAsync(orderDetail);
-                await _unitOfWorks.Commit();
+                await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+                await _unitOfWorks.OrderDetailRepository.Commit();
 
                 // Lấy lại thông tin với các bảng liên kết
-                var orderDetailWithIncludes = await _unitOfWorks.OrderDetails
-                    .Include(od => od.Product)
-                    .Include(od => od.Service)
-                    .Include(od => od.Order)
-                    .FirstOrDefaultAsync(od => od.OrderDetailId == orderDetail.OrderDetailId);
+                var orderDetailWithIncludes = await _unitOfWorks.OrderDetailRepository
+    .FindByCondition(od => od.OrderDetailId == orderDetail.OrderDetailId)
+    .Include(od => od.Product)
+    .Include(od => od.Service)
+    .Include(od => od.Order)
+    .FirstOrDefaultAsync();
+
 
                 if (orderDetailWithIncludes == null)
                 {

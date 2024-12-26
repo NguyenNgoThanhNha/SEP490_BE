@@ -20,8 +20,11 @@ namespace Server.Data.UnitOfWorks
         private StaffRepository _staffRepo;
         private BlogRepository _blogRepo;
         private Brand_ProductRepository _branchProductRepository;
+        private VoucherRepository _voucherRepo;
+        private CompanyRepository _companyRepo;
+        private OrderRepository _orderRepo;
+        private OrderDetailRepository _orderDetail;
         private Branch_ServiceRepository _branchServiceRepository;
-
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -90,29 +93,30 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _branchProductRepository ??= new Brand_ProductRepository(_dbContext); }
         }
-        
+
+        public VoucherRepository VoucherRepository
+        {
+            get { return _voucherRepo ??= new VoucherRepository(_dbContext); }
+        }
+
+        public CompanyRepository CompanyRepository
+        {
+            get { return _companyRepo ??= new CompanyRepository(_dbContext); }
+        }
+
+        public OrderRepository OrderRepository
+        {
+            get { return _orderRepo ??= new OrderRepository(_dbContext); }
+        }
+
+        public OrderDetailRepository OrderDetailRepository
+        {
+            get { return _orderDetail ??= new OrderDetailRepository(_dbContext); }
+        }
+
         public Branch_ServiceRepository Branch_ServiceRepository
         {
             get { return _branchServiceRepository ??= new Branch_ServiceRepository(_dbContext); }
         }
-
-        public async Task<int> Commit()
-        {
-            return await _dbContext.SaveChangesAsync();
-        }
-
-        public DbSet<Product> Products => _dbContext.Products;
-        public DbSet<Category> Categories => _dbContext.Categorys;
-        public DbSet<Company> Companies => _dbContext.Companies;
-        public DbSet<Service> Services => _dbContext.Services;
-        public DbSet<Order> Orders => _dbContext.Orders;
-        public DbSet<OrderDetail> OrderDetails => _dbContext.OrderDetails;      
-        public DbSet<User> Users => _dbContext.Users;
-        public DbSet<Voucher> Vouchers => _dbContext.Vouchers;
-        public DbSet<Branch> Branches => _dbContext.Branchs;
-        public DbSet<Staff> Staffs => _dbContext.Staffs;
-
-
-
     }
 }

@@ -95,8 +95,10 @@ namespace Server.Business.Services
                 }
 
                 // Kiểm tra Category có tồn tại không
-                var categoryExists = await _unitOfWorks.Categories
-                    .AnyAsync(c => c.CategoryId == productCreateDto.CategoryId);
+                var categoryExists = await _unitOfWorks.CategoryRepository
+     .FindByCondition(c => c.CategoryId == productCreateDto.CategoryId)
+     .AnyAsync();
+
 
                 if (!categoryExists)
                 {
@@ -107,8 +109,9 @@ namespace Server.Business.Services
                 }
 
                 // Kiểm tra Company có tồn tại không
-                var companyExists = await _unitOfWorks.Companies
-                    .AnyAsync(c => c.CompanyId == productCreateDto.CompanyId);
+                var companyExists = await _unitOfWorks.CompanyRepository
+    .FindByCondition(c => c.CompanyId == productCreateDto.CompanyId)
+    .AnyAsync();
 
                 if (!companyExists)
                 {
@@ -135,14 +138,17 @@ namespace Server.Business.Services
                     Status = "Active"
                 };
 
-                await _unitOfWorks.Products.AddAsync(newProduct);
-                await _unitOfWorks.Commit();
+                await _unitOfWorks.ProductRepository.AddAsync(newProduct);
+                await _unitOfWorks.ProductRepository.Commit();
+
 
                 // Lấy lại sản phẩm vừa tạo từ cơ sở dữ liệu kèm theo thông tin của Category và Company
-                var createdProduct = await _unitOfWorks.Products
-                    .Include(p => p.Category)
-                    .Include(p => p.Company)
-                    .FirstOrDefaultAsync(p => p.ProductId == newProduct.ProductId);
+                var createdProduct = await _unitOfWorks.ProductRepository
+     .FindByCondition(p => p.ProductId == newProduct.ProductId)
+     .Include(p => p.Category)
+     .Include(p => p.Company)
+     .FirstOrDefaultAsync();
+
 
                 if (createdProduct == null)
                 {
@@ -259,8 +265,10 @@ namespace Server.Business.Services
                 }
 
                 // Kiểm tra sự tồn tại của Product
-                var existingProduct = await _unitOfWorks.Products
-                    .FirstOrDefaultAsync(p => p.ProductId == productId);
+                var existingProduct = await _unitOfWorks.ProductRepository
+                    .FindByCondition(p => p.ProductId == productId)
+                    .FirstOrDefaultAsync();
+
 
                 if (existingProduct == null)
                 {
@@ -271,11 +279,15 @@ namespace Server.Business.Services
                 }
 
                 // Kiểm tra sự tồn tại của Category và Company
-                var categoryExists = await _unitOfWorks.Categories
-                    .AnyAsync(c => c.CategoryId == productUpdateDto.CategoryId);
+                var categoryExists = await _unitOfWorks.CategoryRepository
+     .FindByCondition(c => c.CategoryId == productUpdateDto.CategoryId)
+     .AnyAsync();
 
-                var companyExists = await _unitOfWorks.Companies
-                    .AnyAsync(c => c.CompanyId == productUpdateDto.CompanyId);
+
+                var companyExists = await _unitOfWorks.CompanyRepository
+      .FindByCondition(c => c.CompanyId == productUpdateDto.CompanyId)
+      .AnyAsync();
+
 
                 if (!categoryExists)
                 {
@@ -304,14 +316,17 @@ namespace Server.Business.Services
                 existingProduct.UpdatedDate = DateTime.Now;
 
                 // Lưu thay đổi
-                _unitOfWorks.Products.Update(existingProduct);
-                await _unitOfWorks.Commit();
+                _unitOfWorks.ProductRepository.Update(existingProduct);
+                await _unitOfWorks.ProductRepository.Commit();
+
 
                 // Lấy lại Product sau khi cập nhật kèm theo Category và Company
-                var updatedProduct = await _unitOfWorks.Products
-                    .Include(p => p.Category)
-                    .Include(p => p.Company)
-                    .FirstOrDefaultAsync(p => p.ProductId == productId);
+                var updatedProduct = await _unitOfWorks.ProductRepository
+    .FindByCondition(p => p.ProductId == productId)
+    .Include(p => p.Category)
+    .Include(p => p.Company)
+    .FirstOrDefaultAsync();
+
 
                 return ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
@@ -348,9 +363,11 @@ namespace Server.Business.Services
             try
             {
                 // Tìm sản phẩm theo ProductId
-                var product = await _unitOfWorks.Products
-                    .Include(p => p.Branch_Products) // Bao gồm danh sách sản phẩm chi nhánh liên kết
-                    .FirstOrDefaultAsync(p => p.ProductId == productId);
+                var product = await _unitOfWorks.ProductRepository
+    .FindByCondition(p => p.ProductId == productId)
+    .Include(p => p.Branch_Products) // Bao gồm danh sách sản phẩm chi nhánh liên kết
+    .FirstOrDefaultAsync();
+
 
                 // Kiểm tra nếu sản phẩm không tồn tại
                 if (product == null)
@@ -372,10 +389,12 @@ namespace Server.Business.Services
                 product.Status = "Inactive";
 
                 // Cập nhật sản phẩm thông qua UnitOfWork
-                _unitOfWorks.Products.Update(product);
+                _unitOfWorks.ProductRepository.Update(product);
+               
+
 
                 // Lưu thay đổi vào cơ sở dữ liệu
-                var result = await _unitOfWorks.Commit();
+                var result = await _unitOfWorks.ProductRepository.Commit();
 
                 if (result > 0)
                 {

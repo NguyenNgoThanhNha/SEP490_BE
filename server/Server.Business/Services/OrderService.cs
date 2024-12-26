@@ -28,7 +28,8 @@ namespace Server.Business.Services
     int? pageIndex = null,
     int? pageSize = null)
         {
-            IQueryable<Order> query = _unitOfWorks.Orders; // Không cần GetAll()
+            IQueryable<Order> query = _unitOfWorks.OrderRepository.FindByCondition(o => true);
+
 
             // Áp dụng bộ lọc nếu có
             if (filter != null)
@@ -78,18 +79,22 @@ namespace Server.Business.Services
             try
             {
                 // Kiểm tra tồn tại mã đơn hàng
-                var isOrderCodeExists = await _unitOfWorks.Orders
-                    .AnyAsync(x => x.OrderCode == model.OrderCode && x.Status == "Active");
+                var isOrderCodeExists = await _unitOfWorks.OrderRepository
+     .FindByCondition(x => x.OrderCode == model.OrderCode && x.Status == "Active")
+     .AnyAsync();
+
                 if (isOrderCodeExists)
                 {
                     return ApiResult<object>.Error(null, "Order code already exists.");
                 }
 
                 // Kiểm tra tồn tại khách hàng
-                var isCustomerExists = await _unitOfWorks.Users
-                    .AnyAsync(x => x.UserId == model.CustomerId &&
-                                   x.RoleID == (int)RoleConstant.RoleType.Customer &&
-                                   x.Status == "Active");
+                var isCustomerExists = await _unitOfWorks.UserRepository
+      .FindByCondition(x => x.UserId == model.CustomerId &&
+                            x.RoleID == (int)RoleConstant.RoleType.Customer &&
+                            x.Status == "Active")
+      .AnyAsync();
+
                 if (!isCustomerExists)
                 {
                     return ApiResult<object>.Error(null, "Customer not found.");
@@ -99,8 +104,10 @@ namespace Server.Business.Services
                 int? voucherId = null;
                 if (model.VoucherId.HasValue && model.VoucherId.Value > 0)
                 {
-                    var isVoucherExists = await _unitOfWorks.Vouchers
-                        .AnyAsync(x => x.VoucherId == model.VoucherId && x.Status == "Active");
+                    var isVoucherExists = await _unitOfWorks.VoucherRepository
+     .FindByCondition(x => x.VoucherId == model.VoucherId && x.Status == "Active")
+     .AnyAsync();
+
                     if (!isVoucherExists)
                     {
                         return ApiResult<object>.Error(null, "Voucher not found.");
@@ -120,14 +127,17 @@ namespace Server.Business.Services
                     UpdatedDate = DateTime.UtcNow
                 };
 
-                await _unitOfWorks.Orders.AddAsync(order);
-                await _unitOfWorks.Commit();
+                await _unitOfWorks.OrderRepository.AddAsync(order);
+                await _unitOfWorks.OrderRepository.Commit();
+
 
                 // Lấy lại dữ liệu sau khi tạo
-                var createdOrder = await _unitOfWorks.Orders
-                    .Include(o => o.Customer)
-                    .Include(o => o.Voucher)
-                    .FirstOrDefaultAsync(o => o.OrderId == order.OrderId);
+                var createdOrder = await _unitOfWorks.OrderRepository
+     .FindByCondition(o => o.OrderId == order.OrderId)
+     .Include(o => o.Customer)
+     .Include(o => o.Voucher)
+     .FirstOrDefaultAsync();
+
 
                 if (createdOrder == null)
                 {
