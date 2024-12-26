@@ -79,7 +79,10 @@ namespace Server.Business.Services
                     return ApiResponse.Error("Staff data is required.");
 
                 // Kiểm tra Branch tồn tại
-                var branchExists = await _unitOfWorks.Branches.AnyAsync(x => x.BranchId == staffDto.BranchId);
+                var branchExists = await _unitOfWorks.BranchRepository
+     .FindByCondition(x => x.BranchId == staffDto.BranchId)
+     .AnyAsync();
+
                 if (!branchExists)
                     return ApiResponse.Error("Branch not found.");
 
@@ -96,8 +99,8 @@ namespace Server.Business.Services
                     TypeLogin = "Normal" // Thêm giá trị mặc định cho TypeLogin
                 };
 
-                await _unitOfWorks.Users.AddAsync(newUser);
-                await _unitOfWorks.Commit();
+                await _unitOfWorks.UserRepository.AddAsync(newUser);
+                await _unitOfWorks.UserRepository.Commit();
 
                 // Tạo Staff mới liên kết với User
                 var newStaff = new Staff
@@ -109,7 +112,7 @@ namespace Server.Business.Services
                 };
 
                 await _unitOfWorks.StaffRepository.AddAsync(newStaff);
-                await _unitOfWorks.Commit();
+                await _unitOfWorks.StaffRepository.Commit();
 
                 // Gửi email thông báo tài khoản và mật khẩu
                 var mailData = new MailData
@@ -227,21 +230,30 @@ namespace Server.Business.Services
             try
             {
                 // Kiểm tra sự tồn tại của Staff
-                var staffExists = await _unitOfWorks.Staffs.AnyAsync(x => x.StaffId == staffId);
+                var staffExists = await _unitOfWorks.StaffRepository
+    .FindByCondition(x => x.StaffId == staffId)
+    .AnyAsync();
+
                 if (!staffExists)
                 {
                     return ApiResponse.Error("Staff not found");
                 }
 
                 // Kiểm tra sự tồn tại của Role
-                var roleExists = await _unitOfWorks.Users.AnyAsync(x => x.UserRole.RoleId == roleId);
+                var roleExists = await _unitOfWorks.UserRepository
+     .FindByCondition(x => x.UserRole.RoleId == roleId)
+     .AnyAsync();
+
                 if (!roleExists)
                 {
                     return ApiResponse.Error("Role not found");
                 }
 
                 // Lấy Staff
-                var staff = await _unitOfWorks.Staffs.FirstOrDefaultAsync(x => x.StaffId == staffId);
+                var staff = await _unitOfWorks.StaffRepository
+     .FindByCondition(x => x.StaffId == staffId)
+     .FirstOrDefaultAsync();
+
                 if (staff == null)
                 {
                     return ApiResponse.Error("Staff not found");
@@ -260,7 +272,7 @@ namespace Server.Business.Services
 
                 // Cập nhật vào database qua UnitOfWorks
                 _unitOfWorks.UserRepository.Update(user);
-                await _unitOfWorks.Commit();
+                await _unitOfWorks.UserRepository.Commit();
 
                 // Trả về kết quả thành công
                 return ApiResponse.Succeed(new
@@ -284,21 +296,24 @@ namespace Server.Business.Services
             try
             {
                 // Kiểm tra sự tồn tại của Staff
-                var staffExists = await _unitOfWorks.Staffs.AnyAsync(x => x.StaffId == staffId);
+                var staffExists = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId).AnyAsync();
                 if (!staffExists)
                 {
                     return ApiResponse.Error("Staff not found");
                 }
 
                 // Kiểm tra sự tồn tại của Branch
-                var branchExists = await _unitOfWorks.Branches.AnyAsync(x => x.BranchId == branchId);
+                var branchExists = await _unitOfWorks.BranchRepository
+     .FindByCondition(x => x.BranchId == branchId)
+     .AnyAsync();
+
                 if (!branchExists)
                 {
                     return ApiResponse.Error("Branch not found");
                 }
 
                 // Lấy thông tin Staff cần cập nhật
-                var staff = await _unitOfWorks.Staffs.FirstOrDefaultAsync(x => x.StaffId == staffId);
+                var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId).FirstOrDefaultAsync();
                 if (staff == null)
                 {
                     return ApiResponse.Error("Staff not found");
@@ -309,8 +324,8 @@ namespace Server.Business.Services
                 staff.UpdatedDate = DateTime.UtcNow;
 
                 // Cập nhật Staff vào database qua UnitOfWorks
-                _unitOfWorks.Staffs.Update(staff);
-                await _unitOfWorks.Commit();
+                _unitOfWorks.StaffRepository.Update(staff);
+                await _unitOfWorks.StaffRepository.Commit();
 
                 // Trả về kết quả
                 return ApiResponse.Succeed(staff, "Branch assigned to staff successfully.");
@@ -357,10 +372,12 @@ namespace Server.Business.Services
             try
             {
                 // Tìm kiếm Staff dựa trên staffId từ route
-                var existingStaff = await _unitOfWorks.Staffs
-                    .Include(s => s.StaffInfo) // Bao gồm thông tin từ bảng User
-                    .Include(s => s.Branch)   // Bao gồm thông tin từ bảng Branch
-                    .FirstOrDefaultAsync(s => s.StaffId == staffId);
+                var existingStaff = await _unitOfWorks.StaffRepository
+     .FindByCondition(s => s.StaffId == staffId)
+     .Include(s => s.StaffInfo) // Bao gồm thông tin từ bảng User
+     .Include(s => s.Branch)    // Bao gồm thông tin từ bảng Branch
+     .FirstOrDefaultAsync();
+
 
                 if (existingStaff == null)
                 {
@@ -383,8 +400,8 @@ namespace Server.Business.Services
                 existingStaff.UpdatedDate = DateTime.UtcNow;
 
                 // Lưu thay đổi
-                _unitOfWorks.Staffs.Update(existingStaff);
-                await _unitOfWorks.Commit();
+                _unitOfWorks.StaffRepository.Update(existingStaff);
+                await _unitOfWorks.StaffRepository.Commit();
 
                 // Trả về thông tin staff sau khi cập nhật
                 return new ApiResponse
@@ -413,7 +430,10 @@ namespace Server.Business.Services
             try
             {
                 // Tìm Staff trong database
-                var staff = await _unitOfWorks.Staffs.FirstOrDefaultAsync(p => p.StaffId == staffId);
+                var staff = await _unitOfWorks.StaffRepository
+      .FindByCondition(p => p.StaffId == staffId)
+      .FirstOrDefaultAsync();
+
 
                 // Nếu không tìm thấy Staff
                 if (staff == null)
@@ -426,10 +446,9 @@ namespace Server.Business.Services
                 }
 
                 // Tiến hành xóa Staff
-                _unitOfWorks.Staffs.Remove(staff);
+                _unitOfWorks.StaffRepository.Remove(staff.StaffId);
+                await _unitOfWorks.StaffRepository.Commit();
 
-                // Lưu thay đổi
-                await _unitOfWorks.Commit();
 
                 // Trả về phản hồi thành công
                 return new ApiResponse

@@ -148,8 +148,9 @@ namespace Server.API.Controllers
 
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateBlog([FromForm] BlogRequest request, IFormFile thumbnail)
+        public async Task<IActionResult> CreateBlog([FromForm] BlogRequest request)
         {
+            // 1. Kiểm tra dữ liệu đầu vào
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -160,8 +161,8 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            // Gọi service để tạo blog với thumbnail
-            var blogsModel = await _blogService.CreateBlogs(request, thumbnail);
+            // 2. Gọi service để tạo blog
+            var blogsModel = await _blogService.CreateBlogs(request);
             if (blogsModel == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -170,6 +171,7 @@ namespace Server.API.Controllers
                 }));
             }
 
+            // 3. Trả về kết quả thành công
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Blog created successfully!",
@@ -179,10 +181,11 @@ namespace Server.API.Controllers
 
 
 
+
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateBlog([FromRoute] int id, [FromForm] BlogRequest request)
         {
-            // Kiểm tra dữ liệu đầu vào
+            // 1. Kiểm tra dữ liệu đầu vào
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -193,7 +196,7 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            // Kiểm tra blog tồn tại
+            // 2. Kiểm tra blog có tồn tại hay không
             var existingBlog = await _blogService.GetBlogsById(id);
             if (existingBlog == null)
             {
@@ -203,8 +206,8 @@ namespace Server.API.Controllers
                 }));
             }
 
-            // Thực hiện cập nhật blog
-            var updatedBlog = await _blogService.UpdateBlogs(existingBlog, request, request.ThumbnailFile);
+            // 3. Gọi service để cập nhật blog
+            var updatedBlog = await _blogService.UpdateBlogs(existingBlog, request);
             if (updatedBlog == null)
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -213,13 +216,14 @@ namespace Server.API.Controllers
                 }));
             }
 
-            // Trả về kết quả
+            // 4. Trả về kết quả thành công
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Blog updated successfully!",
                 data = _mapper.Map<BlogDTO>(updatedBlog)
             }));
         }
+
 
 
 
