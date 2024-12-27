@@ -56,7 +56,7 @@ namespace Server.Business.Mappers
      .ForMember(dest => dest.AuthorName, opt => opt.Ignore()) // AuthorName ánh xạ thủ công
      .ForMember(dest => dest.Thumbnail, opt => opt.MapFrom(src => src.Thumbnail)); // Gán thumbnail
 
-
+            CreateMap<Logger, LoggerModel>().ReverseMap();
         }
     }
 }

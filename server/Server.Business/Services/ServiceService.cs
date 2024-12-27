@@ -29,7 +29,6 @@ namespace Server.Business.Services
         {
             // Truy vấn dữ liệu từ repository với điều kiện ban đầu là `status == "Active"`
             IQueryable<Service> query = _unitOfWorks.ServiceRepository.GetAll()
-      .Include(s => s.Category) // Bao gồm thông tin Category
       .Include(s => s.Branch_Services) // Bao gồm Branch_Services
           .ThenInclude(bs => bs.Branch) // Bao gồm thông tin Branch từ Branch_Services
       .Where(s => s.Status == "Active"); // Chỉ lấy các Service có trạng thái Active
@@ -80,7 +79,8 @@ namespace Server.Business.Services
 
         public async Task<GetAllServicePaginationResponse> GetAllService(int page, int pageSize)
         {
-            var services = await _unitOfWorks.ServiceRepository.GetAll().Include(x => x.Category).OrderByDescending(x => x.ServiceId).ToListAsync();
+            var services = await _unitOfWorks.ServiceRepository.GetAll()
+                .OrderByDescending(x => x.ServiceId).ToListAsync();
 
 
             var totalCount = services.Count();
@@ -117,7 +117,6 @@ namespace Server.Business.Services
 
             // Lấy danh sách Service dựa trên danh sách ServiceId
             var services = await _unitOfWorks.ServiceRepository.GetAll()
-                .Include(s => s.Category) // Bao gồm thông tin Category nếu cần
                 .Where(s => serviceIdsOfBranch.Contains(s.ServiceId))
                 .OrderByDescending(s => s.ServiceId)
                 .ToListAsync();
@@ -150,7 +149,6 @@ namespace Server.Business.Services
             // Truy vấn dịch vụ và bao gồm thông tin danh mục
             var service = await _unitOfWorks.ServiceRepository
                 .FindByCondition(s => s.ServiceId == id&&s.Status=="Active")
-                .Include(s => s.Category) // Bao gồm danh mục nếu cần
                 .FirstOrDefaultAsync();
 
             // Kiểm tra nếu không tìm thấy dịch vụ
@@ -178,7 +176,6 @@ namespace Server.Business.Services
                     Description = serviceDto.Description,
                     Price = serviceDto.Price,
                     Duration = serviceDto.Duration,
-                    CategoryId = serviceDto.CategoryId,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now,
                     Status = "Active",
@@ -187,12 +184,7 @@ namespace Server.Business.Services
                 // Thêm vào repository qua UnitOfWork
                 await _unitOfWorks.ServiceRepository.AddAsync(service);
                 await _unitOfWorks.ServiceRepository.Commit();
-
-                // Lấy thông tin danh mục liên quan
-                var category = await _unitOfWorks.CategoryRepository
-     .FindByCondition(c => c.CategoryId == service.CategoryId)
-     .FirstOrDefaultAsync();
-
+                
                 return _mapper.Map<ServiceDto>(service);
             }
             catch (Exception ex)
@@ -226,7 +218,6 @@ namespace Server.Business.Services
                 service.Description = serviceDto.Description;
                 service.Price = serviceDto.Price;
                 service.Duration = serviceDto.Duration;
-                service.CategoryId = serviceDto.CategoryId;
                 service.UpdatedDate = DateTime.Now;
 
                 // Lưu thay đổi qua UnitOfWork

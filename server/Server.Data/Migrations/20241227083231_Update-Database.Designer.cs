@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241215142141_Update-Database")]
+    [Migration("20241227083231_Update-Database")]
     partial class UpdateDatabase
     {
         /// <inheritdoc />
@@ -426,6 +426,35 @@ namespace Server.Data.Migrations
                     b.ToTable("Company");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Logger", b =>
+                {
+                    b.Property<int>("LoggerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Exception")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("LoggerId");
+
+                    b.ToTable("Logger");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Notifications", b =>
                 {
                     b.Property<int>("NotificationId")
@@ -725,9 +754,6 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
@@ -749,12 +775,13 @@ namespace Server.Data.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Steps")
+                        .HasColumnType("longtext");
+
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("ServiceId");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("Service");
                 });
@@ -1583,17 +1610,6 @@ namespace Server.Data.Migrations
                     b.Navigation("Branch");
 
                     b.Navigation("Staff");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Service", b =>
-                {
-                    b.HasOne("Server.Data.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.ServiceImages", b =>

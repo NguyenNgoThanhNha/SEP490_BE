@@ -319,14 +319,14 @@ namespace Server.Business.Services
             }
 
             // Kiểm tra xem có dịch vụ nào liên kết với danh mục không
-            var hasLinkedServices = await _unitOfWorks.ServiceRepository
+            /*var hasLinkedServices = await _unitOfWorks.ServiceRepository
                 .FindByCondition(s => s.CategoryId == category.CategoryId)
                 .AnyAsync();
 
             if (hasLinkedServices)
             {
                 throw new BadRequestException("Cannot delete category as it is linked to a service!");
-            }
+            }*/
 
             // Cập nhật trạng thái thành "Inactive"
             category.Status = "Inactive";

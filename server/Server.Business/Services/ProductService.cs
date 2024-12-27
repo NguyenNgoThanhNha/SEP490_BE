@@ -376,14 +376,14 @@ namespace Server.Business.Services
                 }
 
                 // Kiểm tra xem danh mục của sản phẩm có liên kết với bất kỳ dịch vụ nào không
-                var hasLinkedServices = await _unitOfWorks.ServiceRepository
+                /*var hasLinkedServices = await _unitOfWorks.ServiceRepository
                     .FindByCondition(s => s.CategoryId == product.CategoryId)
                     .AnyAsync();
 
                 if (hasLinkedServices)
                 {
                     return ApiResponse.Error("Cannot delete product as its category is linked to a service.");
-                }
+                }*/
 
                 // Cập nhật trạng thái sản phẩm thành "Inactive"
                 product.Status = "Inactive";

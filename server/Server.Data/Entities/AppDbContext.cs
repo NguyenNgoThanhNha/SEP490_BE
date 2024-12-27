@@ -43,6 +43,7 @@ namespace Server.Data.Entities
         public DbSet<UserRoutine> UserRoutines { get; set; }
         public DbSet<ProductRoutine> ProductRoutines { get; set; }
         public DbSet<ServiceRoutine> ServiceRoutine { get; set; }
+        public DbSet<Logger> Logger { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -16,9 +16,7 @@ namespace Server.Business.Dtos
         
         public string Status { get; set; }
         
-        public int CategoryId { get; set; }
-        
-        public CategoryDetailDto Category { get; set; }
+        public string? Steps { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
     }
