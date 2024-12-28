@@ -32,7 +32,7 @@ namespace Server.Business.Services
                 IQueryable<Product> query = _unitOfWorks.ProductRepository.GetAll()
                     .Include(p => p.Category)
                     .Include(p => p.Company)
-                 .OrderBy(p => p.ProductId);
+                 .OrderByDescending(p => p.ProductId);
 
                 // Include các bảng bổ sung từ tham số
                 foreach (var includeProperty in includeProperties.Split(
@@ -54,7 +54,7 @@ namespace Server.Business.Services
                 }
                 else
                 {
-                    query = query.OrderBy(p => p.ProductId); // Mặc định sắp xếp theo ProductId tăng dần
+                    query = query.OrderByDescending(p => p.ProductId); // Mặc định sắp xếp theo ProductId tăng dần
                 }
 
                 // Tổng số lượng sản phẩm
@@ -92,6 +92,7 @@ namespace Server.Business.Services
                     CompanyName = p.Company != null ? p.Company.Name : string.Empty, // Kiểm tra null
                     CreatedDate = p.CreatedDate,
                     UpdatedDate = p.UpdatedDate,
+                    CategoryId = p.CategoryId,
                     Category = p.Category != null ? new CategoryDto
                     {
                         CategoryId = p.Category.CategoryId,
@@ -246,7 +247,7 @@ namespace Server.Business.Services
             }
         }
 
-        public async Task<Product?> GetProductByIdAsync(int productId)
+        public async Task<ProductModel?> GetProductByIdAsync(int productId)
         {
             try
             {
@@ -257,7 +258,7 @@ namespace Server.Business.Services
                     .Include(d => d.Company)
                     .FirstOrDefaultAsync();
 
-                return product;
+                return _mapper.Map<ProductModel>(product);
             }
             catch (Exception ex)
             {
@@ -273,7 +274,7 @@ namespace Server.Business.Services
             var query = _unitOfWorks.ProductRepository.GetAll()
                 .Include(p => p.Category) // Bao gồm thông tin Category
                 .Include(p => p.Company)
-                 .OrderBy(p => p.ProductId);
+                 .OrderByDescending(p => p.ProductId);
 
             var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);

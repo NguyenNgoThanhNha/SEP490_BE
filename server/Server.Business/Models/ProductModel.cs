@@ -62,7 +62,9 @@ namespace Server.Business.Models
         public int CompanyId { get; set; }
 
         public string CompanyName { get; set; } // Thêm CompanyName
-
+        
+        public int CategoryId  { get; set; }
+        
         public CategoryModel Category { get; set; } // Bao gồm chi tiết Category
 
         public DateTime CreatedDate { get; set; } = DateTime.Now;

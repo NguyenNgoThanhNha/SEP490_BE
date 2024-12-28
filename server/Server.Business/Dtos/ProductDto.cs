@@ -31,6 +31,7 @@ namespace Server.Business.Dtos
 
         public DateTime UpdatedDate { get; set; }
         
+        public int CategoryId  { get; set; }
         public CategoryDto Category { get; set; }
 
         public string[] images { get; set; }
