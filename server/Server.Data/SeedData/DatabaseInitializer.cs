@@ -4808,36 +4808,189 @@ private async Task SeedProductImages()
             // Lấy danh sách tất cả các dịch vụ hiện có
             var services = await _context.Services.ToListAsync();
 
-            // Khởi tạo danh sách ServiceImages
-            var serviceImages = new List<ServiceImages>();
-
-            // Danh sách URL ảnh ngẫu nhiên
-            var randomUrls = new List<string>
+            // Tạo danh sách các dịch vụ và hình ảnh của chúng
+            var serviceImageData = new List<(string serviceName, List<string> imageUrls)>
             {
-                "https://diva.edu.vn/wp-content/uploads/2023/10/spa-gom-nhung-dich-vu-gi-1.jpeg",
-                "https://posapp.vn/wp-content/uploads/2020/07/mun-2.jpg",
-                "https://bizweb.dktcdn.net/100/385/697/files/spa-co-nhung-dich-vu-gi-5.jpg?v=1711425862233",
-                "https://chefjob.vn/wp-content/uploads/2020/07/dich-vu-spa-trong-khach-san.jpg",
-                "https://easysalon.vn/wp-content/uploads/2019/11/tim-hieu-cac-mo-hinh-spa-tren-the-gioi-5.png",
-                "https://thanhtrucmed.com/wp-content/uploads/2024/05/spa-cham-soc-da-2_1684512418.jpg"
-            };
-
-            // Tạo 3 ảnh cho mỗi dịch vụ
-            foreach (var service in services)
-            {
-                for (int i = 1; i <= 3; i++)
+                // Signature Facial
+                ("Signature Facial", new List<string>
                 {
-                    var randomImageUrl = randomUrls[new Random().Next(randomUrls.Count)]; // Chọn URL ngẫu nhiên
-                    serviceImages.Add(new ServiceImages
+                    "https://i.pinimg.com/736x/27/81/a7/2781a79854d1a98a16fde4f099bcc8a5.jpg",
+                    "https://i.pinimg.com/736x/2c/87/b8/2c87b81f2775b10b59767a43fe28e20f.jpg",
+                    "https://i.pinimg.com/736x/5f/fd/bb/5ffdbbdd837d0e1b597bf7b55608ecf9.jpg",
+                    "https://i.pinimg.com/736x/7f/86/b9/7f86b9ae476a90f6e13706c96db78e9d.jpg",
+                    "https://i.pinimg.com/736x/4c/d2/e4/4cd2e442ed27ad93414300ad5ce65bf9.jpg"
+                }),
+                // Anti-Aging Facial
+                ("Anti-Aging Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/42/82/8d/42828de778bdc6d184fde7ef8de141d7.jpg",
+                    "https://i.pinimg.com/736x/33/f5/2b/33f52b7c23657d2ac0cd8d9aef3826c7.jpg",
+                    "https://i.pinimg.com/736x/c5/25/bc/c525bc3ce54da328c0d5a06226603ac9.jpg",
+                    "https://i.pinimg.com/736x/5d/b2/30/5db2300075fe7591f1b7ddc140fb36c0.jpg",
+                    "https://i.pinimg.com/736x/28/20/90/28209092643b28bd55e12004a5158fb9.jpg"
+                }),
+                // Hydrating Facial
+                ("Hydrating Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
+                    "https://i.pinimg.com/736x/52/e2/c8/52e2c875539100b6fd36dfcb81cb334b.jpg",
+                    "https://i.pinimg.com/736x/5e/87/da/5e87daadb4e52e5d9d048bf52b943988.jpg",
+                    "https://i.pinimg.com/736x/64/bf/86/64bf86354531fd40bbad0fe5979bbe64.jpg",
+                }),
+                // Brightening Facial
+                ("Brightening Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
+                    "https://i.pinimg.com/736x/ad/bd/b1/adbdb1e65aac64f3f44cbf7b7a548b30.jpg",
+                    "https://i.pinimg.com/736x/66/51/44/665144d405e77c90658a184cc69f1728.jpg",
+                    "https://i.pinimg.com/736x/c3/b2/c7/c3b2c74b916a8ca4ad5a111e46d62fe1.jpg",
+                    "https://i.pinimg.com/736x/95/24/b1/9524b1129e39e0c4e8336ee825469156.jpg"
+                }),
+                // Acne Treatment Facial
+                ("Acne Treatment Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/fc/c4/6b/fcc46b80915cd02cde8c8f7d8975c01b.jpg",
+                    "https://i.pinimg.com/736x/c6/14/6d/c6146dba83a0356ede4f775a46b64a34.jpg",
+                    "https://i.pinimg.com/736x/33/38/e3/3338e3a12f420ba6b75ef9097acc8329.jpg",
+                    "https://i.pinimg.com/736x/dc/92/9f/dc929f3ff80c4f48be5fb81809426022.jpg",
+                    "https://i.pinimg.com/736x/95/24/b1/9524b1129e39e0c4e8336ee825469156.jpg"
+                }),
+                // Soothing Facial
+                ("Soothing Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
+                    "https://i.pinimg.com/736x/50/72/37/5072376f6e17d3219b0404e93a8cd89b.jpg",
+                    "https://i.pinimg.com/736x/d8/62/97/d862974838bb5477234ddfe9130df3cb.jpg",
+                    "https://i.pinimg.com/736x/90/e8/8b/90e88bf68152266da89017591b6cbed6.jpg",
+                }),
+                // Green Tea Facial
+                ("Green Tea Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
+                    "https://i.pinimg.com/736x/7a/b9/40/7ab940119bbfd56905f68154084c73f6.jpg",
+                    "https://i.pinimg.com/736x/35/78/64/357864ef765a43a798742ed02ebf3766.jpg",
+                    "https://i.pinimg.com/736x/4f/94/81/4f9481757db772237b2f348d3f24d47a.jpg",
+                }),
+                // Collagen Boost Facial
+                ("Collagen Boost Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
+                    "https://i.pinimg.com/736x/ac/ad/30/acad30ac766eb1e68002d8e45d60d7d3.jpg",
+                    "https://i.pinimg.com/736x/63/b3/01/63b30170bfe60842ac58502f52b7f250.jpg",
+                    "https://i.pinimg.com/736x/5b/77/92/5b7792126b2a90abe9b4bbf1eb0ef76b.jpg",
+                    "https://i.pinimg.com/736x/3f/a4/30/3fa430040c0aa63d7682ef4457b8251d.jpg"
+                }),
+                // Detox Facial
+                ("Detox Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
+                    "https://i.pinimg.com/736x/26/7c/46/267c46cac2f68d850351bb84f1a05aac.jpg",
+                    "https://i.pinimg.com/736x/66/51/44/665144d405e77c90658a184cc69f1728.jpg",
+                    "https://i.pinimg.com/736x/4f/94/81/4f9481757db772237b2f348d3f24d47a.jpg",
+                    "https://i.pinimg.com/736x/8e/83/a6/8e83a64aac39e18f75acaf0efe8f0df9.jpg"
+                }),
+                // Overnight Hydration Facial
+                ("Overnight Hydration Facial", new List<string>
+                {
+                    "https://i.pinimg.com/736x/58/b1/bf/58b1bf4c47a37a4f21b99a7a0bc35a8e.jpg",
+                    "https://i.pinimg.com/736x/a1/6a/4b/a16a4b0cb8492406f5712927de9e2c05.jpg",
+                    "https://i.pinimg.com/736x/bb/4f/14/bb4f14b2a54b5df40aaf29964618faf0.jpg",
+                    "https://i.pinimg.com/736x/4a/a3/dc/4aa3dc07ca1938573d318717c437e0a6.jpg",
+                }),
+                // Swedish Massage
+                ("Swedish Massage", new List<string>
+                {
+                    "https://i.pinimg.com/736x/a4/e5/c6/a4e5c65d43fc9a6aa54dd3160b9e839d.jpg",
+                    "https://www.health.com/thmb/K_Vtfnh3Yu-Ceya3aETxfH72k9Q=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-1175433234-034014dc5b9c45edaeaf04c7b80ceafc.jpg",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRR32fYGDt-A-868QxQbHt0O3YK7ZP6Och_7Q&s",
+                }),
+                // Full Body Scrub
+                ("Full Body Scrub", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShtNFeG36aaJZsLyW4Jbq2mnJQq1EUVsb4CTkCP36InrBM9-LyRiyd_YZeutVVcuF1ub0&usqp=CAU",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6DKTthrU1lo3VIdPKVfIu0IjVY7EfpO7KocRY6xFhpMG4dWfhcGSREJ-TMDZ9mog2O-o&usqp=CAU",
+                    "https://i.pinimg.com/736x/aa/fc/b5/aafcb5c41918eac7a035334e26becc05.jpg",
+                }),
+                // Moisturizing Body Wrap
+                ("Moisturizing Body Wrap", new List<string>
+                {
+                    "https://i.pinimg.com/736x/d9/7a/41/d97a41c66c2b8c27413e5b8386ee6734.jpg",
+                    "https://i.pinimg.com/736x/bd/78/87/bd7887c01d97a59665f04f62616f78da.jpg",
+                }),
+                // Aromatherapy Massage
+                ("Aromatherapy Massage", new List<string>
+                {
+                    "https://i.pinimg.com/736x/c6/c8/c6/c6c8c65052fb8f59d3c7b495f47aace6.jpg",
+                    "https://i0.wp.com/www.absolute-aromas.com/wp-content/uploads/2022/11/aromatherapy_massage_techniques.jpg?fit=1280%2C848&ssl=1",
+                    "https://i.pinimg.com/736x/25/fc/d0/25fcd0f1f682b5ae41eafcc0d1397b5c.jpg",
+                    "https://i.pinimg.com/736x/04/09/be/0409be31db953306c4ba2021a8a10b84.jpg",
+                }),
+                // Foot Massage
+                ("Foot Massage", new List<string>
+                {
+                    "https://i.pinimg.com/736x/b3/ee/14/b3ee141b5983c783a88d7160a30e734a.jpg",
+                    "https://i.pinimg.com/736x/ad/55/f8/ad55f85f17ae9b07cd6c94bd67e28754.jpg",
+                    "https://i.pinimg.com/736x/55/49/69/5549692df73157f1bf2c49a8fb6daf52.jpg",
+                    "https://i.pinimg.com/736x/26/d2/b9/26d2b991409c50d6baf530cbc7397b77.jpg",
+                    "https://i.pinimg.com/736x/37/e9/64/37e964a2263041df8131c138f9219d79.jpg"
+                }),
+                // Abdominal Massage
+                ("Abdominal Massage", new List<string>
+                {
+                    "https://images.squarespace-cdn.com/content/v1/5f2864b6ee63644ee0b157d3/1716227683804-A6SSUR28MIBPHBSSXODP/stomach+massage+for+constipation.jpg",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFO_Je7Wo2NTv7rKUoQNB2LCWShvPvie0FSVRE6zzkQjk92ika0RruE9bJa5YZAXa74pk&usqp=CAU",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdxvYhv5difFnJ1XoXVyNoIdxHn08KX5ZEs5Zm_oXmJkmLiZM8mQFXKP6kH1YbHICY5JE&usqp=CAU",
+                    "https://i.pinimg.com/736x/4e/f2/9b/4ef29b5b0d121283f8b07cd16ba8f562.jpg",
+                }),
+                // Detox Body Treatment
+                ("Detox Body Treatment", new List<string>
+                {
+                    "https://i.pinimg.com/736x/c2/e0/42/c2e0422404b022ae69d9ba98cd659748.jpg",
+                    "https://i.pinimg.com/736x/62/78/07/627807715ea10ff33f2b633e86fec023.jpg",
+                    "https://i.pinimg.com/736x/fa/60/1b/fa601bea62f56aeae561dbf884d4e184.jpg",
+                    "https://i.pinimg.com/736x/a4/16/c7/a416c7d0d39a76dec17f7fed548e65a7.jpg",
+                }),
+                // Mud Bath
+                ("Mud Bath", new List<string>
+                {
+                    "https://i.pinimg.com/736x/a0/1c/41/a01c4134bff32537d93b0db8cfe4ba52.jpg",
+                    "https://i.pinimg.com/736x/e5/94/0d/e5940d85b2ab0a370a05b2e15f6689e3.jpg",
+                    "https://i.pinimg.com/736x/b1/c0/6f/b1c06f280faaac6beb3f3ea3cdb60063.jpg",
+                    "https://i.pinimg.com/736x/35/8b/6a/358b6a8da772fb59bea486501845148c.jpg",
+                }),
+                // Body Polish
+                ("Body Polish", new List<string>
+                {
+                    "https://www.bodycraft.co.in/wp-content/uploads/side-view-woman-getting-massaged-spa-1.jpg",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLNJVEtH6cN5JTyKFp841LIzCUFEtTwWxT6-7po0PTr1EAcdMlkooFhlseDIFTyWO_WDU&usqp=CAU",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtfba8M0gKvn6hM6qrBlRp6HueE6c83lcXQVvr-gNKy0FbJuU-YTcl-isOPV3C6ZJniTY&usqp=CAU",
+                    "https://hillsbeauty.vn/uploads/baiviet/massage-body-la-gi-massage-body-bao-gom-nhung-phuong-phap-nao-1702451817-gvy9x.jpg",
+                })
+            };
+            // Duyệt qua danh sách các dịch vụ và thêm hình ảnh cho từng dịch vụ
+            foreach (var serviceData in serviceImageData)
+            {
+                // Tìm dịch vụ trong cơ sở dữ liệu theo tên
+                var service = services.FirstOrDefault(p => p.Name == serviceData.serviceName);
+
+                if (service != null)
+                {
+                    // Lặp qua danh sách các hình ảnh và thêm vào bảng ServiceImages
+                    foreach (var imageUrl in serviceData.imageUrls)
                     {
-                        ServiceId = service.ServiceId,
-                        image = randomImageUrl
-                    });
+                        var serviceImage = new ServiceImages()
+                        {
+                            ServiceId = service.ServiceId,
+                            image = imageUrl
+                        };
+
+                        // Thêm hình ảnh vào cơ sở dữ liệu
+                        await _context.ServiceImages.AddAsync(serviceImage);
+                    }
                 }
             }
 
-            // Thêm dữ liệu vào bảng ServiceImages
-            await _context.ServiceImages.AddRangeAsync(serviceImages);
+            // Lưu tất cả thay đổi vào cơ sở dữ liệu
             await _context.SaveChangesAsync();
         }
 

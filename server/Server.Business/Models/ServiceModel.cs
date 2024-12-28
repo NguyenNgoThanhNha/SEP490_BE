@@ -11,7 +11,6 @@ namespace Server.Business.Models
 {
     public class ServiceModel
     {
-       
         public int ServiceId { get; set; }
 
         public string Name { get; set; }
@@ -25,6 +24,8 @@ namespace Server.Business.Models
         public string? Status { get; set; }
         
         public string? Steps { get; set; }
+        public ICollection<Branch_ServiceModel> Branch_Services { get; set; }
+        public string[] images { get; set; }    
         
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime UpdatedDate { get; set; } = DateTime.Now;

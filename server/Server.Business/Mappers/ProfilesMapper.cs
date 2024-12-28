@@ -57,6 +57,7 @@ namespace Server.Business.Mappers
      .ForMember(dest => dest.Thumbnail, opt => opt.MapFrom(src => src.Thumbnail)); // Gán thumbnail
 
             CreateMap<Logger, LoggerModel>().ReverseMap();
+            CreateMap<Branch_Service, Branch_ServiceModel>().ReverseMap();
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Server.Business.Services
             _mapper = mapper;
         }
 
-        public async Task<Pagination<Service>> GetListAsync(
+        public async Task<Pagination<ServiceModel>> GetListAsync(
      Expression<Func<Service, bool>> filter = null,
      Func<IQueryable<Service>, IOrderedQueryable<Service>> orderBy = null,
      int? pageIndex = null,
@@ -65,14 +65,26 @@ namespace Server.Business.Services
 
             // Truy vấn dữ liệu sau khi áp dụng các điều kiện
             var items = await query.ToListAsync();
+            
+            var serviceModels = _mapper.Map<List<ServiceModel>>(items);
+            // chạy lặp qua services và lấy hình của chúng ra trong service_images
+            foreach (var service in serviceModels)
+            {
+                var serviceImages = await _unitOfWorks.ServiceImageRepository.GetAll()
+                    .Where(si => si.ServiceId == service.ServiceId)
+                    .Select(si => si.image)
+                    .ToArrayAsync();
+
+                service.images = serviceImages;
+            }
 
             // Trả về dữ liệu phân trang
-            return new Pagination<Service>
+            return new Pagination<ServiceModel>
             {
                 TotalItemsCount = totalItemsCount,
                 PageSize = pageSize ?? totalItemsCount,
                 PageIndex = pageIndex ?? 0,
-                Data = items
+                Data = serviceModels
             };
         }
 
@@ -82,21 +94,28 @@ namespace Server.Business.Services
             var services = await _unitOfWorks.ServiceRepository.GetAll()
                 .OrderByDescending(x => x.ServiceId).ToListAsync();
 
+            var serviceModels = _mapper.Map<List<ServiceModel>>(services);
+            // chạy lặp qua services và lấy hình của chúng ra trong service_images
+            foreach (var service in serviceModels)
+            {
+                var serviceImages = await _unitOfWorks.ServiceImageRepository.GetAll()
+                    .Where(si => si.ServiceId == service.ServiceId)
+                    .Select(si => si.image)
+                    .ToArrayAsync();
 
+                service.images = serviceImages;
+            }
             var totalCount = services.Count();
 
 
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
 
-            var pagedServices = services.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-
-            var serviceModels = _mapper.Map<List<ServiceModel>>(pagedServices);
-
+            var pagedServices = serviceModels.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            
             return new GetAllServicePaginationResponse
             {
-                data = serviceModels,
+                data = pagedServices,
                 pagination = new Pagination
                 {
                     page = page,
@@ -121,19 +140,30 @@ namespace Server.Business.Services
                 .OrderByDescending(s => s.ServiceId)
                 .ToListAsync();
             
+            var serviceModels = _mapper.Map<List<ServiceModel>>(services);
+            // chạy lặp qua services và lấy hình của chúng ra trong service_images
+            foreach (var service in serviceModels)
+            {
+                var serviceImages = await _unitOfWorks.ServiceImageRepository.GetAll()
+                    .Where(si => si.ServiceId == service.ServiceId)
+                    .Select(si => si.image)
+                    .ToArrayAsync();
+
+                service.images = serviceImages;
+            }
+            
             var totalCount = services.Count;
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-            var pagedServices = services
+            var pagedServices = serviceModels
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
             
-            var serviceModels = _mapper.Map<List<ServiceModel>>(pagedServices);
             
             return new GetAllServicePaginationResponse
             {
-                data = serviceModels,
+                data = pagedServices,
                 pagination = new Pagination
                 {
                     page = page,
@@ -144,18 +174,26 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ServiceDto> GetServiceByIdAsync(int id)
+        public async Task<ServiceModel> GetServiceByIdAsync(int id)
         {
             // Truy vấn dịch vụ và bao gồm thông tin danh mục
             var service = await _unitOfWorks.ServiceRepository
                 .FindByCondition(s => s.ServiceId == id&&s.Status=="Active")
                 .FirstOrDefaultAsync();
-
+            
             // Kiểm tra nếu không tìm thấy dịch vụ
             if (service == null)
                 return null;
 
-            return _mapper.Map<ServiceDto>(service);
+            var serviceModel = _mapper.Map<ServiceModel>(service);
+            
+            var serviceImages = await _unitOfWorks.ServiceImageRepository.FindByCondition(x => x.ServiceId == serviceModel.ServiceId)
+                .Where(si => si.ServiceId == service.ServiceId)
+                .Select(si => si.image)
+                .ToArrayAsync();
+
+            serviceModel.images = serviceImages;
+            return serviceModel;
         }
 
 
