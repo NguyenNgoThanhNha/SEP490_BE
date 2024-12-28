@@ -25,8 +25,7 @@ namespace Server.API.Controllers
             _elasticClient = elasticClient;
             _elasticService = new ElasticService<ServiceDto>(_elasticClient, "services");
         }
-
-        [Authorize]
+        
         [HttpGet("get-list")]
         public async Task<IActionResult> GetList(int page = 1, int pageSize = 10)
         {
@@ -56,8 +55,7 @@ namespace Server.API.Controllers
                 }));
             }
         }
-
-        [Authorize]
+        
         [HttpGet("get-all-services")]
         public async Task<IActionResult> Get([FromQuery] int page = 1, int pageSize = 6)
         {
@@ -88,7 +86,6 @@ namespace Server.API.Controllers
             }
         }
         
-        [Authorize]
         [HttpGet("get-all-services-for-branch")]
         public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId ,int page = 1, int pageSize = 6)
         {

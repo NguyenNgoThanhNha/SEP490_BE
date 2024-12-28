@@ -13,9 +13,7 @@
 
         public static ApiResult<T> Error(T? result, string? messeage = null)
         {
-            return new ApiResult<T> { Success = false, Result = result, 
-                
-                };
+            return new ApiResult<T> { Success = false, Result = result};
         }
 
         public static ApiResult<object> Fail(Exception ex)

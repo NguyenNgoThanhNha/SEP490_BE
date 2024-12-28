@@ -61,7 +61,7 @@ namespace Server.Business.Services
                 return !string.IsNullOrEmpty(product.ProductName)
                     && product.Price >= 0
                     && product.Quantity >= 0
-                    && product.CategoryId > 0
+                   
                     && product.CompanyId > 0;
             }
             else if (document is ServiceDto service)

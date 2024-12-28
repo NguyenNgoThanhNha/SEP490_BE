@@ -30,7 +30,7 @@ namespace Server.Business.Services
         {
             IQueryable<Category> query = _unitOfWorks.CategoryRepository.GetAll()
       .Include(c => c.Products) // Bao gồm danh sách sản phẩm
-          .ThenInclude(p => p.Company); // Bao gồm thông tin công ty của sản phẩm
+          .ThenInclude(p => p.Category); // Bao gồm thông tin công ty của sản phẩm
 
 
             if (filter != null)
@@ -82,10 +82,10 @@ namespace Server.Business.Services
                     Quantity = p.Quantity,
                     Discount = p.Discount,
                     Status = p.Status,
-                    CategoryId = p.CategoryId,
+                    //CategoryId = p.CategoryId,
                     CompanyId = p.CompanyId,
                     CompanyName = p.Company.Name,
-                    CategoryName = p.Category.Name,
+                    //CategoryName = p.Category.Name,
                     CreatedDate = p.CreatedDate,
                     UpdatedDate = p.UpdatedDate
                 }).ToList() ?? new List<ProductDto>()
@@ -188,11 +188,7 @@ namespace Server.Business.Services
                     Price = p.Price,
                     Quantity = p.Quantity,
                     Discount = p.Discount,
-                    Status = p.Status,
-                    CategoryId = p.CategoryId,
-                    CompanyId = p.CompanyId,
-                    /*CompanyName = p.Company.Name,
-                    CategoryName = p.Category.Name,*/
+                    Status = p.Status,                    
                     CreatedDate = p.CreatedDate,
                     UpdatedDate = p.UpdatedDate
                 }).ToList()
@@ -319,14 +315,14 @@ namespace Server.Business.Services
             }
 
             // Kiểm tra xem có dịch vụ nào liên kết với danh mục không
-            var hasLinkedServices = await _unitOfWorks.ServiceRepository
+            /*var hasLinkedServices = await _unitOfWorks.ServiceRepository
                 .FindByCondition(s => s.CategoryId == category.CategoryId)
                 .AnyAsync();
 
             if (hasLinkedServices)
             {
                 throw new BadRequestException("Cannot delete category as it is linked to a service!");
-            }
+            }*/
 
             // Cập nhật trạng thái thành "Inactive"
             category.Status = "Inactive";

@@ -56,6 +56,24 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Logger",
+                columns: table => new
+                {
+                    LoggerId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Message = table.Column<string>(type: "longtext", nullable: false),
+                    Exception = table.Column<string>(type: "longtext", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Logger", x => x.LoggerId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Promotion",
                 columns: table => new
                 {
@@ -73,6 +91,27 @@ namespace Server.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Promotion", x => x.PromotionId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Service",
+                columns: table => new
+                {
+                    ServiceId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Duration = table.Column<string>(type: "longtext", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: true),
+                    Steps = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Service", x => x.ServiceId);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -134,33 +173,6 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Service",
-                columns: table => new
-                {
-                    ServiceId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false),
-                    Description = table.Column<string>(type: "longtext", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Duration = table.Column<string>(type: "longtext", nullable: false),
-                    Status = table.Column<string>(type: "longtext", nullable: true),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Service", x => x.ServiceId);
-                    table.ForeignKey(
-                        name: "FK_Service_Category_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Category",
-                        principalColumn: "CategoryId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Product",
                 columns: table => new
                 {
@@ -193,51 +205,6 @@ namespace Server.Data.Migrations
                         column: x => x.CompanyId,
                         principalTable: "Company",
                         principalColumn: "CompanyId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    UserName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    Password = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    FullName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    Email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    Avatar = table.Column<string>(type: "longtext", nullable: true),
-                    Gender = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    City = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    Address = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    BirthDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    OTPCode = table.Column<string>(type: "longtext", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: true),
-                    STK = table.Column<string>(type: "longtext", nullable: true),
-                    Bank = table.Column<string>(type: "longtext", nullable: true),
-                    QRCode = table.Column<string>(type: "longtext", nullable: true),
-                    AccountBalance = table.Column<string>(type: "longtext", nullable: true),
-                    CreateBy = table.Column<string>(type: "longtext", nullable: true),
-                    CreateDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
-                    ModifyBy = table.Column<string>(type: "longtext", nullable: true),
-                    ModifyDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: true),
-                    RefreshToken = table.Column<string>(type: "longtext", nullable: true),
-                    BonusPoint = table.Column<int>(type: "int", nullable: false),
-                    TypeLogin = table.Column<string>(type: "longtext", nullable: false),
-                    RoleID = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.UserId);
-                    table.ForeignKey(
-                        name: "FK_User_UserRole_RoleID",
-                        column: x => x.RoleID,
-                        principalTable: "UserRole",
-                        principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -289,6 +256,51 @@ namespace Server.Data.Migrations
                         column: x => x.ServiceId,
                         principalTable: "Service",
                         principalColumn: "ServiceId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "User",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserName = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Password = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    FullName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    Email = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Avatar = table.Column<string>(type: "longtext", nullable: true),
+                    Gender = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    City = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    Address = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    BirthDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    OTPCode = table.Column<string>(type: "longtext", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "varchar(15)", maxLength: 15, nullable: true),
+                    STK = table.Column<string>(type: "longtext", nullable: true),
+                    Bank = table.Column<string>(type: "longtext", nullable: true),
+                    QRCode = table.Column<string>(type: "longtext", nullable: true),
+                    AccountBalance = table.Column<string>(type: "longtext", nullable: true),
+                    CreateBy = table.Column<string>(type: "longtext", nullable: true),
+                    CreateDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
+                    ModifyBy = table.Column<string>(type: "longtext", nullable: true),
+                    ModifyDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: true),
+                    RefreshToken = table.Column<string>(type: "longtext", nullable: true),
+                    BonusPoint = table.Column<int>(type: "int", nullable: false),
+                    TypeLogin = table.Column<string>(type: "longtext", nullable: false),
+                    RoleID = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.UserId);
+                    table.ForeignKey(
+                        name: "FK_User_UserRole_RoleID",
+                        column: x => x.RoleID,
+                        principalTable: "UserRole",
+                        principalColumn: "RoleId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -1113,11 +1125,6 @@ namespace Server.Data.Migrations
                 column: "StaffId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Service_CategoryId",
-                table: "Service",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ServiceImages_ServiceId",
                 table: "ServiceImages",
                 column: "ServiceId");
@@ -1206,6 +1213,9 @@ namespace Server.Data.Migrations
                 name: "Chat");
 
             migrationBuilder.DropTable(
+                name: "Logger");
+
+            migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
@@ -1260,10 +1270,10 @@ namespace Server.Data.Migrations
                 name: "SkincareRoutine");
 
             migrationBuilder.DropTable(
-                name: "Branch");
+                name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Category");
+                name: "Branch");
 
             migrationBuilder.DropTable(
                 name: "Voucher");
