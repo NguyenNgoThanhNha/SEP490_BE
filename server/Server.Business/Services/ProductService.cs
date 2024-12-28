@@ -20,52 +20,108 @@ namespace Server.Business.Services
             _mapper = mapper;
         }
         public async Task<Pagination<ProductDto>> GetListAsync(
-     Expression<Func<Product, bool>> filter = null,
-     Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null,
-     string includeProperties = "",
-     int? pageIndex = null,
-     int? pageSize = null)
+    Expression<Func<Product, bool>> filter = null,
+    Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null,
+    string includeProperties = "",
+    int? pageIndex = null,
+    int? pageSize = null)
         {
-            // Lấy dữ liệu sản phẩm thông qua UnitOfWorks
-            IQueryable<Product> query = _unitOfWorks.ProductRepository.GetAll();
-
-            // Include các bảng liên quan
-            foreach (var includeProperty in includeProperties.Split(
-                         new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            try
             {
-                query = query.Include(includeProperty.Trim());
+                // Truy vấn với Include đầy đủ thông tin Category và Company
+                IQueryable<Product> query = _unitOfWorks.ProductRepository.GetAll()
+                    .Include(p => p.Category)
+                    .Include(p => p.Company)
+                 .OrderBy(p => p.ProductId);
+
+                // Include các bảng bổ sung từ tham số
+                foreach (var includeProperty in includeProperties.Split(
+                             new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProperty.Trim());
+                }
+
+                // Áp dụng bộ lọc nếu có
+                if (filter != null)
+                {
+                    query = query.Where(filter);
+                }
+
+                // Áp dụng sắp xếp nếu có
+                if (orderBy != null)
+                {
+                    query = orderBy(query);
+                }
+                else
+                {
+                    query = query.OrderBy(p => p.ProductId); // Mặc định sắp xếp theo ProductId tăng dần
+                }
+
+                // Tổng số lượng sản phẩm
+                var totalItemsCount = await query.CountAsync();
+
+                // Phân trang
+                if (pageIndex.HasValue && pageSize.HasValue)
+                {
+                    query = query.Skip(pageIndex.Value * pageSize.Value).Take(pageSize.Value);
+                }
+
+                // Lấy dữ liệu
+                var items = await query.ToListAsync();
+
+                // Lấy hình ảnh cho tất cả sản phẩm một lần
+                var productIds = items.Select(p => p.ProductId).ToList();
+                var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
+                    .Where(si => productIds.Contains(si.ProductId))
+                    .GroupBy(si => si.ProductId)
+                    .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
+
+                // Mapping DTO
+                var data = items.Select(p => new ProductDto
+                {
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
+                    ProductDescription = p.ProductDescription,
+                    Price = p.Price,
+                    Volume = p.Volume,
+                    Dimension = p.Dimension,
+                    Quantity = p.Quantity,
+                    Discount = p.Discount,
+                    Status = p.Status,
+                    CompanyId = p.Company != null ? p.Company.CompanyId : 0, // Kiểm tra null
+                    CompanyName = p.Company != null ? p.Company.Name : string.Empty, // Kiểm tra null
+                    CreatedDate = p.CreatedDate,
+                    UpdatedDate = p.UpdatedDate,
+                    Category = p.Category != null ? new CategoryDto
+                    {
+                        CategoryId = p.Category.CategoryId,
+                        Name = p.Category.Name,
+                        Description = p.Category.Description,
+                        SkinTypeSuitable = p.Category.SkinTypeSuitable,
+                        Status = p.Category.Status,
+                        ImageUrl = p.Category.ImageUrl,
+                        CreatedDate = p.Category.CreatedDate,
+                        UpdatedDate = p.Category.UpdatedDate
+                    } : null, // Nếu Category null, gán null
+                    images = productImages.ContainsKey(p.ProductId)
+                        ? productImages[p.ProductId]
+                        : Array.Empty<string>() // Nếu không có hình ảnh, gán mảng rỗng
+                }).ToList();
+
+                return new Pagination<ProductDto>
+                {
+                    TotalItemsCount = totalItemsCount,
+                    PageSize = pageSize ?? totalItemsCount,
+                    PageIndex = pageIndex ?? 0,
+                    Data = data
+                };
             }
-
-            // Áp dụng bộ lọc nếu có
-            if (filter != null)
+            catch (Exception ex)
             {
-                query = query.Where(filter);
+                throw new Exception("Error retrieving product list", ex);
             }
-
-            // Áp dụng sắp xếp nếu có
-            if (orderBy != null)
-            {
-                query = orderBy(query);
-            }
-
-            // Phân trang
-            var totalItemsCount = await query.CountAsync();
-            if (pageIndex.HasValue && pageSize.HasValue)
-            {
-                query = query.Skip(pageIndex.Value * pageSize.Value).Take(pageSize.Value);
-            }
-
-            var items = await query.ToListAsync();
-            var data = _mapper.Map<List<ProductDto>>(items);
-
-            return new Pagination<ProductDto>
-            {
-                TotalItemsCount = totalItemsCount,
-                PageSize = pageSize ?? totalItemsCount,
-                PageIndex = pageIndex ?? 0,
-                Data = data
-            };
         }
+
 
         public async Task<Branch_Product?> GetProductInBranchAsync(int productId, int branchId)
         {
@@ -210,39 +266,57 @@ namespace Server.Business.Services
             }
         }
 
-        public async Task<GetAllProductPaginationResponse> GetAllProduct(int page)
+     
+        public async Task<GetAllProductPaginationResponse> GetAllProduct(int page, int pageSize)
         {
-            try
+            // Lấy dữ liệu sản phẩm với Category và áp dụng phân trang trực tiếp trên IQueryable
+            var query = _unitOfWorks.ProductRepository.GetAll()
+                .Include(p => p.Category) // Bao gồm thông tin Category
+                .Include(p => p.Company)
+                 .OrderBy(p => p.ProductId);
+
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var products = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Ánh xạ sang ProductModel
+            var productModels = _mapper.Map<List<ProductModel>>(products);
+
+            // Lấy hình ảnh cho tất cả sản phẩm một lần
+            var productIds = products.Select(p => p.ProductId).ToList();
+            var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
+                .Where(si => productIds.Contains(si.ProductId))
+                .GroupBy(si => si.ProductId)
+                .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
+
+            // Gán hình ảnh và category cho từng sản phẩm
+            foreach (var product in productModels)
             {
-                const int pageSize = 4;
+                product.images = productImages.ContainsKey(product.ProductId)
+                    ? productImages[product.ProductId]
+                    : Array.Empty<string>();
 
-                var products = await _unitOfWorks.ProductRepository.GetAll()
-                    .Include(p => p.Category)
-                    .Include(p => p.Company)
-                    .OrderByDescending(x => x.ProductId)
-                    .ToListAsync();
+             
+            }
 
-                var totalCount = products.Count();
-                var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-                var pagedProducts = products.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-                var productModels = _mapper.Map<List<ProductModel>>(pagedProducts);
-
-                return new GetAllProductPaginationResponse
+            return new GetAllProductPaginationResponse
+            {
+                data = productModels,
+                pagination = new Pagination
                 {
-                    data = productModels,
-                    pagination = new Pagination
-                    {
-                        page = page,
-                        totalPage = totalPages,
-                        totalCount = totalCount
-                    }
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error retrieving products", ex);
-            }
+                    page = page,
+                    totalPage = totalPages,
+                    totalCount = totalCount
+                }
+            };
         }
+
+
+
 
         public async Task<ApiResult<ApiResponse>> UpdateProductAsync(int productId, ProductUpdateDto productUpdateDto)
         {

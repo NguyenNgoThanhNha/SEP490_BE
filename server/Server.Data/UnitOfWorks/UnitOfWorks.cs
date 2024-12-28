@@ -27,6 +27,7 @@ namespace Server.Data.UnitOfWorks
         private Branch_ServiceRepository _branchServiceRepository;
         private LoggerRepository _loggerRepository;
         private ServiceImageRepository _serviceImageRepository;
+        private ProductImageRepository _productImageRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -130,5 +131,12 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _serviceImageRepository ??= new ServiceImageRepository(_dbContext); }
         }
+
+
+        public ProductImageRepository ProductImageRepository
+        {
+            get { return _productImageRepository ??= new ProductImageRepository(_dbContext); }
+        }
+
     }
 }

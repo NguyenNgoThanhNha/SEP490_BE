@@ -187,20 +187,33 @@ namespace Server.API.Controllers
 
 
         [HttpGet("get-all-products")]
-        public async Task<IActionResult> GetAllProducts(int page = 1)
+        public async Task<IActionResult> Get([FromQuery] int page = 1, int pageSize = 6)
         {
-            var products = await _productService.GetAllProduct(page);
-
-            if (products == null)
+            try
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                
+                var products = await _productService.GetAllProduct(page, pageSize);
+
+                // Kiểm tra nếu không có dữ liệu
+                if (products.data == null || !products.data.Any())
                 {
-                    message = "No products found!"
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "No products found."
+                    }));
+                }
+
+                products.message = "Products retrieved successfully.";
+                return Ok(ApiResult<GetAllProductPaginationResponse>.Succeed(products));
+            }
+            catch (Exception ex)
+            {
+                
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"An error occurred while retrieving products: {ex.Message}"
                 }));
             }
-
-            products.message = "Get all products successfully!";
-            return Ok(ApiResult<GetAllProductPaginationResponse>.Succeed(products));
         }
 
         [Authorize(Roles = "Admin, Manager,Staff")]
