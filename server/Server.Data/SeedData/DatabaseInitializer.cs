@@ -4579,19 +4579,19 @@ private async Task SeedProductImages()
             "https://shopurbannirvana.com/cdn/shop/files/GENESIS-BAIN-HYDRA-500ML-2.jpg?v=1730219325&width=1445"
         }),
         // L'Oreal Paris Elseve Total Repair 5 Repairing
-        ("L'Oreal Paris Elseve Total Repair 5 Repairing", new List<string>
+        ("L'Oreal Paris Elseve Total Repair 5 Repairing Shampoo", new List<string>
         {
             "https://product.hstatic.net/1000006063/product/l_oreal_elseve_total_repair_5_shampoo_650ml_cf374f7742d44e639abc23d1b63e3fcb_1024x1024.jpg", 
             "https://image.hsv-tech.io/1987x0/bbx/l_oreal_paris_elseve_total_repair_5_shampoo_330ml_d9cfd29c63b142db8bbf4201153ca0b7.png", 
         }),
         // L'Oreal Professional Hair Spa Deep Nourishing
-        ("L'Oreal Professional Hair Spa Deep Nourishing", new List<string>
+        ("L'Oreal Professional Hair Spa Deep Nourishing Shampoo", new List<string>
         {
             "https://media.hcdn.vn/catalog/product/g/o/google-shopping-dau-goi-l-oreal-professionnel-cap-am-cho-toc-kho-600ml_img_680x680_d30c8d_fit_center.jpg", 
             "https://down-vn.img.susercontent.com/file/sg-11134201-7rd75-lty2ehqkzei8ac", 
         }),
         // L'Oreal Paris Elseve Fall Resist 3X Anti-Hairfall
-        ("L'Oreal Paris Elseve Fall Resist 3X Anti-Hairfall", new List<string>
+        ("L'Oreal Paris Elseve Fall Resist 3X Anti-Hairfall Shampoo", new List<string>
         {
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNOiI0F3AwhpbFi1s-H6iAqE0Hy1y6Dv-L-w&s", 
             "https://m.media-amazon.com/images/I/612rxvwYs1L._AC_UF1000,1000_QL80_.jpg", 
@@ -4616,8 +4616,8 @@ private async Task SeedProductImages()
             "https://www.oribe.com/cdn/shop/files/402453-0_b7d201cd-c3f9-4b48-84c5-f9e3b03a522a.jpg?v=1725462201", 
             "https://images.finncdn.no/dynamic/1280w/2024/12/vertical-0/13/8/384/925/188_a9edb849-aba8-4933-acad-827f251c0c4e.jpg", 
         }),
-        // Acidic Bonding Concentrate sulfate-free
-        ("Acidic Bonding Concentrate sulfate-free", new List<string>
+        // Acidic Bonding Concentrate sulfate-free Shampoo
+        ("Acidic Bonding Concentrate sulfate-free Shampoo", new List<string>
         {
             "https://images-na.ssl-images-amazon.com/images/I/61T+3kBuHoL.jpg", 
             "https://images-na.ssl-images-amazon.com/images/I/71J1-1eoRbL.jpg", 
