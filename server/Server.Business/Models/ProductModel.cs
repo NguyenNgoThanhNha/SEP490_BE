@@ -66,11 +66,10 @@ namespace Server.Business.Models
         public int CategoryId  { get; set; }
         
         public CategoryModel Category { get; set; } // Bao gồm chi tiết Category
-
+        public string[] images { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
-        public string[] images { get; set; }
     }
 
 }

@@ -258,7 +258,19 @@ namespace Server.Business.Services
                     .Include(d => d.Company)
                     .FirstOrDefaultAsync();
 
-                return _mapper.Map<ProductModel>(product);
+                // Kiểm tra nếu không tìm thấy sản phâm
+                if (product == null)
+                    return null;
+
+                var productModel = _mapper.Map<ProductModel>(product);
+            
+                var serviceImages = await _unitOfWorks.ProductImageRepository.FindByCondition(x => x.ProductId == productModel.ProductId)
+                    .Where(si => si.ProductId == product.ProductId)
+                    .Select(si => si.image)
+                    .ToArrayAsync();
+
+                productModel.images = serviceImages;
+                return productModel;
             }
             catch (Exception ex)
             {

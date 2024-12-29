@@ -109,8 +109,8 @@ public class AppointmentsService
             Status = "Active",
             BranchId = request.BranchId,
             AppointmentsTime = request.AppointmentsTime,
-            Feedback = !request.Feedback.Equals(null) ? request.Feedback : "",
-            Notes = !request.Notes.Equals(null) ? request.Notes : ""
+            Feedback = request.Feedback != null ? request.Feedback : "",
+            Notes = request.Notes != null ? request.Notes : ""
         };
         var appointmentsEntity = await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(createNewAppointments));
         var result = await _unitOfWorks.AppointmentsRepository.Commit();

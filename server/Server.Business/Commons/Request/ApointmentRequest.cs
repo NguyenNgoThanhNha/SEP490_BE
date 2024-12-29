@@ -18,9 +18,9 @@ public class ApointmentRequest
     
     public DateTime AppointmentsTime { get; set; }
     
-    public string Status { get; set; }
+    public string? Status { get; set; }
     
     public string Notes { get; set; }
     
-    public string Feedback { get; set; }
+    public string? Feedback { get; set; }
 }
