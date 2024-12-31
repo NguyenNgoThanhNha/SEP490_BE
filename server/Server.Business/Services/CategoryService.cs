@@ -68,7 +68,6 @@ namespace Server.Business.Services
                 CategoryId = c.CategoryId,
                 Name = c.Name,
                 Description = c.Description,
-                SkinTypeSuitable = c.SkinTypeSuitable,
                 Status = c.Status,
                 ImageUrl = c.ImageUrl,
                 CreatedDate = c.CreatedDate,
@@ -119,7 +118,6 @@ namespace Server.Business.Services
             {
                 Name = categoryCreateDto.Name,
                 Description = categoryCreateDto.Description,
-                SkinTypeSuitable = categoryCreateDto.SkinTypeSuitable,
                 Status = "Active",
                 ImageUrl = categoryCreateDto.ImageUrl,
                 CreatedDate = DateTime.Now,
@@ -140,7 +138,6 @@ namespace Server.Business.Services
                     CategoryId = newCategory.CategoryId,
                     Name = newCategory.Name,
                     Description = newCategory.Description,
-                    SkinTypeSuitable = newCategory.SkinTypeSuitable,
                     Status = newCategory.Status,
                     ImageUrl = newCategory.ImageUrl,
                     CreatedDate = newCategory.CreatedDate,
@@ -175,7 +172,6 @@ namespace Server.Business.Services
                 CategoryId = category.CategoryId,
                 Name = category.Name,
                 Description = category.Description,
-                SkinTypeSuitable = category.SkinTypeSuitable,
                 Status = category.Status,
                 ImageUrl = category.ImageUrl,
                 CreatedDate = category.CreatedDate,
@@ -285,7 +281,6 @@ namespace Server.Business.Services
             // Cập nhật thông tin danh mục
             existingCategory.Name = categoryUpdateDto.Name;
             existingCategory.Description = categoryUpdateDto.Description;
-            existingCategory.SkinTypeSuitable = categoryUpdateDto.SkinTypeSuitable;
             existingCategory.Status = categoryUpdateDto.Status;
             existingCategory.ImageUrl = categoryUpdateDto.ImageUrl;
             existingCategory.UpdatedDate = DateTime.Now;

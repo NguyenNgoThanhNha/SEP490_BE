@@ -18,6 +18,7 @@ namespace Server.Business.Dtos
             public int CompanyId { get; set; }
             public string CategoryName { get; set; }
             public string CompanyName { get; set; }
+            public string? SkinTypeSuitable { get; set; }
             public DateTime CreatedDate { get; set; }
             public DateTime UpdatedDate { get; set; }
         

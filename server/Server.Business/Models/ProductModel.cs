@@ -54,7 +54,7 @@ namespace Server.Business.Models
         public decimal? Discount { get; set; }
 
         public string? Status { get; set; }
-
+        public string? SkinTypeSuitable { get; set; }
         //public int CategoryId { get; set; }
 
         //public string CategoryName { get; set; } // Thêm CategoryName

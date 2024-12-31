@@ -98,7 +98,6 @@ namespace Server.Business.Services
                         CategoryId = p.Category.CategoryId,
                         Name = p.Category.Name,
                         Description = p.Category.Description,
-                        SkinTypeSuitable = p.Category.SkinTypeSuitable,
                         Status = p.Category.Status,
                         ImageUrl = p.Category.ImageUrl,
                         CreatedDate = p.Category.CreatedDate,

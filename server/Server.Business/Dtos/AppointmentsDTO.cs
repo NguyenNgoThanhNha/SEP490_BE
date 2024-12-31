@@ -4,7 +4,7 @@ namespace Server.Business.Dtos;
 
 public class AppointmentsDTO
 {
-    public int AppointmentsId { get; set; }
+    public int AppointmentId { get; set; }
     
     public int CustomerId { get; set; }
     public virtual UserDTO Customer { get; set; }

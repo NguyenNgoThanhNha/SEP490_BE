@@ -88,7 +88,7 @@ namespace Server.API.Controllers
                 }));
             }
 
-            var appointmentExist = await _appointmentsService.GetAppointmentsById(appointmentsModel.AppointmentsId);
+            var appointmentExist = await _appointmentsService.GetAppointmentsById(appointmentsModel.AppointmentId);
 
             // Thông tin chi tiết về lịch hẹn
             var customerName = appointmentExist.Customer.FullName ?? "Customer";

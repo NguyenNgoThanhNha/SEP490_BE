@@ -26,7 +26,7 @@ namespace Server.Business.Dtos
         public string CompanyName { get; set; } = string.Empty;
 
         public string Status { get; set; } = string.Empty;
-
+        public string? SkinTypeSuitable { get; set; }
         public DateTime CreatedDate { get; set; }
 
         public DateTime UpdatedDate { get; set; }

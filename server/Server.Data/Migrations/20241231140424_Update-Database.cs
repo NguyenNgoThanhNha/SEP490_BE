@@ -23,7 +23,6 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: true),
                     Description = table.Column<string>(type: "longtext", nullable: true),
-                    SkinTypeSuitable = table.Column<string>(type: "longtext", nullable: true),
                     Status = table.Column<string>(type: "longtext", nullable: true),
                     ImageUrl = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -185,6 +184,7 @@ namespace Server.Data.Migrations
                     Volume = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: true),
+                    SkinTypeSuitable = table.Column<string>(type: "longtext", nullable: true),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     CompanyId = table.Column<int>(type: "int", nullable: false),
@@ -880,7 +880,7 @@ namespace Server.Data.Migrations
                 name: "Appointments",
                 columns: table => new
                 {
-                    AppointmentsId = table.Column<int>(type: "int", nullable: false)
+                    AppointmentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     StaffId = table.Column<int>(type: "int", nullable: false),
@@ -895,7 +895,7 @@ namespace Server.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Appointments", x => x.AppointmentsId);
+                    table.PrimaryKey("PK_Appointments", x => x.AppointmentId);
                     table.ForeignKey(
                         name: "FK_Appointments_Branch_BranchId",
                         column: x => x.BranchId,

@@ -17,7 +17,8 @@ namespace Server.Business.Dtos
         public decimal Price { get; set; }
 
         public int Quantity { get; set; }
-
+        
+        public string? SkinTypeSuitable { get; set; }
         public decimal? Discount { get; set; }
 
         public int CategoryId { get; set; }

@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241227083231_Update-Database")]
+    [Migration("20241231140424_Update-Database")]
     partial class UpdateDatabase
     {
         /// <inheritdoc />
@@ -24,7 +24,7 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Appointments", b =>
                 {
-                    b.Property<int>("AppointmentsId")
+                    b.Property<int>("AppointmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -61,7 +61,7 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("AppointmentsId");
+                    b.HasKey("AppointmentId");
 
                     b.HasIndex("BranchId");
 
@@ -344,9 +344,6 @@ namespace Server.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("SkinTypeSuitable")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Status")
                         .HasColumnType("longtext");
 
@@ -600,6 +597,9 @@ namespace Server.Data.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<string>("SkinTypeSuitable")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Status")
                         .HasColumnType("longtext");

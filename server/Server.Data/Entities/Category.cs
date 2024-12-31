@@ -14,8 +14,6 @@ public class Category
     
     public string? Description { get; set; }
     
-    public string? SkinTypeSuitable { get; set; }
-    
     public string? Status { get; set; }
     
     public string? ImageUrl { get; set; }

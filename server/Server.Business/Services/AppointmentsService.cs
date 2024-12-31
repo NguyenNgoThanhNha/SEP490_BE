@@ -23,7 +23,7 @@ public class AppointmentsService
 
     public async Task<GetAllAppointmentResponse> GetAllAppointments(int page = 1, int pageSize = 5)
     {
-        var listAppointments = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.Status == "Active").OrderByDescending(x => x.AppointmentsId)
+        var listAppointments = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.Status == "Active").OrderByDescending(x => x.AppointmentId)
             .Include(x => x.Customer)
             .Include(x => x.Staff)
             .Include(x => x.Branch)
@@ -55,7 +55,7 @@ public class AppointmentsService
 
     public async Task<AppointmentsModel> GetAppointmentsById(int id)
     {
-        var appointmentsExist = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.AppointmentsId.Equals(id))
+        var appointmentsExist = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.AppointmentId.Equals(id))
             .Include(x => x.Customer)
             .Include(x => x.Staff)
             .Include(x => x.Branch)

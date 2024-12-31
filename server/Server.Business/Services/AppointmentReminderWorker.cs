@@ -89,11 +89,11 @@ namespace Server.Business.Services
                 var result = await mailService.SendEmailAsync(mailData, false);
                 if (result)
                 {
-                    _logger.LogInformation($"Email sent to {appointment.Customer.Email} for Appointment ID: {appointment.AppointmentsId}.");
+                    _logger.LogInformation($"Email sent to {appointment.Customer.Email} for Appointment ID: {appointment.AppointmentId}.");
                 }
                 else
                 {
-                    _logger.LogError($"Failed to send email to {appointment.Customer.Email} for Appointment ID: {appointment.AppointmentsId}.");
+                    _logger.LogError($"Failed to send email to {appointment.Customer.Email} for Appointment ID: {appointment.AppointmentId}.");
                 }
             }
         }

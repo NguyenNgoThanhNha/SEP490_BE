@@ -4,7 +4,7 @@ namespace Server.Business.Models;
 
 public class AppointmentsModel
 {
-    public int AppointmentsId { get; set; }
+    public int AppointmentId { get; set; }
     
     public int CustomerId { get; set; }
     public virtual UserModel Customer { get; set; }

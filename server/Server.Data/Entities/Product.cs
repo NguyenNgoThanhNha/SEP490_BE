@@ -22,6 +22,7 @@ public class Product
     
     public string? Status { get; set; }
 
+    public string? SkinTypeSuitable { get; set; }
     public decimal? Discount { get; set; }
     
     [ForeignKey("Product_Category")]

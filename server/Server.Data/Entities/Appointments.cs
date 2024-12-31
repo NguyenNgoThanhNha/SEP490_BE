@@ -8,7 +8,7 @@ public class Appointments
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int AppointmentsId { get; set; }
+    public int AppointmentId { get; set; }
     
     [ForeignKey("Customer_Appointments")]
     public int CustomerId { get; set; }
