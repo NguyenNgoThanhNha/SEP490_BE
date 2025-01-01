@@ -69,9 +69,9 @@ public class AppointmentsService
         return _mapper.Map<AppointmentsModel>(appointmentsExist);
     }
 
-    public async Task<AppointmentsModel> CreateAppointments(ApointmentRequest request)
+    public async Task<AppointmentsModel> CreateAppointments(int userId, ApointmentRequest request)
     {
-        var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId);
+        var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == userId);
         var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == request.StaffId);
         var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == request.ServiceId);
         var branch = await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId);
@@ -100,10 +100,10 @@ public class AppointmentsService
         {
             throw new BadRequestException("Staff does not in branch!");
         }
-
+        
         var createNewAppointments = new AppointmentsModel()
         {
-            CustomerId = request.CustomerId,
+            CustomerId = userId,
             StaffId = request.StaffId,
             ServiceId = request.ServiceId,
             Status = "Active",
@@ -121,7 +121,7 @@ public class AppointmentsService
         return null;
     }
 
-    public async Task<AppointmentsModel> UpdateAppointments(AppointmentsModel appointmentsModel, ApointmentRequest request)
+    public async Task<AppointmentsModel> UpdateAppointments(AppointmentsModel appointmentsModel, AppointmentUpdateRequest request)
     {
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId);
         var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == request.StaffId);
@@ -211,7 +211,8 @@ public class AppointmentsService
     public async Task<GetAllAppointmentResponse> BookingAppointmentHistory(int userId, int page = 1, int pageSize = 5)
     {
         var listAppointments = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.CustomerId == userId)
-            .Include(x => x.Staff)
+            .Include(x => x.Order)
+            .Include(x => x.Staff).ThenInclude(x => x.StaffInfo)
             .Include(x => x.Branch)
             .Include(x => x.Service)
             .ToListAsync();

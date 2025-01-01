@@ -11,8 +11,8 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241231140424_Update-Database")]
-    partial class UpdateDatabase
+    [Migration("20250101143725_Updated-Database")]
+    partial class UpdatedDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,12 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
 
@@ -58,6 +64,12 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
@@ -66,6 +78,8 @@ namespace Server.Data.Migrations
                     b.HasIndex("BranchId");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ServiceId");
 
@@ -500,8 +514,15 @@ namespace Server.Data.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
+
                     b.Property<int>("OrderCode")
                         .HasColumnType("int");
+
+                    b.Property<string>("OrderType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -537,17 +558,21 @@ namespace Server.Data.Migrations
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ServiceId")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
@@ -557,8 +582,6 @@ namespace Server.Data.Migrations
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ServiceId");
 
                     b.ToTable("OrderDetail");
                 });
@@ -1318,6 +1341,10 @@ namespace Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Server.Data.Entities.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId");
+
                     b.HasOne("Server.Data.Entities.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -1333,6 +1360,8 @@ namespace Server.Data.Migrations
                     b.Navigation("Branch");
 
                     b.Navigation("Customer");
+
+                    b.Navigation("Order");
 
                     b.Navigation("Service");
 
@@ -1531,15 +1560,9 @@ namespace Server.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ProductId");
 
-                    b.HasOne("Server.Data.Entities.Service", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId");
-
                     b.Navigation("Order");
 
                     b.Navigation("Product");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Product", b =>

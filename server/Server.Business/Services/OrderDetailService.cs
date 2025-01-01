@@ -61,8 +61,6 @@ namespace Server.Business.Services
                 // Lấy lại thông tin với các bảng liên kết
                 var orderDetailWithIncludes = await _unitOfWorks.OrderDetailRepository
     .FindByCondition(od => od.OrderDetailId == orderDetail.OrderDetailId)
-    .Include(od => od.Product)
-    .Include(od => od.Service)
     .Include(od => od.Order)
     .FirstOrDefaultAsync();
 

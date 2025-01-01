@@ -1,29 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Server.Data;
+using Server.Data.Entities;
 
-namespace Server.Data.Entities;
+namespace Server.Business.Models;
 
-[Table("Order")]
-public class Order
+public class OrderModel
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int OrderId { get; set; }
 
     public int OrderCode { get; set; }
-
-    [ForeignKey("Customer_Order")]
+    
     public int CustomerId { get; set; }
-    public virtual User Customer { get; set; }
-
-    [ForeignKey("Voucher_Order")]
+    public virtual UserInfoModel Customer { get; set; }
+    
     public int VoucherId { get; set; }
     public virtual Voucher Voucher { get; set; }
 
     public decimal TotalAmount { get; set; }
 
     public string OrderType { get; set; } 
-    public string Status { get; set; } = OrderStatusEnum.Pending.ToString();
+    public string Status { get; set; }
 
     public string? Note { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;

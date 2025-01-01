@@ -16,15 +16,12 @@ public class OrderDetail
     [ForeignKey("Product_OrderDetail")]
     public int? ProductId { get; set; }
     public virtual Product Product { get; set; }
-    
-    [ForeignKey("Service_OrderDetail")]
-    public int? ServiceId { get; set; } 
-    public virtual Service Service { get; set; }
-    
     public int Quantity { get; set; }
     
-    public decimal Price { get; set; }
+    public decimal UnitPrice { get; set; }
     
+    public decimal SubTotal  { get; set; } // (Quantity * UnitPrice)
+    public string Status { get; set; } = OrderStatusEnum.Pending.ToString();
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

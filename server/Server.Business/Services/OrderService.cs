@@ -7,6 +7,7 @@ using Server.Business.Dtos;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
+using Server.Data;
 
 namespace Server.Business.Services
 {
@@ -80,7 +81,7 @@ namespace Server.Business.Services
             {
                 // Kiểm tra tồn tại mã đơn hàng
                 var isOrderCodeExists = await _unitOfWorks.OrderRepository
-     .FindByCondition(x => x.OrderCode == model.OrderCode && x.Status == "Active")
+     .FindByCondition(x => x.OrderCode == model.OrderCode && x.Status == OrderStatusEnum.Pending.ToString())
      .AnyAsync();
 
                 if (isOrderCodeExists)
@@ -122,7 +123,7 @@ namespace Server.Business.Services
                     CustomerId = model.CustomerId,
                     VoucherId = voucherId ?? 0,
                     TotalAmount = model.TotalAmount,
-                    Status = "Pending",
+                    Status = OrderStatusEnum.Pending.ToString(),
                     CreatedDate = DateTime.UtcNow,
                     UpdatedDate = DateTime.UtcNow
                 };

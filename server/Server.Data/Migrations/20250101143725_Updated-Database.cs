@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDatabase : Migration
+    public partial class UpdatedDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -484,7 +484,9 @@ namespace Server.Data.Migrations
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     VoucherId = table.Column<int>(type: "int", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    OrderType = table.Column<string>(type: "longtext", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
+                    Note = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -786,9 +788,10 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     OrderId = table.Column<int>(type: "int", nullable: true),
                     ProductId = table.Column<int>(type: "int", nullable: true),
-                    ServiceId = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -805,11 +808,6 @@ namespace Server.Data.Migrations
                         column: x => x.ProductId,
                         principalTable: "Product",
                         principalColumn: "ProductId");
-                    table.ForeignKey(
-                        name: "FK_OrderDetail_Service_ServiceId",
-                        column: x => x.ServiceId,
-                        principalTable: "Service",
-                        principalColumn: "ServiceId");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -882,6 +880,7 @@ namespace Server.Data.Migrations
                 {
                     AppointmentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    OrderId = table.Column<int>(type: "int", nullable: true),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     StaffId = table.Column<int>(type: "int", nullable: false),
                     ServiceId = table.Column<int>(type: "int", nullable: false),
@@ -890,6 +889,9 @@ namespace Server.Data.Migrations
                     Status = table.Column<string>(type: "longtext", nullable: false),
                     Notes = table.Column<string>(type: "longtext", nullable: false),
                     Feedback = table.Column<string>(type: "longtext", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -902,6 +904,11 @@ namespace Server.Data.Migrations
                         principalTable: "Branch",
                         principalColumn: "BranchId",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Appointments_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "OrderId");
                     table.ForeignKey(
                         name: "FK_Appointments_Service_ServiceId",
                         column: x => x.ServiceId,
@@ -965,6 +972,11 @@ namespace Server.Data.Migrations
                 name: "IX_Appointments_CustomerId",
                 table: "Appointments",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Appointments_OrderId",
+                table: "Appointments",
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_ServiceId",
@@ -1082,11 +1094,6 @@ namespace Server.Data.Migrations
                 name: "IX_OrderDetail_ProductId",
                 table: "OrderDetail",
                 column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderDetail_ServiceId",
-                table: "OrderDetail",
-                column: "ServiceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Product_CategoryId",

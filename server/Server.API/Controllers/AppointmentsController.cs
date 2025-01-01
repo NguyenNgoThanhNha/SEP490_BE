@@ -16,12 +16,14 @@ namespace Server.API.Controllers
     public class AppointmentsController : ControllerBase
     {
         private readonly AppointmentsService _appointmentsService;
+        private readonly AuthService _authService;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
 
-        public AppointmentsController(AppointmentsService appointmentsService, IMapper mapper, MailService mailService)
+        public AppointmentsController(AppointmentsService appointmentsService, AuthService authService, IMapper mapper, MailService mailService)
         {
             _appointmentsService = appointmentsService;
+            _authService = authService;
             _mapper = mapper;
             _mailService = mailService;
         }
@@ -78,8 +80,30 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
+            
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
 
-            var appointmentsModel = await _appointmentsService.CreateAppointments(request);
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Customer info not found!"
+                }));
+            }
+            
+            var appointmentsModel = await _appointmentsService.CreateAppointments(currentUser.UserId, request);
             if (appointmentsModel == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -141,7 +165,7 @@ namespace Server.API.Controllers
 
         [Authorize]
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateAppointment([FromRoute] int id, [FromBody] ApointmentRequest request)
+        public async Task<IActionResult> UpdateAppointment([FromRoute] int id, [FromBody] AppointmentUpdateRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -151,6 +175,28 @@ namespace Server.API.Controllers
                     .ToList();
 
                 return BadRequest(ApiResult<List<string>>.Error(errors));
+            }
+            
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Customer info not found!"
+                }));
             }
 
             var appointmentsExist = await _appointmentsService.GetAppointmentsById(id);
@@ -218,10 +264,31 @@ namespace Server.API.Controllers
         }
 
         [Authorize]
-        [HttpGet("history-booking/{id}")]
-        public async Task<IActionResult> HistoryBooking([FromRoute] int id, [FromQuery] int page = 1, int pageSize = 5)
+        [HttpGet("history-booking")]
+        public async Task<IActionResult> HistoryBooking([FromQuery] int page = 1, int pageSize = 5)
         {
-            var appointments = await _appointmentsService.BookingAppointmentHistory(id, page, pageSize);
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Customer info not found!"
+                }));
+            }
+            var appointments = await _appointmentsService.BookingAppointmentHistory(currentUser.UserId,page, pageSize);
             if (appointments.data == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()

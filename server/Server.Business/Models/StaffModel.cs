@@ -11,5 +11,5 @@ public class StaffModel
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
-    public virtual UserModel StaffInfo { get; set; }
+    public virtual UserInfoModel StaffInfo { get; set; }
 }

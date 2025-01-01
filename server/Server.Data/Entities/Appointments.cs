@@ -10,6 +10,10 @@ public class Appointments
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int AppointmentId { get; set; }
     
+    [ForeignKey("Order_Appointments")]
+    public int? OrderId { get; set; }
+    public virtual Order Order { get; set; }
+    
     [ForeignKey("Customer_Appointments")]
     public int CustomerId { get; set; }
     public virtual User Customer { get; set; }
@@ -33,6 +37,12 @@ public class Appointments
     public string Notes { get; set; }
     
     public string Feedback { get; set; }
+    
+    public int Quantity { get; set; }
+    
+    public decimal UnitPrice { get; set; }
+    
+    public decimal SubTotal  { get; set; } // (Quantity * UnitPrice)
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;

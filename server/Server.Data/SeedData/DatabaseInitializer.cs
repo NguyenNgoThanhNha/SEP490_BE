@@ -143,11 +143,6 @@ namespace Server.Data.SeedData
                     await SeedServiceImages();
                 }
 
-                if (!_context.Appointments.Any())
-                {
-                    await SeedAppointments();
-                }
-
                 if (!_context.Vouchers.Any())
                 {
                     await SeedVoucherData();
@@ -5208,60 +5203,6 @@ private async Task SeedProductImages()
             await _context.SaveChangesAsync();
         }
 
-
-
-
-
-        private async Task SeedAppointments()
-        {
-            var random = new Random();
-
-            // Lấy dữ liệu từ các bảng liên quan
-            var customers = await _context.Users.ToListAsync(); // Assuming 'Users' is for Customers
-            var staffList = await _context.Staffs.ToListAsync();
-            var services = await _context.Services.ToListAsync();
-            var branches = await _context.Branchs.ToListAsync();
-
-            var appointments = new List<Appointments>();
-
-            // Tạo 100 - 200 cuộc hẹn ngẫu nhiên
-            int appointmentCount = random.Next(100, 201);
-
-            for (int i = 0; i < appointmentCount; i++)
-            {
-                var appointment = new Appointments
-                {
-                    CustomerId = customers[random.Next(customers.Count)].UserId, // Random CustomerId
-                    StaffId = staffList[random.Next(staffList.Count)].StaffId,   // Random StaffId
-                    ServiceId = services[random.Next(services.Count)].ServiceId, // Random ServiceId
-                    BranchId = branches[random.Next(branches.Count)].BranchId,   // Random BranchId
-
-                    // Random thời gian hẹn trong khoảng 30 ngày tới
-                    AppointmentsTime = DateTime.Now.AddDays(random.Next(1, 31)).AddHours(random.Next(8, 18)),
-
-                    Status = random.Next(2) == 0 ? "Pending" : "Confirmed", // Ngẫu nhiên trạng thái
-                    Notes = "Note " + random.Next(1, 1000), // Ghi chú ngẫu nhiên
-                    Feedback = "No feedback yet", // Feedback hoặc null
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                };
-
-                appointments.Add(appointment);
-            }
-
-            // Thêm vào cơ sở dữ liệu
-            try
-            {
-                await _context.Appointments.AddRangeAsync(appointments);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.InnerException?.Message ?? ex.Message);
-            }
-
-        }
-
         private async Task SeedVoucherData()
         {
             var random = new Random();
@@ -5310,7 +5251,9 @@ private async Task SeedProductImages()
                     CustomerId = 1, // Assume CustomerId is 1 for simplicity; adjust as needed
                     VoucherId = 1, // Assume VoucherId is 1 for simplicity; adjust as needed
                     TotalAmount = random.Next(100, 500), // Random total amount
-                    Status = random.NextDouble() < 0.5 ? "Pending" : "Completed", // Random status
+                    OrderType = i % 2 == 0 ? OrderTypeEnum.Product.ToString() : OrderTypeEnum.Appointment.ToString(), 
+                    Status = i % 2 == 0 ? OrderStatusEnum.Pending.ToString() : OrderStatusEnum.Completed.ToString(), 
+                    Note = "Note " + random.Next(1, 1000),
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 };
@@ -5321,33 +5264,74 @@ private async Task SeedProductImages()
             await _context.Orders.AddRangeAsync(orders);
             await _context.SaveChangesAsync(); // Save Orders to DB
 
+            var customers = await _context.Users.ToListAsync(); // Assuming 'Users' is for Customers
+            var staffList = await _context.Staffs.ToListAsync();
+            var services = await _context.Services.ToListAsync();
+            var branches = await _context.Branchs.ToListAsync();
+            var products = await _context.Products.ToListAsync();
             // Step 2: Seed OrderDetails with valid OrderId
             var orderDetails = new List<OrderDetail>();
-
+            var appointments = new List<Appointments>();
             foreach (var order in orders)
             {
-                for (int i = 0; i < random.Next(1, 5); i++) // Random number of order details (1 to 5)
+                if (order.OrderType == OrderTypeEnum.Product.ToString())
                 {
-                    var orderDetail = new OrderDetail
+                    for (int i = 0; i < random.Next(1, 5); i++) // Random number of order details (1 to 5)
                     {
-                        OrderId = order.OrderId, // Use valid OrderId
-                        ProductId = random.Next(1, 10), // Random ProductId; adjust as needed
-                        ServiceId = random.Next(1, 10), // Random ServiceId; adjust as needed
-                        Quantity = random.Next(1, 3), // Random quantity between 1 and 2
-                        Price = random.Next(10, 100), // Random price between 10 and 100
-                        CreatedDate = DateTime.Now,
-                        UpdatedDate = DateTime.Now
-                    };
+                        var quantity = random.Next(1, 3);
+                        var unitPrice = random.Next(10, 100);
+                        var randomProduct = products[random.Next(products.Count)];
+                        var orderDetail = new OrderDetail
+                        {
+                            OrderId = order.OrderId, 
+                            Quantity = quantity, // Random số lượng từ 1 đến 2
+                            UnitPrice = unitPrice, // Random giá từ 10 đến 100
+                            SubTotal = quantity * unitPrice,
+                            ProductId = randomProduct.ProductId,
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now
+                        };
 
-                    orderDetails.Add(orderDetail);
+                        orderDetails.Add(orderDetail);
+                    }
                 }
+                else if (order.OrderType == OrderTypeEnum.Appointment.ToString())
+                {
+                    for (int i = 0; i < random.Next(1, 5); i++) // Random number of order details (1 to 5)
+                    {
+                        var quantity = random.Next(1, 3);
+                        var unitPrice = random.Next(10, 100);
+                        var appointment = new Appointments
+                        {
+                            OrderId = order.OrderId,
+                            Quantity = quantity, // Random số lượng từ 1 đến 2
+                            UnitPrice = unitPrice, // Random giá từ 10 đến 100
+                            SubTotal = quantity * unitPrice,
+                            CustomerId = customers[random.Next(customers.Count)].UserId, // Random CustomerId
+                            StaffId = staffList[random.Next(staffList.Count)].StaffId,   // Random StaffId
+                            ServiceId = services[random.Next(services.Count)].ServiceId, // Random ServiceId
+                            BranchId = branches[random.Next(branches.Count)].BranchId,   // Random BranchId
+
+                            // Random thời gian hẹn trong khoảng 30 ngày tới
+                            AppointmentsTime = DateTime.Now.AddDays(random.Next(1, 31)).AddHours(random.Next(8, 18)),
+
+                            Status = random.Next(2) == 0 ? "Pending" : "Confirmed", // Ngẫu nhiên trạng thái
+                            Notes = "Note " + random.Next(1, 1000), // Ghi chú ngẫu nhiên
+                            Feedback = "No feedback yet", // Feedback hoặc null
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now
+                        };
+
+                        appointments.Add(appointment);
+                    }
+                }
+                
             }
 
             await _context.OrderDetails.AddRangeAsync(orderDetails);
+            await _context.Appointments.AddRangeAsync(appointments);
             await _context.SaveChangesAsync(); // Save OrderDetails to DB
         }
-
-
     }
 
 

@@ -10,8 +10,10 @@ namespace Server.Business.Mappers
         public ProfilesMapper()
         {
             CreateMap<User, UserModel>().ReverseMap();
+            CreateMap<User, UserInfoModel>().ReverseMap();
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<UserModel, UserDTO>().ReverseMap();
+            CreateMap<UserInfoModel, UserDTO>().ReverseMap();
 
             CreateMap<Service, ServiceModel>().ReverseMap();
             CreateMap<Service, ServiceDto>().ReverseMap();
@@ -58,6 +60,8 @@ namespace Server.Business.Mappers
 
             CreateMap<Logger, LoggerModel>().ReverseMap();
             CreateMap<Branch_Service, Branch_ServiceModel>().ReverseMap();
+            
+            CreateMap<Order, OrderModel>().ReverseMap();
         }
     }
 }
