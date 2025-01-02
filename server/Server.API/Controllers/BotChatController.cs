@@ -33,5 +33,22 @@ namespace Server.API.Controllers
                 data = response
             }));
         }
+        
+        [HttpGet("seed")]
+        public async Task<IActionResult> SeedingDataChat()
+        {
+            var response = await _botchatService.SeedingDataChatbot();
+            if (!response)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Seeding data error!",
+                }));
+            }
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Seeding data successfully",
+            }));
+        }
     }
 }

@@ -3,78 +3,183 @@ using Microsoft.Extensions.Options;
 using Server.Business.Ultils;
 using JsonElement = System.Text.Json.JsonElement;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using Microsoft.EntityFrameworkCore;
+using Server.API.Ultils;
+using Server.Data.UnitOfWorks;
+
 namespace Server.Business.Services;
 
 public class BotchatService
 {
+    private readonly UnitOfWorks _unitOfWorks;
     private readonly BotChatSetting _botChatSetting;
     private static readonly HttpClient HttpClient = new HttpClient();
     
-    public BotchatService(IOptions<BotChatSetting> botChatSetting)
+    public BotchatService(IOptions<BotChatSetting> botChatSetting, UnitOfWorks unitOfWorks)
     {
+        _unitOfWorks = unitOfWorks;
         _botChatSetting = botChatSetting.Value;
     }
-    
+public async Task<bool> SeedingDataChatbot()
+{
+    try
+    {
+        // Đọc nội dung file JSON
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "SolaceFAQs.json");
+        var jsonDataFromFile = await File.ReadAllTextAsync(filePath);
+        
+        // Giải mã JSON thành List<JsonObject> thay vì dynamic
+        var faqData = JsonSerializer.Deserialize<List<JsonObject>>(jsonDataFromFile);
+
+        // Lấy dữ liệu từ repository
+        var products = await _unitOfWorks.ProductRepository.GetAll().ToListAsync();
+        var services = await _unitOfWorks.ServiceRepository.GetAll().ToListAsync();
+
+        // Kiểm tra và xóa Product nếu có, sau đó thêm lại toàn bộ sản phẩm
+        var productIndex = faqData.FindIndex(f =>
+        {
+            try
+            {
+                var questionElement = f["question"]?.ToString();
+                return questionElement == "Product";
+            }
+            catch (KeyNotFoundException)
+            {
+                // Trường hợp không tìm thấy thuộc tính "question"
+                return false;
+            }
+        });
+
+        if (productIndex >= 0)
+        {
+            faqData.RemoveAt(productIndex); // Xóa Product nếu có
+        }
+
+        // Thêm mới danh sách sản phẩm
+        faqData.Add(new JsonObject
+        {
+            { "question", "Product" },
+            { "answer", JsonSerializer.Serialize(products.Select(p => new
+                {
+                    name = p.ProductName,
+                    description = p.ProductDescription,
+                    price = p.Price
+                }))
+            }
+        });
+
+        // Kiểm tra và xóa Service nếu có, sau đó thêm lại toàn bộ dịch vụ
+        var serviceIndex = faqData.FindIndex(f =>
+        {
+            var questionElement = f["question"]?.ToString();
+            return questionElement == "Service";
+        });
+
+        if (serviceIndex >= 0)
+        {
+            faqData.RemoveAt(serviceIndex); // Xóa Service nếu có
+        }
+
+        // Thêm mới danh sách dịch vụ
+        faqData.Add(new JsonObject
+        {
+            { "question", "Service" },
+            { "answer", JsonSerializer.Serialize(services.Select(s => new
+                {
+                    name = s.Name,
+                    description = s.Description,
+                    price = s.Price
+                }))
+            }
+        });
+
+        // Ghi lại toàn bộ dữ liệu vào file JSON
+        var updatedJsonData = JsonSerializer.Serialize(faqData, new JsonSerializerOptions
+        {
+            WriteIndented = true, // Format JSON dễ đọc
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // Đảm bảo rằng ký tự đặc biệt (ví dụ: dấu tiếng Việt) không bị mã hóa sai
+        });
+
+        await File.WriteAllTextAsync(filePath, updatedJsonData);
+
+        return true;
+    }
+    catch (Exception ex)
+    {
+        // Xử lý lỗi
+        Console.WriteLine($"Error while updating Product and Service data: {ex.Message}");
+        return false;
+    }
+}
+
+      
     public async Task<string> SendChatMessageAsync(string userMessage)
     {
         try
         {
-        // Kiểm tra xem câu hỏi có liên quan đến "Solace là gì" không
-        if (userMessage.ToLower().Contains("solace") && userMessage.ToLower().Contains("là gì"))
-        {
-            // Câu hỏi về Solace, trả lời giới thiệu về Solace
-            var predefinedResponse = new[]
+            // Đường dẫn đến file JSON
+            var jsonFilePath = "SolaceFAQs.json";
+
+            // Đọc và deserialize dữ liệu từ file JSON
+            var jsonData = await File.ReadAllTextAsync(jsonFilePath);
+            var faqs = System.Text.Json.JsonSerializer.Deserialize<List<FAQ>>(jsonData);
+
+            if (faqs == null || faqs.Count == 0)
             {
-                new { text = "Solace là gì?" },
-                new { text = "Solace là một ứng dụng SPA tích hợp AI, giúp phân tích tình trạng da của người dùng và đề xuất sản phẩm, liệu trình chăm sóc da phù hợp." },
-                new { text = "Ứng dụng này sử dụng AI để nhận diện các vấn đề da như mụn, tàn nhang, vết nám, và đưa ra gợi ý về các sản phẩm phù hợp." },
-                new { text = "Ứng dụng này không chỉ giúp người dùng cải thiện làn da mà còn đề xuất các liệu trình và sản phẩm phù hợp, mang lại hiệu quả chăm sóc da lâu dài." }
-            };
+                return "Không tìm thấy dữ liệu câu hỏi thường gặp.";
+            }
 
-            return string.Join("\n", predefinedResponse.Select(r => r.text));
-        }
-        
-        if (userMessage.ToLower().Contains("sản phẩm") || userMessage.ToLower().Contains("product"))
-        {
-            // Câu hỏi về sản phẩm, trả lời chỉ về sản phẩm của Solace
-            var productResponse = new[]
+            // Tìm câu trả lời phù hợp với câu hỏi của người dùng
+            var matchedFAQ = faqs.FirstOrDefault(faq => faq.question.ToLower().Contains(userMessage.ToLower()));
+
+            if (matchedFAQ != null)
             {
-                new { text = "Solace cung cấp các sản phẩm chăm sóc da như: Remedy Cream To Oil, Essential Face Wash, Active Pureness Cleasing Gel, Clearing Skin Wash, Oil To Foam Cleanser." },
-                new { text = "Các sản phẩm này giúp cải thiện làn da, làm sạch, dưỡng ẩm và hỗ trợ điều trị các vấn đề da." }
-            };
+                return matchedFAQ.answer;
+            }
 
-            return string.Join("\n", productResponse.Select(r => r.text));
-        }
-        
-        if (userMessage.ToLower().Contains("dịch vụ") || userMessage.ToLower().Contains("service"))
-        {
-            // Câu hỏi về dịch vụ, trả lời chỉ về dịch vụ của Solace
-            var serviceResponse = new[]
+            // Nếu không tìm thấy câu trả lời trong FAQ, gửi yêu cầu đến AI
+            var modelName = "gemini-1.5-flash";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={_botChatSetting.ApiKey}";
+
+            var userMessageLower = userMessage.ToLower();
+            
+
+            bool containsSolace = userMessageLower.Contains("solace");
+            bool containsProduct = userMessageLower.Contains("product") || userMessageLower.Contains("sản phẩm");
+            bool containsService = userMessageLower.Contains("service") || userMessageLower.Contains("dịch vụ");
+
+            // Xử lý câu hỏi về Solace
+            if (containsSolace)
             {
-                new { text = "Solace cung cấp các liệu trình chăm sóc da chuyên sâu như: Signature Facial, Anti-Aging Facial, Hydrating Facial, Brightening Facial, Acne Treatment Facial." },
-                new { text = "Những liệu trình này giúp cải thiện làn da, làm sáng da, giảm lão hóa và điều trị các vấn đề như mụn, da khô, và lão hóa." }
-            };
+                userMessage = userMessage + " " + faqs[0].question + " " + faqs[0].answer;
+            }
 
-            return string.Join("\n", serviceResponse.Select(r => r.text));
-        }
-
-        // Nếu không phải câu hỏi về Solace hay sản phẩm, gửi yêu cầu đến AI
-        var modelName = "gemini-1.5-flash";
-        var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={_botChatSetting.ApiKey}";
-
-        var requestBody = new
-        {
-            contents = new[]
+            // Xử lý câu hỏi về sản phẩm
+            if (containsProduct)
             {
-                new
+                userMessage = userMessage + " lấy ra 5 sản phẩm: " + faqs[1].question + " " + faqs[1].answer;
+            }
+
+            // Xử lý câu hỏi về dịch vụ
+            if (containsService)
+            {
+                userMessage = userMessage + " lấy ra 5 dịch vụ: " + faqs[2].question + " " + faqs[2].answer;
+            }
+            
+            var requestBody = new
+            {
+                contents = new[]
                 {
-                    parts = new[]
+                    new
                     {
-                        new { text = userMessage }
+                        parts = new[]
+                        {
+                            new { text = userMessage }
+                        }
                     }
                 }
-            }
-        };
+            };
 
             // Serialize request body
             var requestContent = new StringContent(
