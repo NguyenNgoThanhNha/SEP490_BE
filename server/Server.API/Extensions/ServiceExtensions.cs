@@ -54,6 +54,9 @@ namespace Server.API.Extensions
 
             // cloud
             services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));
+            
+            // botchat
+            services.Configure<BotChatSetting>(configuration.GetSection(nameof(BotChatSetting)));
 
             services.AddAuthorization();
 
@@ -112,8 +115,12 @@ namespace Server.API.Extensions
             services.AddScoped<BlogService>();
             services.AddScoped<StaffService>();
             services.AddScoped<CustomerService>();
+            services.AddScoped<ServiceService>();
+            services.AddScoped<OrderService>();
+            services.AddScoped<BranchService>();
+            services.AddScoped<OrderDetailService>();
+            services.AddScoped<BotchatService>();
             services.AddScoped<AppointmentReminderWorker>();
-
             return services;
         }
     };
