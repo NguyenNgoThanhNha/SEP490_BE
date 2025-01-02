@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Nest;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
@@ -495,6 +496,32 @@ namespace Server.Business.Services
                 return ApiResponse.Error($"Error: {ex.Message}");
             }
         }
+
+        public async Task<List<BestSellerProductDto>> GetTop5BestSellersAsync()
+        {
+            // Lấy danh sách OrderDetail hoàn thành
+            var orderDetails = await _unitOfWorks.OrderDetailRepository
+                .FindByCondition(od => od.Status == "Completed")
+                .Include(od => od.Product)
+                .ToListAsync();
+
+            // Nhóm và tính toán
+            var bestSellers = orderDetails
+                .GroupBy(od => od.ProductId)
+                .Select(g => new BestSellerProductDto
+                {
+                    ProductId = g.Key.Value,
+                    ProductName = g.First().Product.ProductName,
+                    QuantitySold = g.Sum(od => od.Quantity),                   
+                    Price = g.First().Product.Price
+                })
+                .OrderByDescending(p => p.QuantitySold)
+                .Take(5)
+                .ToList();
+
+            return bestSellers;
+        }
+
 
     }
 }
