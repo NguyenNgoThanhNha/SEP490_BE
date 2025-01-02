@@ -158,13 +158,13 @@ public async Task<bool> SeedingDataChatbot()
             // Xử lý câu hỏi về sản phẩm
             if (containsProduct)
             {
-                userMessage = userMessage + " lấy ra 5 sản phẩm: " + faqs[1].question + " " + faqs[1].answer;
+                userMessage = userMessage + " lấy ra số lượng sản phẩm yêu cầu nếu có không thì chỉ lấy ra 5: " + faqs[1].question + " " + faqs[1].answer;
             }
 
             // Xử lý câu hỏi về dịch vụ
             if (containsService)
             {
-                userMessage = userMessage + " lấy ra 5 dịch vụ: " + faqs[2].question + " " + faqs[2].answer;
+                userMessage = userMessage + "lấy ra số lượng dịch vụ yêu cầu nếu có không thì chỉ lấy ra 5: " + faqs[2].question + " " + faqs[2].answer;
             }
             
             var requestBody = new
