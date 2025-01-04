@@ -706,6 +706,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Image")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("PromotionDescription")
                         .HasColumnType("longtext");
 

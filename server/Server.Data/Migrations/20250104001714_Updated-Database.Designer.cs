@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250101143725_Updated-Database")]
+    [Migration("20250104001714_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -708,6 +708,9 @@ namespace Server.Data.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("PromotionDescription")
                         .HasColumnType("longtext");
