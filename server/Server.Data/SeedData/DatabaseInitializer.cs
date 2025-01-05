@@ -3471,6 +3471,18 @@ namespace Server.Data.SeedData
                 "Buy more and save more with our special offer!"
             };
 
+            // Danh sách URL hình ảnh thật
+            var promotionImages = new[]
+            {
+                "https://snov.io/blog/wp-content/uploads/2021/08/Webp.net-resizeimage3-1024x512.png",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHmC_hrFziWofmW8-MGF1KSFjhQ7-94FrfTTVpkhIWnUWZwaH-d2eddzpJ2KUhhmB0bIU&usqp=CAU",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTElAKcuC8I24BKiVbYWfHnrcjT7sfydre7uRMtzKCIWkpDbALSf4LyLhpTzHcB7CiGJ70&usqp=CAU",
+                "https://www.rewardport.in/wp-content/uploads/2024/05/Latest-Consumer-Promotion-Trends-That-Are-Shaping-The-Future-of-Marketing-2.webp",
+                "https://5.imimg.com/data5/EZ/BK/JV/SELLER-8510670/advertisement-and-sales-promotion-strategy.png",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNVBx8qjAx-itp2-T8XLHt4FitkMh9HsTdbDC3WUj_cQRCgJXm8buAZ1usfJ_6VVdWMic&usqp=CAU",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4a_LWSSRUOCxdLI2u1qyxKH1n3Tnpc2QRVVh-i4peRgGimaP5GSOl-9xE5lY8xFueh7s&usqp=CAU"
+            };
+
             var promotions = new List<Promotion>();
 
             for (int i = 0; i < 20; i++) // Tạo 20 chương trình khuyến mãi
@@ -3492,7 +3504,8 @@ namespace Server.Data.SeedData
                     EndDate = endDate,
                     Status = "Active",
                     CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
+                    UpdatedDate = DateTime.Now,
+                    Image = promotionImages[random.Next(promotionImages.Length)] // Random hình ảnh thật
                 });
             }
 
@@ -3500,6 +3513,7 @@ namespace Server.Data.SeedData
             await _context.Promotions.AddRangeAsync(promotions);
             await _context.SaveChangesAsync();
         }
+
 
 
         private async Task SeedBranchProducts()
