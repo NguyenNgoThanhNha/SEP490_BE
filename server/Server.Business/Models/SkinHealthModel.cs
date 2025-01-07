@@ -1,17 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace Server.Business.Models;
 
-namespace Server.Data.Entities;
-[Table("SkinHealth")]
-public class SkinHealth
+public class SkinHealthModel
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int SkinHealthId { get; set; }
     
-    [ForeignKey("UserSkinHealth")]
     public int UserId { get; set; }
-    public virtual User User { get; set; }
+    public virtual UserInfoModel User { get; set; }
     
     public string? SkinColor { get; set; }
     public string? SkinToneIta { get; set; } // Returns skin color classification information based on the ITA (Individual Typology Angle) standard.
@@ -44,7 +38,6 @@ public class SkinHealth
     public string? SensitivityArea { get; set; }
     public string? SensitivityIntensity { get; set; }
     
-    public string? Ance { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

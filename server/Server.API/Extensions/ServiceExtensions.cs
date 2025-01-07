@@ -57,6 +57,9 @@ namespace Server.API.Extensions
             
             // botchat
             services.Configure<BotChatSetting>(configuration.GetSection(nameof(BotChatSetting)));
+            
+            // skin analysis AI
+            services.Configure<AISkinSetting>(configuration.GetSection(nameof(AISkinSetting)));
 
             services.AddAuthorization();
 
@@ -120,6 +123,7 @@ namespace Server.API.Extensions
             services.AddScoped<BranchService>();
             services.AddScoped<OrderDetailService>();
             services.AddScoped<BotchatService>();
+            services.AddScoped<SkinAnalyzeService>();
             services.AddScoped<AppointmentReminderWorker>();
             return services;
         }
