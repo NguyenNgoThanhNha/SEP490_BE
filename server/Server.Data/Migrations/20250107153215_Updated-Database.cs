@@ -570,6 +570,7 @@ namespace Server.Data.Migrations
                     Sensitivity = table.Column<string>(type: "longtext", nullable: true),
                     SensitivityArea = table.Column<string>(type: "longtext", nullable: true),
                     SensitivityIntensity = table.Column<string>(type: "longtext", nullable: true),
+                    Ance = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
