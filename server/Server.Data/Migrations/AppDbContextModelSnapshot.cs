@@ -980,6 +980,9 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<string>("Ance")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("BlackHead")
                         .HasColumnType("longtext");
 
