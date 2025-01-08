@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Server.Business.Commons.Response;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Business.Ultils;
@@ -27,11 +28,11 @@ public class SkinAnalyzeService
         _aiSkinSetting = aiSkinSetting.Value;
     }
 
-    public async Task<List<SkincareRoutineModel>> AnalyzeSkinAsync(IFormFile file, int userId)
+    public async Task<SkinAnalyzeResponse> AnalyzeSkinAsync(IFormFile file, int userId)
     {
         if (file == null || file.Length == 0)
         {
-            throw new ArgumentException("File cannot be null or empty.");
+            throw new BadRequestException("File cannot be null or empty.");
         }
 
         using var content = new MultipartFormDataContent();
@@ -58,13 +59,13 @@ public class SkinAnalyzeService
             var skinHealth = new SkinHealth
             {
                 UserId = userId,
-                Ance = GetApiResponseValue(apiResult.result.acne.rectangle),
+                Ance = GetApiResponseValue(apiResult.result.acne),
                 SkinColor = GetApiResponseValue(apiResult.result.skin_color),
-                SkinToneIta = GetApiResponseToneIta(apiResult.result.skintone_ita),
+                SkinToneIta = GetApiResponseValue(apiResult.result.skintone_ita),
                 SkinTone = GetApiResponseValue(apiResult.result.skin_tone),
-                SkinHueHa = GetApiResponseToneHueHa(apiResult.result.skin_hue_ha),
+                SkinHueHa = GetApiResponseValue(apiResult.result.skin_hue_ha),
                 SkinAge = GetApiResponseValue(apiResult.result.skin_age),
-                SkinType = GetApiResponseSkinTypesValue(apiResult.result.skin_type),
+                SkinType = GetApiResponseValue(apiResult.result.skin_type),
                 LeftEyelids = GetApiResponseValue(apiResult.result.left_eyelids),
                 RightEyelids = GetApiResponseValue(apiResult.result.right_eyelids),
                 EyePouch = GetApiResponseValue(apiResult.result.eye_pouch),
@@ -81,9 +82,9 @@ public class SkinAnalyzeService
                 PoresJaw = GetApiResponseValue(apiResult.result.pores_jaw),
                 BlackHead = GetApiResponseValue(apiResult.result.blackhead),
                 Rectangle = GetApiResponseValue(apiResult.result.rectangle),
-                Mole = GetApiResponseValue(apiResult.result.mole.rectangle),
-                ClosedComedones = GetApiResponseValue(apiResult.result.closed_comedones.rectangle),
-                SkinSpot = GetApiResponseValue(apiResult.result.skin_spot.rectangle),
+                Mole = GetApiResponseValue(apiResult.result.mole),
+                ClosedComedones = GetApiResponseValue(apiResult.result.closed_comedones),
+                SkinSpot = GetApiResponseValue(apiResult.result.skin_spot),
                 FaceMaps = GetApiResponseValue(apiResult.result.face_maps),
                 Sensitivity = GetApiResponseValue(apiResult.result.sensitivity),
                 SensitivityArea = GetApiResponseValue(apiResult.result.sensitivity_area),
@@ -103,8 +104,18 @@ public class SkinAnalyzeService
             // Retrieve skincare routines based on concerns
             var routines = await GetSkincareRoutinesAsync(skinConcerns);
 
+            var result = new ApiSkinAnalyzeResponse()
+            {
+                skinhealth = apiResult.result,
+                routines = _mapper.Map<List<SkincareRoutineModel>>(routines)
+            };
+
             // Map routines to DTOs
-            return _mapper.Map<List<SkincareRoutineModel>>(routines);
+            return new SkinAnalyzeResponse()
+            {
+                message = "Analyze skin successfully",
+                data = result
+            };
         }
         catch (HttpRequestException ex)
         {
@@ -114,43 +125,10 @@ public class SkinAnalyzeService
 
     private static string GetApiResponseValue(dynamic apiResponse)
     {
-        if (apiResponse == null) return null;
-
-        // Nếu là mảng, chuyển thành JSON string
-        if (apiResponse is IEnumerable<dynamic>)
-        {
-            return JsonConvert.SerializeObject(apiResponse);
-        }
-
-        // Nếu không phải mảng, xử lý như cũ
-        return $"{apiResponse.value} + {apiResponse.confidence}";
-    }
-    
-    private static string GetApiResponseSkinTypesValue(dynamic apiResponse)
-    {
-        if (apiResponse == null)
-            return null;
-
-        // Lấy thông tin `skin_type` và `details` nếu tồn tại
-        string skinType = apiResponse.skin_type != null ? apiResponse.skin_type.ToString() : "N/A";
-        string details = apiResponse.details != null 
-            ? JsonConvert.SerializeObject(apiResponse.details, Formatting.Indented) 
-            : "No details available";
-
-        return $"{skinType}\nDetails:\n{details}";
+        return JsonConvert.SerializeObject(apiResponse);
     }
 
 
-    
-    private static string GetApiResponseToneIta(dynamic apiResponse)
-    {
-        return apiResponse == null ? null : $"{apiResponse.ITA} + {apiResponse.skintone}";
-    }
-    
-    private static string GetApiResponseToneHueHa(dynamic apiResponse)
-    {
-        return apiResponse == null ? null : $"{apiResponse.HA} + {apiResponse.skin_hue}";
-    }
 
     private List<(string Concern, double Confidence)> GetSkinConcerns(dynamic apiResult)
     {
