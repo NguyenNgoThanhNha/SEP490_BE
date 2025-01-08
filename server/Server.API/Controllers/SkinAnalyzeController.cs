@@ -52,11 +52,7 @@ namespace Server.API.Controllers
                 // Gọi service AnalyzeSkinAsync
                 var routines = await _skinAnalyzeService.AnalyzeSkinAsync(file, currentUser.UserId);
 
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-                {
-                    message = "Analyze skin successfully",
-                    data = routines
-                }));
+                return Ok(ApiResult<SkinAnalyzeResponse>.Succeed(routines));
             }
             catch (Exception ex)
             {
