@@ -35,6 +35,8 @@ services:
       - PayOSSetting__ChecksumKey=${PayOSChecksumKey}
       - PayOSSetting__Domain=${PayOSDomain}
       - BotChatSetting__ApiKey=${BotChatApiKey}
+      - AISkinSetting__Url=${AISkinAnalyzeUrl}
+      - AISkinSetting__ApiKey=${AISkinAnalyzeApiKey}
     ports:
       - ${PortServer}:8080
     depends_on:
