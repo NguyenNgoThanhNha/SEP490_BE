@@ -62,7 +62,7 @@ namespace Server.API.Controllers
 
         [Authorize(Roles = "Admin, Manager")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreatePromotion([FromBody] PromotionRequest request)
+        public async Task<IActionResult> CreatePromotion([FromForm] PromotionRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -92,7 +92,7 @@ namespace Server.API.Controllers
         
         [Authorize(Roles = "Admin, Manager")]
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdatePromotion([FromRoute] int id, [FromBody] PromotionRequest request)
+        public async Task<IActionResult> UpdatePromotion([FromRoute] int id, [FromForm] PromotionRequest request)
         {
             if (!ModelState.IsValid)
             {

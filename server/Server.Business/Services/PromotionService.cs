@@ -14,11 +14,13 @@ public class PromotionService
 {
     private readonly UnitOfWorks _unitOfWorks;
     private readonly IMapper _mapper;
+    private readonly CloudianryService _cloudianryService;
 
-    public PromotionService(UnitOfWorks unitOfWorks, IMapper mapper)
+    public PromotionService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
+        _cloudianryService = cloudianryService;
     }
 
     public async Task<GetAllPromotionResponse> GetAllPromotion(int page = 1, int pageSize = 5)
@@ -61,12 +63,23 @@ public class PromotionService
 
     public async Task<PromotionModel> CreatePromotion(PromotionRequest request)
     {
+        var Image = "";
+        if (request.Image != null)
+        {
+            var imageUploadResult = await _cloudianryService.UploadImageAsync(request.Image);
+            if (imageUploadResult == null)
+            {
+                throw new BadRequestException("Upload image failed!");
+            }
+            Image = imageUploadResult.SecureUrl.ToString();
+        }
         var createNewPromotion = new PromotionModel()
         {
             PromotionName = request.PromotionName,
             PromotionDescription = request.PromotionDescription,
             DiscountPercent = request.DiscountPercent,
             Status = request.Status,
+            Image = Image,
             StartDate = request.StartDate,
             EndDate = request.EndDate
         };
@@ -100,6 +113,19 @@ public class PromotionService
         if (!request.EndDate.Equals(null))
         {
             promotionModel.EndDate = request.EndDate;
+        }
+        if (!request.Status.Equals(null))
+        {
+            promotionModel.Status = request.Status;
+        }
+        if (!request.Image.Equals(null))
+        {
+            var imageUploadResult = await _cloudianryService.UploadImageAsync(request.Image);
+            if (imageUploadResult == null)
+            {
+                throw new BadRequestException("Upload image failed!");
+            }
+            promotionModel.Image = imageUploadResult.SecureUrl.ToString();
         }
         
         var promotionEntity = _unitOfWorks.PromotionRepository.Update(_mapper.Map<Promotion>(promotionModel));

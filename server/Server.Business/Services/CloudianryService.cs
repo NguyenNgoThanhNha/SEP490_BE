@@ -12,6 +12,7 @@ namespace Server.Business.Services
     {
         private readonly ILogger<CloudianryService> _logger;
         private readonly Cloudinary _cloudinary;
+
         public CloudianryService(IOptions<CloundSettings> cloudinaryConfig, ILogger<CloudianryService> logger)
         {
             _logger = logger;
@@ -20,9 +21,7 @@ namespace Server.Business.Services
                 cloudinaryConfig.Value.CloudName,
                 cloudinaryConfig.Value.CloudKey,
                 cloudinaryConfig.Value.CloudSecret);
-            _logger.LogInformation(cloudinaryConfig.Value.CloudName);
-            _logger.LogInformation(cloudinaryConfig.Value.CloudName);
-            _logger.LogInformation(cloudinaryConfig.Value.CloudName);
+
             _cloudinary = new Cloudinary(account);
         }
 
@@ -40,6 +39,17 @@ namespace Server.Business.Services
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
             return uploadResult;
+        }
+
+        public async Task<List<ImageUploadResult>> UploadImagesAsync(List<IFormFile> files)
+        {
+            if (files == null || !files.Any())
+                throw new ArgumentException("No files provided");
+
+            var uploadTasks = files.Select(file => UploadImageAsync(file));
+            var uploadResults = await Task.WhenAll(uploadTasks);
+
+            return uploadResults.ToList();
         }
     }
 }
