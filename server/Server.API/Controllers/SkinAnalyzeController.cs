@@ -58,7 +58,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error occurred while analyzing skin"
+                    message = $"Error occurred while analyzing skin with message: {ex.Message}"
                 }));
             }
         }
