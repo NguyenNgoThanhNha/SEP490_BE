@@ -119,7 +119,7 @@ public class SkinAnalyzeService
         }
         catch (HttpRequestException ex)
         {
-           throw new BadRequestException("Error occurred while calling skin analysis API.");
+           throw new BadRequestException(ex.Message);
         }
     }
 
