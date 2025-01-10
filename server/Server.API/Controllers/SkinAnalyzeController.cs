@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
+using Server.Business.Exceptions;
 using Server.Business.Services;
 
 namespace Server.API.Controllers
@@ -56,10 +57,11 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                throw new BadRequestException(ex.Message);
+                /*return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
                     message = $"Error occurred while analyzing skin with message: {ex.Message}"
-                }));
+                }));*/
             }
         }
 
