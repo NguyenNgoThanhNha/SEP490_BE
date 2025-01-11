@@ -253,5 +253,35 @@ namespace Server.API.Controllers
                 data = staff
             });
         }
+
+        [HttpGet("by-branch/{branchId}")]
+        public async Task<IActionResult> GetStaffByBranch(int branchId)
+        {
+            try
+            {
+                var staffList = await _staffService.GetStaffByBranchAsync(branchId);
+
+                if (staffList == null || !staffList.Any())
+                {
+                    return NotFound(new
+                    {
+                        Message = "Không tìm thấy nhân viên nào cho chi nhánh này."
+                    });
+                }
+
+                return Ok(new
+                {
+                    Message = "Lấy danh sách nhân viên thành công!",
+                    Data = staffList
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Message = $"Lỗi hệ thống: {ex.Message}"
+                });
+            }
+        }
     }
 }

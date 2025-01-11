@@ -358,5 +358,36 @@ namespace Server.Business.Services
                 throw new Exception($"An error occurred while updating the status of the service: {ex.Message}", ex);
             }
         }
+
+
+        public async Task<List<FeaturedServiceDto>> GetTop4FeaturedServicesAsync()
+        {
+            // Lấy danh sách Appointments có trạng thái Confirmed và include Service
+            var appointments = await _unitOfWorks.AppointmentsRepository
+                .FindByCondition(a => a.Status == "Confirmed") // Chỉ lọc theo điều kiện
+                .Include(a => a.Service) // Bao gồm thông tin Service
+                .ToListAsync();
+
+            // Nhóm theo ServiceId và tính toán các thông tin cần thiết
+            var featuredServices = appointments
+                .Where(a => a.Service != null) // Bỏ qua những bản ghi không có Service
+                .GroupBy(a => a.ServiceId)
+                .Select(g => new FeaturedServiceDto
+                {
+                    ServiceId = g.Key,
+                    ServiceName = g.First().Service.Name,
+                    Description = g.First().Service.Description,
+                    Price = g.First().Service.Price,
+                    TotalQuantity = g.Sum(a => a.Quantity)
+                })
+                .OrderByDescending(s => s.TotalQuantity) // Sắp xếp giảm dần theo tổng Quantity
+                .Take(4) // Lấy 4 dịch vụ nổi bật
+                .ToList();
+
+            return featuredServices;
+        }
+
+
+
     }
 }

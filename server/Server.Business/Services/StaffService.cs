@@ -468,5 +468,30 @@ namespace Server.Business.Services
             }
         }
 
-    }
+        public async Task<List<StaffDTO>> GetStaffByBranchAsync(int branchId)
+        {
+            var staffList = await _unitOfWorks.StaffRepository
+                .FindByCondition(s => s.BranchId == branchId)
+                .Include(s => s.StaffInfo) // Bao gồm thông tin người dùng
+                .ToListAsync();
+
+            var staffDtoList = staffList.Select(s => new StaffDTO
+            {
+                StaffId = s.StaffId,
+                //UserId = s.UserId,
+                BranchId = s.BranchId,
+                CreatedDate = s.CreatedDate,
+                UpdatedDate = s.UpdatedDate,
+                StaffInfo = new UserDTO
+                {
+                    UserId = s.StaffInfo?.UserId ?? 0,
+                    UserName = s.StaffInfo?.UserName ?? "N/A",
+                    Email = s.StaffInfo?.Email ?? "N/A"
+                }
+            }).ToList();
+
+            return staffDtoList;
+        }
+    
+}
 }

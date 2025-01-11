@@ -326,5 +326,40 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpGet("top5-bestsellers")]
+        public async Task<IActionResult> GetTop5BestSellers()
+        {
+            try
+            {
+                // Gọi Service để lấy dữ liệu
+                var bestSellers = await _productService.GetTop5BestSellersAsync();
+
+                // Kiểm tra kết quả
+                if (bestSellers == null || !bestSellers.Any())
+                {
+                    return NotFound(new
+                    {
+                        Message = "Không tìm thấy sản phẩm bán chạy nào."
+                    });
+                }
+
+                // Trả về dữ liệu thành công
+                return Ok(new
+                {
+                    Message = "Lấy danh sách Top 5 sản phẩm bán chạy thành công!",
+                    Data = bestSellers
+                });
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi hệ thống
+                return StatusCode(500, new
+                {
+                    Message = $"Lỗi hệ thống: {ex.Message}"
+                });
+            }
+        }
+
+
     }
 }
