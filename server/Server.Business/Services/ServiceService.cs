@@ -7,6 +7,7 @@ using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
+using Server.Business.Exceptions;
 
 namespace Server.Business.Services
 {
@@ -14,11 +15,13 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+        private readonly CloudianryService _cloudianryService;
 
-        public ServiceService(UnitOfWorks unitOfWorks, IMapper mapper)
+        public ServiceService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _cloudianryService = cloudianryService;
         }
 
         public async Task<Pagination<ServiceModel>> GetListAsync(
@@ -208,7 +211,7 @@ namespace Server.Business.Services
                 }
 
                 // Tạo thực thể Service từ DTO
-                var service = new Data.Entities.Service
+                var service = new Service
                 {
                     Name = serviceDto.Name,
                     Description = serviceDto.Description,
@@ -218,11 +221,34 @@ namespace Server.Business.Services
                     UpdatedDate = DateTime.Now,
                     Status = "Active",
                 };
-
-                // Thêm vào repository qua UnitOfWork
+                
+                // Thêm service vào cơ sở dữ liệu
                 await _unitOfWorks.ServiceRepository.AddAsync(service);
                 await _unitOfWorks.ServiceRepository.Commit();
+
+                // Bắt đầu tải lên hình ảnh đồng thời
+                var uploadTasks = serviceDto.images?.Select(image => _cloudianryService.UploadImageAsync(image)).ToList();
+                var imageUploadResults = await Task.WhenAll(uploadTasks);
+
+                // Xử lý kết quả tải lên
+                var listServiceImages = imageUploadResults
+                    .Where(result => result != null)
+                    .Select(result => new ServiceImages
+                    {
+                        ServiceId = service.ServiceId, // ServiceId sẽ được gán sau khi lưu Service
+                        image = result.SecureUrl.ToString(),
+                    }).ToList();
+
+                // Thêm hình ảnh vào cơ sở dữ liệu
+                if (listServiceImages.Any())
+                {
+                    await _unitOfWorks.ServiceImageRepository.AddRangeAsync(listServiceImages);
+                }
                 
+                // Lưu lại ServiceId cho hình ảnh
+                listServiceImages.ForEach(image => image.ServiceId = service.ServiceId);
+                await _unitOfWorks.ServiceImageRepository.Commit();
+
                 return _mapper.Map<ServiceDto>(service);
             }
             catch (Exception ex)
@@ -232,14 +258,13 @@ namespace Server.Business.Services
         }
 
 
+
         public async Task<ServiceDto> UpdateServiceAsync(ServiceUpdateDto serviceDto, int serviceId)
         {
-            try
-            {
                 // Kiểm tra nếu DTO bị null
                 if (serviceDto == null)
                 {
-                    throw new ArgumentNullException(nameof(serviceDto), "Service update data is required.");
+                    throw new BadRequestException("Service update data is required.");
                 }
 
                 // Tìm dịch vụ cần cập nhật thông qua UnitOfWork
@@ -248,7 +273,7 @@ namespace Server.Business.Services
 
                 if (service == null)
                 {
-                    throw new KeyNotFoundException($"Service with ID {serviceId} not found.");
+                    throw new BadRequestException($"Service with ID {serviceId} not found.");
                 }
 
                 // Cập nhật thông tin dịch vụ
@@ -258,18 +283,49 @@ namespace Server.Business.Services
                 service.Duration = serviceDto.Duration;
                 service.UpdatedDate = DateTime.Now;
 
+                // Lấy danh sách hình ảnh hiện tại của dịch vụ
+                var existingImages = await _unitOfWorks.ServiceImageRepository
+                    .FindByCondition(img => img.ServiceId == serviceId).ToListAsync();
+
+                // Kiểm tra số lượng hình ảnh có đồng nhất không
+                if (existingImages.Count == serviceDto.images.Count)
+                {
+                    // Cập nhật URL hình ảnh hiện tại
+                    var updateTasks = existingImages.Zip(serviceDto.images, async (existingImage, newImage) =>
+                    {
+                        var uploadResult = await _cloudianryService.UploadImageAsync(newImage);
+                        existingImage.image = uploadResult.SecureUrl.ToString();
+                    });
+
+                    await Task.WhenAll(updateTasks);
+                    await _unitOfWorks.ServiceImageRepository.UpdateRangeAsync(existingImages);
+                }
+                else
+                {
+                    // Xóa hình ảnh cũ và thêm hình ảnh mới
+                    await _unitOfWorks.ServiceImageRepository.RemoveRangeAsync(existingImages);
+
+                    var uploadTasks = serviceDto.images.Select(async image =>
+                    {
+                        var uploadResult = await _cloudianryService.UploadImageAsync(image);
+                        return new ServiceImages
+                        {
+                            ServiceId = service.ServiceId,
+                            image = uploadResult.SecureUrl.ToString(),
+                        };
+                    });
+
+                    var newImages = await Task.WhenAll(uploadTasks);
+                    await _unitOfWorks.ServiceImageRepository.AddRangeAsync(newImages);
+                }
+
                 // Lưu thay đổi qua UnitOfWork
+                await _unitOfWorks.ServiceImageRepository.Commit();
                 _unitOfWorks.ServiceRepository.Update(service);
                 await _unitOfWorks.ServiceRepository.Commit();
 
                 return _mapper.Map<ServiceDto>(service);
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while updating the service: {ex.Message}", ex);
-            }
-        }
-
 
         public async Task<Service> DeleteServiceAsync(int id)
         {

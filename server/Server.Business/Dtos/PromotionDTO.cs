@@ -14,6 +14,8 @@ public class PromotionDTO
     public DateTime EndDate { get; set; }
     
     public string? Status { get; set; }
+    
+    public string? Image { get; set; }
 
     public DateTime CreatedDate { get; set; } = DateTime.Now; 
 

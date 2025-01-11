@@ -16,19 +16,6 @@ namespace Server.API
 
             builder.Services.AddInfrastructure(builder.Configuration);
 
-            builder.Services.AddScoped<ServiceService>();
-            builder.Services.AddScoped<StaffService>();
-            builder.Services.AddScoped<UserService>();
-            builder.Services.AddScoped<AppointmentsService>();
-            builder.Services.AddScoped<OrderService>();
-            builder.Services.AddScoped<BranchService>();
-            builder.Services.AddScoped<ProductService>();
-            builder.Services.AddScoped<OrderDetailService>();
-            builder.Services.AddScoped<BlogService>();
-            builder.Services.AddScoped<CloudianryService>();
-            builder.Services.AddHostedService<AppointmentReminderWorker>();
-
-
             builder.Services.AddSwaggerGen(option =>
             {
                 option.SwaggerDoc("v1", new OpenApiInfo { Title = "Mock API", Version = "v1" });

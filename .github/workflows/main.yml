@@ -38,3 +38,6 @@ jobs:
           PayOSApiKey: ${{ secrets.PayOSApiKey }}
           PayOSChecksumKey: ${{ secrets.PayOSChecksumKey }}
           PayOSDomain: ${{ secrets.PayOSDomain }}
+          BotChatApiKey: ${{ secrets.BotChatApiKey }}
+          AISkinAnalyzeUrl: ${{ secrets.AISkinAnalyzeUrl }}
+          AISkinAnalyzeApiKey: ${{ secrets.AISkinAnalyzeApiKey }}

@@ -98,9 +98,37 @@ public class AppointmentsService
 
         if (staff.BranchId != request.BranchId)
         {
-            throw new BadRequestException("Staff does not in branch!");
+            throw new BadRequestException("Staff does not belong to this branch!");
         }
-        
+
+        // Kiểm tra nếu service có tồn tại trong branch
+        var serviceInBranch = await _unitOfWorks.Branch_ServiceRepository
+            .FirstOrDefaultAsync(sb => sb.ServiceId == request.ServiceId && sb.BranchId == request.BranchId);
+        if (serviceInBranch == null)
+        {
+            throw new BadRequestException("Service is not available in this branch!");
+        }
+
+        // Kiểm tra nếu customer đã có appointment trong thời gian hiện tại
+        var existingAppointment = await _unitOfWorks.AppointmentsRepository
+            .FirstOrDefaultAsync(a => a.CustomerId == userId && 
+                                      a.AppointmentsTime.Date == request.AppointmentsTime.Date &&
+                                      a.AppointmentsTime.Hour == request.AppointmentsTime.Hour);
+        if (existingAppointment != null)
+        {
+            throw new BadRequestException("Customer already has an appointment at this time!");
+        }
+
+        // Kiểm tra nếu staff đang bận trong thời gian đó
+        var staffBusy = await _unitOfWorks.AppointmentsRepository
+            .FirstOrDefaultAsync(a => a.StaffId == request.StaffId &&
+                                      a.AppointmentsTime <= request.AppointmentsTime &&
+                                      a.AppointmentsTime.AddMinutes(90) > request.AppointmentsTime);
+        if (staffBusy != null)
+        {
+            throw new BadRequestException("Staff is busy during this time!");
+        }
+
         var createNewAppointments = new AppointmentsModel()
         {
             CustomerId = userId,
@@ -109,9 +137,10 @@ public class AppointmentsService
             Status = "Active",
             BranchId = request.BranchId,
             AppointmentsTime = request.AppointmentsTime,
-            Feedback = request.Feedback != null ? request.Feedback : "",
-            Notes = request.Notes != null ? request.Notes : ""
+            Feedback = request.Feedback ?? "",
+            Notes = request.Notes ?? ""
         };
+
         var appointmentsEntity = await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(createNewAppointments));
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
         if (result > 0)
@@ -120,6 +149,7 @@ public class AppointmentsService
         }
         return null;
     }
+
 
     public async Task<AppointmentsModel> UpdateAppointments(AppointmentsModel appointmentsModel, AppointmentUpdateRequest request)
     {

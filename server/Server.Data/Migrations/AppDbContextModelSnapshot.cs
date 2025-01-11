@@ -337,6 +337,35 @@ namespace Server.Data.Migrations
                     b.ToTable("Branch_Service", (string)null);
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Cart", b =>
+                {
+                    b.Property<int>("CartId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("CartId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Cart");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Category", b =>
                 {
                     b.Property<int>("CategoryId")
@@ -639,6 +668,44 @@ namespace Server.Data.Migrations
                     b.ToTable("Product");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.ProductCart", b =>
+                {
+                    b.Property<int>("ProductCartId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("CartId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ProductCartId");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("ProductId", "CartId")
+                        .IsUnique();
+
+                    b.ToTable("ProductCart", (string)null);
+                });
+
             modelBuilder.Entity("Server.Data.Entities.ProductImages", b =>
                 {
                     b.Property<int>("ProductImagesId")
@@ -705,6 +772,9 @@ namespace Server.Data.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("PromotionDescription")
                         .HasColumnType("longtext");
@@ -909,6 +979,9 @@ namespace Server.Data.Migrations
                     b.Property<int>("SkinHealthId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    b.Property<string>("Ance")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("BlackHead")
                         .HasColumnType("longtext");
@@ -1498,6 +1571,17 @@ namespace Server.Data.Migrations
                     b.Navigation("Service");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Cart", b =>
+                {
+                    b.HasOne("Server.Data.Entities.User", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Chat", b =>
                 {
                     b.HasOne("Server.Data.Entities.User", "Receiver")
@@ -1579,6 +1663,27 @@ namespace Server.Data.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.ProductCart", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Cart", "Cart")
+                        .WithMany("ProductCarts")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Product_Cart_Cart");
+
+                    b.HasOne("Server.Data.Entities.Product", "Product")
+                        .WithMany("ProductCarts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Product_Cart_Product");
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.ProductImages", b =>
@@ -1767,6 +1872,11 @@ namespace Server.Data.Migrations
                     b.Navigation("Staffs");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Cart", b =>
+                {
+                    b.Navigation("ProductCarts");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Category", b =>
                 {
                     b.Navigation("Products");
@@ -1787,6 +1897,8 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.Product", b =>
                 {
                     b.Navigation("Branch_Products");
+
+                    b.Navigation("ProductCarts");
 
                     b.Navigation("ProductRoutines");
                 });

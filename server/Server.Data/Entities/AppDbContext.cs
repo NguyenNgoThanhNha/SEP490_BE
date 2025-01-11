@@ -44,6 +44,8 @@ namespace Server.Data.Entities
         public DbSet<ProductRoutine> ProductRoutines { get; set; }
         public DbSet<ServiceRoutine> ServiceRoutine { get; set; }
         public DbSet<Logger> Logger { get; set; }
+        public DbSet<Cart> Cart { get; set; }
+        public DbSet<ProductCart> ProductCart { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -155,6 +157,24 @@ namespace Server.Data.Entities
                     .WithMany(e => e.ServiceRoutines)
                     .HasForeignKey(e => e.RoutineId)
                     .HasConstraintName("FK_Service_Routine_Routine");
+            });
+            
+            // ProductCart
+            modelBuilder.Entity<ProductCart>(e =>
+            {
+                e.ToTable("ProductCart");
+                e.HasKey(e => e.ProductCartId);
+                e.HasIndex(e => new { e.ProductId, e.CartId }).IsUnique();
+
+                e.HasOne(e => e.Product)
+                    .WithMany(e => e.ProductCarts)
+                    .HasForeignKey(e => e.ProductId)
+                    .HasConstraintName("FK_Product_Cart_Product");
+
+                e.HasOne(e => e.Cart)
+                    .WithMany(e => e.ProductCarts)
+                    .HasForeignKey(e => e.CartId)
+                    .HasConstraintName("FK_Product_Cart_Cart");
             });
         }
     }

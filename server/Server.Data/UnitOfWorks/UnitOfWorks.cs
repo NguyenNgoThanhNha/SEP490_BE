@@ -28,6 +28,8 @@ namespace Server.Data.UnitOfWorks
         private LoggerRepository _loggerRepository;
         private ServiceImageRepository _serviceImageRepository;
         private ProductImageRepository _productImageRepository;
+        private SkincareRoutineRepository _skincareRoutineRepository;
+        private SkinHealthRepository _skinHealthRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -137,6 +139,15 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _productImageRepository ??= new ProductImageRepository(_dbContext); }
         }
-
+        
+        public SkincareRoutineRepository SkincareRoutineRepository
+        {
+            get { return _skincareRoutineRepository ??= new SkincareRoutineRepository(_dbContext); }
+        }
+        
+        public SkinHealthRepository SkinHealthRepository
+        {
+            get { return _skinHealthRepository ??= new SkinHealthRepository(_dbContext); }
+        }
     }
 }

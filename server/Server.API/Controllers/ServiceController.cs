@@ -193,7 +193,7 @@ namespace Server.API.Controllers
         }
 
         [HttpPost("create-service")]
-        public async Task<IActionResult> CreateService([FromBody] ServiceCreateDto serviceDto)
+        public async Task<IActionResult> CreateService([FromForm] ServiceCreateDto serviceDto)
         {
             try
             {
@@ -233,10 +233,9 @@ namespace Server.API.Controllers
 
         [Authorize(Roles = "Admin, Manager,Staff")]
         [HttpPut("update-service")]
-        public async Task<IActionResult> UpdateService(int serviceId, [FromBody] ServiceUpdateDto serviceDto)
+        public async Task<IActionResult> UpdateService(int serviceId, [FromForm] ServiceUpdateDto serviceDto)
         {
-            try
-            {
+
                 // Kiểm tra nếu model không hợp lệ
                 if (!ModelState.IsValid)
                 {
@@ -271,15 +270,6 @@ namespace Server.API.Controllers
                     data = updatedService
                 }));
             }
-            catch (Exception ex)
-            {
-                // Xử lý lỗi ngoại lệ
-                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = $"An error occurred while updating the service: {ex.Message}"
-                }));
-            }
-        }
 
         [Authorize(Roles = "Admin, Manager,Staff")]
         [HttpDelete("delete-service")]

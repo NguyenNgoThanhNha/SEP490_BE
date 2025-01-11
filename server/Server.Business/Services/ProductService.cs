@@ -89,6 +89,7 @@ namespace Server.Business.Services
                     Quantity = p.Quantity,
                     Discount = p.Discount,
                     Status = p.Status,
+                    SkinTypeSuitable = p.SkinTypeSuitable,
                     CompanyId = p.Company != null ? p.Company.CompanyId : 0, // Kiểm tra null
                     CompanyName = p.Company != null ? p.Company.Name : string.Empty, // Kiểm tra null
                     CreatedDate = p.CreatedDate,

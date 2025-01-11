@@ -159,6 +159,11 @@ namespace Server.Data.SeedData
                 {
                     await SeedBlogs();
                 }
+                
+                if (!_context.SkincareRoutines.Any())
+                {
+                    await SeedSkincareRoutines();
+                }
             }
             catch (Exception ex)
             {
@@ -3466,6 +3471,18 @@ namespace Server.Data.SeedData
                 "Buy more and save more with our special offer!"
             };
 
+            // Danh sách URL hình ảnh thật
+            var promotionImages = new[]
+            {
+                "https://snov.io/blog/wp-content/uploads/2021/08/Webp.net-resizeimage3-1024x512.png",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHmC_hrFziWofmW8-MGF1KSFjhQ7-94FrfTTVpkhIWnUWZwaH-d2eddzpJ2KUhhmB0bIU&usqp=CAU",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTElAKcuC8I24BKiVbYWfHnrcjT7sfydre7uRMtzKCIWkpDbALSf4LyLhpTzHcB7CiGJ70&usqp=CAU",
+                "https://www.rewardport.in/wp-content/uploads/2024/05/Latest-Consumer-Promotion-Trends-That-Are-Shaping-The-Future-of-Marketing-2.webp",
+                "https://5.imimg.com/data5/EZ/BK/JV/SELLER-8510670/advertisement-and-sales-promotion-strategy.png",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNVBx8qjAx-itp2-T8XLHt4FitkMh9HsTdbDC3WUj_cQRCgJXm8buAZ1usfJ_6VVdWMic&usqp=CAU",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4a_LWSSRUOCxdLI2u1qyxKH1n3Tnpc2QRVVh-i4peRgGimaP5GSOl-9xE5lY8xFueh7s&usqp=CAU"
+            };
+
             var promotions = new List<Promotion>();
 
             for (int i = 0; i < 20; i++) // Tạo 20 chương trình khuyến mãi
@@ -3487,7 +3504,8 @@ namespace Server.Data.SeedData
                     EndDate = endDate,
                     Status = "Active",
                     CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
+                    UpdatedDate = DateTime.Now,
+                    Image = promotionImages[random.Next(promotionImages.Length)] // Random hình ảnh thật
                 });
             }
 
@@ -3495,6 +3513,7 @@ namespace Server.Data.SeedData
             await _context.Promotions.AddRangeAsync(promotions);
             await _context.SaveChangesAsync();
         }
+
 
 
         private async Task SeedBranchProducts()
@@ -5332,6 +5351,151 @@ private async Task SeedProductImages()
             await _context.Appointments.AddRangeAsync(appointments);
             await _context.SaveChangesAsync(); // Save OrderDetails to DB
         }
+
+public async Task SeedSkincareRoutines()
+{
+    var skincareRoutines = new List<SkincareRoutine>
+    {
+        new SkincareRoutine
+        {
+            Name = "Oily Skin",
+            Description = "Routine for managing oily skin and reducing excess sebum.",
+            Steps = "Cleanse, Tone, Moisturize, Protect",
+            Frequency = "Daily",
+            TargetSkinTypes = "Oily Skin"
+        },
+        new SkincareRoutine
+        {
+            Name = "Dry Skin",
+            Description = "Routine for hydrating and nourishing dry skin.",
+            Steps = "Cleanse, Hydrate, Moisturize, Protect",
+            Frequency = "Daily",
+            TargetSkinTypes = "Dry Skin"
+        },
+        new SkincareRoutine
+        {
+            Name = "Neutral Skin",
+            Description = "Routine for maintaining neutral skin balance.",
+            Steps = "Cleanse, Tone, Moisturize, Protect",
+            Frequency = "Daily",
+            TargetSkinTypes = "Neutral Skin"
+        },
+        new SkincareRoutine
+        {
+            Name = "Combination Skin",
+            Description = "Routine for addressing both dry and oily areas.",
+            Steps = "Cleanse, Tone, Moisturize, Protect",
+            Frequency = "Daily",
+            TargetSkinTypes = "Combination Skin"
+        },
+        new SkincareRoutine
+        {
+            Name = "Blackheads",
+            Description = "Routine to clear and prevent blackheads.",
+            Steps = "Cleanse, Exfoliate, Tone, Protect",
+            Frequency = "Weekly",
+            TargetSkinTypes = "Blackheads"
+        },
+        new SkincareRoutine
+        {
+            Name = "Acne",
+            Description = "Routine for acne-prone skin to reduce breakouts.",
+            Steps = "Cleanse, Treat, Moisturize, Protect",
+            Frequency = "Daily",
+            TargetSkinTypes = "Acne"
+        },
+        new SkincareRoutine
+        {
+            Name = "Dark Circles",
+            Description = "Routine for reducing dark circles under the eyes.",
+            Steps = "Cleanse, Treat, Moisturize, Protect",
+            Frequency = "Daily",
+            TargetSkinTypes = "Dark Circles"
+        },
+        new SkincareRoutine
+        {
+            Name = "Closed Comedones",
+            Description = "Routine to manage closed comedones.",
+            Steps = "Cleanse, Exfoliate, Moisturize, Protect",
+            Frequency = "Weekly",
+            TargetSkinTypes = "Closed Comedones"
+        },
+        new SkincareRoutine
+        {
+            Name = "Glabella Wrinkles",
+            Description = "Routine to reduce glabella wrinkles.",
+            Steps = "Cleanse, Treat, Moisturize, Protect",
+            Frequency = "Daily",
+            TargetSkinTypes = "Glabella Wrinkles"
+        }
+    };
+
+    foreach (var routine in skincareRoutines)
+    {
+        if (!_context.SkincareRoutines.Any(r => r.Name == routine.Name))
+        {
+            _context.SkincareRoutines.Add(routine);
+            await _context.SaveChangesAsync();
+
+            var routineInDb = _context.SkincareRoutines.First(r => r.Name == routine.Name);
+
+            // Define product and service IDs
+            var routineProducts = routine.Name switch
+            {
+                "Oily Skin" => new[] { 3, 5, 31, 44, 45, 46 },
+                "Dry Skin" => new[] { 1, 6, 13, 24, 28, 39, 42, 48 },
+                "Neutral Skin" => new[] { 2, 7, 20, 26, 30, 33, 44, 49, 50 },
+                "Combination Skin" => new[] { 10, 11, 15, 23, 32, 34, 43, 45, 48 },
+                "Blackheads" => new[] { 3, 9, 11, 25, 34, 38, 45, 46 },
+                "Acne" => new[] { 6, 9, 14, 19, 31, 33, 40, 44, 45 },
+                "Dark Circles" => new[] { 1, 7, 24, 26, 28, 43, 44, 50 },
+                "Closed Comedones" => new[] { 5, 10, 11, 23, 31, 34, 45, 46 },
+                "Glabella Wrinkles" => new[] { 2, 6, 8, 28, 32, 41, 42, 48 },
+                _ => Array.Empty<int>()
+            };
+
+            var routineServices = routine.Name switch
+            {
+                "Oily Skin" => new[] { 4, 9 },
+                "Dry Skin" => new[] { 3, 6, 10 },
+                "Neutral Skin" => new[] { 1, 5, 8 },
+                "Combination Skin" => new[] { 2, 7 },
+                "Blackheads" => new[] { 4, 5, 9 },
+                "Acne" => new[] { 5, 6, 9 },
+                "Dark Circles" => new[] { 3, 4, 8 },
+                "Closed Comedones" => new[] { 4, 7 },
+                "Glabella Wrinkles" => new[] { 2, 3, 8 },
+                _ => Array.Empty<int>()
+            };
+
+            // Add ProductRoutine
+            foreach (var productId in routineProducts)
+            {
+                _context.ProductRoutines.Add(new ProductRoutine
+                {
+                    RoutineId = routineInDb.SkincareRoutineId,
+                    ProductId = productId,
+                    Status = "Active"
+                });
+            }
+
+            // Add ServiceRoutine
+            foreach (var serviceId in routineServices)
+            {
+                _context.ServiceRoutine.Add(new ServiceRoutine
+                {
+                    RoutineId = routineInDb.SkincareRoutineId,
+                    ServiceId = serviceId,
+                    Status = "Active"
+                });
+            }
+
+            await _context.SaveChangesAsync();
+        }
+    }
+}
+
+
     }
 
 
