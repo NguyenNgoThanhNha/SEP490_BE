@@ -19,7 +19,8 @@ public class Service
     
     public ICollection<Branch_Service> Branch_Services { get; set; }
     public ICollection<ServiceRoutine> ServiceRoutines { get; set; }
-    
+
+    public ICollection<ServiceImages> ServiceImages { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }
