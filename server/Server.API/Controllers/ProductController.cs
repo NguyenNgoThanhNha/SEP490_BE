@@ -428,6 +428,17 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpGet("check-input-gross")]
+        public async Task<IActionResult> CheckInputGross(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return BadRequest();
+            }
+            var result = await _productService.CheckInputHasGross(input);
+            return Ok(ApiResponse.Succeed(result));
+        }
+
 
     }
 }

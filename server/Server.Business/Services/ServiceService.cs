@@ -8,6 +8,7 @@ using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
 using Server.Business.Exceptions;
+using Service.Business.Services;
 
 namespace Server.Business.Services
 {
@@ -16,22 +17,24 @@ namespace Server.Business.Services
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly CloudianryService _cloudianryService;
+        private readonly IAIMLService _gptService;
 
-        public ServiceService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService)
+        public ServiceService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService, IAIMLService gptService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _cloudianryService = cloudianryService;
+            _gptService = gptService;
         }
 
         public async Task<Pagination<ServiceModel>> GetListAsync(
-     Expression<Func<Service, bool>> filter = null,
-     Func<IQueryable<Service>, IOrderedQueryable<Service>> orderBy = null,
+     Expression<Func<Server.Data.Entities.Service, bool>> filter = null,
+     Func<IQueryable<Server.Data.Entities.Service>, IOrderedQueryable<Server.Data.Entities.Service>> orderBy = null,
      int? pageIndex = null,
      int? pageSize = null)
         {
             // Truy vấn dữ liệu từ repository với điều kiện ban đầu là `status == "Active"`
-            IQueryable<Service> query = _unitOfWorks.ServiceRepository.GetAll()
+            IQueryable<Server.Data.Entities.Service> query = _unitOfWorks.ServiceRepository.GetAll()
       .Include(s => s.Branch_Services) // Bao gồm Branch_Services
           .ThenInclude(bs => bs.Branch) // Bao gồm thông tin Branch từ Branch_Services
       .Where(s => s.Status == "Active"); // Chỉ lấy các Service có trạng thái Active
@@ -211,7 +214,7 @@ namespace Server.Business.Services
                 }
 
                 // Tạo thực thể Service từ DTO
-                var service = new Service
+                var service = new Data.Entities.Service
                 {
                     Name = serviceDto.Name,
                     Description = serviceDto.Description,
@@ -327,7 +330,7 @@ namespace Server.Business.Services
                 return _mapper.Map<ServiceDto>(service);
             }
 
-        public async Task<Service> DeleteServiceAsync(int id)
+        public async Task<Server.Data.Entities.Service> DeleteServiceAsync(int id)
         {
             try
             {
@@ -387,7 +390,7 @@ namespace Server.Business.Services
         //    return featuredServices;
         //}
 
-        public async Task<List<Service>> GetTop4FeaturedServicesAsync()
+        public async Task<List<Server.Data.Entities.Service>> GetTop4FeaturedServicesAsync()
         {
             // Lấy danh sách Appointments có trạng thái Confirmed và bao gồm Service cùng các quan hệ cần thiết
             var appointments = await _unitOfWorks.AppointmentsRepository
@@ -417,8 +420,15 @@ namespace Server.Business.Services
             return featuredServices;
         }
 
-
-
-
+        public async Task<GrossDTO> CheckInputHasGross(string name)
+        {
+            var result = await _gptService.GetGross(name);
+            GrossDTO gross = new GrossDTO()
+            {
+                Grosses = result,
+                HasGross = result != null && result.Count > 0
+            };
+            return gross;
+        }
     }
 }

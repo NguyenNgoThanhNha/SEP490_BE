@@ -7,6 +7,7 @@ using Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
+using Service.Business.Services;
 using System.Linq.Expressions;
 
 namespace Server.Business.Services
@@ -16,11 +17,13 @@ namespace Server.Business.Services
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly CloudianryService _cloudianryService;
-        public ProductService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService)
+        private readonly IAIMLService _gptService;
+        public ProductService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService, IAIMLService gptService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _cloudianryService = cloudianryService;
+            _gptService = gptService;
         }
         public async Task<Pagination<ProductDto>> GetListAsync(
     Expression<Func<Product, bool>> filter = null,
@@ -685,6 +688,17 @@ namespace Server.Business.Services
                 .ToList();
 
             return bestSellers;
+        }
+
+        public async Task<GrossDTO> CheckInputHasGross(string name)
+        {
+            var result = await _gptService.GetGross(name);
+            GrossDTO gross = new GrossDTO()
+            {
+                Grosses = result,
+                HasGross = result != null && result.Count > 0
+            };
+            return gross;
         }
 
 

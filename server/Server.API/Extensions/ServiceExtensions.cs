@@ -125,6 +125,7 @@ namespace Server.API.Extensions
             services.AddScoped<BotchatService>();
             services.AddScoped<SkinAnalyzeService>();
             services.AddScoped<AppointmentReminderWorker>();
+            services.AddScoped<BlogCommentService>();
             return services;
         }
     };

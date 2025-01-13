@@ -1,3 +1,4 @@
+using MailKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
@@ -5,6 +6,7 @@ using Server.Business.Middlewares;
 using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.SeedData;
+using Service.Business.Services;
 
 namespace Server.API
 {
@@ -15,6 +17,8 @@ namespace Server.API
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddInfrastructure(builder.Configuration);
+
+            builder.Services.AddTransient<IAIMLService, AIMLService>();
 
             builder.Services.AddSwaggerGen(option =>
             {
@@ -56,6 +60,11 @@ namespace Server.API
                 });
 
             builder.Services.AddElasticSearch(builder.Configuration);
+            builder.Services.AddHttpClient("AIML", client =>
+            {
+                client.BaseAddress = new Uri("https://api.aimlapi.com/");
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {builder.Configuration["AIML:ApiKey"]}");
+            });
             var app = builder.Build();
 
             // Hook into application lifetime events and trigger only application fully started 
