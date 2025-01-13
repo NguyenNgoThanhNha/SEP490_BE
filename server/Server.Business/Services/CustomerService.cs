@@ -1,6 +1,8 @@
 ﻿using CloudinaryDotNet.Actions;
+using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
+using Server.Business.Dtos;
 using Server.Data.UnitOfWorks;
 using System;
 using System.Collections.Generic;
@@ -66,6 +68,38 @@ namespace Server.Business.Services
                 RemainingPoints = user.BonusPoint,
                 PromotionName = promotion.PromotionName
             };
+        }
+
+
+        public async Task<List<BusyTimeDto>> GetCustomerBusyTimesAsync(int customerId, DateTime date)
+        {
+            // Lấy tất cả Appointments của khách hàng trong ngày
+            var appointments = await _unitOfWork.AppointmentsRepository
+                .FindByCondition(a => a.CustomerId == customerId &&
+                                      a.AppointmentsTime.Date == date.Date &&
+                                      a.Status == "Confirmed") // Chỉ lấy trạng thái đã xác nhận
+                .Include(a => a.Service) // Include Service để lấy duration
+                .ToListAsync();
+
+            // Tính toán thời gian bận
+            var busyTimes = appointments
+                .Where(a => a.Service != null) // Bỏ qua các bản ghi không có Service
+                .Select(a =>
+                {
+                    // Parse duration từ Service (VD: "60 minutes")
+                    var durationParts = a.Service.Duration.Split(' ');
+                    int durationMinutes = int.TryParse(durationParts[0], out var minutes) ? minutes : 0;
+
+                    return new BusyTimeDto
+                    {
+                        StartTime = a.AppointmentsTime,
+                        EndTime = a.AppointmentsTime.AddMinutes(durationMinutes)
+                    };
+                })
+                .OrderBy(bt => bt.StartTime) // Sắp xếp theo thời gian bắt đầu
+                .ToList();
+
+            return busyTimes;
         }
 
 
