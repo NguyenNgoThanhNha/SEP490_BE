@@ -360,32 +360,63 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<List<FeaturedServiceDto>> GetTop4FeaturedServicesAsync()
+        //public async Task<List<FeaturedServiceDto>> GetTop4FeaturedServicesAsync()
+        //{
+        //    // Lấy danh sách Appointments có trạng thái Confirmed và include Service
+        //    var appointments = await _unitOfWorks.AppointmentsRepository
+        //        .FindByCondition(a => a.Status == "Confirmed") // Chỉ lọc theo điều kiện
+        //        .Include(a => a.Service) // Bao gồm thông tin Service
+        //        .ToListAsync();
+
+        //    // Nhóm theo ServiceId và tính toán các thông tin cần thiết
+        //    var featuredServices = appointments
+        //        .Where(a => a.Service != null) // Bỏ qua những bản ghi không có Service
+        //        .GroupBy(a => a.ServiceId)
+        //        .Select(g => new FeaturedServiceDto
+        //        {
+        //            ServiceId = g.Key,
+        //            ServiceName = g.First().Service.Name,
+        //            Description = g.First().Service.Description,
+        //            Price = g.First().Service.Price,
+        //            TotalQuantity = g.Sum(a => a.Quantity)
+        //        })
+        //        .OrderByDescending(s => s.TotalQuantity) // Sắp xếp giảm dần theo tổng Quantity
+        //        .Take(4) // Lấy 4 dịch vụ nổi bật
+        //        .ToList();
+
+        //    return featuredServices;
+        //}
+
+        public async Task<List<Service>> GetTop4FeaturedServicesAsync()
         {
-            // Lấy danh sách Appointments có trạng thái Confirmed và include Service
+            // Lấy danh sách Appointments có trạng thái Confirmed và bao gồm Service cùng các quan hệ cần thiết
             var appointments = await _unitOfWorks.AppointmentsRepository
-                .FindByCondition(a => a.Status == "Confirmed") // Chỉ lọc theo điều kiện
-                .Include(a => a.Service) // Bao gồm thông tin Service
+                .FindByCondition(a => a.Status == "Confirmed")
+                .Include(a => a.Service)
+                    .ThenInclude(s => s.Branch_Services) // Bao gồm Branch_Services nếu cần
+                .Include(a => a.Service)
+                    .ThenInclude(s => s.ServiceRoutines) // Bao gồm ServiceRoutines nếu cần
                 .ToListAsync();
 
-            // Nhóm theo ServiceId và tính toán các thông tin cần thiết
+            // Nhóm theo ServiceId và tính toán
             var featuredServices = appointments
-                .Where(a => a.Service != null) // Bỏ qua những bản ghi không có Service
+                .Where(a => a.Service != null) // Loại bỏ các bản ghi không có Service
                 .GroupBy(a => a.ServiceId)
-                .Select(g => new FeaturedServiceDto
+                .Select(g =>
                 {
-                    ServiceId = g.Key,
-                    ServiceName = g.First().Service.Name,
-                    Description = g.First().Service.Description,
-                    Price = g.First().Service.Price,
-                    TotalQuantity = g.Sum(a => a.Quantity)
+                    var service = g.First().Service;
+
+                    // Bao gồm đầy đủ thông tin của Service
+                    //service.TotalQuantity = g.Sum(a => a.Quantity); // Bổ sung TotalQuantity nếu cần
+                    return service;
                 })
-                .OrderByDescending(s => s.TotalQuantity) // Sắp xếp giảm dần theo tổng Quantity
+                //.OrderByDescending(s => s.TotalQuantity) // Sắp xếp theo TotalQuantity
                 .Take(4) // Lấy 4 dịch vụ nổi bật
                 .ToList();
 
             return featuredServices;
         }
+
 
 
 

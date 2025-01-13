@@ -307,15 +307,48 @@ namespace Server.API.Controllers
             }
         }
 
+        //[HttpGet("top4-featured-services")]
+        //public async Task<IActionResult> GetTop4FeaturedServices()
+        //{
+        //    try
+        //    {
+        //        // Gọi Service để lấy dữ liệu
+        //        var featuredServices = await _serviceService.GetTop4FeaturedServicesAsync();
+
+        //        // Kiểm tra kết quả
+        //        if (featuredServices == null || !featuredServices.Any())
+        //        {
+        //            return NotFound(new
+        //            {
+        //                Message = "Không tìm thấy dịch vụ nổi bật nào."
+        //            });
+        //        }
+
+        //        // Trả về dữ liệu thành công
+        //        return Ok(new
+        //        {
+        //            Message = "Lấy danh sách Top 4 dịch vụ nổi bật thành công!",
+        //            Data = featuredServices
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Xử lý lỗi hệ thống
+        //        return StatusCode(500, new
+        //        {
+        //            Message = $"Lỗi hệ thống: {ex.Message}"
+        //        });
+        //    }
+        //}
+
+
         [HttpGet("top4-featured-services")]
         public async Task<IActionResult> GetTop4FeaturedServices()
         {
             try
             {
-                // Gọi Service để lấy dữ liệu
                 var featuredServices = await _serviceService.GetTop4FeaturedServicesAsync();
 
-                // Kiểm tra kết quả
                 if (featuredServices == null || !featuredServices.Any())
                 {
                     return NotFound(new
@@ -324,7 +357,6 @@ namespace Server.API.Controllers
                     });
                 }
 
-                // Trả về dữ liệu thành công
                 return Ok(new
                 {
                     Message = "Lấy danh sách Top 4 dịch vụ nổi bật thành công!",
@@ -333,13 +365,13 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi hệ thống
                 return StatusCode(500, new
                 {
                     Message = $"Lỗi hệ thống: {ex.Message}"
                 });
             }
         }
+
 
     }
 }
