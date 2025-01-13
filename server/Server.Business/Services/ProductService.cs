@@ -634,26 +634,54 @@ namespace Server.Business.Services
             }
         }
 
-        public async Task<List<BestSellerProductDto>> GetTop5BestSellersAsync()
+        //public async Task<List<BestSellerProductDto>> GetTop5BestSellersAsync()
+        //{
+        //    // Lấy danh sách OrderDetail hoàn thành
+        //    var orderDetails = await _unitOfWorks.OrderDetailRepository
+        //        .FindByCondition(od => od.Status == "Completed")
+        //        .Include(od => od.Product)
+        //        .ToListAsync();
+
+        //    // Nhóm và tính toán
+        //    var bestSellers = orderDetails
+        //        .GroupBy(od => od.ProductId)
+        //        .Select(g => new BestSellerProductDto
+        //        {
+        //            ProductId = g.Key.Value,
+        //            ProductName = g.First().Product.ProductName,
+        //            QuantitySold = g.Sum(od => od.Quantity),                   
+        //            Price = g.First().Product.Price
+        //        })
+        //        .OrderByDescending(p => p.QuantitySold)
+        //        .Take(5)
+        //        .ToList();
+
+        //    return bestSellers;
+        //}
+
+        public async Task<List<Product>> GetTop5BestSellersAsync()
         {
             // Lấy danh sách OrderDetail hoàn thành
             var orderDetails = await _unitOfWorks.OrderDetailRepository
-                .FindByCondition(od => od.Status == "Completed")
-                .Include(od => od.Product)
-                .ToListAsync();
+     .FindByCondition(od => od.Status == "Completed")
+     .Include(od => od.Product)
+         .ThenInclude(p => p.Category) // Bao gồm Category
+     .Include(od => od.Product)
+         .ThenInclude(p => p.Company) // Bao gồm Company
+     .ToListAsync();
+
 
             // Nhóm và tính toán
             var bestSellers = orderDetails
                 .GroupBy(od => od.ProductId)
-                .Select(g => new BestSellerProductDto
+                .Select(g => new
                 {
-                    ProductId = g.Key.Value,
-                    ProductName = g.First().Product.ProductName,
-                    QuantitySold = g.Sum(od => od.Quantity),                   
-                    Price = g.First().Product.Price
+                    Product = g.First().Product, // Lấy toàn bộ object Product
+                    QuantitySold = g.Sum(od => od.Quantity)
                 })
                 .OrderByDescending(p => p.QuantitySold)
                 .Take(5)
+                .Select(p => p.Product) // Lấy danh sách object Product
                 .ToList();
 
             return bestSellers;
