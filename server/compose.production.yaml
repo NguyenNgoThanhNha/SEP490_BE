@@ -37,6 +37,10 @@ services:
       - BotChatSetting__ApiKey=${BotChatApiKey}
       - AISkinSetting__Url=${AISkinAnalyzeUrl}
       - AISkinSetting__ApiKey=${AISkinAnalyzeApiKey}
+      - ElasticSettings__baseUrl=${ElasticSettingsBaseUrl}
+      - ElasticSettings__defaultIndex=${ElasticSettingsDefaultIndex}
+      - ElasticSettings__finger=${ElasticSettingsFinger}
+      - ElasticSettings__password=${ElasticSettingsPassword}
     ports:
       - ${PortServer}:8080
     depends_on:

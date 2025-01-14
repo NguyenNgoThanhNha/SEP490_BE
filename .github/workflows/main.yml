@@ -41,3 +41,7 @@ jobs:
           BotChatApiKey: ${{ secrets.BotChatApiKey }}
           AISkinAnalyzeUrl: ${{ secrets.AISkinAnalyzeUrl }}
           AISkinAnalyzeApiKey: ${{ secrets.AISkinAnalyzeApiKey }}
+          ElasticSettingsBaseUrl: ${{ secrets.ElasticSettingsBaseUrl }}
+          ElasticSettingsDefaultIndex: ${{ secrets.ElasticSettingsDefaultIndex }}
+          ElasticSettingsFinger: ${{ secrets.ElasticSettingsFinger }}
+          ElasticSettingsPassword: ${{ secrets.ElasticSettingsPassword }}
