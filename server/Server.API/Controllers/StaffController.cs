@@ -8,7 +8,7 @@ using Server.Data.Entities;
 
 namespace Server.API.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class StaffController : ControllerBase
@@ -281,6 +281,31 @@ namespace Server.API.Controllers
                 {
                     Message = $"Lỗi hệ thống: {ex.Message}"
                 });
+            }
+        }
+
+        [HttpGet("get-staff-by-branch-and-service")]
+        public async Task<IActionResult> GetStaffByBranchAndService(int branchId, int serviceId)
+        {
+            try
+            {
+                // Gọi service để lấy danh sách nhân viên
+                var staffList = await _staffService.GetStaffByBranchAndServiceAsync(branchId, serviceId);
+
+                if (staffList == null || staffList.Count == 0)
+                {
+                    return NotFound(new { Message = "No staff found for the given branch and service." });
+                }
+
+                return Ok(new
+                {
+                    Message = "Staff list fetched successfully.",
+                    Data = staffList
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
             }
         }
     }

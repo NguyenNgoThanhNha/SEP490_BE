@@ -7,6 +7,7 @@ using Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
+using Service.Business.Services;
 using System.Linq.Expressions;
 
 namespace Server.Business.Services
@@ -15,10 +16,14 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
-        public ProductService(UnitOfWorks unitOfWorks, IMapper mapper)
+        private readonly CloudianryService _cloudianryService;
+        private readonly IAIMLService _gptService;
+        public ProductService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService, IAIMLService gptService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _cloudianryService = cloudianryService;
+            _gptService = gptService;
         }
         public async Task<Pagination<ProductDto>> GetListAsync(
     Expression<Func<Product, bool>> filter = null,
@@ -140,6 +145,114 @@ namespace Server.Business.Services
         }
 
 
+        //    public async Task<ApiResult<ApiResponse>> CreateProductAsync(ProductCreateDto productCreateDto)
+        //    {
+        //        try
+        //        {
+        //            if (productCreateDto == null)
+        //            {
+        //                return ApiResult<ApiResponse>.Error(new ApiResponse
+        //                {
+        //                    message = "Please enter complete information."
+        //                });
+        //            }
+
+        //            // Kiểm tra Category có tồn tại không
+        //            var categoryExists = await _unitOfWorks.CategoryRepository
+        // .FindByCondition(c => c.CategoryId == productCreateDto.CategoryId)
+        // .AnyAsync();
+
+
+        //            if (!categoryExists)
+        //            {
+        //                return ApiResult<ApiResponse>.Error(new ApiResponse
+        //                {
+        //                    message = "Category does not exist."
+        //                });
+        //            }
+
+        //            // Kiểm tra Company có tồn tại không
+        //            var companyExists = await _unitOfWorks.CompanyRepository
+        //.FindByCondition(c => c.CompanyId == productCreateDto.CompanyId)
+        //.AnyAsync();
+
+        //            if (!companyExists)
+        //            {
+        //                return ApiResult<ApiResponse>.Error(new ApiResponse
+        //                {
+        //                    message = "Company does not exist."
+        //                });
+        //            }
+
+        //            // Tạo sản phẩm mới
+        //            var newProduct = new Product
+        //            {
+        //                ProductName = productCreateDto.ProductName,
+        //                ProductDescription = productCreateDto.ProductDescription,
+        //                Price = productCreateDto.Price,
+        //                Quantity = productCreateDto.Quantity,
+        //                Discount = productCreateDto.Discount,
+        //                CategoryId = productCreateDto.CategoryId,
+        //                CompanyId = productCreateDto.CompanyId,
+        //                CreatedDate = DateTime.Now,
+        //                UpdatedDate = DateTime.Now,
+        //                Volume = productCreateDto.Volume,
+        //                Dimension = productCreateDto.Dimension,
+        //                Status = "Active"
+        //            };
+
+        //            await _unitOfWorks.ProductRepository.AddAsync(newProduct);
+        //            await _unitOfWorks.ProductRepository.Commit();
+
+
+        //            // Lấy lại sản phẩm vừa tạo từ cơ sở dữ liệu kèm theo thông tin của Category và Company
+        //            var createdProduct = await _unitOfWorks.ProductRepository
+        // .FindByCondition(p => p.ProductId == newProduct.ProductId)
+        // .Include(p => p.Category)
+        // .Include(p => p.Company)
+        // .FirstOrDefaultAsync();
+
+
+        //            if (createdProduct == null)
+        //            {
+        //                return ApiResult<ApiResponse>.Error(new ApiResponse
+        //                {
+        //                    message = "Failed to retrieve the created product."
+        //                });
+        //            }
+
+        //            return ApiResult<ApiResponse>.Succeed(new ApiResponse
+        //            {
+        //                message = "Product created successfully.",
+        //                data = new
+        //                {
+        //                    createdProduct.ProductId,
+        //                    createdProduct.ProductName,
+        //                    createdProduct.ProductDescription,
+        //                    createdProduct.Price,
+        //                    createdProduct.Quantity,
+        //                    createdProduct.Discount,
+        //                    createdProduct.Status,
+        //                    createdProduct.CategoryId,
+        //                    CategoryName = createdProduct.Category?.Name,
+        //                    createdProduct.CompanyId,
+        //                    CompanyName = createdProduct.Company?.Name,
+        //                    createdProduct.Volume,
+        //                    createdProduct.Dimension,
+        //                    createdProduct.CreatedDate,
+        //                    createdProduct.UpdatedDate
+        //                }
+        //            });
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            return ApiResult<ApiResponse>.Error(new ApiResponse
+        //            {
+        //                message = $"Error: {ex.Message}"
+        //            });
+        //        }
+        //    }
+
         public async Task<ApiResult<ApiResponse>> CreateProductAsync(ProductCreateDto productCreateDto)
         {
             try
@@ -154,9 +267,8 @@ namespace Server.Business.Services
 
                 // Kiểm tra Category có tồn tại không
                 var categoryExists = await _unitOfWorks.CategoryRepository
-     .FindByCondition(c => c.CategoryId == productCreateDto.CategoryId)
-     .AnyAsync();
-
+                    .FindByCondition(c => c.CategoryId == productCreateDto.CategoryId)
+                    .AnyAsync();
 
                 if (!categoryExists)
                 {
@@ -168,8 +280,8 @@ namespace Server.Business.Services
 
                 // Kiểm tra Company có tồn tại không
                 var companyExists = await _unitOfWorks.CompanyRepository
-    .FindByCondition(c => c.CompanyId == productCreateDto.CompanyId)
-    .AnyAsync();
+                    .FindByCondition(c => c.CompanyId == productCreateDto.CompanyId)
+                    .AnyAsync();
 
                 if (!companyExists)
                 {
@@ -177,6 +289,21 @@ namespace Server.Business.Services
                     {
                         message = "Company does not exist."
                     });
+                }
+
+                // Upload ảnh nếu có
+                string? imageUrl = null;
+                if (productCreateDto.Image != null)
+                {
+                    var imageUploadResult = await _cloudianryService.UploadImageAsync(productCreateDto.Image);
+                    if (imageUploadResult == null)
+                    {
+                        return ApiResult<ApiResponse>.Error(new ApiResponse
+                        {
+                            message = "Upload image failed!"
+                        });
+                    }
+                    imageUrl = imageUploadResult.SecureUrl.ToString();
                 }
 
                 // Tạo sản phẩm mới
@@ -199,14 +326,24 @@ namespace Server.Business.Services
                 await _unitOfWorks.ProductRepository.AddAsync(newProduct);
                 await _unitOfWorks.ProductRepository.Commit();
 
+                // Lưu ảnh vào ProductImages nếu có ảnh
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    var productImage = new ProductImages
+                    {
+                        ProductId = newProduct.ProductId,
+                        image = imageUrl
+                    };
+                    await _unitOfWorks.ProductImageRepository.AddAsync(productImage);
+                    await _unitOfWorks.ProductImageRepository.Commit();
+                }
 
                 // Lấy lại sản phẩm vừa tạo từ cơ sở dữ liệu kèm theo thông tin của Category và Company
                 var createdProduct = await _unitOfWorks.ProductRepository
-     .FindByCondition(p => p.ProductId == newProduct.ProductId)
-     .Include(p => p.Category)
-     .Include(p => p.Company)
-     .FirstOrDefaultAsync();
-
+                    .FindByCondition(p => p.ProductId == newProduct.ProductId)
+                    .Include(p => p.Category)
+                    .Include(p => p.Company)
+                    .FirstOrDefaultAsync();
 
                 if (createdProduct == null)
                 {
@@ -235,7 +372,8 @@ namespace Server.Business.Services
                         createdProduct.Volume,
                         createdProduct.Dimension,
                         createdProduct.CreatedDate,
-                        createdProduct.UpdatedDate
+                        createdProduct.UpdatedDate,
+                        ImageUrl = imageUrl
                     }
                 });
             }
@@ -247,6 +385,7 @@ namespace Server.Business.Services
                 });
             }
         }
+
 
         public async Task<ProductModel?> GetProductByIdAsync(int productId)
         {
@@ -498,29 +637,68 @@ namespace Server.Business.Services
             }
         }
 
-        public async Task<List<BestSellerProductDto>> GetTop5BestSellersAsync()
+        //public async Task<List<BestSellerProductDto>> GetTop5BestSellersAsync()
+        //{
+        //    // Lấy danh sách OrderDetail hoàn thành
+        //    var orderDetails = await _unitOfWorks.OrderDetailRepository
+        //        .FindByCondition(od => od.Status == "Completed")
+        //        .Include(od => od.Product)
+        //        .ToListAsync();
+
+        //    // Nhóm và tính toán
+        //    var bestSellers = orderDetails
+        //        .GroupBy(od => od.ProductId)
+        //        .Select(g => new BestSellerProductDto
+        //        {
+        //            ProductId = g.Key.Value,
+        //            ProductName = g.First().Product.ProductName,
+        //            QuantitySold = g.Sum(od => od.Quantity),                   
+        //            Price = g.First().Product.Price
+        //        })
+        //        .OrderByDescending(p => p.QuantitySold)
+        //        .Take(5)
+        //        .ToList();
+
+        //    return bestSellers;
+        //}
+
+        public async Task<List<Product>> GetTop5BestSellersAsync()
         {
             // Lấy danh sách OrderDetail hoàn thành
             var orderDetails = await _unitOfWorks.OrderDetailRepository
-                .FindByCondition(od => od.Status == "Completed")
-                .Include(od => od.Product)
-                .ToListAsync();
+     .FindByCondition(od => od.Status == "Completed")
+     .Include(od => od.Product)
+         .ThenInclude(p => p.Category) // Bao gồm Category
+     .Include(od => od.Product)
+         .ThenInclude(p => p.Company) // Bao gồm Company
+     .ToListAsync();
+
 
             // Nhóm và tính toán
             var bestSellers = orderDetails
                 .GroupBy(od => od.ProductId)
-                .Select(g => new BestSellerProductDto
+                .Select(g => new
                 {
-                    ProductId = g.Key.Value,
-                    ProductName = g.First().Product.ProductName,
-                    QuantitySold = g.Sum(od => od.Quantity),                   
-                    Price = g.First().Product.Price
+                    Product = g.First().Product, // Lấy toàn bộ object Product
+                    QuantitySold = g.Sum(od => od.Quantity)
                 })
                 .OrderByDescending(p => p.QuantitySold)
                 .Take(5)
+                .Select(p => p.Product) // Lấy danh sách object Product
                 .ToList();
 
             return bestSellers;
+        }
+
+        public async Task<GrossDTO> CheckInputHasGross(string name)
+        {
+            var result = await _gptService.GetGross(name);
+            GrossDTO gross = new GrossDTO()
+            {
+                Grosses = result,
+                HasGross = result != null && result.Count > 0
+            };
+            return gross;
         }
 
 

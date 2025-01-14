@@ -15,8 +15,8 @@ namespace Server.Business.Mappers
             CreateMap<UserModel, UserDTO>().ReverseMap();
             CreateMap<UserInfoModel, UserDTO>().ReverseMap();
 
-            CreateMap<Service, ServiceModel>().ReverseMap();
-            CreateMap<Service, ServiceDto>().ReverseMap();
+            CreateMap<Server.Data.Entities.Service, ServiceModel>().ReverseMap();
+            CreateMap<Server.Data.Entities.Service, ServiceDto>().ReverseMap();
             CreateMap<ServiceModel, ServiceDto>().ReverseMap();
 
             CreateMap<Promotion, PromotionModel>().ReverseMap();

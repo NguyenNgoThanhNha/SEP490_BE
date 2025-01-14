@@ -18,7 +18,7 @@ namespace Server.API.Controllers
         private readonly ServiceService _serviceService;
         private readonly IElasticClient _elasticClient;
         private readonly ElasticService<ServiceDto> _elasticService;
-        
+
 
         public ServiceController(ServiceService serviceService, IElasticClient elasticClient)
         {
@@ -26,7 +26,7 @@ namespace Server.API.Controllers
             _elasticClient = elasticClient;
             _elasticService = new ElasticService<ServiceDto>(_elasticClient, "services");
         }
-        
+
         [HttpGet("get-list")]
         public async Task<IActionResult> GetList(int page = 1, int pageSize = 10)
         {
@@ -56,7 +56,7 @@ namespace Server.API.Controllers
                 }));
             }
         }
-        
+
         [HttpGet("get-all-services")]
         public async Task<IActionResult> Get([FromQuery] int page = 1, int pageSize = 6)
         {
@@ -86,14 +86,14 @@ namespace Server.API.Controllers
                 }));
             }
         }
-        
+
         [HttpGet("get-all-services-for-branch")]
-        public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId ,int page = 1, int pageSize = 6)
+        public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId, int page = 1, int pageSize = 6)
         {
             try
             {
                 // Gọi Service để lấy danh sách dịch vụ
-                var services = await _serviceService.GetAllServiceForBranch(page,pageSize, branchId);
+                var services = await _serviceService.GetAllServiceForBranch(page, pageSize, branchId);
 
                 // Kiểm tra nếu không có dữ liệu
                 if (services.data == null || !services.data.Any())
@@ -237,40 +237,40 @@ namespace Server.API.Controllers
         public async Task<IActionResult> UpdateService(int serviceId, [FromForm] ServiceUpdateDto serviceDto)
         {
 
-                // Kiểm tra nếu model không hợp lệ
-                if (!ModelState.IsValid)
+            // Kiểm tra nếu model không hợp lệ
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    var errors = ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage)
-                        .ToList();
-
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Validation failed.",
-                        data = errors
-                    }));
-                }
-
-                // Gọi Service để cập nhật dịch vụ
-                var updatedService = await _serviceService.UpdateServiceAsync(serviceDto, serviceId);
-
-                // Kiểm tra nếu không tìm thấy dịch vụ
-                if (updatedService == null)
-                {
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Service not found."
-                    }));
-                }
-
-                // Trả về kết quả nếu thành công
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    message = "Service updated successfully.",
-                    data = updatedService
+                    message = "Validation failed.",
+                    data = errors
                 }));
             }
+
+            // Gọi Service để cập nhật dịch vụ
+            var updatedService = await _serviceService.UpdateServiceAsync(serviceDto, serviceId);
+
+            // Kiểm tra nếu không tìm thấy dịch vụ
+            if (updatedService == null)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Service not found."
+                }));
+            }
+
+            // Trả về kết quả nếu thành công
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Service updated successfully.",
+                data = updatedService
+            }));
+        }
 
         [Authorize(Roles = "Admin, Manager,Staff")]
         [HttpDelete("delete-service")]
@@ -307,15 +307,48 @@ namespace Server.API.Controllers
             }
         }
 
+        //[HttpGet("top4-featured-services")]
+        //public async Task<IActionResult> GetTop4FeaturedServices()
+        //{
+        //    try
+        //    {
+        //        // Gọi Service để lấy dữ liệu
+        //        var featuredServices = await _serviceService.GetTop4FeaturedServicesAsync();
+
+        //        // Kiểm tra kết quả
+        //        if (featuredServices == null || !featuredServices.Any())
+        //        {
+        //            return NotFound(new
+        //            {
+        //                Message = "Không tìm thấy dịch vụ nổi bật nào."
+        //            });
+        //        }
+
+        //        // Trả về dữ liệu thành công
+        //        return Ok(new
+        //        {
+        //            Message = "Lấy danh sách Top 4 dịch vụ nổi bật thành công!",
+        //            Data = featuredServices
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Xử lý lỗi hệ thống
+        //        return StatusCode(500, new
+        //        {
+        //            Message = $"Lỗi hệ thống: {ex.Message}"
+        //        });
+        //    }
+        //}
+
+
         [HttpGet("top4-featured-services")]
         public async Task<IActionResult> GetTop4FeaturedServices()
         {
             try
             {
-                // Gọi Service để lấy dữ liệu
                 var featuredServices = await _serviceService.GetTop4FeaturedServicesAsync();
 
-                // Kiểm tra kết quả
                 if (featuredServices == null || !featuredServices.Any())
                 {
                     return NotFound(new
@@ -324,7 +357,6 @@ namespace Server.API.Controllers
                     });
                 }
 
-                // Trả về dữ liệu thành công
                 return Ok(new
                 {
                     Message = "Lấy danh sách Top 4 dịch vụ nổi bật thành công!",
@@ -333,7 +365,6 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi hệ thống
                 return StatusCode(500, new
                 {
                     Message = $"Lỗi hệ thống: {ex.Message}"
@@ -341,5 +372,15 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpGet("check-input-gross")]
+        public async Task<IActionResult> CheckInputGross(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return BadRequest();
+            }
+            var result = await _serviceService.CheckInputHasGross(input);
+            return Ok(ApiResponse.Succeed(result));
+        }
     }
 }

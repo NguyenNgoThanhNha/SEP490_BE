@@ -132,8 +132,41 @@ namespace Server.API.Controllers
 
         [Authorize(Roles = "Admin, Manager")]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
+        //public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        var errors = ModelState.Values
+        //            .SelectMany(v => v.Errors)
+        //            .Select(e => e.ErrorMessage)
+        //            .ToList();
+
+        //        return BadRequest(ApiResult<List<string>>.Error(errors));
+        //    }
+
+        //    // Gọi service để tạo sản phẩm
+        //    var result = await _productService.CreateProductAsync(productCreateDto);
+
+        //    // Kiểm tra nếu có lỗi
+        //    if (!result.Success) // Nếu `Success` là false
+        //    {
+        //        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+        //        {
+        //            message = result.Result?.message
+        //        }));
+        //    }
+
+        //    // Trả về phản hồi thành công
+        //    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+        //    {
+        //        message = "Product created successfully!",
+        //        data = result.Result?.data
+        //    }));
+        //}
+        //
+        public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto productCreateDto)
         {
+            // Kiểm tra tính hợp lệ của Model
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values
@@ -148,7 +181,7 @@ namespace Server.API.Controllers
             var result = await _productService.CreateProductAsync(productCreateDto);
 
             // Kiểm tra nếu có lỗi
-            if (!result.Success) // Nếu `Success` là false
+            if (!result.Success)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
@@ -163,6 +196,7 @@ namespace Server.API.Controllers
                 data = result.Result?.data
             }));
         }
+
 
 
         [HttpGet("{productId}")]
@@ -326,6 +360,40 @@ namespace Server.API.Controllers
             }
         }
 
+        //[HttpGet("top5-bestsellers")]
+        //public async Task<IActionResult> GetTop5BestSellers()
+        //{
+        //    try
+        //    {
+        //        // Gọi Service để lấy dữ liệu
+        //        var bestSellers = await _productService.GetTop5BestSellersAsync();
+
+        //        // Kiểm tra kết quả
+        //        if (bestSellers == null || !bestSellers.Any())
+        //        {
+        //            return NotFound(new
+        //            {
+        //                Message = "Không tìm thấy sản phẩm bán chạy nào."
+        //            });
+        //        }
+
+        //        // Trả về dữ liệu thành công
+        //        return Ok(new
+        //        {
+        //            Message = "Lấy danh sách Top 5 sản phẩm bán chạy thành công!",
+        //            Data = bestSellers
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Xử lý lỗi hệ thống
+        //        return StatusCode(500, new
+        //        {
+        //            Message = $"Lỗi hệ thống: {ex.Message}"
+        //        });
+        //    }
+        //}
+
         [HttpGet("top5-bestsellers")]
         public async Task<IActionResult> GetTop5BestSellers()
         {
@@ -358,6 +426,17 @@ namespace Server.API.Controllers
                     Message = $"Lỗi hệ thống: {ex.Message}"
                 });
             }
+        }
+
+        [HttpGet("check-input-gross")]
+        public async Task<IActionResult> CheckInputGross(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return BadRequest();
+            }
+            var result = await _productService.CheckInputHasGross(input);
+            return Ok(ApiResponse.Succeed(result));
         }
 
 

@@ -8,6 +8,7 @@ using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
 using Server.Business.Exceptions;
+using Service.Business.Services;
 
 namespace Server.Business.Services
 {
@@ -16,22 +17,24 @@ namespace Server.Business.Services
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly CloudianryService _cloudianryService;
+        private readonly IAIMLService _gptService;
 
-        public ServiceService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService)
+        public ServiceService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService, IAIMLService gptService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _cloudianryService = cloudianryService;
+            _gptService = gptService;
         }
 
         public async Task<Pagination<ServiceModel>> GetListAsync(
-     Expression<Func<Service, bool>> filter = null,
-     Func<IQueryable<Service>, IOrderedQueryable<Service>> orderBy = null,
+     Expression<Func<Server.Data.Entities.Service, bool>> filter = null,
+     Func<IQueryable<Server.Data.Entities.Service>, IOrderedQueryable<Server.Data.Entities.Service>> orderBy = null,
      int? pageIndex = null,
      int? pageSize = null)
         {
             // Truy vấn dữ liệu từ repository với điều kiện ban đầu là `status == "Active"`
-            IQueryable<Service> query = _unitOfWorks.ServiceRepository.GetAll()
+            IQueryable<Server.Data.Entities.Service> query = _unitOfWorks.ServiceRepository.GetAll()
       .Include(s => s.Branch_Services) // Bao gồm Branch_Services
           .ThenInclude(bs => bs.Branch) // Bao gồm thông tin Branch từ Branch_Services
       .Where(s => s.Status == "Active"); // Chỉ lấy các Service có trạng thái Active
@@ -211,7 +214,7 @@ namespace Server.Business.Services
                 }
 
                 // Tạo thực thể Service từ DTO
-                var service = new Service
+                var service = new Data.Entities.Service
                 {
                     Name = serviceDto.Name,
                     Description = serviceDto.Description,
@@ -327,7 +330,7 @@ namespace Server.Business.Services
                 return _mapper.Map<ServiceDto>(service);
             }
 
-        public async Task<Service> DeleteServiceAsync(int id)
+        public async Task<Server.Data.Entities.Service> DeleteServiceAsync(int id)
         {
             try
             {
@@ -360,34 +363,72 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<List<FeaturedServiceDto>> GetTop4FeaturedServicesAsync()
+        //public async Task<List<FeaturedServiceDto>> GetTop4FeaturedServicesAsync()
+        //{
+        //    // Lấy danh sách Appointments có trạng thái Confirmed và include Service
+        //    var appointments = await _unitOfWorks.AppointmentsRepository
+        //        .FindByCondition(a => a.Status == "Confirmed") // Chỉ lọc theo điều kiện
+        //        .Include(a => a.Service) // Bao gồm thông tin Service
+        //        .ToListAsync();
+
+        //    // Nhóm theo ServiceId và tính toán các thông tin cần thiết
+        //    var featuredServices = appointments
+        //        .Where(a => a.Service != null) // Bỏ qua những bản ghi không có Service
+        //        .GroupBy(a => a.ServiceId)
+        //        .Select(g => new FeaturedServiceDto
+        //        {
+        //            ServiceId = g.Key,
+        //            ServiceName = g.First().Service.Name,
+        //            Description = g.First().Service.Description,
+        //            Price = g.First().Service.Price,
+        //            TotalQuantity = g.Sum(a => a.Quantity)
+        //        })
+        //        .OrderByDescending(s => s.TotalQuantity) // Sắp xếp giảm dần theo tổng Quantity
+        //        .Take(4) // Lấy 4 dịch vụ nổi bật
+        //        .ToList();
+
+        //    return featuredServices;
+        //}
+
+        public async Task<List<Server.Data.Entities.Service>> GetTop4FeaturedServicesAsync()
         {
-            // Lấy danh sách Appointments có trạng thái Confirmed và include Service
+            // Lấy danh sách Appointments có trạng thái Confirmed và bao gồm Service cùng các quan hệ cần thiết
             var appointments = await _unitOfWorks.AppointmentsRepository
-                .FindByCondition(a => a.Status == "Confirmed") // Chỉ lọc theo điều kiện
-                .Include(a => a.Service) // Bao gồm thông tin Service
+                .FindByCondition(a => a.Status == "Confirmed")
+                .Include(a => a.Service)
+                    .ThenInclude(s => s.Branch_Services) // Bao gồm Branch_Services nếu cần
+                .Include(a => a.Service)
+                    .ThenInclude(s => s.ServiceRoutines) // Bao gồm ServiceRoutines nếu cần
                 .ToListAsync();
 
-            // Nhóm theo ServiceId và tính toán các thông tin cần thiết
+            // Nhóm theo ServiceId và tính toán
             var featuredServices = appointments
-                .Where(a => a.Service != null) // Bỏ qua những bản ghi không có Service
+                .Where(a => a.Service != null) // Loại bỏ các bản ghi không có Service
                 .GroupBy(a => a.ServiceId)
-                .Select(g => new FeaturedServiceDto
+                .Select(g =>
                 {
-                    ServiceId = g.Key,
-                    ServiceName = g.First().Service.Name,
-                    Description = g.First().Service.Description,
-                    Price = g.First().Service.Price,
-                    TotalQuantity = g.Sum(a => a.Quantity)
+                    var service = g.First().Service;
+
+                    // Bao gồm đầy đủ thông tin của Service
+                    //service.TotalQuantity = g.Sum(a => a.Quantity); // Bổ sung TotalQuantity nếu cần
+                    return service;
                 })
-                .OrderByDescending(s => s.TotalQuantity) // Sắp xếp giảm dần theo tổng Quantity
+                //.OrderByDescending(s => s.TotalQuantity) // Sắp xếp theo TotalQuantity
                 .Take(4) // Lấy 4 dịch vụ nổi bật
                 .ToList();
 
             return featuredServices;
         }
 
-
-
+        public async Task<GrossDTO> CheckInputHasGross(string name)
+        {
+            var result = await _gptService.GetGross(name);
+            GrossDTO gross = new GrossDTO()
+            {
+                Grosses = result,
+                HasGross = result != null && result.Count > 0
+            };
+            return gross;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Nest;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Constants;
@@ -334,7 +335,7 @@ namespace Server.Business.Services
             {
                 return ApiResponse.Error($"An error occurred: {ex.Message}");
             }
-        }      
+        }
 
 
 
@@ -492,6 +493,46 @@ namespace Server.Business.Services
 
             return staffDtoList;
         }
-    
-}
+
+        public async Task<List<StaffBranchServiceDto>> GetStaffByBranchAndServiceAsync(int branchId, int serviceId)
+        {
+            try
+            {
+                // Truy vấn danh sách nhân viên thuộc chi nhánh và dịch vụ yêu cầu
+                var staffList = await _unitOfWorks.StaffRepository
+                    .GetAll()
+                    .Where(s => s.BranchId == branchId) // Lọc theo chi nhánh
+                    .Include(s => s.Branch) // Lấy thông tin chi nhánh
+                    .Include(s => s.StaffInfo) // Lấy thông tin nhân viên
+                    .Select(s => new StaffBranchServiceDto
+                    {
+                        Staff = new Staff
+                        {
+                            StaffId = s.StaffId,
+                            UserId = s.UserId,
+                            BranchId = s.BranchId,
+                            CreatedDate = s.CreatedDate,
+                            UpdatedDate = s.UpdatedDate,
+                            StaffInfo = s.StaffInfo, // Đảm bảo thông tin nhân viên được bao gồm
+                            Branch = s.Branch // Lấy thông tin chi nhánh trong DTO
+                        },
+                        // Lấy dịch vụ đầu tiên có serviceId phù hợp
+                        Service = s.Branch.Branch_Services
+                            .Where(bs => bs.ServiceId == serviceId)
+                            .Select(bs => bs.Service)
+                            .FirstOrDefault()
+                    })
+                    .ToListAsync();
+
+                return staffList;
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi
+                throw new Exception($"Lỗi khi lấy danh sách nhân viên: {ex.Message}", ex);
+            }
+        }
+
+
+    }
 }
