@@ -23,6 +23,7 @@ namespace Server.API.Extensions
             if (string.IsNullOrWhiteSpace(elasticSettings.password))
                 throw new ArgumentException("ElasticSearch Password cannot be null or empty");
 
+            Console.WriteLine(elasticSettings.baseUrl);
             // Set up connection settings
             var settings = new ConnectionSettings(new Uri(elasticSettings.baseUrl))
                 .PrettyJson()

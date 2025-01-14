@@ -46,6 +46,8 @@ services:
     depends_on:
       database_spa:
         condition: service_started
+      elasticsearch:
+        condition: service_started
   database_spa:
     image: mysql:8.0
     container_name: database_spa
