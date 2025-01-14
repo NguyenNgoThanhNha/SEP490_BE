@@ -33,7 +33,7 @@ namespace Server.API.Extensions
 
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
-            
+
             // jwt
             var jwtSettings = configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
             services.Configure<JwtSettings>(configuration.GetSection(nameof(JwtSettings)));
@@ -54,12 +54,15 @@ namespace Server.API.Extensions
 
             // cloud
             services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));
-            
+
             // botchat
             services.Configure<BotChatSetting>(configuration.GetSection(nameof(BotChatSetting)));
-            
+
             // skin analysis AI
             services.Configure<AISkinSetting>(configuration.GetSection(nameof(AISkinSetting)));
+
+            // ElasticSettings
+            services.Configure<ElasticSettings>(configuration.GetSection(nameof(ElasticSettings)));
 
             services.AddAuthorization();
 

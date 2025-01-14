@@ -1,5 +1,8 @@
-﻿using Nest;
+﻿using Microsoft.CodeAnalysis.Options;
+using Microsoft.Extensions.Options;
+using Nest;
 using Server.Business.Dtos;
+using Server.Business.Ultils;
 
 namespace Server.API.Extensions
 {
@@ -7,21 +10,37 @@ namespace Server.API.Extensions
     {
         public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
         {
-            var baseUrl = configuration["ElasticSettings:baseUrl"];;
-            var finger = configuration["ElasticSettings:finger"];
-            var password = configuration["ElasticSettings:password"];
-            var settings = new ConnectionSettings(new Uri(baseUrl ?? ""))
-                .PrettyJson()
-                .CertificateFingerprint(finger)
-                .BasicAuthentication("elastic", password);
+            // Bind ElasticSettings from configuration
+            var elasticSettings = new ElasticSettings();
+            configuration.GetSection("ElasticSettings").Bind(elasticSettings);
 
-            settings.EnableApiVersioningHeader();
+            if (string.IsNullOrWhiteSpace(elasticSettings.baseUrl))
+                throw new ArgumentException("ElasticSearch BaseUrl cannot be null or empty");
+
+            if (string.IsNullOrWhiteSpace(elasticSettings.finger))
+                throw new ArgumentException("ElasticSearch CertificateFingerprint cannot be null or empty");
+
+            if (string.IsNullOrWhiteSpace(elasticSettings.password))
+                throw new ArgumentException("ElasticSearch Password cannot be null or empty");
+
+            // Set up connection settings
+            var settings = new ConnectionSettings(new Uri(elasticSettings.baseUrl))
+                .PrettyJson()
+                .CertificateFingerprint(elasticSettings.finger)
+                .BasicAuthentication("elastic", elasticSettings.password)
+                .EnableApiVersioningHeader();
+
+            // Add default mappings (if needed)
             AddDefaultMappings(settings);
 
+            // Create ElasticClient and register as a singleton
             var client = new ElasticClient(settings);
             services.AddSingleton<IElasticClient>(client);
+
+            // Create index if needed
             CreateIndex(client);
         }
+
         private static void AddDefaultMappings(ConnectionSettings settings)
         {
             settings.DefaultMappingFor<ProductDto>(m => m
