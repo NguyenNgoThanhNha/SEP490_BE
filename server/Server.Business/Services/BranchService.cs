@@ -17,23 +17,18 @@ namespace Server.Business.Services
             _context = context;
             this.unitOfWorks = unitOfWorks;
             _mapper = mapper;
-        }
-
-        public async Task<List<Branch>> GetBranchesAsync()
-        {
-            return await _context.Branchs.Where(x => x.Status == "Active").ToListAsync();
-        }
+        }        
 
         public async Task<Branch> GetBranchAsync(int id)
         {
             return await _context.Branchs.SingleOrDefaultAsync(x => x.BranchId == id && x.Status == "Active");
         }
 
-        public async Task<GetAllBranchResponse> GetAllBranchs(string status = null, int page = 1, int pageSize = 5)
+        public async Task<GetAllBranchResponse> GetListBranchs(string status = "Active", int page = 1, int pageSize = 5)
         {
             // Truy vấn tất cả chi nhánh, lọc theo `status` nếu có
             var query = unitOfWorks.BranchRepository
-                .FindByCondition(x => string.IsNullOrEmpty(status) || x.Status == status)
+                .FindByCondition(x => x.Status == status)
                 .OrderBy(x => x.BranchId); // Sắp xếp tăng dần theo BranchId
 
             // Tổng số bản ghi
@@ -69,5 +64,30 @@ namespace Server.Business.Services
                 }
             };
         }
+
+        public async Task<List<BranchModel>> GetAllBranches(string status = "Active")
+        {
+            // Truy vấn tất cả chi nhánh, lọc theo `status` nếu có
+            var query = unitOfWorks.BranchRepository
+                .FindByCondition(x => x.Status == status)
+                .OrderBy(x => x.BranchId); // Sắp xếp tăng dần theo BranchId
+
+            // Lấy toàn bộ danh sách
+            var branches = await query.ToListAsync();
+
+            // Kiểm tra kết quả
+            if (branches == null || !branches.Any())
+            {
+                return null;
+            }
+
+            // Chuyển đổi dữ liệu sang DTO
+            var branchModels = _mapper.Map<List<BranchModel>>(branches);
+
+            // Trả về danh sách chi nhánh
+            return branchModels;
+        }
+
+
     }
 }
