@@ -6,6 +6,7 @@ using Server.Business.Services;
 using AutoMapper;
 using Nest;
 using Server.Business.Dtos;
+using Server.Business.Models;
 
 namespace Server.API.Controllers
 {
@@ -27,26 +28,51 @@ namespace Server.API.Controllers
         }
 
 
-        [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllBranch(
-        [FromQuery] string status,
-        [FromQuery] int page = 1,
-   [FromQuery] int pageSize = 5)
+        [HttpGet("get-list")]
+        public async Task<IActionResult> GetListBranch(
+    [FromQuery] string status = "Active", // Đặt giá trị mặc định
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 5)
         {
-            var listBranch = await _branchService.GetAllBranchs(status, page, pageSize);
+            // Gọi service để lấy danh sách chi nhánh
+            var listBranch = await _branchService.GetListBranchs(status, page, pageSize);
+
+            // Kiểm tra kết quả
             if (listBranch == null || listBranch.data == null || !listBranch.data.Any())
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there are no branchs!"
+                    message = "Currently, there are no branches!"
                 }));
             }
+
+            // Trả về kết quả thành công
             return Ok(ApiResult<GetAllBranchResponse>.Succeed(new GetAllBranchResponse()
             {
-                message = "Get branchs successfully!",
+                message = "Get branches successfully!",
                 data = listBranch.data,
                 pagination = listBranch.pagination
             }));
         }
+
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAllBranches([FromQuery] string status = "Active")
+        {
+            // Gọi service để lấy danh sách chi nhánh
+            var branches = await _branchService.GetAllBranches(status);
+
+            // Kiểm tra kết quả
+            if (branches == null || !branches.Any())
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Currently, there are no branches!"
+                }));
+            }
+
+            // Trả về kết quả thành công
+            return Ok(ApiResult<List<BranchModel>>.Succeed(branches));
+        }
+
     }
 }
