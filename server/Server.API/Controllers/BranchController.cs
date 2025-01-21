@@ -18,13 +18,13 @@ namespace Server.API.Controllers
 
         private readonly BranchService _branchService;
         private readonly IMapper _mapper;
-        
+
 
         public BranchController(BranchService branchService, IMapper mapper)
         {
             _branchService = branchService;
             _mapper = mapper;
-            
+
         }
 
 
@@ -64,15 +64,28 @@ namespace Server.API.Controllers
             // Kiểm tra kết quả
             if (branches == null || !branches.Any())
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return BadRequest(new
                 {
-                    message = "Currently, there are no branches!"
-                }));
+                    success = false,
+                    result = new
+                    {
+                        message = "Currently, there are no branches!",
+                        data = new List<object>()
+                    }
+                });
             }
 
-            // Trả về kết quả thành công
-            return Ok(ApiResult<List<BranchModel>>.Succeed(branches));
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Get branches successfully!",
+                    data = branches
+                }
+            });
         }
+
 
     }
 }
