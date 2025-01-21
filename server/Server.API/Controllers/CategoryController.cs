@@ -8,6 +8,7 @@ using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Business.Services;
 using Server.Data.Entities;
+using CategoryService = Server.Business.Services.CategoryService;
 
 namespace Server.API.Controllers
 {

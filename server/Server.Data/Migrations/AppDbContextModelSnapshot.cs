@@ -85,6 +85,70 @@ namespace Server.Data.Migrations
                     b.ToTable("Appointments");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Bed", b =>
+                {
+                    b.Property<int>("BedId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("BedTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Thumbnail")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("BedId");
+
+                    b.HasIndex("BedTypeId");
+
+                    b.HasIndex("RoomId");
+
+                    b.ToTable("Bed");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.BedType", b =>
+                {
+                    b.Property<int>("BedTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Thumbnail")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("BedTypeId");
+
+                    b.ToTable("BedType");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Blog", b =>
                 {
                     b.Property<int>("BlogId")
@@ -797,6 +861,38 @@ namespace Server.Data.Migrations
                     b.ToTable("Promotion");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Room", b =>
+                {
+                    b.Property<int>("RoomId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Thumbnail")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("RoomId");
+
+                    b.HasIndex("BranchId");
+
+                    b.ToTable("Room");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
                 {
                     b.Property<int>("ScheduleId")
@@ -862,6 +958,9 @@ namespace Server.Data.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("ServiceCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .HasColumnType("longtext");
 
@@ -873,7 +972,39 @@ namespace Server.Data.Migrations
 
                     b.HasKey("ServiceId");
 
+                    b.HasIndex("ServiceCategoryId");
+
                     b.ToTable("Service");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.ServiceCategory", b =>
+                {
+                    b.Property<int>("ServiceCategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Thumbnail")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ServiceCategoryId");
+
+                    b.ToTable("ServiceCategory");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.ServiceImages", b =>
@@ -1438,6 +1569,25 @@ namespace Server.Data.Migrations
                     b.Navigation("Staff");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Bed", b =>
+                {
+                    b.HasOne("Server.Data.Entities.BedType", "BedType")
+                        .WithMany()
+                        .HasForeignKey("BedTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BedType");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Blog", b =>
                 {
                     b.HasOne("Server.Data.Entities.User", "Author")
@@ -1718,6 +1868,17 @@ namespace Server.Data.Migrations
                     b.Navigation("Routine");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Room", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
                 {
                     b.HasOne("Server.Data.Entities.Branch", "Branch")
@@ -1737,10 +1898,21 @@ namespace Server.Data.Migrations
                     b.Navigation("Staff");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Service", b =>
+                {
+                    b.HasOne("Server.Data.Entities.ServiceCategory", "ServiceCategory")
+                        .WithMany("Services")
+                        .HasForeignKey("ServiceCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceCategory");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.ServiceImages", b =>
                 {
                     b.HasOne("Server.Data.Entities.Service", "Service")
-                        .WithMany()
+                        .WithMany("ServiceImages")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1912,7 +2084,14 @@ namespace Server.Data.Migrations
                 {
                     b.Navigation("Branch_Services");
 
+                    b.Navigation("ServiceImages");
+
                     b.Navigation("ServiceRoutines");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.ServiceCategory", b =>
+                {
+                    b.Navigation("Services");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.SkincareRoutine", b =>

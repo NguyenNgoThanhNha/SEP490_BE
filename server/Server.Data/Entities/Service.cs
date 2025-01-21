@@ -17,6 +17,10 @@ public class Service
     
     public string? Steps { get; set; }
     
+    [ForeignKey("Service_ServiceCategory")]
+    public int ServiceCategoryId  { get; set; }
+    public virtual ServiceCategory ServiceCategory { get; set; }
+    
     public ICollection<Branch_Service> Branch_Services { get; set; }
     public ICollection<ServiceRoutine> ServiceRoutines { get; set; }
 

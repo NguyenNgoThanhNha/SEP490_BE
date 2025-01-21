@@ -82,6 +82,12 @@ namespace Server.Data.SeedData
                 {
                     await SeedProducts();
                 }
+                
+                // ServiceCategory
+                if (!_context.ServiceCategory.Any())
+                {
+                    await SeedServiceCategories();
+                }
 
                 // Service
                 if (!_context.Services.Any())
@@ -112,6 +118,7 @@ namespace Server.Data.SeedData
                 {
                     await SeedBranchProducts();
                 }
+                
 
                 // Branch_Service
                 if (!_context.Branch_Services.Any())
@@ -397,6 +404,108 @@ namespace Server.Data.SeedData
             await _context.Categorys.AddRangeAsync(categories);
             await _context.SaveChangesAsync();
         }
+        
+        private async Task SeedServiceCategories()
+        {
+            var serviceCategories = new List<ServiceCategory>
+            {
+                new ServiceCategory
+                {
+                    Name = "Cleanser", 
+                    Description = "Sản phẩm làm sạch da mặt, loại bỏ bụi bẩn và dầu thừa", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/facial-treatment.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Toner", 
+                    Description = "Cân bằng độ pH cho da, giúp da mềm mại và sẵn sàng hấp thụ dưỡng chất", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/anti-aging.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Serum", 
+                    Description = "Tinh chất cô đặc giúp điều trị các vấn đề về da như mụn và thâm", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/acne-treatment.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Moisturizer", 
+                    Description = "Kem dưỡng ẩm giúp cung cấp độ ẩm cần thiết cho da", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/whitening-therapy.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Sun Cream", 
+                    Description = "Kem chống nắng bảo vệ da khỏi tác hại của tia UV", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/skin-detox.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Mask", 
+                    Description = "Mặt nạ dưỡng da giúp cung cấp dưỡng chất và độ ẩm sâu", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/moisturizing.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Exfoliants", 
+                    Description = "Tẩy tế bào chết, làm sạch lỗ chân lông và cải thiện kết cấu da", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/eye-treatment.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Body", 
+                    Description = "Sản phẩm chăm sóc cơ thể giúp da mịn màng và săn chắc", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/lifting-firming.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Shampoo", 
+                    Description = "Dầu gội giúp làm sạch tóc và da đầu", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/body-massage.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Conditioner", 
+                    Description = "Dầu xả giúp tóc mềm mượt và chắc khỏe", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/hot-stone-therapy.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+            };
+
+            // Thêm các danh mục vào cơ sở dữ liệu
+            await _context.ServiceCategory.AddRangeAsync(serviceCategories);
+            await _context.SaveChangesAsync();
+        }
+
 
         private async Task SeedProducts()
         {
@@ -3206,6 +3315,7 @@ namespace Server.Data.SeedData
                     Name = "Signature Facial", 
                     Duration = "60 phút", 
                     Price = 600_000m, 
+                    ServiceCategoryId = 1,
                     Description = "A tailored facial to meet your skin’s needs.",
                     Steps = "1. Skin consultation.\n2. Cleansing.\n3. Exfoliation.\n4. Mask and moisturizer application.\n5. Relaxing facial massage."
                 },
@@ -3215,6 +3325,7 @@ namespace Server.Data.SeedData
                     Name = "Anti-Aging Facial",
                     Duration = "90 phút",
                     Price = 800_000m,
+                    ServiceCategoryId = 2,
                     Description = "Reduces fine lines and restores youthful glow.",
                     Steps = "1. Cleansing.\n2. Serum application.\n3. Lifting massage.\n4. Anti-aging mask.\n5. SPF protection."
                 },
@@ -3224,6 +3335,7 @@ namespace Server.Data.SeedData
                     Name = "Hydrating Facial",
                     Duration = "60 phút",
                     Price = 500_000m,
+                    ServiceCategoryId = 3,
                     Description = "Deeply hydrates and plumps your skin.",
                     Steps = "1. Cleansing.\n2. Hydration serum.\n3. Mask for hydration.\n4. Moisturizer application."
                 },
@@ -3233,6 +3345,7 @@ namespace Server.Data.SeedData
                     Name = "Brightening Facial",
                     Duration = "75 phút",
                     Price = 650_000m,
+                    ServiceCategoryId = 4,
                     Description = "Brightens dull and uneven skin tones.",
                     Steps = "1. Cleansing.\n2. Exfoliation.\n3. Vitamin C serum.\n4. Brightening mask.\n5. SPF protection."
                 },
@@ -3242,6 +3355,7 @@ namespace Server.Data.SeedData
                     Name = "Acne Treatment Facial",
                     Duration = "90 phút",
                     Price = 700_000m,
+                    ServiceCategoryId = 5,
                     Description = "Targets acne and reduces breakouts.",
                     Steps = "1. Skin analysis.\n2. Deep cleansing.\n3. Spot treatment.\n4. Calming mask.\n5. SPF application."
                 },
@@ -3251,6 +3365,7 @@ namespace Server.Data.SeedData
                     Name = "Soothing Facial",
                     Duration = "60 phút",
                     Price = 550_000m,
+                    ServiceCategoryId = 6,
                     Description = "Calms and soothes sensitive skin.",
                     Steps = "1. Gentle cleansing.\n2. Anti-inflammatory mask.\n3. Relaxing facial massage.\n4. Moisturizer and SPF."
                 },
@@ -3260,6 +3375,7 @@ namespace Server.Data.SeedData
                     Name = "Green Tea Facial",
                     Duration = "60 phút",
                     Price = 500_000m,
+                    ServiceCategoryId = 7,
                     Description = "Antioxidant-rich facial for youthful skin.",
                     Steps = "1. Cleansing.\n2. Green tea serum application.\n3. Antioxidant mask.\n4. Moisturizer and SPF."
                 },
@@ -3269,6 +3385,7 @@ namespace Server.Data.SeedData
                     Name = "Collagen Boost Facial",
                     Duration = "75 phút",
                     Price = 700_000m,
+                    ServiceCategoryId = 8,
                     Description = "Boosts collagen production for firmer skin.",
                     Steps = "1. Cleansing.\n2. Collagen serum application.\n3. Facial massage.\n4. Collagen-infused mask.\n5. SPF protection."
                 },
@@ -3278,6 +3395,7 @@ namespace Server.Data.SeedData
                     Name = "Detox Facial",
                     Duration = "60 phút",
                     Price = 600_000m,
+                    ServiceCategoryId = 9,
                     Description = "Purifies and detoxifies your skin.",
                     Steps = "1. Cleansing.\n2. Detoxifying mask.\n3. Serum application.\n4. Moisturizer and SPF."
                 },
@@ -3287,6 +3405,7 @@ namespace Server.Data.SeedData
                     Name = "Overnight Hydration Facial",
                     Duration = "90 phút",
                     Price = 750_000m,
+                    ServiceCategoryId = 10,
                     Description = "Intense hydration for glowing morning skin.",
                     Steps = "1. Cleansing.\n2. Overnight hydration serum.\n3. Relaxing facial massage.\n4. Moisturizing overnight mask."
                 },
@@ -3296,6 +3415,7 @@ namespace Server.Data.SeedData
                     Name = "Swedish Massage",
                     Duration = "60 phút",
                     Price = 600_000m,
+                    ServiceCategoryId = 1,
                     Description = "Classic massage for relaxation and stress relief.",
                     Steps = "1. Consultation.\n2. Gentle Swedish massage.\n3. Use of aromatic oils for relaxation."
                 },
@@ -3305,6 +3425,7 @@ namespace Server.Data.SeedData
                     Name = "Full Body Scrub",
                     Duration = "75 phút",
                     Price = 650_000m,
+                    ServiceCategoryId = 2,
                     Description = "Exfoliates and renews your skin.",
                     Steps = "1. Application of body scrub.\n2. Gentle exfoliation.\n3. Rinse and hydrating lotion application."
                 },
@@ -3314,6 +3435,7 @@ namespace Server.Data.SeedData
                     Name = "Moisturizing Body Wrap",
                     Duration = "60 phút",
                     Price = 600_000m,
+                    ServiceCategoryId = 3,
                     Description = "Deep hydration treatment for dry skin.",
                     Steps = "1. Body exfoliation.\n2. Application of hydrating wrap."
                 },
@@ -3323,6 +3445,7 @@ namespace Server.Data.SeedData
                     Name = "Aromatherapy Massage",
                     Duration = "90 phút",
                     Price = 750_000m,
+                    ServiceCategoryId = 4,
                     Description = "Massage with essential oils for relaxation.",
                     Steps = "1. Consultation.\n2. Aromatherapy massage focusing on tension areas.\n3. Application of calming essential oils."
                 },
@@ -3332,6 +3455,7 @@ namespace Server.Data.SeedData
                     Name = "Foot Massage",
                     Duration = "45 phút",
                     Price = 400_000m,
+                    ServiceCategoryId = 5,
                     Description = "Relaxes and soothes tired feet.",
                     Steps = "1. Warm foot soak.\n2. Relaxing foot massage.\n3. Moisturizing cream application."
                 },
@@ -3341,6 +3465,7 @@ namespace Server.Data.SeedData
                     Name = "Abdominal Massage",
                     Duration = "30 phút",
                     Price = 500_000m,
+                    ServiceCategoryId = 6,
                     Description = "Eases abdominal discomfort and improves digestion.",
                     Steps = "1. Gentle abdominal massage.\n2. Use of essential oils for relaxation.\n3. Consultation for personalized care."
                 },
@@ -3350,6 +3475,7 @@ namespace Server.Data.SeedData
                     Name = "Detox Body Treatment",
                     Duration = "90 phút",
                     Price = 800_000m,
+                    ServiceCategoryId = 7,
                     Description = "Detoxifies and purifies the body.",
                     Steps = "1. Body scrub.\n2. Detoxifying body mask.\n3. Relaxing massage.\n4. Hydrating lotion application."
                 },
@@ -3359,6 +3485,7 @@ namespace Server.Data.SeedData
                     Name = "Mud Bath",
                     Duration = "75 phút",
                     Price = 700_000m,
+                    ServiceCategoryId = 9,
                     Description = "Full-body mud treatment for detoxification.",
                     Steps = "1. Application of warm mud mask.\n2. Relaxation period.\n3. Rinse and hydration with lotion."
                 },
@@ -3368,6 +3495,7 @@ namespace Server.Data.SeedData
                     Name = "Body Polish",
                     Duration = "60 phút",
                     Price = 600_000m,
+                    ServiceCategoryId = 10,
                     Description = "Gently exfoliates and polishes your skin.",
                     Steps = "1. Application of body polish.\n2. Exfoliation and cleansing.\n3. Hydration with moisturizing cream."
                 }
