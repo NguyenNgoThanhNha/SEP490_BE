@@ -72,6 +72,10 @@ namespace Server.Business.Mappers
             CreateMap<ProductRoutine, ProductRoutineModel>().ReverseMap();
                 
             CreateMap<SkinHealth, SkinHealthModel>().ReverseMap();
+            
+            CreateMap<ServiceCategory, ServiceCategoryModel>().ReverseMap();
+            CreateMap<ServiceCategory, ServiceCategoryDto>().ReverseMap();
+            CreateMap<ServiceCategoryModel, ServiceCategoryDto>().ReverseMap();
         }
     }
 }

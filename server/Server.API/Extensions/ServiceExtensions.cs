@@ -129,6 +129,7 @@ namespace Server.API.Extensions
             services.AddScoped<SkinAnalyzeService>();
             services.AddScoped<AppointmentReminderWorker>();
             services.AddScoped<BlogCommentService>();
+            services.AddScoped<ServiceCategoryService>();
             return services;
         }
     };
