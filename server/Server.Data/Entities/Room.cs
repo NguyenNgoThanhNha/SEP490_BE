@@ -15,6 +15,8 @@ public class Room
     public string? Description { get; set; }
     
     public string? Thumbnail { get; set; }
+
+    public string? Status { get; set; } = ObjectStatus.Active.ToString();
     
     [ForeignKey("Branch")]
     public int BranchId { get; set; }

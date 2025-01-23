@@ -5,10 +5,10 @@ namespace Server.Business.Commons.Request;
 public class ApointmentRequest
 {
     [Required(ErrorMessage = "StaffId is required!")]
-    public int StaffId { get; set; }
+    public int[] StaffId { get; set; }
     
     [Required(ErrorMessage = "ServiceId is required!")]
-    public int ServiceId { get; set; }
+    public int[] ServiceId { get; set; }
     
     [Required(ErrorMessage = "BranchId is required!")]
     public int BranchId { get; set; }

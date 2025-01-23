@@ -30,6 +30,15 @@ public class Appointments
     public int BranchId { get; set; }
     public virtual Branch Branch { get; set; }
     
+    [ForeignKey("Room_Appointments")]
+    public int? RoomId { get; set; }
+    public virtual Room Room { get; set; }
+    
+    
+    [ForeignKey("Bed_Appointments")]
+    public int? BedId { get; set; }
+    public virtual Bed Bed { get; set; }
+    
     public DateTime AppointmentsTime { get; set; }
     
     public string Status { get; set; }

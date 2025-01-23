@@ -171,6 +171,21 @@ namespace Server.Data.SeedData
                 {
                     await SeedSkincareRoutines();
                 }
+                
+                if (!_context.BedType.Any())
+                {
+                    await SeedBedTypes();
+                }
+                
+                if (!_context.Room.Any())
+                {
+                    await SeedRooms();
+                }
+                
+                if (!_context.Bed.Any())
+                {
+                    await SeedBeds();
+                }
             }
             catch (Exception ex)
             {
@@ -5480,150 +5495,219 @@ private async Task SeedProductImages()
             await _context.SaveChangesAsync(); // Save OrderDetails to DB
         }
 
-public async Task SeedSkincareRoutines()
-{
-    var skincareRoutines = new List<SkincareRoutine>
+    public async Task SeedSkincareRoutines()
     {
-        new SkincareRoutine
+        var skincareRoutines = new List<SkincareRoutine>
         {
-            Name = "Oily Skin",
-            Description = "Routine for managing oily skin and reducing excess sebum.",
-            Steps = "Cleanse, Tone, Moisturize, Protect",
-            Frequency = "Daily",
-            TargetSkinTypes = "Oily Skin"
-        },
-        new SkincareRoutine
-        {
-            Name = "Dry Skin",
-            Description = "Routine for hydrating and nourishing dry skin.",
-            Steps = "Cleanse, Hydrate, Moisturize, Protect",
-            Frequency = "Daily",
-            TargetSkinTypes = "Dry Skin"
-        },
-        new SkincareRoutine
-        {
-            Name = "Neutral Skin",
-            Description = "Routine for maintaining neutral skin balance.",
-            Steps = "Cleanse, Tone, Moisturize, Protect",
-            Frequency = "Daily",
-            TargetSkinTypes = "Neutral Skin"
-        },
-        new SkincareRoutine
-        {
-            Name = "Combination Skin",
-            Description = "Routine for addressing both dry and oily areas.",
-            Steps = "Cleanse, Tone, Moisturize, Protect",
-            Frequency = "Daily",
-            TargetSkinTypes = "Combination Skin"
-        },
-        new SkincareRoutine
-        {
-            Name = "Blackheads",
-            Description = "Routine to clear and prevent blackheads.",
-            Steps = "Cleanse, Exfoliate, Tone, Protect",
-            Frequency = "Weekly",
-            TargetSkinTypes = "Blackheads"
-        },
-        new SkincareRoutine
-        {
-            Name = "Acne",
-            Description = "Routine for acne-prone skin to reduce breakouts.",
-            Steps = "Cleanse, Treat, Moisturize, Protect",
-            Frequency = "Daily",
-            TargetSkinTypes = "Acne"
-        },
-        new SkincareRoutine
-        {
-            Name = "Dark Circles",
-            Description = "Routine for reducing dark circles under the eyes.",
-            Steps = "Cleanse, Treat, Moisturize, Protect",
-            Frequency = "Daily",
-            TargetSkinTypes = "Dark Circles"
-        },
-        new SkincareRoutine
-        {
-            Name = "Closed Comedones",
-            Description = "Routine to manage closed comedones.",
-            Steps = "Cleanse, Exfoliate, Moisturize, Protect",
-            Frequency = "Weekly",
-            TargetSkinTypes = "Closed Comedones"
-        },
-        new SkincareRoutine
-        {
-            Name = "Glabella Wrinkles",
-            Description = "Routine to reduce glabella wrinkles.",
-            Steps = "Cleanse, Treat, Moisturize, Protect",
-            Frequency = "Daily",
-            TargetSkinTypes = "Glabella Wrinkles"
-        }
-    };
-
-    foreach (var routine in skincareRoutines)
-    {
-        if (!_context.SkincareRoutines.Any(r => r.Name == routine.Name))
-        {
-            _context.SkincareRoutines.Add(routine);
-            await _context.SaveChangesAsync();
-
-            var routineInDb = _context.SkincareRoutines.First(r => r.Name == routine.Name);
-
-            // Define product and service IDs
-            var routineProducts = routine.Name switch
+            new SkincareRoutine
             {
-                "Oily Skin" => new[] { 3, 5, 31, 44, 45, 46 },
-                "Dry Skin" => new[] { 1, 6, 13, 24, 28, 39, 42, 48 },
-                "Neutral Skin" => new[] { 2, 7, 20, 26, 30, 33, 44, 49, 50 },
-                "Combination Skin" => new[] { 10, 11, 15, 23, 32, 34, 43, 45, 48 },
-                "Blackheads" => new[] { 3, 9, 11, 25, 34, 38, 45, 46 },
-                "Acne" => new[] { 6, 9, 14, 19, 31, 33, 40, 44, 45 },
-                "Dark Circles" => new[] { 1, 7, 24, 26, 28, 43, 44, 50 },
-                "Closed Comedones" => new[] { 5, 10, 11, 23, 31, 34, 45, 46 },
-                "Glabella Wrinkles" => new[] { 2, 6, 8, 28, 32, 41, 42, 48 },
-                _ => Array.Empty<int>()
-            };
-
-            var routineServices = routine.Name switch
+                Name = "Oily Skin",
+                Description = "Routine for managing oily skin and reducing excess sebum.",
+                Steps = "Cleanse, Tone, Moisturize, Protect",
+                Frequency = "Daily",
+                TargetSkinTypes = "Oily Skin"
+            },
+            new SkincareRoutine
             {
-                "Oily Skin" => new[] { 4, 9 },
-                "Dry Skin" => new[] { 3, 6, 10 },
-                "Neutral Skin" => new[] { 1, 5, 8 },
-                "Combination Skin" => new[] { 2, 7 },
-                "Blackheads" => new[] { 4, 5, 9 },
-                "Acne" => new[] { 5, 6, 9 },
-                "Dark Circles" => new[] { 3, 4, 8 },
-                "Closed Comedones" => new[] { 4, 7 },
-                "Glabella Wrinkles" => new[] { 2, 3, 8 },
-                _ => Array.Empty<int>()
-            };
-
-            // Add ProductRoutine
-            foreach (var productId in routineProducts)
+                Name = "Dry Skin",
+                Description = "Routine for hydrating and nourishing dry skin.",
+                Steps = "Cleanse, Hydrate, Moisturize, Protect",
+                Frequency = "Daily",
+                TargetSkinTypes = "Dry Skin"
+            },
+            new SkincareRoutine
             {
-                _context.ProductRoutines.Add(new ProductRoutine
-                {
-                    RoutineId = routineInDb.SkincareRoutineId,
-                    ProductId = productId,
-                    Status = "Active"
-                });
+                Name = "Neutral Skin",
+                Description = "Routine for maintaining neutral skin balance.",
+                Steps = "Cleanse, Tone, Moisturize, Protect",
+                Frequency = "Daily",
+                TargetSkinTypes = "Neutral Skin"
+            },
+            new SkincareRoutine
+            {
+                Name = "Combination Skin",
+                Description = "Routine for addressing both dry and oily areas.",
+                Steps = "Cleanse, Tone, Moisturize, Protect",
+                Frequency = "Daily",
+                TargetSkinTypes = "Combination Skin"
+            },
+            new SkincareRoutine
+            {
+                Name = "Blackheads",
+                Description = "Routine to clear and prevent blackheads.",
+                Steps = "Cleanse, Exfoliate, Tone, Protect",
+                Frequency = "Weekly",
+                TargetSkinTypes = "Blackheads"
+            },
+            new SkincareRoutine
+            {
+                Name = "Acne",
+                Description = "Routine for acne-prone skin to reduce breakouts.",
+                Steps = "Cleanse, Treat, Moisturize, Protect",
+                Frequency = "Daily",
+                TargetSkinTypes = "Acne"
+            },
+            new SkincareRoutine
+            {
+                Name = "Dark Circles",
+                Description = "Routine for reducing dark circles under the eyes.",
+                Steps = "Cleanse, Treat, Moisturize, Protect",
+                Frequency = "Daily",
+                TargetSkinTypes = "Dark Circles"
+            },
+            new SkincareRoutine
+            {
+                Name = "Closed Comedones",
+                Description = "Routine to manage closed comedones.",
+                Steps = "Cleanse, Exfoliate, Moisturize, Protect",
+                Frequency = "Weekly",
+                TargetSkinTypes = "Closed Comedones"
+            },
+            new SkincareRoutine
+            {
+                Name = "Glabella Wrinkles",
+                Description = "Routine to reduce glabella wrinkles.",
+                Steps = "Cleanse, Treat, Moisturize, Protect",
+                Frequency = "Daily",
+                TargetSkinTypes = "Glabella Wrinkles"
             }
+        };
 
-            // Add ServiceRoutine
-            foreach (var serviceId in routineServices)
+        foreach (var routine in skincareRoutines)
+        {
+            if (!_context.SkincareRoutines.Any(r => r.Name == routine.Name))
             {
-                _context.ServiceRoutine.Add(new ServiceRoutine
-                {
-                    RoutineId = routineInDb.SkincareRoutineId,
-                    ServiceId = serviceId,
-                    Status = "Active"
-                });
-            }
+                _context.SkincareRoutines.Add(routine);
+                await _context.SaveChangesAsync();
 
-            await _context.SaveChangesAsync();
+                var routineInDb = _context.SkincareRoutines.First(r => r.Name == routine.Name);
+
+                // Define product and service IDs
+                var routineProducts = routine.Name switch
+                {
+                    "Oily Skin" => new[] { 3, 5, 31, 44, 45, 46 },
+                    "Dry Skin" => new[] { 1, 6, 13, 24, 28, 39, 42, 48 },
+                    "Neutral Skin" => new[] { 2, 7, 20, 26, 30, 33, 44, 49, 50 },
+                    "Combination Skin" => new[] { 10, 11, 15, 23, 32, 34, 43, 45, 48 },
+                    "Blackheads" => new[] { 3, 9, 11, 25, 34, 38, 45, 46 },
+                    "Acne" => new[] { 6, 9, 14, 19, 31, 33, 40, 44, 45 },
+                    "Dark Circles" => new[] { 1, 7, 24, 26, 28, 43, 44, 50 },
+                    "Closed Comedones" => new[] { 5, 10, 11, 23, 31, 34, 45, 46 },
+                    "Glabella Wrinkles" => new[] { 2, 6, 8, 28, 32, 41, 42, 48 },
+                    _ => Array.Empty<int>()
+                };
+
+                var routineServices = routine.Name switch
+                {
+                    "Oily Skin" => new[] { 4, 9 },
+                    "Dry Skin" => new[] { 3, 6, 10 },
+                    "Neutral Skin" => new[] { 1, 5, 8 },
+                    "Combination Skin" => new[] { 2, 7 },
+                    "Blackheads" => new[] { 4, 5, 9 },
+                    "Acne" => new[] { 5, 6, 9 },
+                    "Dark Circles" => new[] { 3, 4, 8 },
+                    "Closed Comedones" => new[] { 4, 7 },
+                    "Glabella Wrinkles" => new[] { 2, 3, 8 },
+                    _ => Array.Empty<int>()
+                };
+
+                // Add ProductRoutine
+                foreach (var productId in routineProducts)
+                {
+                    _context.ProductRoutines.Add(new ProductRoutine
+                    {
+                        RoutineId = routineInDb.SkincareRoutineId,
+                        ProductId = productId,
+                        Status = "Active"
+                    });
+                }
+
+                // Add ServiceRoutine
+                foreach (var serviceId in routineServices)
+                {
+                    _context.ServiceRoutine.Add(new ServiceRoutine
+                    {
+                        RoutineId = routineInDb.SkincareRoutineId,
+                        ServiceId = serviceId,
+                        Status = "Active"
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+            }
         }
     }
+
+    private async Task SeedBedTypes()
+{
+    var bedTypes = new List<BedType>
+    {
+        new BedType { Name = "Standard Bed", Description = "A basic bed for standard use.", Thumbnail = "standard_bed.jpg" },
+        new BedType { Name = "Deluxe Bed", Description = "A luxurious bed for enhanced comfort.", Thumbnail = "deluxe_bed.jpg" },
+        new BedType { Name = "Hydrotherapy Bed", Description = "A bed designed for hydrotherapy treatments.", Thumbnail = "hydrotherapy_bed.jpg" },
+        new BedType { Name = "Massage Bed", Description = "A specialized bed for massage services.", Thumbnail = "massage_bed.jpg" },
+        new BedType { Name = "Facial Bed", Description = "A comfortable bed for facial treatments.", Thumbnail = "facial_bed.jpg" }
+    };
+
+    await _context.BedType.AddRangeAsync(bedTypes);
+    await _context.SaveChangesAsync();
 }
 
+    private async Task SeedRooms()
+    {
+        var rooms = new List<Room>();
 
+        // Duyệt qua mỗi chi nhánh (BranchId từ 1 đến 5)
+        for (int branchId = 1; branchId <= 5; branchId++)
+        {
+            // Tạo 10 phòng cho mỗi chi nhánh
+            for (int roomNumber = 1; roomNumber < 10; roomNumber++)
+            {
+                rooms.Add(new Room
+                {
+                    Name = $"Room {branchId}0{roomNumber}", // Tên phòng, ví dụ: Room 101, Room 201
+                    Description = $"Room {branchId}0{roomNumber} is a comfortable and relaxing space.",
+                    Thumbnail = $"room_{branchId}0{roomNumber}.jpg", // Tên file hình ảnh
+                    Status = ObjectStatus.Active.ToString(),
+                    BranchId = branchId
+                });
+            }
+        }
+
+        // Thêm danh sách phòng vào database
+        await _context.Room.AddRangeAsync(rooms);
+        await _context.SaveChangesAsync();
+    }
+    
+    private async Task SeedBeds()
+    {
+        var rooms = await _context.Room.ToListAsync();
+        var bedTypes = await _context.BedType.ToListAsync();
+
+        var beds = new List<Bed>();
+        var random = new Random();
+
+        foreach (var room in rooms)
+        {
+            for (int i = 0; i < 5; i++) // Mỗi phòng có 5 giường
+            {
+                var bedType = bedTypes[random.Next(bedTypes.Count)]; // Chọn ngẫu nhiên BedType
+
+                beds.Add(new Bed
+                {
+                    Name = $"{room.Name} - Bed {i + 1}",
+                    Description = $"{bedType.Name} in {room.Name}.",
+                    Thumbnail = bedType.Thumbnail,
+                    RoomId = room.RoomId,
+                    Status = ObjectStatus.Active.ToString(),
+                    BedTypeId = bedType.BedTypeId
+                });
+            }
+        }
+
+        await _context.Bed.AddRangeAsync(beds);
+        await _context.SaveChangesAsync();
+    } 
     }
 
 

@@ -28,6 +28,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("AppointmentsTime")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("BedId")
+                        .HasColumnType("int");
+
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
@@ -51,6 +54,9 @@ namespace Server.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
 
@@ -72,11 +78,15 @@ namespace Server.Data.Migrations
 
                     b.HasKey("AppointmentId");
 
+                    b.HasIndex("BedId");
+
                     b.HasIndex("BranchId");
 
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("RoomId");
 
                     b.HasIndex("ServiceId");
 
@@ -106,6 +116,9 @@ namespace Server.Data.Migrations
 
                     b.Property<int>("RoomId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Thumbnail")
                         .HasColumnType("longtext");
@@ -880,6 +893,9 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Thumbnail")
                         .HasColumnType("longtext");
 
@@ -1530,6 +1546,10 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Appointments", b =>
                 {
+                    b.HasOne("Server.Data.Entities.Bed", "Bed")
+                        .WithMany()
+                        .HasForeignKey("BedId");
+
                     b.HasOne("Server.Data.Entities.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
@@ -1546,6 +1566,10 @@ namespace Server.Data.Migrations
                         .WithMany()
                         .HasForeignKey("OrderId");
 
+                    b.HasOne("Server.Data.Entities.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId");
+
                     b.HasOne("Server.Data.Entities.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -1558,11 +1582,15 @@ namespace Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Bed");
+
                     b.Navigation("Branch");
 
                     b.Navigation("Customer");
 
                     b.Navigation("Order");
+
+                    b.Navigation("Room");
 
                     b.Navigation("Service");
 

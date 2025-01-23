@@ -8,6 +8,7 @@ using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
 using Server.Business.Ultils;
+using Server.Data.UnitOfWorks;
 
 namespace Server.API.Controllers
 {
@@ -19,13 +20,15 @@ namespace Server.API.Controllers
         private readonly AuthService _authService;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
+        private readonly UnitOfWorks _unitOfWorks;
 
-        public AppointmentsController(AppointmentsService appointmentsService, AuthService authService, IMapper mapper, MailService mailService)
+        public AppointmentsController(AppointmentsService appointmentsService, AuthService authService, IMapper mapper, MailService mailService, UnitOfWorks unitOfWorks)
         {
             _appointmentsService = appointmentsService;
             _authService = authService;
             _mapper = mapper;
             _mailService = mailService;
+            _unitOfWorks = unitOfWorks;
         }
 
         [Authorize]
@@ -80,7 +83,7 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
-            
+
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
             {
@@ -92,7 +95,7 @@ namespace Server.API.Controllers
 
             // Chia tách token
             var tokenValue = token.ToString().Split(' ')[1];
-            // accessUser
+            // Lấy thông tin user từ token
             var currentUser = await _authService.GetUserInToken(tokenValue);
 
             if (currentUser == null)
@@ -102,9 +105,10 @@ namespace Server.API.Controllers
                     message = "Customer info not found!"
                 }));
             }
-            
-            var appointmentsModel = await _appointmentsService.CreateAppointments(currentUser.UserId, request);
-            if (appointmentsModel == null)
+
+            // Tạo appointments và lấy order tương ứng
+            var appointmentsList = await _appointmentsService.CreateAppointments(currentUser.UserId, request);
+            if (appointmentsList == null || !appointmentsList.Any())
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
@@ -112,40 +116,53 @@ namespace Server.API.Controllers
                 }));
             }
 
-            var appointmentExist = await _appointmentsService.GetAppointmentsById(appointmentsModel.AppointmentId);
+            // Lấy order dựa trên OrderId của một appointment
+            var firstAppointment = appointmentsList.First();
+            var order = await _unitOfWorks.OrderRepository.FirstOrDefaultAsync(o => o.OrderId == firstAppointment.OrderId);
+            if (order == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Order not found!"
+                }));
+            }
 
-            // Thông tin chi tiết về lịch hẹn
-            var customerName = appointmentExist.Customer.FullName ?? "Customer";
-            var appointmentDate = appointmentExist.AppointmentsTime.ToString("dd/MM/yyyy");
-            var appointmentTime = appointmentExist.AppointmentsTime.ToString(@"hh\:mm");
-            var appointmentService = appointmentExist.Service.Name ?? "the service";
+            // Chuẩn bị thông tin cho email
+            var customerName = currentUser.FullName ?? "Customer";
+            var appointmentDate = firstAppointment.AppointmentsTime.ToString("dd/MM/yyyy");
+            var appointmentTime = firstAppointment.AppointmentsTime.ToString(@"hh\:mm tt");
+            var servicesDetails = string.Join("", appointmentsList.Select(a =>
+            {
+                var service = _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(s => s.ServiceId == a.ServiceId).Result;
+                return $"<li>{service.Name} - {service.Price:C}</li>";
+            }));
 
-            // Tạo nội dung email xác nhận
             var mailData = new MailData()
             {
-                EmailToId = appointmentExist.Customer.Email,
+                EmailToId = currentUser.Email,
                 EmailToName = customerName,
-                EmailSubject = "Appointment Confirmation",
+                EmailSubject = "Order & Appointment Confirmation",
                 EmailBody = $@"
-        <div style=""max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
-            <h2 style=""text-align: center; color: #3498db; font-weight: bold;"">Appointment Confirmation</h2>
-            <p style=""font-size: 16px; color: #555;"">Dear {customerName},</p>
-        <p style=""font-size: 16px; color: #555;"">Thank you for booking 
-            <span style=""font-weight: bold; text-decoration: underline; color: #000;"">{appointmentService}</span> 
-            with us.
-        </p>
-        <p style=""font-size: 16px; color: #555;"">Here are the details of your appointment:</p>
-
-            <ul style=""font-size: 16px; color: #555; list-style-type: none; padding: 0;"">
-                <li><strong>Date:</strong> {appointmentDate}</li>
-                <li><strong>Time:</strong> {appointmentTime}</li>
-                <li><strong>Service:</strong> {appointmentService}</li>
-            </ul>
-            <p style=""font-size: 16px; color: #555;"">If you have any questions or need to reschedule, please feel free to contact us.</p>
-            <p style=""text-align: center; color: #888; font-size: 14px;"">Powered by Team Solace</p>
-        </div>"
+                <div style=""max-width: 600px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);"">
+                    <h2 style=""text-align: center; color: #3498db; font-weight: bold;"">Order & Appointment Confirmation</h2>
+                    <p style=""font-size: 16px; color: #555;"">Dear {customerName},</p>
+                    <p style=""font-size: 16px; color: #555;"">
+                        Thank you for placing an order with us. Below are the details of your order and appointments:
+                    </p>
+                    <p style=""font-size: 16px; color: #555;""><strong>Order Code:</strong> {order.OrderCode}</p>
+                    <p style=""font-size: 16px; color: #555;""><strong>Total Amount:</strong> {order.TotalAmount:C}</p>
+                    <p style=""font-size: 16px; color: #555;""><strong>Appointment Date:</strong> {appointmentDate}</p>
+                    <p style=""font-size: 16px; color: #555;""><strong>Appointment Time:</strong> {appointmentTime}</p>
+                    <p style=""font-size: 16px; color: #555;""><strong>Services:</strong></p>
+                    <ul style=""font-size: 16px; color: #555; list-style-type: none; padding: 0;"">
+                        {servicesDetails}
+                    </ul>
+                    <p style=""font-size: 16px; color: #555;"">If you have any questions or need to reschedule, please feel free to contact us.</p>
+                    <p style=""text-align: center; color: #888; font-size: 14px;"">Powered by Team Solace</p>
+                </div>"
             };
 
+            // Gửi email thông báo
             _ = Task.Run(async () =>
             {
                 var emailResult = await _mailService.SendEmailAsync(mailData, false);
@@ -157,10 +174,11 @@ namespace Server.API.Controllers
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Appointment created successfully! Confirmation email has been sent.",
-                data = _mapper.Map<AppointmentsDTO>(appointmentsModel)
+                message = "Appointments and order created successfully! Confirmation email has been sent.",
+                data = appointmentsList.Select(a => _mapper.Map<AppointmentsDTO>(a)).ToList()
             }));
         }
+
 
 
         [Authorize]

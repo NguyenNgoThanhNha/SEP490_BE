@@ -5,6 +5,7 @@ using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Exceptions;
 using Server.Business.Models;
+using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 
@@ -69,11 +70,9 @@ public class AppointmentsService
         return _mapper.Map<AppointmentsModel>(appointmentsExist);
     }
 
-    public async Task<AppointmentsModel> CreateAppointments(int userId, ApointmentRequest request)
+    public async Task<List<AppointmentsModel>> CreateAppointments(int userId, ApointmentRequest request)
     {
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == userId);
-        var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == request.StaffId);
-        var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == request.ServiceId);
         var branch = await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId);
 
         if (customer == null)
@@ -81,76 +80,119 @@ public class AppointmentsService
             throw new BadRequestException("Customer not found!");
         }
 
-        if (staff == null)
-        {
-            throw new BadRequestException("Staff not found!");
-        }
-
-        if (service == null)
-        {
-            throw new BadRequestException("Service not found!");
-        }
-
         if (branch == null)
         {
             throw new BadRequestException("Branch not found!");
         }
 
-        if (staff.BranchId != request.BranchId)
-        {
-            throw new BadRequestException("Staff does not belong to this branch!");
-        }
+        // Tạo mã order ngẫu nhiên
+        var randomOrderCode = new Random().Next(100000, 999999);
 
-        // Kiểm tra nếu service có tồn tại trong branch
-        var serviceInBranch = await _unitOfWorks.Branch_ServiceRepository
-            .FirstOrDefaultAsync(sb => sb.ServiceId == request.ServiceId && sb.BranchId == request.BranchId);
-        if (serviceInBranch == null)
+        // Tạo order mới
+        var order = new Order
         {
-            throw new BadRequestException("Service is not available in this branch!");
-        }
-
-        // Kiểm tra nếu customer đã có appointment trong thời gian hiện tại
-        var existingAppointment = await _unitOfWorks.AppointmentsRepository
-            .FirstOrDefaultAsync(a => a.CustomerId == userId && 
-                                      a.AppointmentsTime.Date == request.AppointmentsTime.Date &&
-                                      a.AppointmentsTime.Hour == request.AppointmentsTime.Hour);
-        if (existingAppointment != null)
-        {
-            throw new BadRequestException("Customer already has an appointment at this time!");
-        }
-
-        // Kiểm tra nếu staff đang bận trong thời gian đó
-        var staffBusy = await _unitOfWorks.AppointmentsRepository
-            .FirstOrDefaultAsync(a => a.StaffId == request.StaffId &&
-                                      a.AppointmentsTime <= request.AppointmentsTime &&
-                                      a.AppointmentsTime.AddMinutes(90) > request.AppointmentsTime);
-        if (staffBusy != null)
-        {
-            throw new BadRequestException("Staff is busy during this time!");
-        }
-
-        var createNewAppointments = new AppointmentsModel()
-        {
+            OrderCode = randomOrderCode,
             CustomerId = userId,
-            StaffId = request.StaffId,
-            ServiceId = request.ServiceId,
-            Status = "Active",
-            BranchId = request.BranchId,
-            AppointmentsTime = request.AppointmentsTime,
-            Feedback = request.Feedback ?? "",
-            Notes = request.Notes ?? ""
+            TotalAmount = 0, // Sẽ tính toán dựa trên các dịch vụ
+            OrderType = "Appointment",
+            Status = OrderStatusEnum.Pending.ToString(),
+            Note = request.Notes,
+            CreatedDate = DateTime.UtcNow,
+            UpdatedDate = DateTime.UtcNow
         };
 
-        var appointmentsEntity = await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(createNewAppointments));
+        var createdOrder = await _unitOfWorks.OrderRepository.AddAsync(order);
+        await _unitOfWorks.OrderRepository.Commit();
+
+        var appointments = new List<AppointmentsModel>();
+
+        foreach (var serviceId in request.ServiceId)
+        {
+            var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == serviceId);
+            if (service == null)
+            {
+                throw new BadRequestException($"Service with ID {serviceId} not found!");
+            }
+
+            // Kiểm tra nếu service có tồn tại trong branch
+            var serviceInBranch = await _unitOfWorks.Branch_ServiceRepository
+                .FirstOrDefaultAsync(sb => sb.ServiceId == serviceId && sb.BranchId == request.BranchId);
+            if (serviceInBranch == null)
+            {
+                throw new BadRequestException($"Service with ID {serviceId} is not available in this branch!");
+            }
+
+            foreach (var staffId in request.StaffId)
+            {
+                var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == staffId);
+                if (staff == null)
+                {
+                    throw new BadRequestException($"Staff with ID {staffId} not found!");
+                }
+
+                if (staff.BranchId != request.BranchId)
+                {
+                    throw new BadRequestException($"Staff with ID {staffId} does not belong to branch ID {request.BranchId}!");
+                }
+
+                // Kiểm tra nếu customer đã có appointment trong thời gian hiện tại
+                var existingAppointment = await _unitOfWorks.AppointmentsRepository
+                    .FirstOrDefaultAsync(a => a.CustomerId == userId &&
+                                              a.AppointmentsTime.Date == request.AppointmentsTime.Date &&
+                                              a.AppointmentsTime.Hour == request.AppointmentsTime.Hour);
+                if (existingAppointment != null)
+                {
+                    throw new BadRequestException("Customer already has an appointment at this time!");
+                }
+
+                // Kiểm tra nếu staff đang bận trong thời gian đó
+                var staffBusy = await _unitOfWorks.AppointmentsRepository
+                    .FirstOrDefaultAsync(a => a.StaffId == staffId &&
+                                              a.AppointmentsTime <= request.AppointmentsTime &&
+                                              a.AppointmentsTime.AddMinutes(90) > request.AppointmentsTime);
+                if (staffBusy != null)
+                {
+                    throw new BadRequestException($"Staff with ID {staffId} is busy during this time!");
+                }
+
+                // Tạo appointment mới
+                var createNewAppointment = new AppointmentsModel
+                {
+                    CustomerId = userId,
+                    OrderId = createdOrder.OrderId,
+                    StaffId = staffId,
+                    ServiceId = serviceId,
+                    Status = "Active",
+                    BranchId = request.BranchId,
+                    AppointmentsTime = request.AppointmentsTime,
+                    Feedback = request.Feedback ?? "",
+                    Notes = request.Notes ?? ""
+                };
+
+                var appointmentsEntity = await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(createNewAppointment));
+                appointments.Add(_mapper.Map<AppointmentsModel>(appointmentsEntity));
+            }
+        }
+
+        // Tính tổng tiền của order
+        var totalAmount = appointments.Sum(a =>
+        {
+            var service = _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(s => s.ServiceId == a.ServiceId).Result;
+            return service?.Price ?? 0;
+        });
+
+        createdOrder.TotalAmount = totalAmount;
+        _unitOfWorks.OrderRepository.Update(createdOrder);
+        await _unitOfWorks.OrderRepository.Commit();
+
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
         if (result > 0)
         {
-            return _mapper.Map<AppointmentsModel>(appointmentsEntity);
+            return appointments;
         }
         return null;
     }
-
-
+    
     public async Task<AppointmentsModel> UpdateAppointments(AppointmentsModel appointmentsModel, AppointmentUpdateRequest request)
     {
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId);

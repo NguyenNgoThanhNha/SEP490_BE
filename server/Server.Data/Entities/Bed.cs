@@ -20,6 +20,8 @@ public class Bed
     public int BedTypeId { get; set; }
     public virtual BedType BedType { get; set; }
     
+    public string? Status { get; set; } = ObjectStatus.Active.ToString();
+    
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }
