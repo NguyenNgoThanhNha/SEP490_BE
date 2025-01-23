@@ -33,6 +33,7 @@ namespace Server.Data.UnitOfWorks
         private ServiceCategoryRepository _serviceCategoryRepository;
         private RoomRepository _roomRepository;
         private BedRepository _bedRepository;
+        private BedAvailabilityRepository _bedAvailabilityRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -166,6 +167,11 @@ namespace Server.Data.UnitOfWorks
         public BedRepository BedRepository
         {
             get { return _bedRepository ??= new BedRepository(_dbContext); }
+        }
+        
+        public BedAvailabilityRepository BedAvailabilityRepository
+        {
+            get { return _bedAvailabilityRepository ??= new BedAvailabilityRepository(_dbContext); }
         }
     }
 }

@@ -426,8 +426,8 @@ namespace Server.Data.SeedData
             {
                 new ServiceCategory
                 {
-                    Name = "Cleanser", 
-                    Description = "Sản phẩm làm sạch da mặt, loại bỏ bụi bẩn và dầu thừa", 
+                    Name = "Facial Treatment", 
+                    Description = "Dịch vụ chăm sóc da mặt chuyên sâu, làm sạch và tái tạo làn da", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/facial-treatment.jpg",
                     CreatedDate = DateTime.Now,
@@ -435,85 +435,86 @@ namespace Server.Data.SeedData
                 },
                 new ServiceCategory
                 {
-                    Name = "Toner", 
-                    Description = "Cân bằng độ pH cho da, giúp da mềm mại và sẵn sàng hấp thụ dưỡng chất", 
+                    Name = "Massage Therapy", 
+                    Description = "Liệu pháp massage thư giãn, giảm căng thẳng và mệt mỏi", 
                     Status = "Active", 
-                    Thumbnail = "https://example.com/anti-aging.jpg",
+                    Thumbnail = "https://example.com/massage-therapy.jpg",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 },
                 new ServiceCategory
                 {
-                    Name = "Serum", 
-                    Description = "Tinh chất cô đặc giúp điều trị các vấn đề về da như mụn và thâm", 
+                    Name = "Body Scrub", 
+                    Description = "Dịch vụ tẩy tế bào chết toàn thân giúp làm sáng và mịn da", 
                     Status = "Active", 
-                    Thumbnail = "https://example.com/acne-treatment.jpg",
+                    Thumbnail = "https://example.com/body-scrub.jpg",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 },
                 new ServiceCategory
                 {
-                    Name = "Moisturizer", 
-                    Description = "Kem dưỡng ẩm giúp cung cấp độ ẩm cần thiết cho da", 
+                    Name = "Hair Treatment", 
+                    Description = "Chăm sóc tóc chuyên nghiệp, phục hồi tóc hư tổn và nuôi dưỡng tóc", 
                     Status = "Active", 
-                    Thumbnail = "https://example.com/whitening-therapy.jpg",
+                    Thumbnail = "https://example.com/hair-treatment.jpg",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 },
                 new ServiceCategory
                 {
-                    Name = "Sun Cream", 
-                    Description = "Kem chống nắng bảo vệ da khỏi tác hại của tia UV", 
+                    Name = "Manicure & Pedicure", 
+                    Description = "Dịch vụ làm móng chuyên nghiệp, giúp bạn có bộ móng đẹp và khỏe", 
                     Status = "Active", 
-                    Thumbnail = "https://example.com/skin-detox.jpg",
+                    Thumbnail = "https://example.com/manicure-pedicure.jpg",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 },
                 new ServiceCategory
                 {
-                    Name = "Mask", 
-                    Description = "Mặt nạ dưỡng da giúp cung cấp dưỡng chất và độ ẩm sâu", 
+                    Name = "Waxing & Hair Removal", 
+                    Description = "Dịch vụ tẩy lông chuyên nghiệp, an toàn và hiệu quả", 
                     Status = "Active", 
-                    Thumbnail = "https://example.com/moisturizing.jpg",
+                    Thumbnail = "https://example.com/waxing-hair-removal.jpg",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 },
                 new ServiceCategory
                 {
-                    Name = "Exfoliants", 
-                    Description = "Tẩy tế bào chết, làm sạch lỗ chân lông và cải thiện kết cấu da", 
+                    Name = "Anti-Aging Treatment", 
+                    Description = "Liệu trình chống lão hóa, giúp giảm nếp nhăn và trẻ hóa làn da", 
                     Status = "Active", 
-                    Thumbnail = "https://example.com/eye-treatment.jpg",
+                    Thumbnail = "https://example.com/anti-aging-treatment.jpg",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 },
                 new ServiceCategory
                 {
-                    Name = "Body", 
-                    Description = "Sản phẩm chăm sóc cơ thể giúp da mịn màng và săn chắc", 
+                    Name = "Aromatherapy", 
+                    Description = "Liệu pháp sử dụng tinh dầu thiên nhiên để thư giãn và cân bằng cơ thể", 
                     Status = "Active", 
-                    Thumbnail = "https://example.com/lifting-firming.jpg",
+                    Thumbnail = "https://example.com/aromatherapy.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                // Thêm 2 danh mục mới
+                new ServiceCategory
+                {
+                    Name = "Hair Styling", 
+                    Description = "Dịch vụ tạo kiểu tóc, giúp bạn có mái tóc hoàn hảo và thời trang", 
+                    Status = "Active", 
+                    Thumbnail = "https://example.com/hair-styling.jpg",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 },
                 new ServiceCategory
                 {
-                    Name = "Shampoo", 
-                    Description = "Dầu gội giúp làm sạch tóc và da đầu", 
+                    Name = "Nail Art", 
+                    Description = "Dịch vụ trang trí móng nghệ thuật, tạo nên vẻ đẹp độc đáo cho bộ móng của bạn", 
                     Status = "Active", 
-                    Thumbnail = "https://example.com/body-massage.jpg",
+                    Thumbnail = "https://example.com/nail-art.jpg",
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
-                },
-                new ServiceCategory
-                {
-                    Name = "Conditioner", 
-                    Description = "Dầu xả giúp tóc mềm mượt và chắc khỏe", 
-                    Status = "Active", 
-                    Thumbnail = "https://example.com/hot-stone-therapy.jpg",
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                },
+                }
             };
 
             // Thêm các danh mục vào cơ sở dữ liệu
@@ -521,7 +522,7 @@ namespace Server.Data.SeedData
             await _context.SaveChangesAsync();
         }
 
-
+        
         private async Task SeedProducts()
         {
             var products = new List<Product>
@@ -3301,7 +3302,7 @@ namespace Server.Data.SeedData
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Signature Moisture Masque",
                     ProductDescription = "This deep conditioning mask provides intense hydration and nourishment for dry, brittle hair. Formulated with a rich blend of natural ingredients, it helps to improve elasticity and restore hair's natural moisture balance, resulting in soft, manageable strands.",
                     Price = 1_640_000m, // Giá sản phẩm là 1.640.000 VND
@@ -3321,16 +3322,25 @@ namespace Server.Data.SeedData
 
         private async Task SeedServices()
         {
+            // Lấy danh sách các ServiceCategory từ cơ sở dữ liệu
+            var serviceCategories = await _context.ServiceCategory.ToListAsync();
+
+            // Kiểm tra nếu có đủ 10 ServiceCategory
+            if (serviceCategories.Count < 10)
+            {
+                throw new InvalidOperationException("Cần có ít nhất 10 ServiceCategory trong cơ sở dữ liệu.");
+            }
+
             var services = new List<Service>
             {
-                // Các dịch vụ chăm sóc da mặt
+                // Dịch vụ chăm sóc da mặt (10 dịch vụ cũ)
                 new Service
                 {
                     Status = "Active",
                     Name = "Signature Facial", 
-                    Duration = "60 phút", 
+                    Duration = "60", 
                     Price = 600_000m, 
-                    ServiceCategoryId = 1,
+                    ServiceCategoryId = serviceCategories[0].ServiceCategoryId, // Chia dịch vụ vào ServiceCategory đầu tiên
                     Description = "A tailored facial to meet your skin’s needs.",
                     Steps = "1. Skin consultation.\n2. Cleansing.\n3. Exfoliation.\n4. Mask and moisturizer application.\n5. Relaxing facial massage."
                 },
@@ -3338,9 +3348,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Anti-Aging Facial",
-                    Duration = "90 phút",
+                    Duration = "90",
                     Price = 800_000m,
-                    ServiceCategoryId = 2,
+                    ServiceCategoryId = serviceCategories[1].ServiceCategoryId, // ServiceCategory thứ 2
                     Description = "Reduces fine lines and restores youthful glow.",
                     Steps = "1. Cleansing.\n2. Serum application.\n3. Lifting massage.\n4. Anti-aging mask.\n5. SPF protection."
                 },
@@ -3348,9 +3358,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Hydrating Facial",
-                    Duration = "60 phút",
+                    Duration = "60",
                     Price = 500_000m,
-                    ServiceCategoryId = 3,
+                    ServiceCategoryId = serviceCategories[0].ServiceCategoryId, // Chia cho ServiceCategory thứ nhất
                     Description = "Deeply hydrates and plumps your skin.",
                     Steps = "1. Cleansing.\n2. Hydration serum.\n3. Mask for hydration.\n4. Moisturizer application."
                 },
@@ -3358,9 +3368,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Brightening Facial",
-                    Duration = "75 phút",
+                    Duration = "75",
                     Price = 650_000m,
-                    ServiceCategoryId = 4,
+                    ServiceCategoryId = serviceCategories[1].ServiceCategoryId, // ServiceCategory thứ 2
                     Description = "Brightens dull and uneven skin tones.",
                     Steps = "1. Cleansing.\n2. Exfoliation.\n3. Vitamin C serum.\n4. Brightening mask.\n5. SPF protection."
                 },
@@ -3368,9 +3378,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Acne Treatment Facial",
-                    Duration = "90 phút",
+                    Duration = "90",
                     Price = 700_000m,
-                    ServiceCategoryId = 5,
+                    ServiceCategoryId = serviceCategories[2].ServiceCategoryId, // ServiceCategory thứ 3
                     Description = "Targets acne and reduces breakouts.",
                     Steps = "1. Skin analysis.\n2. Deep cleansing.\n3. Spot treatment.\n4. Calming mask.\n5. SPF application."
                 },
@@ -3378,9 +3388,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Soothing Facial",
-                    Duration = "60 phút",
+                    Duration = "60",
                     Price = 550_000m,
-                    ServiceCategoryId = 6,
+                    ServiceCategoryId = serviceCategories[3].ServiceCategoryId, // ServiceCategory thứ 4
                     Description = "Calms and soothes sensitive skin.",
                     Steps = "1. Gentle cleansing.\n2. Anti-inflammatory mask.\n3. Relaxing facial massage.\n4. Moisturizer and SPF."
                 },
@@ -3388,9 +3398,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Green Tea Facial",
-                    Duration = "60 phút",
+                    Duration = "60",
                     Price = 500_000m,
-                    ServiceCategoryId = 7,
+                    ServiceCategoryId = serviceCategories[2].ServiceCategoryId, // ServiceCategory thứ 3
                     Description = "Antioxidant-rich facial for youthful skin.",
                     Steps = "1. Cleansing.\n2. Green tea serum application.\n3. Antioxidant mask.\n4. Moisturizer and SPF."
                 },
@@ -3398,9 +3408,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Collagen Boost Facial",
-                    Duration = "75 phút",
+                    Duration = "75",
                     Price = 700_000m,
-                    ServiceCategoryId = 8,
+                    ServiceCategoryId = serviceCategories[3].ServiceCategoryId, // ServiceCategory thứ 4
                     Description = "Boosts collagen production for firmer skin.",
                     Steps = "1. Cleansing.\n2. Collagen serum application.\n3. Facial massage.\n4. Collagen-infused mask.\n5. SPF protection."
                 },
@@ -3408,9 +3418,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Detox Facial",
-                    Duration = "60 phút",
+                    Duration = "60",
                     Price = 600_000m,
-                    ServiceCategoryId = 9,
+                    ServiceCategoryId = serviceCategories[4].ServiceCategoryId, // ServiceCategory thứ 5
                     Description = "Purifies and detoxifies your skin.",
                     Steps = "1. Cleansing.\n2. Detoxifying mask.\n3. Serum application.\n4. Moisturizer and SPF."
                 },
@@ -3418,19 +3428,21 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Overnight Hydration Facial",
-                    Duration = "90 phút",
+                    Duration = "90",
                     Price = 750_000m,
-                    ServiceCategoryId = 10,
+                    ServiceCategoryId = serviceCategories[4].ServiceCategoryId, // ServiceCategory thứ 5
                     Description = "Intense hydration for glowing morning skin.",
                     Steps = "1. Cleansing.\n2. Overnight hydration serum.\n3. Relaxing facial massage.\n4. Moisturizing overnight mask."
                 },
+
+                // Các dịch vụ mới
                 new Service
                 {
                     Status = "Active",
                     Name = "Swedish Massage",
-                    Duration = "60 phút",
+                    Duration = "60",
                     Price = 600_000m,
-                    ServiceCategoryId = 1,
+                    ServiceCategoryId = serviceCategories[5].ServiceCategoryId, // ServiceCategory thứ 6
                     Description = "Classic massage for relaxation and stress relief.",
                     Steps = "1. Consultation.\n2. Gentle Swedish massage.\n3. Use of aromatic oils for relaxation."
                 },
@@ -3438,9 +3450,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Full Body Scrub",
-                    Duration = "75 phút",
+                    Duration = "75",
                     Price = 650_000m,
-                    ServiceCategoryId = 2,
+                    ServiceCategoryId = serviceCategories[6].ServiceCategoryId, // ServiceCategory thứ 7
                     Description = "Exfoliates and renews your skin.",
                     Steps = "1. Application of body scrub.\n2. Gentle exfoliation.\n3. Rinse and hydrating lotion application."
                 },
@@ -3448,19 +3460,19 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Moisturizing Body Wrap",
-                    Duration = "60 phút",
+                    Duration = "60",
                     Price = 600_000m,
-                    ServiceCategoryId = 3,
+                    ServiceCategoryId = serviceCategories[5].ServiceCategoryId, // ServiceCategory thứ 6
                     Description = "Deep hydration treatment for dry skin.",
-                    Steps = "1. Body exfoliation.\n2. Application of hydrating wrap."
+                    Steps = "1. Body exfoliation.\n2. Application of hydrating wrap.\n3. Rinse and lotion application."
                 },
                 new Service
                 {
                     Status = "Active",
                     Name = "Aromatherapy Massage",
-                    Duration = "90 phút",
+                    Duration = "90",
                     Price = 750_000m,
-                    ServiceCategoryId = 4,
+                    ServiceCategoryId = serviceCategories[6].ServiceCategoryId, // ServiceCategory thứ 7
                     Description = "Massage with essential oils for relaxation.",
                     Steps = "1. Consultation.\n2. Aromatherapy massage focusing on tension areas.\n3. Application of calming essential oils."
                 },
@@ -3468,9 +3480,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Foot Massage",
-                    Duration = "45 phút",
+                    Duration = "45",
                     Price = 400_000m,
-                    ServiceCategoryId = 5,
+                    ServiceCategoryId = serviceCategories[7].ServiceCategoryId, // ServiceCategory thứ 8
                     Description = "Relaxes and soothes tired feet.",
                     Steps = "1. Warm foot soak.\n2. Relaxing foot massage.\n3. Moisturizing cream application."
                 },
@@ -3478,9 +3490,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Abdominal Massage",
-                    Duration = "30 phút",
+                    Duration = "30",
                     Price = 500_000m,
-                    ServiceCategoryId = 6,
+                    ServiceCategoryId = serviceCategories[8].ServiceCategoryId, // ServiceCategory thứ 9
                     Description = "Eases abdominal discomfort and improves digestion.",
                     Steps = "1. Gentle abdominal massage.\n2. Use of essential oils for relaxation.\n3. Consultation for personalized care."
                 },
@@ -3488,9 +3500,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Detox Body Treatment",
-                    Duration = "90 phút",
+                    Duration = "90",
                     Price = 800_000m,
-                    ServiceCategoryId = 7,
+                    ServiceCategoryId = serviceCategories[7].ServiceCategoryId, // ServiceCategory thứ 8
                     Description = "Detoxifies and purifies the body.",
                     Steps = "1. Body scrub.\n2. Detoxifying body mask.\n3. Relaxing massage.\n4. Hydrating lotion application."
                 },
@@ -3498,9 +3510,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Mud Bath",
-                    Duration = "75 phút",
+                    Duration = "75",
                     Price = 700_000m,
-                    ServiceCategoryId = 9,
+                    ServiceCategoryId = serviceCategories[8].ServiceCategoryId, // ServiceCategory thứ 9
                     Description = "Full-body mud treatment for detoxification.",
                     Steps = "1. Application of warm mud mask.\n2. Relaxation period.\n3. Rinse and hydration with lotion."
                 },
@@ -3508,9 +3520,9 @@ namespace Server.Data.SeedData
                 {
                     Status = "Active",
                     Name = "Body Polish",
-                    Duration = "60 phút",
+                    Duration = "60",
                     Price = 600_000m,
-                    ServiceCategoryId = 10,
+                    ServiceCategoryId = serviceCategories[9].ServiceCategoryId, // ServiceCategory thứ 10
                     Description = "Gently exfoliates and polishes your skin.",
                     Steps = "1. Application of body polish.\n2. Exfoliation and cleansing.\n3. Hydration with moisturizing cream."
                 }
@@ -3520,7 +3532,6 @@ namespace Server.Data.SeedData
             await _context.Services.AddRangeAsync(services);
             await _context.SaveChangesAsync();
         }
-
         private async Task SeedBranches()
         {
             var branches = new List<Branch>
@@ -3802,1354 +3813,1354 @@ namespace Server.Data.SeedData
             await _context.SaveChangesAsync();
         }
 
-private async Task SeedProductImages()
-{
-    // Lấy danh sách tất cả các sản phẩm hiện có
-    var products = await _context.Products.ToListAsync();
+        private async Task SeedProductImages()
+        {
+            // Lấy danh sách tất cả các sản phẩm hiện có
+            var products = await _context.Products.ToListAsync();
 
-    // Tạo danh sách các sản phẩm và hình ảnh của chúng
-    var productImageData = new List<(string productName, List<string> imageUrls)>
-    {
-        // Remedy Cream To Oil Cleanser
-        ("Remedy Cream To Oil", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-01-1-1091x1200.png",
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/f9a79b2aadeddf3f7b904fe2fdd2bd390b786956_2000x-1091x1200.jpg",
-            "https://eideal.com/cdn/shop/files/Cream-to-oil-Life-2.jpg?v=1703578773"
-        }),
-
-        // Essential Face Wash
-        ("Essential Face Wash", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/12100-essential-face-wash-150ml_inner-1091x1200.png",
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/9ff738e7c2d747062d121d0fc4b563eff31ef198_2000x-1091x1200.jpg"
-        }),
-
-        // Active Pureness Cleasing Gel
-        ("Active Pureness Cleasing Gel", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/Active-Pureness-Gel_San-pham-1091x1200.png",
-            "https://icgroup.dk/resources/product/119/43/activec-pureness---gel.png?width=800&height=600",
-            "https://www.michaelahann.at/wp-content/uploads/2022/08/Active-Pureness-Gel.jpg"
-        }),
-
-        // Clearing Skin Wash
-        ("Clearing Skin Wash", new List<string>
-        {
-            "https://www.dermalogica.com/cdn/shop/files/clearing-skin-wash_8.4oz_front.jpg?v=1710455212&width=1946", 
-            "https://vn-test-11.slatic.net/p/1c096bc4b5b03330c62465154db802d2.jpg", 
-            "https://dangcapphaidep.vn/image-data/780-780/upload/2023/08/25/images/dermalogica-clearing-skin-wash-250ml-2.jpg"
-        }),
-
-        // Oil To Foam Cleanser
-        ("Oil To Foam Cleanser", new List<string>
-        {
-            "https://sieuthilamdep.com/images/detailed/20/sua-rua-mat-tay-trang-2-trong-1-dermalogica-oil-to-foam-total-cleanser.jpg", 
-            "https://www.thedermacompany.co.uk/wp-content/uploads/2023/06/Dermalogica-Oil-To-Foam-Cleanser-Lifestyle.jpg", 
-            "https://skinmart.com.au/cdn/shop/products/DermalogicaOilToFoamCleanser_2_2560x.png?v=1680137764"
-        }),
-
-        // Micellar Prebiotic PreCleanse
-        ("Micellar Prebiotic PreCleanse", new List<string>
-        {
-            "https://dermalogica.com.vn/cdn/shop/products/dermalogica-vietnam-cleansers-150ml-coming-soon-micellar-precleanse-s-a-t-y-trang-ch-a-prebiotic-danh-cho-m-i-lo-i-da-31640176623821.png?v=1717214352&width=1946", 
-            "https://edbeauty.vn/wp-content/uploads/2024/08/image_2024_08_02T10_27_06_857Z.png", 
-            "https://cdn1.parfuemerie-becker.de/media/cache/article/variation/109000/035020189_95635_1709027057.png"
-        }),
-
-        // Kmobucha Microbiome Foaming Cleaser
-        ("Kmobucha Microbiome Foaming Cleaser", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-kombucha-microbiome-foaming-cleanser-pdp.jpg?itok=XFjrWeJc", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAs0nEmyqyQbx0hl4vz1MUoLloMBlBJTO4QQ&s", 
-            "https://emstore.com/cdn/shop/products/cleanser-2_75951af1-f4c2-4d54-80dd-9936b699a5c8.png?v=1683718720"
-        }),
-
-        // Monoi Age Corrective Exfoliating Cleanser
-        ("Monoi Age Corrective Exfoliating Cleanser", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-monoi-age-corrective-exfoliating-cleanser-pdp-compressed.jpg?itok=pRBEP6CO", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7vbzeB98PqQkVa4vQKztlvJZTh1-H0DWPF62hO-Uo3_PGI5iz4E1jFv_p2VAD2LrgA-c&usqp=CAU", 
-            "https://www.facethefuture.co.uk/cdn/shop/files/eminence-organics-monoi-age-corrective-exfoliating-cleanser-swatch-compressed.jpg?v=1695310185&width=600"
-        }),
-
-        // Acne Advanced Cleansing Foam
-        ("Acne Advanced Cleansing Foam", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-acne-advanced-cleansing-foam-v2-400pix-compressor.jpg?itok=7eKH7RYv", 
-            "https://wildflowerbeautystudio.ca/cdn/shop/products/acnecleansingfoam_300x300.jpg?v=1613861748", 
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-slide/eminence-organics-acne-advanced-cleansing-foam-swatch-400x400.jpg?itok=_451iEc7"
-        }),
-        
-        // Lemon Grass Cleanser
-        ("Lemon Grass Cleanser", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg8RxjJM_IxA0iIIBfpofAqmoH7QLa7zIy2Q&s", 
-            "https://images.squarespace-cdn.com/content/v1/5ea87ac4bf0b761180ffcfae/1626276341235-D5E9PCNK5OSRIP2RALJN/LemonGrassCleanser.jpg?format=1000w", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcyaLelaqtVcZiyeWTM4QOoJVXWQveYuorDw&s"
-        }),
-        
-        // Charcoal Exfoliating Gel Cleanser
-        ("Charcoal Exfoliating Gel Cleanser", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcNxhG4XNakMZOCjxT2ulB1i2cnWkTVq1qxw&s", 
-            "https://naturalbeautygroup.com/cdn/shop/files/Eminence-Organics-Charcoal-Exfoliating-Gel-Cleanser-Lifestyle.jpg?v=1711740188&width=1080", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbNf8GcQLHfBysKN1piBJLl5kX-ovUWTfWhw&s"
-        }),
-        // Beplain Mung Bean pH-Balanced Cleansing Foam
-        ("Beplain Mung Bean pH-Balanced Cleansing Foam", new List<string>
-        {
-            "https://product.hstatic.net/200000773671/product/907d907dd544731a2a55_97fc43aed51040a58f76b2512b39f457_master.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1ZAGpmlp5k_1VB64FLzA6HfAkRMDHXybYEw&s", 
-            "https://product.hstatic.net/200000773671/product/ece36b53526af434ad7b_7e25a0c0d2f641e9a0fcfe8371587fca_master.jpg"
-        }),
-        // ISNTREE Yam Root Vegan Milk Cleanser
-        ("ISNTREE Yam Root Vegan Milk Cleanser", new List<string>
-        {
-            "https://www.kanvasbeauty.com.au/cdn/shop/files/7_5a516b9f-1e89-47af-a0f3-c9e419cbee24_1200x.jpg?v=1711882846", 
-            "https://www.skincupid.co.uk/cdn/shop/files/ISNTREEYamRootVeganMilkCleanser_220ml_5.png?v=1728904708&width=800", 
-            "https://koreanskincare.nl/cdn/shop/files/452359592_470675092412851_8771590449487260742_n.jpg?v=1721894307"
-        }),
-        
-        // Normaderm Anti-Acne Purifying Gel Cleanser
-        ("Normaderm Anti-Acne Purifying Gel Cleanser", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAztQlHO_gcl1kdZRAKV5QSYVFcAVKnen6yg&s", 
-            "https://sohaticare.com/cdn/shop/files/3337875663076_3_82da998a-a47b-4461-a110-036d702f4886_4000x@3x.progressive.jpg?v=1706877499", 
-            "https://bng.com.pk/cdn/shop/files/e3906fe2-cb9a-47d8-8a03-73dc6d7f25ce_0df3ce49-2f5b-4d45-b6f7-7db99714a57e_2400x.jpg?v=1720805633"
-        }),
-        
-        // Purete Thermale Fresh Cleansing Gel
-        ("Purete Thermale Fresh Cleansing Gel", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBGIU-XNebd-dJK6_u0DMg5l1MKiD1l4zCJg&s", 
-            "https://www.binsina.ae/media/catalog/product/8/1/81414_2.jpg?optimize=medium&bg-color=255,255,255&fit=bounds&height=600&width=600&canvas=600:600", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw-hWi1mf7kCZzWrthwsn-3Opba1kYnJcQmA&s"
-        }),
-        
-        // Purete Thermale Cleansing Foaming Cream
-        ("Purete Thermale Cleansing Foaming Cream", new List<string>
-        {
-            "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/other-products/purete-thermale---hydrating-and-cleansing-foaming-cream/hydrating-cleansing-foaming-cream-pack2.jpeg?rev=8a1f1df622f24bfe963a86befb0031b4&sc_lang=vi-vn&cx=0.47&cy=0.43&cw=525&ch=596&hash=D4ABC102BDEC8E803268FC703A80B685", 
-            "https://images-na.ssl-images-amazon.com/images/I/81fpwzdjEgL.jpg", 
-            "https://m.media-amazon.com/images/I/71e3vIZEiBL._AC_UF1000,1000_QL80_.jpg"
-        }),
-        
-        // Foaming Cream Cleanser
-        ("Foaming Cream Cleanser", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/021924_FoamingCleanser_Carousel-Hero_1024x1024.jpg?v=1709334047", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhMF2XnUc1FGnqMiZFBkLTUJJLw8mCOGt05A&s", 
-            "https://templeskincare.com.au/wp-content/uploads/2024/10/20231026_027-Edit_5000px-Edit-CreamCleanser-scaled.jpg"
-        }),
-        
-        // Exfoliating Cleanser
-        ("Exfoliating Cleanser", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/010924_Retail_ExfoliatingCleanser_PDP_1024x1024.jpg?v=1713463787", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRn6R3GviQQlSKoSH8nmK0q8PPuwSwUefS3Sg&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNWmj3G1El9VvSp-muGnch-XOIXykwLaZa4w&s"
-        }),
-        
-        // Cleansing Gel Face Wash
-        ("Cleansing Gel Face Wash", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkaX2LqQ8a7zqysEzX98U1KhUdN6kjc6i22Q&s", 
-            "https://images.squarespace-cdn.com/content/v1/5badc17c797f743dc830bb95/1720164751711-2KJJ7A6MK6WH95C7JGG9/HydroPeptide+Cleansing+Gel+Perth.png?format=1000w", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9BYzA_QpTeT5wLVuqIQEQ0x6fMYRUEEdbzTqiVagtp3fB2bZ44hGnXnVWD7bfsUBXpGE&usqp=CAU"
-        }),
-        
-        // Mangosteen Revitalizing Mist
-        ("Mangosteen Revitalizing Mist", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhqpsm4vwoEDeWoXmYThy0w7GBLITExzxFkg&s", 
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-slide/eminence-organics-mangosteen-revitalizing_mist_swatch-400x400px-compressed.png?itok=9ia6NZD4", 
-            "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Mangosteen-Revitalizing-Mist-Lifestyle.jpg?v=1711740433&width=1080"
-        }),
-
-        // Pineapple Refining Tonique
-        ("Pineapple Refining Tonique", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSipnwI-Quyzdj8X2z555QL6Nv8dXGypcpFUw&s", 
-            "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Pineapple-Refining-Tonique-lifestyle.jpg?v=1711743675&width=1080", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXvTAya614P0QjS3xR5k9bA9QyUs8DLnn72Q&s"
-        }),
-        
-        // Hawthorn Tonique
-        ("Hawthorn Tonique", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWgXY3ygvCD1JS1ZJM_UQB0DlglHmITznI7A&s", 
-            "https://images.squarespace-cdn.com/content/v1/5ea87ac4bf0b761180ffcfae/1626276012659-MUTJNN1LVDNA49X09L55/Hawthorn+Tonique.jpg?format=1000w", 
-        }),
-        
-        // Lime Refresh Tonique
-        ("Lime Refresh Tonique", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-lime-refresh-tonique-400x400px.png?itok=75tgznFH", 
-            "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Lime-Refresh-Tonique-Lifestyle.png?v=1711744338&width=1080", 
-            "https://eminenceorganics.com/sites/default/files/article-image/eminence-organics-tonique.jpg"
-        }),
-        
-        //Soothing Chamomile Tonique
-        ("Soothing Chamomile Tonique", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0OK4AjASttojjEQbjJa9vTR7cy-Vf1UcAag&s", 
-            "https://blog.skin-beauty.com/wp-content/uploads/2020/08/soothing-chamomile-tonique__64126.1586549554.1280.1280.jpg", 
-        }),
-        
-        // Multi-Acne Toner 
-        ("Multi-Acne Toner", new List<string>
-        {
-            "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/2-3.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOyk2bFufKdc__jGiQJnFZxau1_kg7OmQUpg&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK3uQghHwcl19vgzc-ZLG9e4hDV_aFbE4nwwwES3x6LrdmIl2zlBrhTBgg5lGrH6ST_5U&usqp=CAU"
-        }),
-        
-        // Antioxidant Hydramist
-        ("Antioxidant Hydramist", new List<string>
-        {
-            "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/2-117.jpg", 
-            "https://www.dermalogica.co.uk/cdn/shop/products/Antioxidant-Hydramist-pdp-2.jpg?v=1721383738&width=1946", 
-            "https://bellelab.co/wp-content/uploads/2019/12/Dermalogica_Antioxidant_Hydramist_150ml_3.jpg"
-        }),
-        
-        // UltraCalming Mist
-        ("UltraCalming Mist", new List<string>
-        {
-            "https://dermalogica-vietnam.com/wp-content/uploads/2020/05/2.jpg", 
-            "https://myvienhana.vn/wp-content/uploads/2022/03/xit-khoang-dermalogica-Ultracalming-Mist.jpg", 
-            "https://116805005.cdn6.editmysite.com/uploads/1/1/6/8/116805005/s595587978454154049_p56_i2_w1080.jpeg"
-        }),
-        
-        // Hyaluronic Ceramide Mist
-        ("Hyaluronic Ceramide Mist", new List<string>
-        {
-            "https://www.dermalogica.com/cdn/shop/files/hyaluronic-ceramide-mist_front.jpg?v=1698103421&width=1946", 
-            "https://sieuthilamdep.com/images/detailed/19/xit-khoang-cap-am-va-lam-diu-da-dermalogica-hyaluronic-ceramide-mist-2.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV0eQsaz5GoUd5mI9LsEXP5mb0IEO7zlvz3A&s"
-        }),
-        
-        // Remedy Toner 
-        ("Remedy Toner", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5fMbd6K1rQjSbxMXbFo36ZZHjthpqr4lpDQ&s", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-02-1091x1200.png", 
-            "https://vn-test-11.slatic.net/p/5fe09d9ffdf46df663e3dfcd64fcf4c5.jpg"
-        }),
-        
-        // Essential Toner
-        ("Essential Toner", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/Essential-Toner_San-pham-1091x1200.png", 
-            "https://hadibeauty.com/wp-content/uploads/2023/03/334204861_942692140091925_7678139925329751463_n.webp", 
-        }),
-        
-        // Active Pureness Toner
-        ("Active Pureness Toner", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/Active-Pureness-Toner_San-pham-1091x1200.png", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/cdd49c856665c35cd1ca025ee14c26d5429d3d2c_2000x-1091x1200.jpg", 
-        }),
-
-        // Revitalizing Tonic
-        ("Revitalizing Tonic", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkXA3c63LygDEehGwwAJm2Y_SxgWwEt1vz8w&s", 
-            "https://comfortzone.com.vn/wp-content/uploads/2023/01/8004608516330_4-1200x1200.jpg", 
-            "https://cf.shopee.vn/file/vn-11134201-23030-p5amrfvba8nv3a"
-        }),
-        // Acwell Licorice pH Balancing Cleansing Toner
-        ("Acwell Licorice pH Balancing Cleansing Toner", new List<string>
-        {
-            "https://sokoglam.com/cdn/shop/files/SokoGlamPDP_Acwell_Revamped_Licorice_pH_Balancing_Cleansing_Toner-4_860x.png?v=1729736947", 
-            "https://www.mikaela-beauty.com/cdn/shop/files/AX6H2549w_1200x1200.jpg?v=1720903305", 
-        }),
-    
-        // COSRX AHA/BHA Clarifying Treatment Toner
-        ("COSRX AHA/BHA Clarifying Treatment Toner", new List<string>
-        {
-            "https://product.hstatic.net/1000006063/product/cosrx_ahabha_clarifying_treatment_toner_150ml_625a49f8074c41c59c9d185e582f0580_1024x1024.jpg", 
-            "https://assets.aemi.vn/webp/CRX_TNR_150ml_001_img2.webp", 
-        }),
-        // Sulwhasoo Concentrated Ginseng Renewing Water
-        ("Sulwhasoo Concentrated Ginseng Renewing Water", new List<string>
-        {
-            "https://cdn.shopify.com/s/files/1/0667/9416/0378/files/concentrated_ginseng_rejuvenating_water_kv_pc_vn_240819.jpg?v=1724121219", 
-            "https://th.sulwhasoo.com/cdn/shop/files/TN-CGR-Water-1.jpg?v=1734325148", 
-        }),
-        // Pre-Treatment Toner
-        ("Pre-Treatment Toner", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/011024_Pre-TreatmentToner_PDP_1024x1024.jpg?v=1711563597", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0ITo2GuTRZWHrbdTatJFRzQcwsN5jDNfHOw&s", 
-            "https://134449990.cdn6.editmysite.com/uploads/1/3/4/4/134449990/s148490656276618525_p144_i1_w550.jpeg"
-        }),
-        // Hydraflora
-        ("Hydraflora", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_HydraFlora_PDP_eea6942c-bdcc-47a2-adf3-c2632906ffc3_grande.jpg?v=1730921087", 
-            "https://hydropeptide.com/cdn/shop/files/020724_Swatch_Hydraflora_PDP_0f209cc8-b2dd-42ca-bd9d-06a83eb0d376_1024x1024.jpg?v=1730921090", 
-        }),
-        // Clarifying Toner Pads
-        ("Clarifying Toner Pads", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_ClarifyingToner_PDP_grande.jpg?v=1715974145", 
-            "https://metafields-manager-by-hulkapps.s3-accelerate.amazonaws.com/uploads/hydropeptide-canada.myshopify.com/1718388492-022624_ClarifyingToner_BENEFITS.jpg", 
-        }),
-        // Toner Vichy Aqualia Thermal Hydrating Refreshing Water
-        ("Toner Vichy Aqualia Thermal Hydrating Refreshing Water", new List<string>
-        {
-            "https://trungsoncare.com/images/detailed/10/1_n7ix-l0.png", 
-            "https://ordinaryvietnam.net/wp-content/uploads/2022/03/Nuoc-hoa-hong-Vichy-Aqualia-Thermal-Hydrating-Refreshing-Water-Ordinary-Viet-Nam-3-600x600.jpg", 
-        }),
-        // Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion
-        ("Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion", new List<string>
-        {
-            "https://storage.beautyfulls.com/uploads-1/thanhhuong/2022/vichy/toner/vichy-normaderm-purifying-pore-tightening/nuoc-hoa-hong-vichy.jpg", 
-            "https://escentual.com/cdn/shop/files/vichy_normaderm_purifying_pore-tightening_toning_lotion_200ml_2.png?v=1729191893", 
-        }),
-        // Sublime Skin Intensive Serum
-        ("Sublime Skin Intensive Serum", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2023/05/sublime-skin-07-1-1091x1200.png", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5pQrlNdExrdzyuV56Zv4vX2yGLGl1VR6juQ&s", 
-        }),
-        // Hydramemory Hydra & Glow Ampoules
-        ("Hydramemory Hydra & Glow Ampoules", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2023/04/8004608510871%E2%80%8B_2-1091x1200.jpg", 
-            "https://vonpreen.com/wp-content/uploads/2023/02/duong-da-Comfort-Zone-Hyramemory-Hydra-Glow-Ampoule-7-ong-x-2ml.jpg", 
-        }),
-        // Subline Skin Lift & Firm Ampoule
-        ("Subline Skin Lift & Firm Ampoule", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/ampollesublime_2000x-1091x1200.jpg", 
-            "https://livelovespa.com/cdn/shop/products/Untitleddesign_33_626c334a-5cfe-4a98-9fd6-f1c4faf46476.png?v=1650075373&width=2048", 
-        }),
-        // Biolumin-C Serum
-        ("Biolumin-C Serum", new List<string>
-        {
-            "https://dermalogica-vietnam.com/wp-content/uploads/2020/05/2-1.jpg", 
-            "https://stralabeauty.com/wp-content/uploads/2022/05/111341-dermalogica-biolumin-c-serum-open.jpg", 
-        }),
-        // Age Bright Clearing Serum
-        ("Age Bright Clearing Serum", new List<string>
-        {
-            "https://www.facethefuture.co.uk/cdn/shop/files/111342-lifestyle-1_1750x1750_7f55ce82-2824-4c25-aa9b-e14e9f84f1d2.jpg?v=1695286223&width=600", 
-            "https://dermalogica.com.vn/cdn/shop/products/facial-oils-and-serums-facial-oils-and-serums-30ml-age-bright-clearing-serum-30198061039821.png?v=1718765966&width=1445", 
-            "https://veevee.store/wp-content/uploads/2023/10/dermalogica-age-bright-clearing-serum-2.webp"
-        }),
-        // Powerbright Dark Spot Serum
-        ("Powerbright Dark Spot Serum", new List<string>
-        {
-            "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/dermalogica-vietnam-powerbright-dark-spot-serum-29677731414221_707x707.jpg", 
-            "https://edbeauty.vn/wp-content/uploads/2023/08/Tinh-chat-duong-sang-da-Dermalogica-Powerbright-Dark-Spot-Serum-2.jpg", 
-            "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/power-serum-2.jpg"
-        }),
-        // UltraCalming Serum Concentrate
-        ("UltraCalming Serum Concentrate", new List<string>
-        {
-            "https://cdn.dangcapphaidep.vn/wp-content/uploads/2018/06/Dermalogica-Ultracalming%E2%84%A2-Serum-Concentrate-1.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk6cqAfkxjQz5Mbmi6kkvBSj-ktU8a-Ufmng&s", 
-        }),
-        // Circular Hydration Serum With Hyaluronic Acid
-        ("Circular Hydration Serum With Hyaluronic Acid", new List<string>
-        {
-            "https://dermalogica-vietnam.com/wp-content/uploads/2024/03/Huyet-Thanh-Cap-Am-Chuyen-Sau-Circular-Hydration-Serum-30ml.jpg", 
-            "https://www.depmoingay.net.vn/wp-content/uploads/2023/08/Tinh-chat-cap-am-chuyen-sau-Dermalogica-Circular-Hydration-Serum.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNmRYaTc9DUWC6Db28yQs8xl-cPbyLqsHfUQ&s"
-        }),
-        // Strawberry Rhubarb Hyaluronic Serum
-        ("Strawberry Rhubarb Hyaluronic Serum", new List<string>
-        {
-            "https://beautyritual.ca/cdn/shop/products/eminence-organics-strawberry-rhubarb-hyaluronic-serum-swatch_6209ac7f-cf39-4122-b2a3-98a2d6c150ae.jpg?v=1722965085&width=480", 
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-strawberry-rhubarb-hyaluronic-serum.jpg?itok=MnXS_0td", 
-        }),
-        // Citrus & Kale Potent C+E Serum
-        ("Citrus & Kale Potent C+E Serum", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-citrus-kale-potent-ce-serum-400x400px_0.png?itok=2SnWNB_z", 
-            "https://store-cdn-media.dermpro.com/catalog/product/cache/10f519365b01716ddb90abc57de5a837/e/m/eminence_citrus_kale_potent_c_e_serum_2.jpg", 
-            "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Citrus-Kale-Potent-C-E-Serum-Lifestyle.png?v=1711744368&width=1080"
-        }),
-        // Marine Flower Peptide Serum
-        ("Marine Flower Peptide Serum", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeNfYFOyzx2eItOl_4C-VnSTtOqdEH8_Bp9w&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYaWbbx2Sz426MAirXQgrJ9YqBH75dQxB2gw&s", 
-            "https://images.squarespace-cdn.com/content/v1/5b3ca5a2b98a782f09c815d6/1669510664302-2M38DWMSGWL2H9N0GR6I/Fall-2022-Social-Media-Package-2-1080x1080.jpg"
-        }),
-        // Clear Skin Willow Bark Booster-Serum
-        ("Clear Skin Willow Bark Booster-Serum", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN_Wauo_Rlilox29NSTEBgTFF9vxbY62PLZg&s", 
-            "https://the-afternoon-prod.s3.ap-southeast-1.amazonaws.com/product/02644f3a-9594-42b3-b857-6a1753db3a84/block/k-t-602-copy1-min.jpg", 
-        }),
-        // Cornflower Recovery Serum
-        ("Cornflower Recovery Serum", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-cornflower-recovery-serum-sq.jpg?itok=nIX5IZVH", 
-            "https://www.dermstore.com/images?url=https://static.thcdn.com/productimg/original/11857248-1344866735395349.jpg&format=webp&auto=avif&width=1200&height=1200&fit=cover", 
-        }),
-        // Power Serum
-        ("Power Serum", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV7CdjpeMqLmybea_wuyU1YkJaN9H56D83bg&s", 
-            "https://images.squarespace-cdn.com/content/v1/5badc17c797f743dc830bb95/1721113519111-GS0XBO7FD4FEU9TPD5QZ/HydroPeptide+Power+Serum+.png?format=1000w", 
-            "https://img-cdn.heureka.group/v1/975eff79-baec-4106-87d5-641a98f2bc61.jpg?width=350&height=350"
-        }),
-        // Firma-Bright
-        ("Firma-Bright", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6XcpSDG4i6iLlhr1d8tah8jg9YvwaeHAJqg&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxCwXA3JgUVHri_LMGzNtf2Xrkig-zmb6AvA&s", 
-            "https://metafields-manager-by-hulkapps.s3-accelerate.amazonaws.com/uploads/hydropeptide-canada.myshopify.com/1726623141-082224_New_Retail_Packaging_Firma-Bright_BENEFITS.jpg"
-        }),
-        // Hydrostem Serum
-        ("Hydrostem Serum", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeehTZ70DIUnNzpsOuSC8V0BBSMtsJqSSa2w&s", 
-            "https://cdn.shopify.com/s/files/1/0345/0444/1995/files/PDP_Hydrostem_Results.jpg?v=1660700668", 
-        }),
-        // Minéral 89 Booster
-        ("Minéral 89 Booster", new List<string>
-        {
-            "https://product.hstatic.net/200000124701/product/ml_mb033500_serum_giup_sang_da_va_cang_muot_5309_609c_large_4eaece6dec_040dcc25119b4ba48c4f84eb5ea8eab8_master.jpg", 
-            "https://product.hstatic.net/1000006063/product/2_9c06e1144bc44c31976a4726501e6936_1024x1024.jpg", 
-            "https://assets-hebela.cdn.vccloud.vn/dict/1/rigigstrtssgtssmsm20221024161114mineral-89-fortifying-daily-booster-30ml/rrosatidinngitiins20221024161532image2.png"
-        }),
-        // Minéral 89 Probiotic Fractions
-        ("Minéral 89 Probiotic Fractions", new List<string>
-        {
-            "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/skincare/m89/mineral89-probiotic-fractions-pack3.jpg?rev=8745dcf5b4fb41dbbf921950bebe6ae3&cx=0.53&cy=0.55&cw=525&ch=596&hash=3CB4E2F0FB27C99F34CEF2B4B60F94C5", 
-            "https://product.hstatic.net/1000006063/product/2_9c06e1144bc44c31976a4726501e6936_1024x1024.jpg", 
-            "https://product.hstatic.net/200000617989/product/tinh_chat_vichy_mineral_89_probiotic_fractions___2__fdb740bf564c4b6eb8ce809b420b1d4c.jpg"
-        }),
-        // Barrier Builder
-        ("Barrier Builder", new List<string>
-        {
-            "https://hydropeptide.co.uk/cdn/shop/files/Barrier-Builder.jpg?v=1725351085", 
-            "https://cdn.shopify.com/s/files/1/0345/0444/1995/files/how-to.jpg?v=1725358910", 
-        }),
-        // Power Luxe
-        ("Power Luxe", new List<string>
-        {
-            "https://skinbeautifulrx.com/cdn/shop/products/PowerLuxe_1200x.jpg?v=1629145994", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc1zwGe1F7e0YfxPgDTe8hUHB8978RAybE_Q&s", 
-            "https://abeautybar.com.ua/content/images/35/1080x1071l80mc0/gidropitatelnyy-infuzionnyy-krem-hydropeptide-power-luxe4784-36045340977099.jpeg"
-        }),
-        // AquaBoost Oil Free Face Moisturizer
-        ("AquaBoost Oil Free Face Moisturizer", new List<string>
-        {
-            "https://cdn.cosmostore.org/cache/front/shop/products/511/1558828/650x650.jpg", 
-            "https://images.squarespace-cdn.com/content/v1/64930aaaf0c0fc7ee1e1ffeb/1713368640714-4KTAPH5GBPSDEBBFLW8P/Hydropeptide+Aquaboost+example.png?format=1500w", 
-        }),
-        // Face Lift Moisturizer
-        ("Face Lift Moisturizer", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/010924_New_Retail_FaceLift_PDP_grande.jpg?v=1711563449", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR999M9m99s-z5kSEiW-HqQchDa2YY783A04w&s", 
-        }),
-        // Sublime Skin Fluid Cream
-        ("Sublime Skin Fluid Cream", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2023/03/12201_1_SUBLIME_SKIN_Fluid_Cream_60ml_Comfort_Zone_2000x-1091x1200.webp", 
-            "https://comfortzone.com.vn/wp-content/uploads/2023/03/sublime-skin-texture-fluid-cream.png", 
-        }),
-        // Sacred Nature Nutrient Cream
-        ("Sacred Nature Nutrient Cream", new List<string>
-        {
-            "https://world.comfortzoneskin.com/cdn/shop/files/o3rmembdmxcpkfgj5rau_1600x.jpg?v=1718130042", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/6939f8f00a8a7ed77a04d50b9549311e267a48fe_2000x-1091x1200.jpg", 
-        }),
-        // Active Pureness Fluid
-        ("Active Pureness Fluid", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2023/11/San-pham-134-1091x1200.jpg", 
-            "https://www.organicpavilion.com/cdn/shop/products/PF8aa29d2d702ea16e288b6fbaad4bf3bd52092193_2000x_6c1ce0b0-1fa2-4ae4-98bc-fc537be81713_large.png?v=1677234394", 
-        }),
-        // Remedy Cream 
-        ("Remedy Cream", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-03-1091x1200.png", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/c9d0b89d8a9af00e2eb8909d8c768e15158b6d7e_2000x-1091x1200.jpg", 
-        }),
-        // Strawberry Rhubarb Hyaluronic Hydrator
-        ("Strawberry Rhubarb Hyaluronic Hydrator", new List<string>
-        {
-            "https://www.everyoneblooms.com/wp-content/uploads/2024/07/Eminence-Organics-Strawberry-Rhubarb-Hyaluronic-Hydrator-SQ.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdwtvJgu9013N_fBXR36JJrEmupTNpKqo17Q&s", 
-        }),
-        // Bakuchiol + Niacinamide Moisturizer
-        ("Bakuchiol + Niacinamide Moisturizer", new List<string>
-        {
-            "https://pbs.twimg.com/media/GEFcv4YbQAAP1OE.jpg:large", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2AJMC8ZAAzSqA09cJezP4jN79hpxNvKS56A&s", 
-            "https://www.newbeauty.com/wp-content/uploads/2023/10/2023-Fall-Bakuchiol-And-Niacinamide-Collection-Lifestyle-High-38-1-scaled.jpg"
-        }),
-        // Acne Advanced Clarifying Hydrator
-        ("Acne Advanced Clarifying Hydrator", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-acne-advanced-clarifying-hydrator-v2-400pix-compressor.jpg?itok=_ELq7sKM", 
-            "https://buynaturalskincare.com/cdn/shop/products/Eminence-Organics-Acne-Advanced-Clarifying-Hydrator-Swatch.jpg?v=1665160459&width=1080", 
-        }),
-        // Echinacea Recovery Cream
-        ("Echinacea Recovery Cream", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-echinacea-recovery-cream-400x400px.png?itok=LNRyYSeA", 
-            "https://cdn.cosmostore.org/cache/front/shop/products/127/302585/650x650.jpg", 
-        }),
-        // PowerBright Overnight Cream
-        ("PowerBright Overnight Cream", new List<string>
-        {
-            "https://edbeauty.vn/wp-content/uploads/2023/08/Kem-duong-Powerbright-Overnight-Cream-1.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7Ul9pN39KXGUnc4ho3jvwm2hrKpmBZdKy-g&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS98UOJj0PdVmux2QYM31SSmllUTZkidUc9lA&s"
-        }),
-        // Skin Soothing Hydrating Lotion
-        ("Skin Soothing Hydrating Lotion", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1JQViTcVpNPKqP6Wn2e99hYZrczacbtnGtA&s", 
-            "https://absoluteskin.com.au/cdn/shop/products/dermalogica-moisturisers-dermalogica-clear-start-skin-soothing-hydrating-lotion-59ml-28824281022558_300x.jpg?v=1711588930", 
-            "https://www.dermalogica.ca/cdn/shop/products/3soothinglotionhands-min_2048x2048_9f7cd589-f542-4efb-9228-6d0fb802c954.webp?v=1660681593&width=1946"
-        }),
-        // Skin Smoothing Cream
-        ("Skin Smoothing Cream", new List<string>
-        {
-            "https://hoaanhdao.vn/media/sanpham/1530205200/KEM_D%C6%AF%E1%BB%A0NG_%E1%BA%A8M_L%C3%80M_M%E1%BB%8AN_DA_DERMALOGICA_SKIN_SMOOTHING_CREAM.jpg", 
-            "https://www.facethefuture.co.uk/cdn/shop/files/skin-smoothing-cream-pdp-3.jpg?v=1692712240&width=600", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj4i7SJV0CSo8uab92n_4olFmOhtRlXD9DJg&s"
-        }),
-        // Barrier Repair
-        ("Barrier Repair", new List<string>
-        {
-            "https://dangcapphaidep.vn/image-data/780-780/cdn/2021/11/Dermalogica-Barrier-Repair-1.jpg", 
-            "https://veevee.store/wp-content/uploads/2023/10/dermalogica-barrier-repair-2.webp", 
-        }),
-        // Minéral 89 72H Moisture Boosting Fragrance Free Cream
-        ("Minéral 89 72H Moisture Boosting Fragrance Free Cream", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeDcDHtRmZHif3n-fLkzxuYnQIGuuaVoDVFg&s", 
-            "https://media.superdrug.com//medias/sys_master/prd-images/h77/h30/10011961950238/prd-back-826896_600x600/prd-back-826896-600x600.jpg", 
-        }),
-        // Liftactiv B3 Tone Correcting Night Cream With Pure Retinol
-        ("Liftactiv B3 Tone Correcting Night Cream With Pure Retinol", new List<string>
-        {
-            "https://www.vichy.ca/dw/image/v2/AATL_PRD/on/demandware.static/-/Sites-vichy-master-catalog/default/dwe39c018d/product/2024/3337875873086/3337875873086.mainA-EN.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHvHgPHulcbHZbcvkjI6m1cmQsZFNyiX9Aaw&s", 
-        }),
-        // Belif The True Cream Aqua Bomb
-        ("Belif The True Cream Aqua Bomb", new List<string>
-        {
-            "https://image.hsv-tech.io/1987x0/tfs/common/d221fe39-305d-492d-b089-44607a9285fc.webp", 
-            "https://image.hsv-tech.io/1920x0/bbx/common/b6851887-fbe5-46a8-b189-e9be2b2d5556.webp", 
-        }),
-        // Oat So Simple Water Cream
-        ("Oat So Simple Water Cream", new List<string>
-        {
-            "https://kravebeauty.com/cdn/shop/files/9.24_OSS_PDP3.png?v=1727744093&width=1200", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRw5DZUUIS5TX9dU3_h8FD70ChLCeiuZsuTIiniSZZ9udxobZfPTA7A46-KPczF9YiCGr8&usqp=CAU", 
-        }),
-        // AESTURA A-CICA 365 Calming Cream
-        ("AESTURA A-CICA 365 Calming Cream", new List<string>
-        {
-            "https://down-vn.img.susercontent.com/file/sg-11134207-7rbka-ln1cvnbe1d8532", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5-Iis6x4JWFAUiCEywTriRNgD9JBhu0P_9g&s", 
-        }),
-        // Sun Soul Face Cream SPF30
-        ("Sun Soul Face Cream SPF30", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2023/03/8004608515975_1-1091x1200.jpg", 
-            "https://shop.beautymanufactur.de/wp-content/uploads/2024/05/com-12163-comfort-zone-sun-soul-face-cream-spf30-texture-900x900.jpg.webp", 
-        }),
-        // Skin Regimen Urban Shield SPF30
-        ("Skin Regimen Urban Shield SPF30", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/8004698186420_1-1091x1200.jpg", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/neni-urban-shield-spf-30-2-800x1200.jpg", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/apply-urban-shield-spf-30-800x1200.jpg"
-        }),
-        // PoreScreen SPF40
-        ("PoreScreen SPF40", new List<string>
-        {
-            "https://dr-skincare.com/wp-content/uploads/2024/03/67.jpg", 
-            "https://cdn11.bigcommerce.com/s-6c800/images/stencil/1280x1280/products/8001/28227/Dermalogica-Porescreen-Mineral-Sunscreen-SPF-40-DM111473_26769__87674.1729965251.jpg?c=2", 
-            "https://dermalogica.in/cdn/shop/files/PoreScreen-09_6b178e28-1089-4645-88df-24015551d76a.jpg?v=1724661984&width=1445"
-        }),
-        // Invisible Physical Defense SPF30 
-        ("Invisible Physical Defense SPF30", new List<string>
-        {
-            "https://dermalogica-vietnam.com/wp-content/uploads/2020/05/7-3-590x600.jpg", 
-            "https://m.media-amazon.com/images/I/51HC+QLIrVL._AC_UF350,350_QL80_.jpg", 
-        }),
-        // Protection 50 Sport SPF50
-        ("Protection 50 Sport SPF50", new List<string>
-        {
-            "https://edbeauty.vn/wp-content/uploads/2019/12/kem-chong-nang-Dermalogica-protection-sport-spf-50-156ml.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9OSPWVkYd5yhmaP6lPYcO1RPlqwK5FYaU-Q&s", 
-        }),
-        // Oil Free Matte SPF30
-        ("Oil Free Matte SPF30", new List<string>
-        {
-            "https://www.dermalogica.ie/cdn/shop/files/oil-free-matte-pdp_abddc3c6-01ee-4a08-9a22-3d93d66cc79e.jpg?v=1687444268", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa4gMLYU2BQkxgljz_dQteQ7buLxR-1Q39yQ&s", 
-        }),
-        // Radiant Protection SPF Fluid
-        ("Radiant Protection SPF Fluid", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSIeOviukKjzkEkUyMUzgkB5Up-8o7XucjLw&s", 
-            "https://naturalbeautygroup.com/cdn/shop/files/eminence-organics-Radiant-Protection-SPF-Fluid-Swatch.png?v=1708611969&width=1080", 
-        }),
-        // Lilikoi Daily Defense Moisturizer SPF 40
-        ("Lilikoi Daily Defense Moisturizer SPF 40", new List<string>
-        {
-            "https://cdn.cosmostore.org/cache/front/shop/products/486/1464606/350x350.jpg", 
-            "https://images.squarespace-cdn.com/content/v1/63d45207da7f2a5e82696fe2/1674859081420-WZPSXPO81QEKEFHHKB4Y/eminence-organics-lilikoi-moisturizer-spf40-swatch-circle-400x400.jpg?format=1000w", 
-        }),
-        // Lilikoi Mineral Defense Sport Sunscreen SPF 30
-        ("Lilikoi Mineral Defense Sport Sunscreen SPF 30", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-llilikoi-mineral-defense-sport-sunscreen-spf-30-400x400.jpg?itok=0IXRhb-K", 
-            "https://images.squarespace-cdn.com/content/v1/5d75abb04593a56ccb9161cb/1572814643401-Q0O24YSFHA4JBI09B5T5/eminence-organics-stone-crop-revitalizing-body-scrub-swatch-toscana.png?format=1000w", 
-        }),
-        // Daily Defense Tinted SPF
-        ("Daily Defense Tinted SPF", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-daily-defense-tinted-spf-pdp.jpg?itok=DphokG8j", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8Nl7TW6hlAMdQ9UBiRaTrH0dHNp476Ye3wQ&s", 
-            "https://shop.vivadayspa.com/cdn/shop/files/EminenceOrganicDailyDefenseTintedSPF50_3_1800x1800.png?v=1719944530"
-        }),
-        // Solar Dew Sheer Mineral Melt SPF 30
-        ("Solar Dew Sheer Mineral Melt SPF 30", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOz514kGYGfzEyqZ4ItSevNqGTw4KzgJgkrQ&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAV2C0GAlWYxHpgCIWrRSvXA6JFAP0hbeHaA&s", 
-            "https://www.purplebeautysupplies.com/cdn/shop/files/hydropeptide-solar-dew-spf-30-mineral-serum-135-oz-40-ml-478701.jpg?v=1715239028&width=1445"
-        }),
-        // Solar Defense Non-Tinted Sunscreen
-        ("Solar Defense Non-Tinted Sunscreen", new List<string>
-        {
-            "https://bizweb.dktcdn.net/thumb/1024x1024/100/318/244/products/untitled-bd9e4f55-c942-4778-8da9-70005304d193.jpg?v=1607671087160", 
-            "https://metafields-manager-by-hulkapps.s3-accelerate.amazonaws.com/uploads/hydropeptide-canada.myshopify.com/1726621522-022624_SolarDefenseNonTinted_BENEFITS.jpg", 
-        }),
-        // Solar Defense Tinted SPF 30
-        ("Solar Defense Tinted SPF 30", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_SolarDefenseTinted_PDP_1024x1024.jpg?v=1724437418", 
-            "https://hydropeptide.co.uk/cdn/shop/products/HP--PDP-CaroselImages-Solar-Defense-Tinted-video.jpg?v=1662163522", 
-        }),
-        // Vichy Capital Soleil UV Age Daily SPF50 PA++++ 
-        ("Vichy Capital Soleil UV Age Daily SPF50 PA++++", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSspHWslG4DZpyDyDQNx2owKFNPb1_v0zeDFA&s", 
-            "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/suncare/capital-soleil---uv-age/capital-soleil-uv-age-spf50-pack4.jpg?rev=02d0faa4daf344b7ae245ea718addbaa&cx=0.47&cy=0.53&cw=525&ch=596&hash=CFA022DF922328E3F8ABA2264ED86940", 
-        }),
-        // Capital Soleil Ultra Light Face Sunscreen SPF 50
-        ("Capital Soleil Ultra Light Face Sunscreen SPF 50", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9WRnfVxm2mABipRz9LHO1eBdH1oDlU6wC7A&s", 
-            "https://exclusivebeautyclub.com/cdn/shop/products/vichy-capital-soleil-ultra-light-sunscreen-spf-50-vichy-shop-at-exclusive-beauty-club-515732.jpg?v=1698096439", 
-        }),
-        // Neogen Day-Light Protection Airy Sunscreen
-        ("Neogen Day-Light Protection Airy Sunscreen", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk5ssRRdBHGrHUnF87gc2M30_2EJcxarie1g&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsD2FE2MUfeFeZlFXuvJgidm1iU8WgkkVU7Q&s", 
-        }),
-        // Round Lab Birch Juice Moisturizing Sunscreen
-        ("Round Lab Birch Juice Moisturizing Sunscreen", new List<string>
-        {
-            "https://product.hstatic.net/200000150709/product/1_10a2d9a626da4c03ac81c93497bae020.png", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiew88Sg_ffo50u6QcX4kuVHoG_fK9u3qtkA&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKdt5IbBt21U-Ppg4c-ic4PawxrqvJUgAgtg&s"
-        }),
-        // Beet The Sun SPF 40 PA+++
-        ("Beet The Sun SPF 40 PA+++", new List<string>
-        {
-            "https://www.dodoskin.com/cdn/shop/files/61J0umsAoGL_080fdcb3-37f3-4066-a1b9-8769b6fc1376_2048x2048.jpg?v=1707875322", 
-            "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lpp4hgn0mhxw87", 
-            "https://kravebeauty.com/cdn/shop/files/9.24_BTS_PDP3.png?v=1729803947&width=1200"
-        }),
-        // Klairs All-day Airy Mineral Sunscreen SPF50+ PA++++
-        ("Klairs All-day Airy Mineral Sunscreen SPF50+ PA++++", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxNHcQ2vQJhLia5CAIKeC0YLPPKi_KtyfcIg&s", 
-            "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lz7ct301ck9t85", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfMgba99CrRc61gzwD8wPnD1H7X-QlaB_tFw&s"
-        }),
-        // Goongbe Waterful Sun Lotion Mild SPF50+ PA++++
-        ("Goongbe Waterful Sun Lotion Mild SPF50+ PA++++", new List<string>
-        {
-            "https://gomimall.vn/cdn/shop/files/6_55cd82b9-b3ba-438d-a9e3-d105ff8d9166.png?v=1727068956", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_VhLOsDvcPtXOWARG0zxac-oDZExusVtWnw&s", 
-            "https://www.ballagrio.com/cdn/shop/files/3_f0fb1c1d-ee7a-4762-a261-79a4e841791b_2048x.jpg?v=1734515800"
-        }),
-        // Eight Greens Phyto Masque – Hot
-        ("Eight Greens Phyto Masque – Hot", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-eight-greens-phyto-masque-hot-pdp.jpg?itok=-pxuW5H5", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQtndM3VeufQiiNA59YlFA--hDSXxxB9qMow&s", 
-            "https://organicskincare.com/wp-content/uploads/2015/08/Eminence-Eight-Greens-Phyto-Masque-360x360.jpg"
-        }),
-        // Kombucha Microbiome Leave-On Masque
-        ("Kombucha Microbiome Leave-On Masque", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-kombucha-mircobiome-leave-on-masque-pdp.jpg?itok=m8OxvyO3", 
-            "https://beautyritual.ca/cdn/shop/products/eminence-organics-kombucha-microbiome-leave-on-masque-swatch-pdp.jpg?v=1722521123&width=480", 
-            "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Kombucha-Microbiome-Leave-On-Masque-lifestyle.jpg?v=1717443755&width=1080"
-        }),
-        // Citrus & Kale Potent C+E Masque
-        ("Citrus & Kale Potent C+E Masque", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/content/blog/product-picks/eminence-organics-citrus-kale-potent-ce-masque.png", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpPxaCBWNH4MBUIBigH9RkoB_9ExSPGYKnzw&s", 
-            "https://i0.wp.com/jessicasapothecary.com/wp-content/uploads/2020/04/vitaminc_masque.jpg?resize=840%2C1050&ssl=1"
-        }),
-        // Stone Crop Masque
-        ("Stone Crop Masque", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZoviYz-lQL1doxfPgl9PLZEtC_e6oKEhwnA&s", 
-            "https://www.shophalosaltskinspa.com/cdn/shop/products/CAEB78BD-1992-4EEB-B4C3-C4CF73CFE794.jpg?v=1662576743&width=1445", 
-            "https://oresta.ca/cdn/shop/products/eminence-organics-eminence-stone-crop-masque-803682.jpg?v=1706991974&width=2000"
-        }),
-        // Calm Skin Arnica Masque
-        ("Calm Skin Arnica Masque", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJwWf92eq1uUCwgZTan7qEZlq-TgQfTXFOZA&s", 
-            "https://vanislebeautyco.com/cdn/shop/products/image_61ac7e19-35ab-4d54-979d-5ce1d8e44d56.jpg?v=1672155911&width=720", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTImXEm-NSJyUUmbxpk5EcSniUif5Q09WVDFw&s"
-        }),
-        // Multivitamin Power Recovery Masque
-        ("Multivitamin Power Recovery Masque", new List<string>
-        {
-            "https://sieuthilamdep.com/images/detailed/15/mat-na-vitamin-chong-lao-hoa-dermalogica-multivitamin-power-recovery-masque.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRn48kip8eDY41wOLGcEU7hx4NvHyqrpzwPpA&s", 
-            "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lowl5l8fp4631a"
-        }),
-        // Sebum Clearing Masque
-        ("Sebum Clearing Masque", new List<string>
-        {
-            "https://dangcapphaidep.vn/image-data/780-780/upload/2023/08/30/images/dermalogica-sebum-clearing-masque-75ml%281%29.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI_EgDwBMh0LKVO-pyPoV9JSyBhIAbVJLDSg&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwazAQaO2dRExfe9aDgIYK2dlsywUuOlLByA&s"
-        }),
-        // Melting Moisture Masque
-        ("Melting Moisture Masque", new List<string>
-        {
-            "https://dangcapphaidep.vn/image-data/780-780/upload/2023/08/30/images/dermalogica-melting-moisture-masque.jpg", 
-            "https://edbeauty.vn/wp-content/uploads/2023/08/Mat-na-cap-am-Dercalogica-Melting-Moisture-Masque-1.jpg", 
-            "https://www.depmoingay.net.vn/wp-content/uploads/2023/08/Mat-na-cap-am-chuyen-sau-Dercalogica-Melting-Moisture-Masque-1.jpg"
-        }),
-        // Miracle Mask
-        ("Miracle Mask", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_MiracleMask_PDP_1024x1024.jpg?v=1715974173", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw_gxtCWIU4_0n5EORj1Kl9XmFLdUwXkOVeg&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwt8mTBHwwlIOOzAMW9avZFEcDHdAb96msRw&s"
-        }),
-        // Hydro-Lock Sleep Mask
-        ("Hydro-Lock Sleep Mask", new List<string>
-        {
-            "https://hydropeptide.com.es/image/cache/catalog/Products/hydro-lock-sleep-mask/012224_New_Retail_Packaging_Hydro-LockSleepMask_PDP_950x_2x.progressive-1000x1000.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOC_f_73gSfPV_aCpydJNdeAV0aJ18mz-VVg&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRVLHWy0Ee-uIrQCXBvxrGXgF4b7X69GKfOg&s"
-        }),
-        // PolyPeptide Collagel+ Mask 
-        ("PolyPeptide Collagel+ Mask", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/011124_PolypeptideCollagel_Face_PDP_1024x1024.jpg?v=1705108115", 
-            "https://m.media-amazon.com/images/I/61kfwzxp9sL._AC_UF1000,1000_QL80_.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpqGAgS_WZV8gv_OroncyYwbcWdujtINeEHg&s"
-        }),
-        // Balancing Mask
-        ("Balancing Mask", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfYIUlZvjKdCtWBk5N0Hjzr5rWg0f7c8NBdw&s", 
-            "https://hydropeptide.asia/wp-content/uploads/2021/02/HP-PDP-BalancingMask-Hero-2.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCNUS7D4oiAqWaQbCt8I4Ao1amYgwd9ojTGQ&s"
-        }),
-        // Rejuvenating Mask
-        ("Rejuvenating Mask", new List<string>
-        {
-            "https://cdn.shopify.com/s/files/1/0345/0444/1995/files/PDP-RejuvenatingMask-Results.jpg?v=1661906989", 
-            "https://hydropeptide.co.uk/cdn/shop/products/rejuvenating-mask_full-size.jpg?v=1662076519", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5xMKeR40mJv14WObkfKV-EpCMvfT5jlPDlA&s"
-        }),
-        // Aqualia Thermal Night Spa
-        ("Aqualia Thermal Night Spa", new List<string>
-        {
-            "https://product.hstatic.net/200000124701/product/00014081_vichy_mat_na_khoang_75ml_m9104500_6680_5c9e_large_88ade14c39_01d00c3a004a464b8b0e09f6bbc6ffb1_master.jpg", 
-            "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/product-packshots---1/aqualia/vichy_aqualia_thermal_creme_nuit.png?rev=296ada59cb5e41109fb3b0d565c68596&cx=0.51&cy=0.54&cw=525&ch=596&hash=2D0C1F95950702CE1CC90F8691F193F5", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK37Y_CeTdJPn4VyPC0fCvjfmImZwSQrOhrQdTNwu4hPPB7NwrdedizcNK0FDZEplJQTg&usqp=CAU"
-        }),
-        // Quenching Mineral Mask
-        ("Quenching Mineral Mask", new List<string>
-        {
-            "https://product.hstatic.net/200000124701/product/00014081_vichy_mat_na_khoang_75ml_m9104500_6680_5c9e_large_88ade14c39_01d00c3a004a464b8b0e09f6bbc6ffb1_master.jpg", 
-            "https://cf.shopee.vn/file/1674db822b2bc08d254590acabf64547", 
-        }),
-        // Pore Purifying Clay Mask
-        ("Pore Purifying Clay Mask", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmtvhbhIddJEIZPbAz6q8EFueP1vtX4HhqQw&s", 
-            "https://down-vn.img.susercontent.com/file/244ad88d90d841ab5af1681edc2258a3", 
-        }),
-        // Sulwhasoo Activating Mask
-        ("Sulwhasoo Activating Mask", new List<string>
-        {
-            "https://kallos.co/cdn/shop/files/12_33f1be98-3f05-421b-98cb-67be17d1e90b.jpg?v=1693728111&width=900", 
-            "https://assets.aemi.vn/images/2024/5/1715574861200-0", 
-            "https://product.hstatic.net/200000714339/product/z5219389220375_0b7217f34a936c85ae10f994e6bdda40_2c716e8ce65146fc938d37df2bbd805d.jpg"
-        }),
-        // COSRX Ultimate Nourishing Rice Spa Overnight Mask
-        ("COSRX Ultimate Nourishing Rice Spa Overnight Mask", new List<string>
-        {
-            "https://image.hsv-tech.io/1920x0/bbx/products/0e8fbb74-e136-4ea3-9ef0-76f6d44bca3b.webp", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8ESM2p1P_SgJXVC6VPdOIambFBoukzgAGdw&s", 
-        }),
-        // Klairs Rich Moist Soothing Tencel Sheet Mask
-        ("Klairs Rich Moist Soothing Tencel Sheet Mask", new List<string>
-        {
-            "https://product.hstatic.net/1000006063/product/klairs_rich_moist_soothing_tencel_sheet_mask_94678ee3e2134354b5a039b569cff87e_1024x1024.jpg", 
-            "https://product.hstatic.net/200000551679/product/dear__klairs_mat_na_giay_rich_moist___2__db38203e18c541a19031c3212db864d4_1024x1024.jpg", 
-            "https://product.hstatic.net/200000714339/product/klairs-rich-moist-soothing-sheet_bee5a326d74642bab0e5862e663e09b8_1024x1024.jpg"
-        }),
-        // Klairs Midnight Blue Calming Sheet Mask
-        ("Klairs Midnight Blue Calming Sheet Mask", new List<string>
-        {
-            "https://image.hsv-tech.io/1987x0/bbx/common/38079d73-de48-4721-88af-c0e72b28a471.webp", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4SsU7xocAIl8x0h4bj_lrLO0felkJMgASmw&s", 
-        }),
-        // Dear, Klairs Freshly Juiced Vitamin E Mask
-        ("Dear, Klairs Freshly Juiced Vitamin E Mask", new List<string>
-        {
-            "https://www.guardian.com.vn/media/catalog/product/cache/30b2b44eba57cd45fd3ef9287600968e/3/0/3020993_iifvm7d8r9crinym.jpg", 
-            "https://image.hsv-tech.io/1920x0/bbx/common/12aecda8-804a-47d0-9205-b881a6ce3174.webp", 
-        }),
-        // Sacred Nature Exfoliant Mask
-        ("Sacred Nature Exfoliant Mask", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/0d080a4d83fbeff70dd59e4585d73e1d76f7b92d_2000x-1091x1200.jpg", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/e8a1b4fb805fbdc0b8d1f659b595477ce4d7ff79_2000x.jpg", 
-            "https://eideal.com/cdn/shop/files/Exfoliant-mask-Texture-1.jpg?v=1703580157"
-        }),
-        // Essential Scrub
-        ("Essential Scrub", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2023/11/San-pham-112.jpg", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/bf8201b7fbba797ceca178721986f5de589c9eed_2000x-698x768.jpg", 
-        }),
-        // Liquid Resurfacing Solution
-        ("Liquid Resurfacing Solution", new List<string>
-        {
-            "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_LiquidResufacingSolution_PDP_1024x1024.jpg?v=1718661002", 
-            "https://hydropeptide.ca/cdn/shop/files/022024_LiquidResurfacingSolution_PDP.jpg?v=1712791423", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuv41x-1M5vuU3jX5Ggnd6NfFwrKNUe_D56Q&s"
-        }),
-        // 5X Power Peel Face Exfoliator
-        ("5X Power Peel Face Exfoliator", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6Xgx3XAAFH8I5qf0piOxYUBFpx_wro35G6Q&s", 
-            "https://hydropeptide.ca/cdn/shop/files/012224_Old_Retail_Packaging_5xPowerPeel_Sachets_PDP.jpg?v=1712790410", 
-        }),
-        // Daily Milkfoliant
-        ("Daily Milkfoliant", new List<string>
-        {
-            "https://edbeauty.vn/wp-content/uploads/2023/08/Tay-te-bao-chet-Dermalogica-Daily-Milkfoliant-2.jpg", 
-            "https://veevee.store/wp-content/uploads/2023/10/dermalogica-daily-milkfoliant-exfoliator-2.webp", 
-        }),
-        // Liquid Peelfoliant
-        ("Liquid Peelfoliant", new List<string>
-        {
-            "https://healthygoods.com.vn/resource/images/2023/12/dermalogica-liquid-peelfoliant-59ml1.jpg", 
-            "https://www.spacenk.com/on/demandware.static/-/Library-Sites-spacenk-global/default/dwb77b7327/dermalogica-liquid-peel-review-space-nk.jpg", 
-        }),
-        // Daily Superfoliant
-        ("Daily Superfoliant", new List<string>
-        {
-            "https://dermalogica-vietnam.com/wp-content/uploads/2024/03/T%E1%BA%A9y-T%E1%BA%BF-B%C3%A0o-Ch%E1%BA%BFt-Than-Ho%E1%BA%A1t-T%C3%ADnh-Daily-Superfoliant.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWwLsIyzmrB8hOus3oKNIoufCNavvosd0Zog&s", 
-        }),
-        // Multivitamin Thermafoliant
-        ("Multivitamin Thermafoliant", new List<string>
-        {
-            "https://dangcapphaidep.vn/image-data/780-780/upload/2023/08/30/images/dermalogica-multivitamin-thermafoliant-1.jpg", 
-            "https://veevee.store/wp-content/uploads/2023/10/dermalogica-multivitamin-thermafoliant-1.webp", 
-        }),
-        // Daily Microfoliant
-        ("Daily Microfoliant", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6Xgx3XAAFH8I5qf0piOxYUBFpx_wro35G6Q&s", 
-            "https://thesecretdayspa.co.uk/cdn/shop/products/US-PDP-How-To-Product-In-Hand---Daily-Microfoliant_1800x1800.webp?v=1678979333", 
-        }),
-        // Strawberry Rhubarb Dermafoliant
-        ("Strawberry Rhubarb Dermafoliant", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-strawberry-rhubarb-dermafoliant.jpg?itok=lP2gq52k", 
-            "https://anjouspa.com/wp-content/uploads/2023/01/anjou-spa-fresh-fruit-facial-27.jpg", 
-        }),
-        // Turmeric Energizing Treatment
-        ("Turmeric Energizing Treatment", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbvQKm1rsUl0wMFrKASBA5iBt0VX69eQIyjw&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTb2Zl2efrdTibFj1FlzpWE9n4qQaT7a-fe4w&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1TWpyNYBuXgZHao3xTL4Y4KWq-VYK_yFLNw&s"
-        }),
-        // Bright Skin Licorice Root Exfoliating Peel
-        ("Bright Skin Licorice Root Exfoliating Peel", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTL9Oq6DD-KmiZGSPvBt6viuJI3wf059HorRQ&s", 
-            "https://emstore.com/cdn/shop/files/licorice-root-exfoliating-peel-pads.jpg?v=1695202885", 
-        }),
-        // Calm Skin Chamomile Exfoliating Peel
-        ("Calm Skin Chamomile Exfoliating Peel", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFf6rWs4EsBBhwJBa458IvTlMEnUf1ZZqiXQ&s", 
-            "https://static.thcdn.com/productimg/960/960/11370437-1344871983881681.jpg", 
-        }),
-        // Radish Seed Refining Peel
-        ("Radish Seed Refining Peel", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-radish-seed-refining-peel-400x400px.png?itok=G7HyJYY5", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7PLc_tx0I_lQDDPwITKuaqEAVUN7u7IsuMw&s", 
-        }),
-        // Anua Heartleaf 77% Clear Pad
-        ("Anua Heartleaf 77% Clear Pad", new List<string>
-        {
-            "https://bizweb.dktcdn.net/100/525/087/products/56aa5b2e-5258-4122-beee-d53128f44c3c.jpg?v=1733139782937", 
-            "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lrqzijemkds443", 
-            "https://cdn.shopify.com/s/files/1/0560/7328/9826/files/IMG-4057.jpg?v=1714980820"
-        }),
-        // No.5 Vitamin-Niacinamide Concentrated Pad
-        ("No.5 Vitamin-Niacinamide Concentrated Pad", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkRt0Da2RE6ez4IpyF-9eVbo1rgj_6wA-4LQ&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqjR310AXBDPsifkWK0rsXBxhDnTBDCW50Yg&s", 
-            "https://www.mikaela-beauty.com/cdn/shop/files/AX6H2399w_1200x1200.jpg?v=1711843023"
-        }),
-        // Balanceful Cica Toner Pad
-        ("Balanceful Cica Toner Pad", new List<string>
-        {
-            "https://product.hstatic.net/1000006063/product/bt_91f25bc0d4854817a2c94eff8a459e9e_1024x1024.jpg", 
-            "https://product.hstatic.net/1000328823/product/_20__19__9352572e4c5245a4a9756cb089a6d047_master.png", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxFuy4bq9_k4ZsMOIcLNhKFheC0oJnhQ7gJQ&s"
-        }),
-        // Pine Needle Pore Pad Clear Touch
-        ("Pine Needle Pore Pad Clear Touch", new List<string>
-        {
-            "https://down-vn.img.susercontent.com/file/7876b204a9fcf65d0930190e274bb254", 
-            "https://cdn.zochil.shop/bbafea58-b901-4841-9319-281f9b7c4be3_t1500.jpg", 
-        }),
-        // Krave Kale-lalu-yAHA
-        ("Krave Kale-lalu-yAHA", new List<string>
-        {
-            "https://kravebeauty.com/cdn/shop/files/9.24_KLY_PDP1.png?v=1727740531", 
-            "https://i.ebayimg.com/images/g/M18AAOSw9BpkHShE/s-l400.jpg", 
-            "https://lilabeauty.com.au/cdn/shop/products/buy-krave-beauty-kale-lalu-yaha-200ml-at-lila-beauty-korean-and-japanese-beauty-skin-care-255400.jpg?v=1648860498"
-        }),
-        // Yuzu Solid Body Oil
-        ("Yuzu Solid Body Oil", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTa6cZWEjkws8RPCsTXRPcfNM7GlmkJ86fuXg&s", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT091jFcMQELHhS2zqu8kDBc39zoRi4Sck4LQ&s", 
-        }),
-        // Mangosteen Body Lotion
-        ("Mangosteen Body Lotion", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-mangosteen-body-lotion-400x400px-compressed.png?itok=Ofu_3Y-c", 
-            "https://cdn11.bigcommerce.com/s-wcc90u14r8/images/stencil/1280x1280/products/9804/24894/skin-beauty-eminence-mangosteen-body-lotion-8.4__31975.1729024904.jpg?c=2", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMES-hL9lyHa3KeoivJfChbejtJvNOfXyflQ&s"
-        }),
-        // Coconut Sugar Scrub
-        ("Coconut Sugar Scrub", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFrsNXy29hCQjfyrcStKLnNID2zv_9QuKvvQ&s", 
-            "https://i5.walmartimages.com/seo/Eminence-Stone-Crop-Revitalizing-Body-Scrub-8-4-oz_f7168ae2-fd69-45f7-9c04-443ddcc24516.961abd73cdb34020becd439ede8416a6.jpeg", 
-        }),
-        // Stone Crop Contouring Body Cream
-        ("Stone Crop Contouring Body Cream", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/stone-crop-body-contouring-cream-400x400.png?itok=gTrvgdf1", 
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-slide/eminence-organics-stone-crop-body-contouring-cream-swatch-400x400.jpg?itok=CW8Z9DlV", 
-        }),
-        // Stone Crop Body Oil
-        ("Stone Crop Body Oil", new List<string>
-        {
-            "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/stone-crop-body-oil-400x400.png?itok=kCbSF1gV", 
-            "https://i5.walmartimages.com/asr/3c096190-35c1-443b-876c-65b80976c79b.d68538517adb4174192b340277828d4e.jpeg?odnHeight=768&odnWidth=768&odnBg=FFFFFF", 
-        }),
-        // Sacred Nature Body Butter
-        ("Sacred Nature Body Butter", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/9720a1e9b759cb104a72600261dc4320a1e31fe4_2000x.jpg", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/181a900228143e96fd981d63502195294ef76dfe_2000x-1091x1200.jpg", 
-            "https://vonpreen.com/wp-content/uploads/2023/03/Comfort-Zone-Sacred-Nature-Body-Butter.jpg"
-        }),
-        // Tranquillity Oil
-        ("Tranquillity Oil", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSz0kljZlGJ8sUGfVH9Q5GXUrVZd51g4A83yQ&s", 
-            "https://down-vn.img.susercontent.com/file/sg-11134201-22110-4gj57hclpnjv4b", 
-        }),
-        // Body Strategist Peel Scrub
-        ("Body Strategist Peel Scrub", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/4a34a3dd50e62994703db0d5db6c98c3ac321337_2000x.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNq-zuTktcugPue1xZh1lJ_BagEEnHf-x0mQ&s", 
-            "https://i.makeup.ae/600x600/qgmotujz0cvp.jpg"
-        }),
-        // Body Strategist Oil
-        ("Body Strategist Oil", new List<string>
-        {
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/61200985bf4310406e0a68b32f26e54ffad19bf5_2000x.jpg", 
-            "https://oadep.com/wp-content/uploads/2023/03/duong-the-Comfort-Zone-Body-Strategist-Oi-100ml-chinh-hang.jpg", 
-            "https://comfortzone.com.vn/wp-content/uploads/2022/10/c0c3698e5819ca297e7b8be9f087c36a4a31cef4_2000x-1091x1200.jpg"
-        }),
-        // Body Strategist Contour Cream
-        ("Body Strategist Contour Cream", new List<string>
-        {
-            "https://world.comfortzoneskin.com/cdn/shop/files/myqk9504x4uzbbh0gz8u_5000x.jpg?v=1718128996", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ1zUHTv9Xso7yRlufR12dR9ahzcB1Po3M0LBxOdrtbIOrBmPDpaq-lVlUdo-Dkey4qsQ&usqp=CAU", 
-        }),
-        // Body Hydrating Cream
-        ("Body Hydrating Cream", new List<string>
-        {
-            "https://dangcapphaidep.vn/image-data/780-780/cdn/2018/07/Dermalogica-Body-Hydrating-Cream-1.jpg", 
-            "https://dermalogica-vietnam.com/wp-content/uploads/2021/06/2.1.jpg", 
-            "https://bluemercury.com/cdn/shop/files/global_images-666151111103-2.jpg?v=1725057930&width=1500"
-        }),
-        // Phyto Replenish Body Oil
-        ("Phyto Replenish Body Oil", new List<string>
-        {
-            "https://dr-skincare.com/wp-content/uploads/2024/03/64.png", 
-            "https://product.hstatic.net/1000160964/product/phyto-replenish-body-oil-with-ingredients-400_2x_2b58ad161eca4e67851e178c2b38bfd4_master.jpg", 
-            "https://dermalogica-vietnam.com/wp-content/uploads/2020/06/8.8.jpg"
-        }),
-        // Conditioning Body Wash
-        ("Conditioning Body Wash", new List<string>
-        {
-            "https://hoaoaihuong.vn/upload/data/images/product/1587433351_ConditioningBodyWashwithRosemaryIllustration_1_700x800.jpg", 
-            "https://www.depmoingay.net.vn/wp-content/uploads/2023/08/Sua-tam-min-da-Dermalogica-Conditioning-Hand-Body-Wash-1.jpg", 
-            "https://www.dermalogica.ca/cdn/shop/products/conditioning-body-wash_84-01c_590x617_bf506ab2-c69d-47c3-8b74-6594dedaea1b.jpg?v=1600289356&width=1445"
-        }),
-        // Nourishing Glow Body Oil
-        ("Nourishing Glow Body Oil", new List<string>
-        {
-            "https://hydropeptide.co.uk/cdn/shop/products/nourishing-glow_full-size.jpg?v=1660861721", 
-            "https://cdn.shopify.com/s/files/1/0345/0444/1995/files/PDP-NourishingGlow-HowToUse.jpg?v=1660794950", 
-            "https://i.makeup.ae/m/mu/muboadhvbzcg.jpg"
-        }),
-        // Firming Body Moisturizer
-        ("Firming Body Moisturizer", new List<string>
-        {
-            "https://hydropeptide.co.uk/cdn/shop/products/firming-moisturizer_full-size.jpg?v=1681516762", 
-            "https://www.fruitionskintherapy.ca/wp-content/uploads/hydropeptide-body-firming-body-moisturizer-2.jpg", 
-        }),
-        // Illiyoon Ceramide Ato Concentrate Cream
-        ("Illiyoon Ceramide Ato Concentrate Cream", new List<string>
-        {
-            "https://seoulplus.com/wp-content/uploads/2023/07/Illiyoon-Ceramide-Ato-Concentrate-Cream-1.jpg", 
-            "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzx6x3exbdrb8", 
-        }),
-        // Dear Doer The Hidden Body Scrub & Wash
-        ("Dear Doer The Hidden Body Scrub & Wash", new List<string>
-        {
-            "https://m.media-amazon.com/images/I/71f+T8Po-bL.jpg", 
-            "https://m.media-amazon.com/images/I/71qOFL2EeUL._AC_UF350,350_QL80_.jpg", 
-            "https://www.ballagrio.com/cdn/shop/files/2_ff23dccd-b3b9-471c-b9af-0e44d9101f2a_2048x.jpg?v=1689571364"
-        }),
-        // Aestura Atobarrier 365 Ceramide Lotion
-        ("Aestura Atobarrier 365 Ceramide Lotion", new List<string>
-        {
-            "https://m.media-amazon.com/images/I/51mD15TJzJL._AC_UF1000,1000_QL80_.jpg", 
-            "https://i.ebayimg.com/images/g/2zwAAOSwPxpi~wUt/s-l1200.jpg", 
-            "https://down-vn.img.susercontent.com/file/sg-11134207-7rbm3-lpm4wcfn4hbpfd"
-        }),
-        // Dr. Orga pH-balanced Houttuynia Cordata Red Spot Mist
-        ("Dr. Orga pH-balanced Houttuynia Cordata Red Spot Mist", new List<string>
-        {
-            "https://sokoglam.com/cdn/shop/files/Soko-Glam-PDP-Dr-Orga-Houttuynia-Cordata-Body-Mist-01_860x.png?v=1705971958", 
-            "https://sokoglam.com/cdn/shop/files/Soko-Glam-PDP-Dr-Orga-Houttuynia-Cordata-Body-Wash-03_860x.png?v=1705972007", 
-        }),
-        // Derma B Daily Moisture Body Oil
-        ("Derma B Daily Moisture Body Oil", new List<string>
-        {
-            "https://sokoglam.com/cdn/shop/files/Soko-Glam-PDP-Derma-B-Daily-Moisture-Body-Oil-02_860x.png?v=1687301614", 
-            "https://down-vn.img.susercontent.com/file/8b3b623e8eeeddd133584f44dd7a77e1", 
-            "https://koreamarket.ru/wa-data/public/shop/products/04/90/19004/images/10900/10900.970.jpg"
-        }),
-        // Davines Energizing Shampoo
-        ("Davines Energizing Shampoo", new List<string>
-        {
-            "https://davinesvietnam.com/wp-content/uploads/2019/07/dau-goi-Davines-Energizing-Shampoo-1000ml-1.jpg", 
-            "https://www.planetbeauty.com/cdn/shop/files/Energize_shp_bk_x2000.jpg?v=1684540681", 
-        }),
-        // Davines Volu Shampoo
-        ("Davines Volu Shampoo", new List<string>
-        {
-            "https://vn.davines.com/cdn/shop/files/rtqshfyvzhwofcdaxnm9_2000x_bf029392-1ae3-48bf-99f6-dab3cb178723.jpg?v=1721123829", 
-            "https://i.ebayimg.com/images/g/1gwAAOSwfi5kQG9-/s-l1200.jpg", 
-        }),
-        // Davines Calming Shampoo
-        ("Davines Calming Shampoo", new List<string>
-        {
-            "https://vn.davines.com/cdn/shop/products/71262_NATURALTECH_CALMING_Calming_Shampoo_250ml_Davines_2000x.jpg?v=1721118741", 
-            "https://bizweb.dktcdn.net/100/141/195/products/1363f1c28cd32f8d76c2.jpg?v=1718777142610", 
-        }),
-        // Davines Dede Shampoo
-        ("Davines Dede Shampoo", new List<string>
-        {
-            "https://vn.davines.com/cdn/shop/products/75019_ESSENTIAL_HAIRCARE_DEDE_Shampoo_250ml_Davines_2000x.jpg?v=1721121499", 
-            "https://www.planetbeauty.com/cdn/shop/products/Davines_Dede_Shampoo_back_x2000.jpg?v=1683765042", 
-        }),
-        // Davines Melu Shampoo
-        ("Davines Melu Shampoo", new List<string>
-        {
-            "https://vn.davines.com/cdn/shop/products/75097_ESSENTIAL_HAIRCARE_MELU_Shampoo_250ml_Davines_600x.jpg?v=1721121211", 
-            "https://down-vn.img.susercontent.com/file/sg-11134201-7rd4y-lxae2wn24xn0cb", 
-        }),
-        // Bain Décalcifiant Réparateur Repairing Shampoo
-        ("Bain Décalcifiant Réparateur Repairing Shampoo", new List<string>
-        {
-            "https://www.lmching.com/cdn/shop/files/ProductSize_1_2_-2024-08-09T092055.601_800x.jpg?v=1723170064", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRImTYO-AKUfNQ9nQUAVCCmGJqOD7DmC3NTuw&s", 
-        }),
-        // Bain Densité Shampoo
-        ("Bain Densité Shampoo", new List<string>
-        {
-            "https://www.lmching.com/cdn/shop/files/ProductSize_1_2_-2024-08-09T092055.601_800x.jpg?v=1723170064", 
-            "https://beautytribe.com/cdn/shop/files/kerastase-densifique-bain-densite-250ml-105115-467836.jpg?v=1732792066&width=1500", 
-        }),
-        // Bain Hydra-Fortifiant Shampoo
-        ("Bain Hydra-Fortifiant Shampoo", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWOrdBrhw9Spr0jyNZMHmGhMMRTWI5QkzBJw&s", 
-            "https://supernovasalon.com/cdn/shop/products/bain-hydra-fortifiant-lifestyle_900x.webp?v=1647475834", 
-            "https://shopurbannirvana.com/cdn/shop/files/GENESIS-BAIN-HYDRA-500ML-2.jpg?v=1730219325&width=1445"
-        }),
-        // L'Oreal Paris Elseve Total Repair 5 Repairing
-        ("L'Oreal Paris Elseve Total Repair 5 Repairing Shampoo", new List<string>
-        {
-            "https://product.hstatic.net/1000006063/product/l_oreal_elseve_total_repair_5_shampoo_650ml_cf374f7742d44e639abc23d1b63e3fcb_1024x1024.jpg", 
-            "https://image.hsv-tech.io/1987x0/bbx/l_oreal_paris_elseve_total_repair_5_shampoo_330ml_d9cfd29c63b142db8bbf4201153ca0b7.png", 
-        }),
-        // L'Oreal Professional Hair Spa Deep Nourishing
-        ("L'Oreal Professional Hair Spa Deep Nourishing Shampoo", new List<string>
-        {
-            "https://media.hcdn.vn/catalog/product/g/o/google-shopping-dau-goi-l-oreal-professionnel-cap-am-cho-toc-kho-600ml_img_680x680_d30c8d_fit_center.jpg", 
-            "https://down-vn.img.susercontent.com/file/sg-11134201-7rd75-lty2ehqkzei8ac", 
-        }),
-        // L'Oreal Paris Elseve Fall Resist 3X Anti-Hairfall
-        ("L'Oreal Paris Elseve Fall Resist 3X Anti-Hairfall Shampoo", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNOiI0F3AwhpbFi1s-H6iAqE0Hy1y6Dv-L-w&s", 
-            "https://m.media-amazon.com/images/I/612rxvwYs1L._AC_UF1000,1000_QL80_.jpg", 
-        }),
-        // Nº.4 Bond Maintenance Shampoo
-        ("Nº.4 Bond Maintenance Shampoo", new List<string>
-        {
-            "https://image.hsv-tech.io/1987x0/bbx/common/3bb29575-9f8e-48eb-a709-f019f95cc65f.webp", 
-            "https://image.hsv-tech.io/1987x0/bbx/common/1d335186-bd89-4e62-ab87-72d9bd03557a.webp", 
-            "https://product.hstatic.net/1000172157/product/olaplex_cap_no4_5_250ml_04_b501890da8f440d6a4cf66d2069d1524_large.jpg"
-        }),
-        // Gold Lust Repair & Restore Shampoo
-        ("Gold Lust Repair & Restore Shampoo", new List<string>
-        {
-            "https://www.sephora.com/productimages/sku/s2438166-main-zoom.jpg?imwidth=315", 
-            "https://www.oribe.com/cdn/shop/files/1200Wx1200H-400172_1b27cf32-3e50-43b4-954b-1790ae536f2e.jpg?v=1698874898", 
-            "https://images-na.ssl-images-amazon.com/images/I/71kp9RhJD3L.jpg"
-        }),
-        // Supershine Hydrating Shampoo
-        ("Supershine Hydrating Shampoo", new List<string>
-        {
-            "https://www.oribe.com/cdn/shop/files/402453-0_b7d201cd-c3f9-4b48-84c5-f9e3b03a522a.jpg?v=1725462201", 
-            "https://images.finncdn.no/dynamic/1280w/2024/12/vertical-0/13/8/384/925/188_a9edb849-aba8-4933-acad-827f251c0c4e.jpg", 
-        }),
-        // Acidic Bonding Concentrate sulfate-free Shampoo
-        ("Acidic Bonding Concentrate sulfate-free Shampoo", new List<string>
-        {
-            "https://images-na.ssl-images-amazon.com/images/I/61T+3kBuHoL.jpg", 
-            "https://images-na.ssl-images-amazon.com/images/I/71J1-1eoRbL.jpg", 
-        }),
-        // Redken All Soft Shampoo
-        ("Redken All Soft Shampoo", new List<string>
-        {
-            "https://images-na.ssl-images-amazon.com/images/I/71xQ59SWkML.jpg", 
-        }),
-        // Izumi Tonic Strengthening Shampoo
-        ("Izumi Tonic Strengthening Shampoo", new List<string>
-        {
-            "https://static.thcdn.com/productimg/original/14204021-6465063343389571.jpg", 
-            "https://static.thcdn.com/productimg/original/14204021-9055063343445593.jpg", 
-        }),
-        // Ultimate Reset Extreme Repair Shampoo
-        ("Ultimate Reset Extreme Repair Shampoo", new List<string>
-        {
-            "https://cdn.haarshop.ch/catalog/product/thumbnail/51ac8a89d88d4eed1e1f5a7566ce210ab624b84b71e44e4fa3b44063/image/0/570x570/111/99/7/0/70941222e739145ec75a7a705ff8f17b6f55fc15_3474636610181_bi_shu_uemura_ultimate_reset_shampoo.jpg", 
-            "https://m.media-amazon.com/images/I/81j7Ha+ZN+L._AC_UF1000,1000_QL80_.jpg", 
-        }),
-        // Fusion Shampoo
-        ("Fusion Shampoo", new List<string>
-        {
-            "https://www.wella.com/professional/m/Supernova/Fusion/PDP/Fusion-shampoo-supernova-slider-packshot-1_d.jpg", 
-            "https://www.wella.com/professional/m/Supernova/Fusion/PDP/Fusion-shampoo-supernova-slider-packshot-6_d.jpg", 
-        }),
-        // Ultimate Repair Shampoo
-        ("Ultimate Repair Shampoo", new List<string>
-        {
-            "https://www.wella.com/professional/m/care/Fire/Product_Packshots/Ultimate-Repair-Shampoo-slider-packshot-v2_d.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXUItcEx4vQtgGnn4SBGez8xi8-68r49hSaQ&s", 
-            "https://cdn.awsli.com.br/613/613406/produto/2389103400b84107f38.jpg"
-        }),
-        // Davines Dede Conditioner 
-        ("Davines Dede Conditioner", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWFr_SKchvHJVFDWloohAIqYFse_GceySgQw&s", 
-            "https://vn.davines.com/cdn/shop/products/PROSIZEWEBSITE-11_2084x.jpg?v=1721121409", 
-        }),
-        // Davines Love Smoothing Conditioner
-        ("Davines Love Smoothing Conditioner", new List<string>
-        {
-            "https://davinesvietnam.com/wp-content/uploads/2019/07/dau-xa-Davines-Love-Smoothing-Conditioner-250ml-chinh-hang-gia-re.jpg", 
-            "https://lizi.vn/wp-content/uploads/2020/02/dau-goi-davines-love-smoothing-3.jpeg", 
-        }),
-        // Davines Melu Conditioner
-        ("Davines Melu Conditioner", new List<string>
-        {
-            "https://vn.davines.com/cdn/shop/products/75608_ESSENTIAL_HAIRCARE_MELU_Conditioner_250ml_Davines_2000x_4a9aa7af-bc07-4713-bd1f-4b8c9c5b4d53_2000x.jpg?v=1721121159", 
-            "https://aslaboratory.com.ua/image/cache/catalog/import/001818-crop-600x750-product_thumb.jpg", 
-        }),
-        // Davines Momo Conditioner 
-        ("Davines Momo Conditioner", new List<string>
-        {
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlTOtpGa0eZH_hOfmHfed3ivvAl-PaNgDPpg&s", 
-            "https://conceptcshop.com/cdn/shop/files/davines-revitalisant-hydratant-momo-1000-ml-130430.jpg?v=1728407522&width=2048", 
-        }),
-        // Fondant Renforçateur Conditioner
-        ("Fondant Renforçateur Conditioner", new List<string>
-        {
-            "https://supernovasalon.com/cdn/shop/products/fondant-renforcateur-lifestyle_800x.webp?v=1647476539", 
-            "https://millies.ie/cdn/shop/files/KerastaseGenesisFondantRenforcateur_3.jpg?v=1705681358&width=3024", 
-        }),
-        // Fondant Densité Conditioner
-        ("Fondant Densité Conditioner", new List<string>
-        {
-            "https://emmakcreativestyling.ie/wp-content/uploads/2023/04/Kerastase-Densifique-Fondant-Densite_Gallery-Image-2.webp", 
-            "https://img-cdn.heureka.group/v1/6cdbcbe4-8b14-535b-ad4c-34848f5dc065.jpg", 
-        }),
-        // Fondant Fluidealiste Conditioner
-        ("Fondant Fluidealiste Conditioner", new List<string>
-        {
-            "https://cdn11.bigcommerce.com/s-f7ta3/images/stencil/1280x1280/products/3856/8706/kerastase-discipline-fondant-fluidealiste-conditioner-200ml__51586.1657021232.jpg?c=2", 
-            "https://static.thcdn.com/productimg/960/960/10951828-6334927764118014.jpg", 
-        }),
-        // Ciment Anti-Usure Conditioner
-        ("Ciment Anti-Usure Conditioner", new List<string>
-        {
-            "https://i0.wp.com/salonvenere.com/wp-content/uploads/2023/01/3474636397884.Main_.jpg?fit=930%2C930&ssl=1", 
-            "https://www.kerastase.co.uk/dw/image/v2/AAQP_PRD/on/demandware.static/-/Sites-ker-master-catalog/en_GB/dwda75a874/product/resistance/3474636397884.pt01.jpg?sw=340&sh=340&sm=cut&sfrm=jpg&q=80", 
-        }),
-        // Redken All Soft Conditioner
-        ("Redken All Soft Conditioner", new List<string>
-        {
-            "https://www.redken.com/dw/image/v2/AAFM_PRD/on/demandware.static/-/Sites-ppd-redken-master-catalog/default/dwf2db2623/images/pdp/all-soft-conditioner/redken-all-soft-conditioner-for-dry-hair.png", 
-            "https://images-na.ssl-images-amazon.com/images/I/617nmDgkTfL.jpg", 
-        }),
-        // Redken Frizz Dismiss Conditioner
-        ("Redken Frizz Dismiss Conditioner", new List<string>
-        {
-            "https://www.ubuy.vn/productimg/?image=aHR0cHM6Ly9tLm1lZGlhLWFtYXpvbi5jb20vaW1hZ2VzL0kvNjFSSTQ4VTMtV0wuX1NMMTUwMF8uanBn.jpg", 
-            "https://m.media-amazon.com/images/I/61ERLLB3uSL.jpg", 
-            "https://www.ozhairandbeauty.com/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F1588%2F9573%2Ffiles%2FRedken-Frizz-Dismiss-Sodium-Chloride-Free-Conditioner_7.jpg%3Fv%3D1714700684&w=3840&q=75"
-        }),
-        // L'Oréal Paris Elvive Total Repair 5 Conditioner
-        ("L'Oréal Paris Elvive Total Repair 5 Conditioner", new List<string>
-        {
-            "https://i5.walmartimages.com/seo/L-Oreal-Paris-Elvive-Total-Repair-5-Repairing-Conditioner-For-Damaged-Hair-With-Protein-And-Ceramide-Strong-Silky-Shiny-Healthy-Renewed-28-Fl-Oz_cec04c0d-34eb-4fa9-9de8-3001f4a60d25.a403fb04c77a2dfe68657dcebd78d065.jpeg", 
-            "https://images-na.ssl-images-amazon.com/images/I/81VWk+QHgyL.jpg", 
-        }),
-        // L'Oréal Paris EverPure Moisture Conditioner
-        ("L'Oréal Paris EverPure Moisture Conditioner", new List<string>
-        {
-            "https://m.media-amazon.com/images/I/61wefZxO9gL.jpg", 
-        }),
-        // L'Oréal Paris EverCurl Hydracharge Conditioner
-        ("L'Oréal Paris EverCurl Hydracharge Conditioner", new List<string>
-        {
-            "https://m.media-amazon.com/images/I/71I7nEWa6DL.jpg", 
-        }),
-        // Invigo Nutri-Enrich Conditioner
-        ("Invigo Nutri-Enrich Conditioner", new List<string>
-        {
-            "https://mcgrocer.com/cdn/shop/files/aeb74ae52abdfdf7746a2a4a84d407ae.jpg?v=1710962092", 
-            "https://www.capitalhairandbeauty.ie/Images/Product/Default/xlarge/867618.jpg", 
-            "https://www.lookfantastic.com/images?url=https://static.thcdn.com/productimg/original/11711572-1815158483432062.jpg&format=webp&auto=avif&width=1200&height=1200&fit=cover"
-        }),
-        // Elements Renewing Conditioner
-        ("Elements Renewing Conditioner", new List<string>
-        {
-            "https://www.modernhairbeauty.com/wp-content/uploads/2021/08/Elements-renewing-conditioner.jpg", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnbpIdPoJxjZzQ0dJZc1DVy5NRqkHgT7iWDw&s", 
-        }),
-        // Moisture Velvet Nourishing Conditioner
-        ("Moisture Velvet Nourishing Conditioner", new List<string>
-        {
-            "https://www.everythinghairandbeauty.com.au/assets/full/SHUUEMURA-3474630146693.jpg?20220420183416", 
-        }),
-        // Ultimate Remedy Conditioner
-        ("Ultimate Remedy Conditioner", new List<string>
-        {
-            "https://www.shuuemuraartofhair-usa.com/dw/image/v2/AANG_PRD/on/demandware.static/-/Sites-shu-master-catalog/default/dw328561bc/2019/Full/Ultimate-Reset/shu-uemura-ultimate-reset-conditioner.jpg?sw=270&sfrm=png&q=70", 
-            "https://images.squarespace-cdn.com/content/v1/5b688fd0f407b48b1e37b441/1610912816432-JL6OFF0M1CVE9Z7RWEI9/ultimate_remedy_travel_size_shampoo.jpg?format=1000w", 
-        }),
-        // No. 5 Bond Maintenance Conditioner
-        ("No. 5 Bond Maintenance Conditioner", new List<string>
-        {
-            "https://arterashop.com/wp-content/uploads/2021/01/OLAP5-600x600.jpg", 
-            "https://image.hsv-tech.io/1987x0/bbx/common/5e14cb4a-d1d0-449b-b27b-467e92b456ce.webp", 
-        }),
-        // Gold Lust Repair & Restore Conditioner
-        ("Gold Lust Repair & Restore Conditioner", new List<string>
-        {
-            "https://cdn.vuahanghieu.com/unsafe/0x900/left/top/smart/filters:quality(90)/https://admin.vuahanghieu.com/upload/product/2024/03/dau-xa-oribe-gold-lust-repair-restore-conditioner-200ml-66077ad485b29-30032024093708.jpg", 
-            "https://bizweb.dktcdn.net/100/445/245/products/3-1719469113736.png?v=1720865387960", 
-            "https://www.oribe.com/cdn/shop/products/1200Wx1200H-400103-4_8b6f47b7-d8fe-4613-a565-91248acdafee.jpg?v=1704092392&width=3840"
-        }),
-        // Signature Moisture Masque
-        ("Signature Moisture Masque", new List<string>
-        {
-            "https://www.oribe.com/cdn/shop/products/1200Wx1200H-400298-2_60a552ba-8f61-4315-9260-0da9ab2c01a2.jpg?v=1691604399&width=3840", 
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSovZKp21hY7eOHYioOmG8ONQ3o4BO6xu5bPw&s", 
-        }),
-
-    };
-
-    // Duyệt qua danh sách các sản phẩm và thêm hình ảnh cho từng sản phẩm
-    foreach (var productData in productImageData)
-    {
-        // Tìm sản phẩm trong cơ sở dữ liệu theo tên
-        var product = products.FirstOrDefault(p => p.ProductName == productData.productName);
-
-        if (product != null)
-        {
-            // Lặp qua danh sách các hình ảnh và thêm vào bảng ProductImages
-            foreach (var imageUrl in productData.imageUrls)
+            // Tạo danh sách các sản phẩm và hình ảnh của chúng
+            var productImageData = new List<(string productName, List<string> imageUrls)>
             {
-                var productImage = new ProductImages
+                // Remedy Cream To Oil Cleanser
+                ("Remedy Cream To Oil", new List<string>
                 {
-                    ProductId = product.ProductId,
-                    image = imageUrl
-                };
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-01-1-1091x1200.png",
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/f9a79b2aadeddf3f7b904fe2fdd2bd390b786956_2000x-1091x1200.jpg",
+                    "https://eideal.com/cdn/shop/files/Cream-to-oil-Life-2.jpg?v=1703578773"
+                }),
 
-                // Thêm hình ảnh vào cơ sở dữ liệu
-                await _context.ProductImages.AddAsync(productImage);
+                // Essential Face Wash
+                ("Essential Face Wash", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/12100-essential-face-wash-150ml_inner-1091x1200.png",
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/9ff738e7c2d747062d121d0fc4b563eff31ef198_2000x-1091x1200.jpg"
+                }),
+
+                // Active Pureness Cleasing Gel
+                ("Active Pureness Cleasing Gel", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/Active-Pureness-Gel_San-pham-1091x1200.png",
+                    "https://icgroup.dk/resources/product/119/43/activec-pureness---gel.png?width=800&height=600",
+                    "https://www.michaelahann.at/wp-content/uploads/2022/08/Active-Pureness-Gel.jpg"
+                }),
+
+                // Clearing Skin Wash
+                ("Clearing Skin Wash", new List<string>
+                {
+                    "https://www.dermalogica.com/cdn/shop/files/clearing-skin-wash_8.4oz_front.jpg?v=1710455212&width=1946", 
+                    "https://vn-test-11.slatic.net/p/1c096bc4b5b03330c62465154db802d2.jpg", 
+                    "https://dangcapphaidep.vn/image-data/780-780/upload/2023/08/25/images/dermalogica-clearing-skin-wash-250ml-2.jpg"
+                }),
+
+                // Oil To Foam Cleanser
+                ("Oil To Foam Cleanser", new List<string>
+                {
+                    "https://sieuthilamdep.com/images/detailed/20/sua-rua-mat-tay-trang-2-trong-1-dermalogica-oil-to-foam-total-cleanser.jpg", 
+                    "https://www.thedermacompany.co.uk/wp-content/uploads/2023/06/Dermalogica-Oil-To-Foam-Cleanser-Lifestyle.jpg", 
+                    "https://skinmart.com.au/cdn/shop/products/DermalogicaOilToFoamCleanser_2_2560x.png?v=1680137764"
+                }),
+
+                // Micellar Prebiotic PreCleanse
+                ("Micellar Prebiotic PreCleanse", new List<string>
+                {
+                    "https://dermalogica.com.vn/cdn/shop/products/dermalogica-vietnam-cleansers-150ml-coming-soon-micellar-precleanse-s-a-t-y-trang-ch-a-prebiotic-danh-cho-m-i-lo-i-da-31640176623821.png?v=1717214352&width=1946", 
+                    "https://edbeauty.vn/wp-content/uploads/2024/08/image_2024_08_02T10_27_06_857Z.png", 
+                    "https://cdn1.parfuemerie-becker.de/media/cache/article/variation/109000/035020189_95635_1709027057.png"
+                }),
+
+                // Kmobucha Microbiome Foaming Cleaser
+                ("Kmobucha Microbiome Foaming Cleaser", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-kombucha-microbiome-foaming-cleanser-pdp.jpg?itok=XFjrWeJc", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAs0nEmyqyQbx0hl4vz1MUoLloMBlBJTO4QQ&s", 
+                    "https://emstore.com/cdn/shop/products/cleanser-2_75951af1-f4c2-4d54-80dd-9936b699a5c8.png?v=1683718720"
+                }),
+
+                // Monoi Age Corrective Exfoliating Cleanser
+                ("Monoi Age Corrective Exfoliating Cleanser", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-monoi-age-corrective-exfoliating-cleanser-pdp-compressed.jpg?itok=pRBEP6CO", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7vbzeB98PqQkVa4vQKztlvJZTh1-H0DWPF62hO-Uo3_PGI5iz4E1jFv_p2VAD2LrgA-c&usqp=CAU", 
+                    "https://www.facethefuture.co.uk/cdn/shop/files/eminence-organics-monoi-age-corrective-exfoliating-cleanser-swatch-compressed.jpg?v=1695310185&width=600"
+                }),
+
+                // Acne Advanced Cleansing Foam
+                ("Acne Advanced Cleansing Foam", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-acne-advanced-cleansing-foam-v2-400pix-compressor.jpg?itok=7eKH7RYv", 
+                    "https://wildflowerbeautystudio.ca/cdn/shop/products/acnecleansingfoam_300x300.jpg?v=1613861748", 
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-slide/eminence-organics-acne-advanced-cleansing-foam-swatch-400x400.jpg?itok=_451iEc7"
+                }),
+                
+                // Lemon Grass Cleanser
+                ("Lemon Grass Cleanser", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg8RxjJM_IxA0iIIBfpofAqmoH7QLa7zIy2Q&s", 
+                    "https://images.squarespace-cdn.com/content/v1/5ea87ac4bf0b761180ffcfae/1626276341235-D5E9PCNK5OSRIP2RALJN/LemonGrassCleanser.jpg?format=1000w", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcyaLelaqtVcZiyeWTM4QOoJVXWQveYuorDw&s"
+                }),
+                
+                // Charcoal Exfoliating Gel Cleanser
+                ("Charcoal Exfoliating Gel Cleanser", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcNxhG4XNakMZOCjxT2ulB1i2cnWkTVq1qxw&s", 
+                    "https://naturalbeautygroup.com/cdn/shop/files/Eminence-Organics-Charcoal-Exfoliating-Gel-Cleanser-Lifestyle.jpg?v=1711740188&width=1080", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbNf8GcQLHfBysKN1piBJLl5kX-ovUWTfWhw&s"
+                }),
+                // Beplain Mung Bean pH-Balanced Cleansing Foam
+                ("Beplain Mung Bean pH-Balanced Cleansing Foam", new List<string>
+                {
+                    "https://product.hstatic.net/200000773671/product/907d907dd544731a2a55_97fc43aed51040a58f76b2512b39f457_master.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1ZAGpmlp5k_1VB64FLzA6HfAkRMDHXybYEw&s", 
+                    "https://product.hstatic.net/200000773671/product/ece36b53526af434ad7b_7e25a0c0d2f641e9a0fcfe8371587fca_master.jpg"
+                }),
+                // ISNTREE Yam Root Vegan Milk Cleanser
+                ("ISNTREE Yam Root Vegan Milk Cleanser", new List<string>
+                {
+                    "https://www.kanvasbeauty.com.au/cdn/shop/files/7_5a516b9f-1e89-47af-a0f3-c9e419cbee24_1200x.jpg?v=1711882846", 
+                    "https://www.skincupid.co.uk/cdn/shop/files/ISNTREEYamRootVeganMilkCleanser_220ml_5.png?v=1728904708&width=800", 
+                    "https://koreanskincare.nl/cdn/shop/files/452359592_470675092412851_8771590449487260742_n.jpg?v=1721894307"
+                }),
+                
+                // Normaderm Anti-Acne Purifying Gel Cleanser
+                ("Normaderm Anti-Acne Purifying Gel Cleanser", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAztQlHO_gcl1kdZRAKV5QSYVFcAVKnen6yg&s", 
+                    "https://sohaticare.com/cdn/shop/files/3337875663076_3_82da998a-a47b-4461-a110-036d702f4886_4000x@3x.progressive.jpg?v=1706877499", 
+                    "https://bng.com.pk/cdn/shop/files/e3906fe2-cb9a-47d8-8a03-73dc6d7f25ce_0df3ce49-2f5b-4d45-b6f7-7db99714a57e_2400x.jpg?v=1720805633"
+                }),
+                
+                // Purete Thermale Fresh Cleansing Gel
+                ("Purete Thermale Fresh Cleansing Gel", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBGIU-XNebd-dJK6_u0DMg5l1MKiD1l4zCJg&s", 
+                    "https://www.binsina.ae/media/catalog/product/8/1/81414_2.jpg?optimize=medium&bg-color=255,255,255&fit=bounds&height=600&width=600&canvas=600:600", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw-hWi1mf7kCZzWrthwsn-3Opba1kYnJcQmA&s"
+                }),
+                
+                // Purete Thermale Cleansing Foaming Cream
+                ("Purete Thermale Cleansing Foaming Cream", new List<string>
+                {
+                    "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/other-products/purete-thermale---hydrating-and-cleansing-foaming-cream/hydrating-cleansing-foaming-cream-pack2.jpeg?rev=8a1f1df622f24bfe963a86befb0031b4&sc_lang=vi-vn&cx=0.47&cy=0.43&cw=525&ch=596&hash=D4ABC102BDEC8E803268FC703A80B685", 
+                    "https://images-na.ssl-images-amazon.com/images/I/81fpwzdjEgL.jpg", 
+                    "https://m.media-amazon.com/images/I/71e3vIZEiBL._AC_UF1000,1000_QL80_.jpg"
+                }),
+                
+                // Foaming Cream Cleanser
+                ("Foaming Cream Cleanser", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/021924_FoamingCleanser_Carousel-Hero_1024x1024.jpg?v=1709334047", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhMF2XnUc1FGnqMiZFBkLTUJJLw8mCOGt05A&s", 
+                    "https://templeskincare.com.au/wp-content/uploads/2024/10/20231026_027-Edit_5000px-Edit-CreamCleanser-scaled.jpg"
+                }),
+                
+                // Exfoliating Cleanser
+                ("Exfoliating Cleanser", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/010924_Retail_ExfoliatingCleanser_PDP_1024x1024.jpg?v=1713463787", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRn6R3GviQQlSKoSH8nmK0q8PPuwSwUefS3Sg&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNWmj3G1El9VvSp-muGnch-XOIXykwLaZa4w&s"
+                }),
+                
+                // Cleansing Gel Face Wash
+                ("Cleansing Gel Face Wash", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkaX2LqQ8a7zqysEzX98U1KhUdN6kjc6i22Q&s", 
+                    "https://images.squarespace-cdn.com/content/v1/5badc17c797f743dc830bb95/1720164751711-2KJJ7A6MK6WH95C7JGG9/HydroPeptide+Cleansing+Gel+Perth.png?format=1000w", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9BYzA_QpTeT5wLVuqIQEQ0x6fMYRUEEdbzTqiVagtp3fB2bZ44hGnXnVWD7bfsUBXpGE&usqp=CAU"
+                }),
+                
+                // Mangosteen Revitalizing Mist
+                ("Mangosteen Revitalizing Mist", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhqpsm4vwoEDeWoXmYThy0w7GBLITExzxFkg&s", 
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-slide/eminence-organics-mangosteen-revitalizing_mist_swatch-400x400px-compressed.png?itok=9ia6NZD4", 
+                    "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Mangosteen-Revitalizing-Mist-Lifestyle.jpg?v=1711740433&width=1080"
+                }),
+
+                // Pineapple Refining Tonique
+                ("Pineapple Refining Tonique", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSipnwI-Quyzdj8X2z555QL6Nv8dXGypcpFUw&s", 
+                    "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Pineapple-Refining-Tonique-lifestyle.jpg?v=1711743675&width=1080", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXvTAya614P0QjS3xR5k9bA9QyUs8DLnn72Q&s"
+                }),
+                
+                // Hawthorn Tonique
+                ("Hawthorn Tonique", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWgXY3ygvCD1JS1ZJM_UQB0DlglHmITznI7A&s", 
+                    "https://images.squarespace-cdn.com/content/v1/5ea87ac4bf0b761180ffcfae/1626276012659-MUTJNN1LVDNA49X09L55/Hawthorn+Tonique.jpg?format=1000w", 
+                }),
+                
+                // Lime Refresh Tonique
+                ("Lime Refresh Tonique", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-lime-refresh-tonique-400x400px.png?itok=75tgznFH", 
+                    "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Lime-Refresh-Tonique-Lifestyle.png?v=1711744338&width=1080", 
+                    "https://eminenceorganics.com/sites/default/files/article-image/eminence-organics-tonique.jpg"
+                }),
+                
+                //Soothing Chamomile Tonique
+                ("Soothing Chamomile Tonique", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0OK4AjASttojjEQbjJa9vTR7cy-Vf1UcAag&s", 
+                    "https://blog.skin-beauty.com/wp-content/uploads/2020/08/soothing-chamomile-tonique__64126.1586549554.1280.1280.jpg", 
+                }),
+                
+                // Multi-Acne Toner 
+                ("Multi-Acne Toner", new List<string>
+                {
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/2-3.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOyk2bFufKdc__jGiQJnFZxau1_kg7OmQUpg&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK3uQghHwcl19vgzc-ZLG9e4hDV_aFbE4nwwwES3x6LrdmIl2zlBrhTBgg5lGrH6ST_5U&usqp=CAU"
+                }),
+                
+                // Antioxidant Hydramist
+                ("Antioxidant Hydramist", new List<string>
+                {
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/2-117.jpg", 
+                    "https://www.dermalogica.co.uk/cdn/shop/products/Antioxidant-Hydramist-pdp-2.jpg?v=1721383738&width=1946", 
+                    "https://bellelab.co/wp-content/uploads/2019/12/Dermalogica_Antioxidant_Hydramist_150ml_3.jpg"
+                }),
+                
+                // UltraCalming Mist
+                ("UltraCalming Mist", new List<string>
+                {
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2020/05/2.jpg", 
+                    "https://myvienhana.vn/wp-content/uploads/2022/03/xit-khoang-dermalogica-Ultracalming-Mist.jpg", 
+                    "https://116805005.cdn6.editmysite.com/uploads/1/1/6/8/116805005/s595587978454154049_p56_i2_w1080.jpeg"
+                }),
+                
+                // Hyaluronic Ceramide Mist
+                ("Hyaluronic Ceramide Mist", new List<string>
+                {
+                    "https://www.dermalogica.com/cdn/shop/files/hyaluronic-ceramide-mist_front.jpg?v=1698103421&width=1946", 
+                    "https://sieuthilamdep.com/images/detailed/19/xit-khoang-cap-am-va-lam-diu-da-dermalogica-hyaluronic-ceramide-mist-2.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV0eQsaz5GoUd5mI9LsEXP5mb0IEO7zlvz3A&s"
+                }),
+                
+                // Remedy Toner 
+                ("Remedy Toner", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5fMbd6K1rQjSbxMXbFo36ZZHjthpqr4lpDQ&s", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-02-1091x1200.png", 
+                    "https://vn-test-11.slatic.net/p/5fe09d9ffdf46df663e3dfcd64fcf4c5.jpg"
+                }),
+                
+                // Essential Toner
+                ("Essential Toner", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/Essential-Toner_San-pham-1091x1200.png", 
+                    "https://hadibeauty.com/wp-content/uploads/2023/03/334204861_942692140091925_7678139925329751463_n.webp", 
+                }),
+                
+                // Active Pureness Toner
+                ("Active Pureness Toner", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/Active-Pureness-Toner_San-pham-1091x1200.png", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/cdd49c856665c35cd1ca025ee14c26d5429d3d2c_2000x-1091x1200.jpg", 
+                }),
+
+                // Revitalizing Tonic
+                ("Revitalizing Tonic", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkXA3c63LygDEehGwwAJm2Y_SxgWwEt1vz8w&s", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2023/01/8004608516330_4-1200x1200.jpg", 
+                    "https://cf.shopee.vn/file/vn-11134201-23030-p5amrfvba8nv3a"
+                }),
+                // Acwell Licorice pH Balancing Cleansing Toner
+                ("Acwell Licorice pH Balancing Cleansing Toner", new List<string>
+                {
+                    "https://sokoglam.com/cdn/shop/files/SokoGlamPDP_Acwell_Revamped_Licorice_pH_Balancing_Cleansing_Toner-4_860x.png?v=1729736947", 
+                    "https://www.mikaela-beauty.com/cdn/shop/files/AX6H2549w_1200x1200.jpg?v=1720903305", 
+                }),
+            
+                // COSRX AHA/BHA Clarifying Treatment Toner
+                ("COSRX AHA/BHA Clarifying Treatment Toner", new List<string>
+                {
+                    "https://product.hstatic.net/1000006063/product/cosrx_ahabha_clarifying_treatment_toner_150ml_625a49f8074c41c59c9d185e582f0580_1024x1024.jpg", 
+                    "https://assets.aemi.vn/webp/CRX_TNR_150ml_001_img2.webp", 
+                }),
+                // Sulwhasoo Concentrated Ginseng Renewing Water
+                ("Sulwhasoo Concentrated Ginseng Renewing Water", new List<string>
+                {
+                    "https://cdn.shopify.com/s/files/1/0667/9416/0378/files/concentrated_ginseng_rejuvenating_water_kv_pc_vn_240819.jpg?v=1724121219", 
+                    "https://th.sulwhasoo.com/cdn/shop/files/TN-CGR-Water-1.jpg?v=1734325148", 
+                }),
+                // Pre-Treatment Toner
+                ("Pre-Treatment Toner", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/011024_Pre-TreatmentToner_PDP_1024x1024.jpg?v=1711563597", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0ITo2GuTRZWHrbdTatJFRzQcwsN5jDNfHOw&s", 
+                    "https://134449990.cdn6.editmysite.com/uploads/1/3/4/4/134449990/s148490656276618525_p144_i1_w550.jpeg"
+                }),
+                // Hydraflora
+                ("Hydraflora", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_HydraFlora_PDP_eea6942c-bdcc-47a2-adf3-c2632906ffc3_grande.jpg?v=1730921087", 
+                    "https://hydropeptide.com/cdn/shop/files/020724_Swatch_Hydraflora_PDP_0f209cc8-b2dd-42ca-bd9d-06a83eb0d376_1024x1024.jpg?v=1730921090", 
+                }),
+                // Clarifying Toner Pads
+                ("Clarifying Toner Pads", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_ClarifyingToner_PDP_grande.jpg?v=1715974145", 
+                    "https://metafields-manager-by-hulkapps.s3-accelerate.amazonaws.com/uploads/hydropeptide-canada.myshopify.com/1718388492-022624_ClarifyingToner_BENEFITS.jpg", 
+                }),
+                // Toner Vichy Aqualia Thermal Hydrating Refreshing Water
+                ("Toner Vichy Aqualia Thermal Hydrating Refreshing Water", new List<string>
+                {
+                    "https://trungsoncare.com/images/detailed/10/1_n7ix-l0.png", 
+                    "https://ordinaryvietnam.net/wp-content/uploads/2022/03/Nuoc-hoa-hong-Vichy-Aqualia-Thermal-Hydrating-Refreshing-Water-Ordinary-Viet-Nam-3-600x600.jpg", 
+                }),
+                // Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion
+                ("Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion", new List<string>
+                {
+                    "https://storage.beautyfulls.com/uploads-1/thanhhuong/2022/vichy/toner/vichy-normaderm-purifying-pore-tightening/nuoc-hoa-hong-vichy.jpg", 
+                    "https://escentual.com/cdn/shop/files/vichy_normaderm_purifying_pore-tightening_toning_lotion_200ml_2.png?v=1729191893", 
+                }),
+                // Sublime Skin Intensive Serum
+                ("Sublime Skin Intensive Serum", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2023/05/sublime-skin-07-1-1091x1200.png", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5pQrlNdExrdzyuV56Zv4vX2yGLGl1VR6juQ&s", 
+                }),
+                // Hydramemory Hydra & Glow Ampoules
+                ("Hydramemory Hydra & Glow Ampoules", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2023/04/8004608510871%E2%80%8B_2-1091x1200.jpg", 
+                    "https://vonpreen.com/wp-content/uploads/2023/02/duong-da-Comfort-Zone-Hyramemory-Hydra-Glow-Ampoule-7-ong-x-2ml.jpg", 
+                }),
+                // Subline Skin Lift & Firm Ampoule
+                ("Subline Skin Lift & Firm Ampoule", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/ampollesublime_2000x-1091x1200.jpg", 
+                    "https://livelovespa.com/cdn/shop/products/Untitleddesign_33_626c334a-5cfe-4a98-9fd6-f1c4faf46476.png?v=1650075373&width=2048", 
+                }),
+                // Biolumin-C Serum
+                ("Biolumin-C Serum", new List<string>
+                {
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2020/05/2-1.jpg", 
+                    "https://stralabeauty.com/wp-content/uploads/2022/05/111341-dermalogica-biolumin-c-serum-open.jpg", 
+                }),
+                // Age Bright Clearing Serum
+                ("Age Bright Clearing Serum", new List<string>
+                {
+                    "https://www.facethefuture.co.uk/cdn/shop/files/111342-lifestyle-1_1750x1750_7f55ce82-2824-4c25-aa9b-e14e9f84f1d2.jpg?v=1695286223&width=600", 
+                    "https://dermalogica.com.vn/cdn/shop/products/facial-oils-and-serums-facial-oils-and-serums-30ml-age-bright-clearing-serum-30198061039821.png?v=1718765966&width=1445", 
+                    "https://veevee.store/wp-content/uploads/2023/10/dermalogica-age-bright-clearing-serum-2.webp"
+                }),
+                // Powerbright Dark Spot Serum
+                ("Powerbright Dark Spot Serum", new List<string>
+                {
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/dermalogica-vietnam-powerbright-dark-spot-serum-29677731414221_707x707.jpg", 
+                    "https://edbeauty.vn/wp-content/uploads/2023/08/Tinh-chat-duong-sang-da-Dermalogica-Powerbright-Dark-Spot-Serum-2.jpg", 
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/power-serum-2.jpg"
+                }),
+                // UltraCalming Serum Concentrate
+                ("UltraCalming Serum Concentrate", new List<string>
+                {
+                    "https://cdn.dangcapphaidep.vn/wp-content/uploads/2018/06/Dermalogica-Ultracalming%E2%84%A2-Serum-Concentrate-1.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk6cqAfkxjQz5Mbmi6kkvBSj-ktU8a-Ufmng&s", 
+                }),
+                // Circular Hydration Serum With Hyaluronic Acid
+                ("Circular Hydration Serum With Hyaluronic Acid", new List<string>
+                {
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2024/03/Huyet-Thanh-Cap-Am-Chuyen-Sau-Circular-Hydration-Serum-30ml.jpg", 
+                    "https://www.depmoingay.net.vn/wp-content/uploads/2023/08/Tinh-chat-cap-am-chuyen-sau-Dermalogica-Circular-Hydration-Serum.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNmRYaTc9DUWC6Db28yQs8xl-cPbyLqsHfUQ&s"
+                }),
+                // Strawberry Rhubarb Hyaluronic Serum
+                ("Strawberry Rhubarb Hyaluronic Serum", new List<string>
+                {
+                    "https://beautyritual.ca/cdn/shop/products/eminence-organics-strawberry-rhubarb-hyaluronic-serum-swatch_6209ac7f-cf39-4122-b2a3-98a2d6c150ae.jpg?v=1722965085&width=480", 
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-strawberry-rhubarb-hyaluronic-serum.jpg?itok=MnXS_0td", 
+                }),
+                // Citrus & Kale Potent C+E Serum
+                ("Citrus & Kale Potent C+E Serum", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-citrus-kale-potent-ce-serum-400x400px_0.png?itok=2SnWNB_z", 
+                    "https://store-cdn-media.dermpro.com/catalog/product/cache/10f519365b01716ddb90abc57de5a837/e/m/eminence_citrus_kale_potent_c_e_serum_2.jpg", 
+                    "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Citrus-Kale-Potent-C-E-Serum-Lifestyle.png?v=1711744368&width=1080"
+                }),
+                // Marine Flower Peptide Serum
+                ("Marine Flower Peptide Serum", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeNfYFOyzx2eItOl_4C-VnSTtOqdEH8_Bp9w&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYaWbbx2Sz426MAirXQgrJ9YqBH75dQxB2gw&s", 
+                    "https://images.squarespace-cdn.com/content/v1/5b3ca5a2b98a782f09c815d6/1669510664302-2M38DWMSGWL2H9N0GR6I/Fall-2022-Social-Media-Package-2-1080x1080.jpg"
+                }),
+                // Clear Skin Willow Bark Booster-Serum
+                ("Clear Skin Willow Bark Booster-Serum", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN_Wauo_Rlilox29NSTEBgTFF9vxbY62PLZg&s", 
+                    "https://the-afternoon-prod.s3.ap-southeast-1.amazonaws.com/product/02644f3a-9594-42b3-b857-6a1753db3a84/block/k-t-602-copy1-min.jpg", 
+                }),
+                // Cornflower Recovery Serum
+                ("Cornflower Recovery Serum", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-cornflower-recovery-serum-sq.jpg?itok=nIX5IZVH", 
+                    "https://www.dermstore.com/images?url=https://static.thcdn.com/productimg/original/11857248-1344866735395349.jpg&format=webp&auto=avif&width=1200&height=1200&fit=cover", 
+                }),
+                // Power Serum
+                ("Power Serum", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV7CdjpeMqLmybea_wuyU1YkJaN9H56D83bg&s", 
+                    "https://images.squarespace-cdn.com/content/v1/5badc17c797f743dc830bb95/1721113519111-GS0XBO7FD4FEU9TPD5QZ/HydroPeptide+Power+Serum+.png?format=1000w", 
+                    "https://img-cdn.heureka.group/v1/975eff79-baec-4106-87d5-641a98f2bc61.jpg?width=350&height=350"
+                }),
+                // Firma-Bright
+                ("Firma-Bright", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6XcpSDG4i6iLlhr1d8tah8jg9YvwaeHAJqg&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxCwXA3JgUVHri_LMGzNtf2Xrkig-zmb6AvA&s", 
+                    "https://metafields-manager-by-hulkapps.s3-accelerate.amazonaws.com/uploads/hydropeptide-canada.myshopify.com/1726623141-082224_New_Retail_Packaging_Firma-Bright_BENEFITS.jpg"
+                }),
+                // Hydrostem Serum
+                ("Hydrostem Serum", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeehTZ70DIUnNzpsOuSC8V0BBSMtsJqSSa2w&s", 
+                    "https://cdn.shopify.com/s/files/1/0345/0444/1995/files/PDP_Hydrostem_Results.jpg?v=1660700668", 
+                }),
+                // Minéral 89 Booster
+                ("Minéral 89 Booster", new List<string>
+                {
+                    "https://product.hstatic.net/200000124701/product/ml_mb033500_serum_giup_sang_da_va_cang_muot_5309_609c_large_4eaece6dec_040dcc25119b4ba48c4f84eb5ea8eab8_master.jpg", 
+                    "https://product.hstatic.net/1000006063/product/2_9c06e1144bc44c31976a4726501e6936_1024x1024.jpg", 
+                    "https://assets-hebela.cdn.vccloud.vn/dict/1/rigigstrtssgtssmsm20221024161114mineral-89-fortifying-daily-booster-30ml/rrosatidinngitiins20221024161532image2.png"
+                }),
+                // Minéral 89 Probiotic Fractions
+                ("Minéral 89 Probiotic Fractions", new List<string>
+                {
+                    "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/skincare/m89/mineral89-probiotic-fractions-pack3.jpg?rev=8745dcf5b4fb41dbbf921950bebe6ae3&cx=0.53&cy=0.55&cw=525&ch=596&hash=3CB4E2F0FB27C99F34CEF2B4B60F94C5", 
+                    "https://product.hstatic.net/1000006063/product/2_9c06e1144bc44c31976a4726501e6936_1024x1024.jpg", 
+                    "https://product.hstatic.net/200000617989/product/tinh_chat_vichy_mineral_89_probiotic_fractions___2__fdb740bf564c4b6eb8ce809b420b1d4c.jpg"
+                }),
+                // Barrier Builder
+                ("Barrier Builder", new List<string>
+                {
+                    "https://hydropeptide.co.uk/cdn/shop/files/Barrier-Builder.jpg?v=1725351085", 
+                    "https://cdn.shopify.com/s/files/1/0345/0444/1995/files/how-to.jpg?v=1725358910", 
+                }),
+                // Power Luxe
+                ("Power Luxe", new List<string>
+                {
+                    "https://skinbeautifulrx.com/cdn/shop/products/PowerLuxe_1200x.jpg?v=1629145994", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSc1zwGe1F7e0YfxPgDTe8hUHB8978RAybE_Q&s", 
+                    "https://abeautybar.com.ua/content/images/35/1080x1071l80mc0/gidropitatelnyy-infuzionnyy-krem-hydropeptide-power-luxe4784-36045340977099.jpeg"
+                }),
+                // AquaBoost Oil Free Face Moisturizer
+                ("AquaBoost Oil Free Face Moisturizer", new List<string>
+                {
+                    "https://cdn.cosmostore.org/cache/front/shop/products/511/1558828/650x650.jpg", 
+                    "https://images.squarespace-cdn.com/content/v1/64930aaaf0c0fc7ee1e1ffeb/1713368640714-4KTAPH5GBPSDEBBFLW8P/Hydropeptide+Aquaboost+example.png?format=1500w", 
+                }),
+                // Face Lift Moisturizer
+                ("Face Lift Moisturizer", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/010924_New_Retail_FaceLift_PDP_grande.jpg?v=1711563449", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR999M9m99s-z5kSEiW-HqQchDa2YY783A04w&s", 
+                }),
+                // Sublime Skin Fluid Cream
+                ("Sublime Skin Fluid Cream", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2023/03/12201_1_SUBLIME_SKIN_Fluid_Cream_60ml_Comfort_Zone_2000x-1091x1200.webp", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2023/03/sublime-skin-texture-fluid-cream.png", 
+                }),
+                // Sacred Nature Nutrient Cream
+                ("Sacred Nature Nutrient Cream", new List<string>
+                {
+                    "https://world.comfortzoneskin.com/cdn/shop/files/o3rmembdmxcpkfgj5rau_1600x.jpg?v=1718130042", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/6939f8f00a8a7ed77a04d50b9549311e267a48fe_2000x-1091x1200.jpg", 
+                }),
+                // Active Pureness Fluid
+                ("Active Pureness Fluid", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2023/11/San-pham-134-1091x1200.jpg", 
+                    "https://www.organicpavilion.com/cdn/shop/products/PF8aa29d2d702ea16e288b6fbaad4bf3bd52092193_2000x_6c1ce0b0-1fa2-4ae4-98bc-fc537be81713_large.png?v=1677234394", 
+                }),
+                // Remedy Cream 
+                ("Remedy Cream", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-03-1091x1200.png", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/c9d0b89d8a9af00e2eb8909d8c768e15158b6d7e_2000x-1091x1200.jpg", 
+                }),
+                // Strawberry Rhubarb Hyaluronic Hydrator
+                ("Strawberry Rhubarb Hyaluronic Hydrator", new List<string>
+                {
+                    "https://www.everyoneblooms.com/wp-content/uploads/2024/07/Eminence-Organics-Strawberry-Rhubarb-Hyaluronic-Hydrator-SQ.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdwtvJgu9013N_fBXR36JJrEmupTNpKqo17Q&s", 
+                }),
+                // Bakuchiol + Niacinamide Moisturizer
+                ("Bakuchiol + Niacinamide Moisturizer", new List<string>
+                {
+                    "https://pbs.twimg.com/media/GEFcv4YbQAAP1OE.jpg:large", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2AJMC8ZAAzSqA09cJezP4jN79hpxNvKS56A&s", 
+                    "https://www.newbeauty.com/wp-content/uploads/2023/10/2023-Fall-Bakuchiol-And-Niacinamide-Collection-Lifestyle-High-38-1-scaled.jpg"
+                }),
+                // Acne Advanced Clarifying Hydrator
+                ("Acne Advanced Clarifying Hydrator", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-acne-advanced-clarifying-hydrator-v2-400pix-compressor.jpg?itok=_ELq7sKM", 
+                    "https://buynaturalskincare.com/cdn/shop/products/Eminence-Organics-Acne-Advanced-Clarifying-Hydrator-Swatch.jpg?v=1665160459&width=1080", 
+                }),
+                // Echinacea Recovery Cream
+                ("Echinacea Recovery Cream", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-echinacea-recovery-cream-400x400px.png?itok=LNRyYSeA", 
+                    "https://cdn.cosmostore.org/cache/front/shop/products/127/302585/650x650.jpg", 
+                }),
+                // PowerBright Overnight Cream
+                ("PowerBright Overnight Cream", new List<string>
+                {
+                    "https://edbeauty.vn/wp-content/uploads/2023/08/Kem-duong-Powerbright-Overnight-Cream-1.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7Ul9pN39KXGUnc4ho3jvwm2hrKpmBZdKy-g&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS98UOJj0PdVmux2QYM31SSmllUTZkidUc9lA&s"
+                }),
+                // Skin Soothing Hydrating Lotion
+                ("Skin Soothing Hydrating Lotion", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1JQViTcVpNPKqP6Wn2e99hYZrczacbtnGtA&s", 
+                    "https://absoluteskin.com.au/cdn/shop/products/dermalogica-moisturisers-dermalogica-clear-start-skin-soothing-hydrating-lotion-59ml-28824281022558_300x.jpg?v=1711588930", 
+                    "https://www.dermalogica.ca/cdn/shop/products/3soothinglotionhands-min_2048x2048_9f7cd589-f542-4efb-9228-6d0fb802c954.webp?v=1660681593&width=1946"
+                }),
+                // Skin Smoothing Cream
+                ("Skin Smoothing Cream", new List<string>
+                {
+                    "https://hoaanhdao.vn/media/sanpham/1530205200/KEM_D%C6%AF%E1%BB%A0NG_%E1%BA%A8M_L%C3%80M_M%E1%BB%8AN_DA_DERMALOGICA_SKIN_SMOOTHING_CREAM.jpg", 
+                    "https://www.facethefuture.co.uk/cdn/shop/files/skin-smoothing-cream-pdp-3.jpg?v=1692712240&width=600", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj4i7SJV0CSo8uab92n_4olFmOhtRlXD9DJg&s"
+                }),
+                // Barrier Repair
+                ("Barrier Repair", new List<string>
+                {
+                    "https://dangcapphaidep.vn/image-data/780-780/cdn/2021/11/Dermalogica-Barrier-Repair-1.jpg", 
+                    "https://veevee.store/wp-content/uploads/2023/10/dermalogica-barrier-repair-2.webp", 
+                }),
+                // Minéral 89 72H Moisture Boosting Fragrance Free Cream
+                ("Minéral 89 72H Moisture Boosting Fragrance Free Cream", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeDcDHtRmZHif3n-fLkzxuYnQIGuuaVoDVFg&s", 
+                    "https://media.superdrug.com//medias/sys_master/prd-images/h77/h30/10011961950238/prd-back-826896_600x600/prd-back-826896-600x600.jpg", 
+                }),
+                // Liftactiv B3 Tone Correcting Night Cream With Pure Retinol
+                ("Liftactiv B3 Tone Correcting Night Cream With Pure Retinol", new List<string>
+                {
+                    "https://www.vichy.ca/dw/image/v2/AATL_PRD/on/demandware.static/-/Sites-vichy-master-catalog/default/dwe39c018d/product/2024/3337875873086/3337875873086.mainA-EN.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHvHgPHulcbHZbcvkjI6m1cmQsZFNyiX9Aaw&s", 
+                }),
+                // Belif The True Cream Aqua Bomb
+                ("Belif The True Cream Aqua Bomb", new List<string>
+                {
+                    "https://image.hsv-tech.io/1987x0/tfs/common/d221fe39-305d-492d-b089-44607a9285fc.webp", 
+                    "https://image.hsv-tech.io/1920x0/bbx/common/b6851887-fbe5-46a8-b189-e9be2b2d5556.webp", 
+                }),
+                // Oat So Simple Water Cream
+                ("Oat So Simple Water Cream", new List<string>
+                {
+                    "https://kravebeauty.com/cdn/shop/files/9.24_OSS_PDP3.png?v=1727744093&width=1200", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRw5DZUUIS5TX9dU3_h8FD70ChLCeiuZsuTIiniSZZ9udxobZfPTA7A46-KPczF9YiCGr8&usqp=CAU", 
+                }),
+                // AESTURA A-CICA 365 Calming Cream
+                ("AESTURA A-CICA 365 Calming Cream", new List<string>
+                {
+                    "https://down-vn.img.susercontent.com/file/sg-11134207-7rbka-ln1cvnbe1d8532", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5-Iis6x4JWFAUiCEywTriRNgD9JBhu0P_9g&s", 
+                }),
+                // Sun Soul Face Cream SPF30
+                ("Sun Soul Face Cream SPF30", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2023/03/8004608515975_1-1091x1200.jpg", 
+                    "https://shop.beautymanufactur.de/wp-content/uploads/2024/05/com-12163-comfort-zone-sun-soul-face-cream-spf30-texture-900x900.jpg.webp", 
+                }),
+                // Skin Regimen Urban Shield SPF30
+                ("Skin Regimen Urban Shield SPF30", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/8004698186420_1-1091x1200.jpg", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/neni-urban-shield-spf-30-2-800x1200.jpg", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/apply-urban-shield-spf-30-800x1200.jpg"
+                }),
+                // PoreScreen SPF40
+                ("PoreScreen SPF40", new List<string>
+                {
+                    "https://dr-skincare.com/wp-content/uploads/2024/03/67.jpg", 
+                    "https://cdn11.bigcommerce.com/s-6c800/images/stencil/1280x1280/products/8001/28227/Dermalogica-Porescreen-Mineral-Sunscreen-SPF-40-DM111473_26769__87674.1729965251.jpg?c=2", 
+                    "https://dermalogica.in/cdn/shop/files/PoreScreen-09_6b178e28-1089-4645-88df-24015551d76a.jpg?v=1724661984&width=1445"
+                }),
+                // Invisible Physical Defense SPF30 
+                ("Invisible Physical Defense SPF30", new List<string>
+                {
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2020/05/7-3-590x600.jpg", 
+                    "https://m.media-amazon.com/images/I/51HC+QLIrVL._AC_UF350,350_QL80_.jpg", 
+                }),
+                // Protection 50 Sport SPF50
+                ("Protection 50 Sport SPF50", new List<string>
+                {
+                    "https://edbeauty.vn/wp-content/uploads/2019/12/kem-chong-nang-Dermalogica-protection-sport-spf-50-156ml.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9OSPWVkYd5yhmaP6lPYcO1RPlqwK5FYaU-Q&s", 
+                }),
+                // Oil Free Matte SPF30
+                ("Oil Free Matte SPF30", new List<string>
+                {
+                    "https://www.dermalogica.ie/cdn/shop/files/oil-free-matte-pdp_abddc3c6-01ee-4a08-9a22-3d93d66cc79e.jpg?v=1687444268", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa4gMLYU2BQkxgljz_dQteQ7buLxR-1Q39yQ&s", 
+                }),
+                // Radiant Protection SPF Fluid
+                ("Radiant Protection SPF Fluid", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSIeOviukKjzkEkUyMUzgkB5Up-8o7XucjLw&s", 
+                    "https://naturalbeautygroup.com/cdn/shop/files/eminence-organics-Radiant-Protection-SPF-Fluid-Swatch.png?v=1708611969&width=1080", 
+                }),
+                // Lilikoi Daily Defense Moisturizer SPF 40
+                ("Lilikoi Daily Defense Moisturizer SPF 40", new List<string>
+                {
+                    "https://cdn.cosmostore.org/cache/front/shop/products/486/1464606/350x350.jpg", 
+                    "https://images.squarespace-cdn.com/content/v1/63d45207da7f2a5e82696fe2/1674859081420-WZPSXPO81QEKEFHHKB4Y/eminence-organics-lilikoi-moisturizer-spf40-swatch-circle-400x400.jpg?format=1000w", 
+                }),
+                // Lilikoi Mineral Defense Sport Sunscreen SPF 30
+                ("Lilikoi Mineral Defense Sport Sunscreen SPF 30", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-llilikoi-mineral-defense-sport-sunscreen-spf-30-400x400.jpg?itok=0IXRhb-K", 
+                    "https://images.squarespace-cdn.com/content/v1/5d75abb04593a56ccb9161cb/1572814643401-Q0O24YSFHA4JBI09B5T5/eminence-organics-stone-crop-revitalizing-body-scrub-swatch-toscana.png?format=1000w", 
+                }),
+                // Daily Defense Tinted SPF
+                ("Daily Defense Tinted SPF", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-daily-defense-tinted-spf-pdp.jpg?itok=DphokG8j", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8Nl7TW6hlAMdQ9UBiRaTrH0dHNp476Ye3wQ&s", 
+                    "https://shop.vivadayspa.com/cdn/shop/files/EminenceOrganicDailyDefenseTintedSPF50_3_1800x1800.png?v=1719944530"
+                }),
+                // Solar Dew Sheer Mineral Melt SPF 30
+                ("Solar Dew Sheer Mineral Melt SPF 30", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOz514kGYGfzEyqZ4ItSevNqGTw4KzgJgkrQ&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAV2C0GAlWYxHpgCIWrRSvXA6JFAP0hbeHaA&s", 
+                    "https://www.purplebeautysupplies.com/cdn/shop/files/hydropeptide-solar-dew-spf-30-mineral-serum-135-oz-40-ml-478701.jpg?v=1715239028&width=1445"
+                }),
+                // Solar Defense Non-Tinted Sunscreen
+                ("Solar Defense Non-Tinted Sunscreen", new List<string>
+                {
+                    "https://bizweb.dktcdn.net/thumb/1024x1024/100/318/244/products/untitled-bd9e4f55-c942-4778-8da9-70005304d193.jpg?v=1607671087160", 
+                    "https://metafields-manager-by-hulkapps.s3-accelerate.amazonaws.com/uploads/hydropeptide-canada.myshopify.com/1726621522-022624_SolarDefenseNonTinted_BENEFITS.jpg", 
+                }),
+                // Solar Defense Tinted SPF 30
+                ("Solar Defense Tinted SPF 30", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_SolarDefenseTinted_PDP_1024x1024.jpg?v=1724437418", 
+                    "https://hydropeptide.co.uk/cdn/shop/products/HP--PDP-CaroselImages-Solar-Defense-Tinted-video.jpg?v=1662163522", 
+                }),
+                // Vichy Capital Soleil UV Age Daily SPF50 PA++++ 
+                ("Vichy Capital Soleil UV Age Daily SPF50 PA++++", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSspHWslG4DZpyDyDQNx2owKFNPb1_v0zeDFA&s", 
+                    "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/suncare/capital-soleil---uv-age/capital-soleil-uv-age-spf50-pack4.jpg?rev=02d0faa4daf344b7ae245ea718addbaa&cx=0.47&cy=0.53&cw=525&ch=596&hash=CFA022DF922328E3F8ABA2264ED86940", 
+                }),
+                // Capital Soleil Ultra Light Face Sunscreen SPF 50
+                ("Capital Soleil Ultra Light Face Sunscreen SPF 50", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9WRnfVxm2mABipRz9LHO1eBdH1oDlU6wC7A&s", 
+                    "https://exclusivebeautyclub.com/cdn/shop/products/vichy-capital-soleil-ultra-light-sunscreen-spf-50-vichy-shop-at-exclusive-beauty-club-515732.jpg?v=1698096439", 
+                }),
+                // Neogen Day-Light Protection Airy Sunscreen
+                ("Neogen Day-Light Protection Airy Sunscreen", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk5ssRRdBHGrHUnF87gc2M30_2EJcxarie1g&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsD2FE2MUfeFeZlFXuvJgidm1iU8WgkkVU7Q&s", 
+                }),
+                // Round Lab Birch Juice Moisturizing Sunscreen
+                ("Round Lab Birch Juice Moisturizing Sunscreen", new List<string>
+                {
+                    "https://product.hstatic.net/200000150709/product/1_10a2d9a626da4c03ac81c93497bae020.png", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiew88Sg_ffo50u6QcX4kuVHoG_fK9u3qtkA&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKdt5IbBt21U-Ppg4c-ic4PawxrqvJUgAgtg&s"
+                }),
+                // Beet The Sun SPF 40 PA+++
+                ("Beet The Sun SPF 40 PA+++", new List<string>
+                {
+                    "https://www.dodoskin.com/cdn/shop/files/61J0umsAoGL_080fdcb3-37f3-4066-a1b9-8769b6fc1376_2048x2048.jpg?v=1707875322", 
+                    "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lpp4hgn0mhxw87", 
+                    "https://kravebeauty.com/cdn/shop/files/9.24_BTS_PDP3.png?v=1729803947&width=1200"
+                }),
+                // Klairs All-day Airy Mineral Sunscreen SPF50+ PA++++
+                ("Klairs All-day Airy Mineral Sunscreen SPF50+ PA++++", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxNHcQ2vQJhLia5CAIKeC0YLPPKi_KtyfcIg&s", 
+                    "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lz7ct301ck9t85", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfMgba99CrRc61gzwD8wPnD1H7X-QlaB_tFw&s"
+                }),
+                // Goongbe Waterful Sun Lotion Mild SPF50+ PA++++
+                ("Goongbe Waterful Sun Lotion Mild SPF50+ PA++++", new List<string>
+                {
+                    "https://gomimall.vn/cdn/shop/files/6_55cd82b9-b3ba-438d-a9e3-d105ff8d9166.png?v=1727068956", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_VhLOsDvcPtXOWARG0zxac-oDZExusVtWnw&s", 
+                    "https://www.ballagrio.com/cdn/shop/files/3_f0fb1c1d-ee7a-4762-a261-79a4e841791b_2048x.jpg?v=1734515800"
+                }),
+                // Eight Greens Phyto Masque – Hot
+                ("Eight Greens Phyto Masque – Hot", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-eight-greens-phyto-masque-hot-pdp.jpg?itok=-pxuW5H5", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQtndM3VeufQiiNA59YlFA--hDSXxxB9qMow&s", 
+                    "https://organicskincare.com/wp-content/uploads/2015/08/Eminence-Eight-Greens-Phyto-Masque-360x360.jpg"
+                }),
+                // Kombucha Microbiome Leave-On Masque
+                ("Kombucha Microbiome Leave-On Masque", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-kombucha-mircobiome-leave-on-masque-pdp.jpg?itok=m8OxvyO3", 
+                    "https://beautyritual.ca/cdn/shop/products/eminence-organics-kombucha-microbiome-leave-on-masque-swatch-pdp.jpg?v=1722521123&width=480", 
+                    "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Kombucha-Microbiome-Leave-On-Masque-lifestyle.jpg?v=1717443755&width=1080"
+                }),
+                // Citrus & Kale Potent C+E Masque
+                ("Citrus & Kale Potent C+E Masque", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/content/blog/product-picks/eminence-organics-citrus-kale-potent-ce-masque.png", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpPxaCBWNH4MBUIBigH9RkoB_9ExSPGYKnzw&s", 
+                    "https://i0.wp.com/jessicasapothecary.com/wp-content/uploads/2020/04/vitaminc_masque.jpg?resize=840%2C1050&ssl=1"
+                }),
+                // Stone Crop Masque
+                ("Stone Crop Masque", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZoviYz-lQL1doxfPgl9PLZEtC_e6oKEhwnA&s", 
+                    "https://www.shophalosaltskinspa.com/cdn/shop/products/CAEB78BD-1992-4EEB-B4C3-C4CF73CFE794.jpg?v=1662576743&width=1445", 
+                    "https://oresta.ca/cdn/shop/products/eminence-organics-eminence-stone-crop-masque-803682.jpg?v=1706991974&width=2000"
+                }),
+                // Calm Skin Arnica Masque
+                ("Calm Skin Arnica Masque", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJwWf92eq1uUCwgZTan7qEZlq-TgQfTXFOZA&s", 
+                    "https://vanislebeautyco.com/cdn/shop/products/image_61ac7e19-35ab-4d54-979d-5ce1d8e44d56.jpg?v=1672155911&width=720", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTImXEm-NSJyUUmbxpk5EcSniUif5Q09WVDFw&s"
+                }),
+                // Multivitamin Power Recovery Masque
+                ("Multivitamin Power Recovery Masque", new List<string>
+                {
+                    "https://sieuthilamdep.com/images/detailed/15/mat-na-vitamin-chong-lao-hoa-dermalogica-multivitamin-power-recovery-masque.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRn48kip8eDY41wOLGcEU7hx4NvHyqrpzwPpA&s", 
+                    "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lowl5l8fp4631a"
+                }),
+                // Sebum Clearing Masque
+                ("Sebum Clearing Masque", new List<string>
+                {
+                    "https://dangcapphaidep.vn/image-data/780-780/upload/2023/08/30/images/dermalogica-sebum-clearing-masque-75ml%281%29.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQI_EgDwBMh0LKVO-pyPoV9JSyBhIAbVJLDSg&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwazAQaO2dRExfe9aDgIYK2dlsywUuOlLByA&s"
+                }),
+                // Melting Moisture Masque
+                ("Melting Moisture Masque", new List<string>
+                {
+                    "https://dangcapphaidep.vn/image-data/780-780/upload/2023/08/30/images/dermalogica-melting-moisture-masque.jpg", 
+                    "https://edbeauty.vn/wp-content/uploads/2023/08/Mat-na-cap-am-Dercalogica-Melting-Moisture-Masque-1.jpg", 
+                    "https://www.depmoingay.net.vn/wp-content/uploads/2023/08/Mat-na-cap-am-chuyen-sau-Dercalogica-Melting-Moisture-Masque-1.jpg"
+                }),
+                // Miracle Mask
+                ("Miracle Mask", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_MiracleMask_PDP_1024x1024.jpg?v=1715974173", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTw_gxtCWIU4_0n5EORj1Kl9XmFLdUwXkOVeg&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwt8mTBHwwlIOOzAMW9avZFEcDHdAb96msRw&s"
+                }),
+                // Hydro-Lock Sleep Mask
+                ("Hydro-Lock Sleep Mask", new List<string>
+                {
+                    "https://hydropeptide.com.es/image/cache/catalog/Products/hydro-lock-sleep-mask/012224_New_Retail_Packaging_Hydro-LockSleepMask_PDP_950x_2x.progressive-1000x1000.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOC_f_73gSfPV_aCpydJNdeAV0aJ18mz-VVg&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRVLHWy0Ee-uIrQCXBvxrGXgF4b7X69GKfOg&s"
+                }),
+                // PolyPeptide Collagel+ Mask 
+                ("PolyPeptide Collagel+ Mask", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/011124_PolypeptideCollagel_Face_PDP_1024x1024.jpg?v=1705108115", 
+                    "https://m.media-amazon.com/images/I/61kfwzxp9sL._AC_UF1000,1000_QL80_.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRpqGAgS_WZV8gv_OroncyYwbcWdujtINeEHg&s"
+                }),
+                // Balancing Mask
+                ("Balancing Mask", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfYIUlZvjKdCtWBk5N0Hjzr5rWg0f7c8NBdw&s", 
+                    "https://hydropeptide.asia/wp-content/uploads/2021/02/HP-PDP-BalancingMask-Hero-2.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCNUS7D4oiAqWaQbCt8I4Ao1amYgwd9ojTGQ&s"
+                }),
+                // Rejuvenating Mask
+                ("Rejuvenating Mask", new List<string>
+                {
+                    "https://cdn.shopify.com/s/files/1/0345/0444/1995/files/PDP-RejuvenatingMask-Results.jpg?v=1661906989", 
+                    "https://hydropeptide.co.uk/cdn/shop/products/rejuvenating-mask_full-size.jpg?v=1662076519", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5xMKeR40mJv14WObkfKV-EpCMvfT5jlPDlA&s"
+                }),
+                // Aqualia Thermal Night Spa
+                ("Aqualia Thermal Night Spa", new List<string>
+                {
+                    "https://product.hstatic.net/200000124701/product/00014081_vichy_mat_na_khoang_75ml_m9104500_6680_5c9e_large_88ade14c39_01d00c3a004a464b8b0e09f6bbc6ffb1_master.jpg", 
+                    "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/product-packshots---1/aqualia/vichy_aqualia_thermal_creme_nuit.png?rev=296ada59cb5e41109fb3b0d565c68596&cx=0.51&cy=0.54&cw=525&ch=596&hash=2D0C1F95950702CE1CC90F8691F193F5", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK37Y_CeTdJPn4VyPC0fCvjfmImZwSQrOhrQdTNwu4hPPB7NwrdedizcNK0FDZEplJQTg&usqp=CAU"
+                }),
+                // Quenching Mineral Mask
+                ("Quenching Mineral Mask", new List<string>
+                {
+                    "https://product.hstatic.net/200000124701/product/00014081_vichy_mat_na_khoang_75ml_m9104500_6680_5c9e_large_88ade14c39_01d00c3a004a464b8b0e09f6bbc6ffb1_master.jpg", 
+                    "https://cf.shopee.vn/file/1674db822b2bc08d254590acabf64547", 
+                }),
+                // Pore Purifying Clay Mask
+                ("Pore Purifying Clay Mask", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmtvhbhIddJEIZPbAz6q8EFueP1vtX4HhqQw&s", 
+                    "https://down-vn.img.susercontent.com/file/244ad88d90d841ab5af1681edc2258a3", 
+                }),
+                // Sulwhasoo Activating Mask
+                ("Sulwhasoo Activating Mask", new List<string>
+                {
+                    "https://kallos.co/cdn/shop/files/12_33f1be98-3f05-421b-98cb-67be17d1e90b.jpg?v=1693728111&width=900", 
+                    "https://assets.aemi.vn/images/2024/5/1715574861200-0", 
+                    "https://product.hstatic.net/200000714339/product/z5219389220375_0b7217f34a936c85ae10f994e6bdda40_2c716e8ce65146fc938d37df2bbd805d.jpg"
+                }),
+                // COSRX Ultimate Nourishing Rice Spa Overnight Mask
+                ("COSRX Ultimate Nourishing Rice Spa Overnight Mask", new List<string>
+                {
+                    "https://image.hsv-tech.io/1920x0/bbx/products/0e8fbb74-e136-4ea3-9ef0-76f6d44bca3b.webp", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8ESM2p1P_SgJXVC6VPdOIambFBoukzgAGdw&s", 
+                }),
+                // Klairs Rich Moist Soothing Tencel Sheet Mask
+                ("Klairs Rich Moist Soothing Tencel Sheet Mask", new List<string>
+                {
+                    "https://product.hstatic.net/1000006063/product/klairs_rich_moist_soothing_tencel_sheet_mask_94678ee3e2134354b5a039b569cff87e_1024x1024.jpg", 
+                    "https://product.hstatic.net/200000551679/product/dear__klairs_mat_na_giay_rich_moist___2__db38203e18c541a19031c3212db864d4_1024x1024.jpg", 
+                    "https://product.hstatic.net/200000714339/product/klairs-rich-moist-soothing-sheet_bee5a326d74642bab0e5862e663e09b8_1024x1024.jpg"
+                }),
+                // Klairs Midnight Blue Calming Sheet Mask
+                ("Klairs Midnight Blue Calming Sheet Mask", new List<string>
+                {
+                    "https://image.hsv-tech.io/1987x0/bbx/common/38079d73-de48-4721-88af-c0e72b28a471.webp", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4SsU7xocAIl8x0h4bj_lrLO0felkJMgASmw&s", 
+                }),
+                // Dear, Klairs Freshly Juiced Vitamin E Mask
+                ("Dear, Klairs Freshly Juiced Vitamin E Mask", new List<string>
+                {
+                    "https://www.guardian.com.vn/media/catalog/product/cache/30b2b44eba57cd45fd3ef9287600968e/3/0/3020993_iifvm7d8r9crinym.jpg", 
+                    "https://image.hsv-tech.io/1920x0/bbx/common/12aecda8-804a-47d0-9205-b881a6ce3174.webp", 
+                }),
+                // Sacred Nature Exfoliant Mask
+                ("Sacred Nature Exfoliant Mask", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/0d080a4d83fbeff70dd59e4585d73e1d76f7b92d_2000x-1091x1200.jpg", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/e8a1b4fb805fbdc0b8d1f659b595477ce4d7ff79_2000x.jpg", 
+                    "https://eideal.com/cdn/shop/files/Exfoliant-mask-Texture-1.jpg?v=1703580157"
+                }),
+                // Essential Scrub
+                ("Essential Scrub", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2023/11/San-pham-112.jpg", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/bf8201b7fbba797ceca178721986f5de589c9eed_2000x-698x768.jpg", 
+                }),
+                // Liquid Resurfacing Solution
+                ("Liquid Resurfacing Solution", new List<string>
+                {
+                    "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_LiquidResufacingSolution_PDP_1024x1024.jpg?v=1718661002", 
+                    "https://hydropeptide.ca/cdn/shop/files/022024_LiquidResurfacingSolution_PDP.jpg?v=1712791423", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuv41x-1M5vuU3jX5Ggnd6NfFwrKNUe_D56Q&s"
+                }),
+                // 5X Power Peel Face Exfoliator
+                ("5X Power Peel Face Exfoliator", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6Xgx3XAAFH8I5qf0piOxYUBFpx_wro35G6Q&s", 
+                    "https://hydropeptide.ca/cdn/shop/files/012224_Old_Retail_Packaging_5xPowerPeel_Sachets_PDP.jpg?v=1712790410", 
+                }),
+                // Daily Milkfoliant
+                ("Daily Milkfoliant", new List<string>
+                {
+                    "https://edbeauty.vn/wp-content/uploads/2023/08/Tay-te-bao-chet-Dermalogica-Daily-Milkfoliant-2.jpg", 
+                    "https://veevee.store/wp-content/uploads/2023/10/dermalogica-daily-milkfoliant-exfoliator-2.webp", 
+                }),
+                // Liquid Peelfoliant
+                ("Liquid Peelfoliant", new List<string>
+                {
+                    "https://healthygoods.com.vn/resource/images/2023/12/dermalogica-liquid-peelfoliant-59ml1.jpg", 
+                    "https://www.spacenk.com/on/demandware.static/-/Library-Sites-spacenk-global/default/dwb77b7327/dermalogica-liquid-peel-review-space-nk.jpg", 
+                }),
+                // Daily Superfoliant
+                ("Daily Superfoliant", new List<string>
+                {
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2024/03/T%E1%BA%A9y-T%E1%BA%BF-B%C3%A0o-Ch%E1%BA%BFt-Than-Ho%E1%BA%A1t-T%C3%ADnh-Daily-Superfoliant.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWwLsIyzmrB8hOus3oKNIoufCNavvosd0Zog&s", 
+                }),
+                // Multivitamin Thermafoliant
+                ("Multivitamin Thermafoliant", new List<string>
+                {
+                    "https://dangcapphaidep.vn/image-data/780-780/upload/2023/08/30/images/dermalogica-multivitamin-thermafoliant-1.jpg", 
+                    "https://veevee.store/wp-content/uploads/2023/10/dermalogica-multivitamin-thermafoliant-1.webp", 
+                }),
+                // Daily Microfoliant
+                ("Daily Microfoliant", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6Xgx3XAAFH8I5qf0piOxYUBFpx_wro35G6Q&s", 
+                    "https://thesecretdayspa.co.uk/cdn/shop/products/US-PDP-How-To-Product-In-Hand---Daily-Microfoliant_1800x1800.webp?v=1678979333", 
+                }),
+                // Strawberry Rhubarb Dermafoliant
+                ("Strawberry Rhubarb Dermafoliant", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-strawberry-rhubarb-dermafoliant.jpg?itok=lP2gq52k", 
+                    "https://anjouspa.com/wp-content/uploads/2023/01/anjou-spa-fresh-fruit-facial-27.jpg", 
+                }),
+                // Turmeric Energizing Treatment
+                ("Turmeric Energizing Treatment", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbvQKm1rsUl0wMFrKASBA5iBt0VX69eQIyjw&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTb2Zl2efrdTibFj1FlzpWE9n4qQaT7a-fe4w&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1TWpyNYBuXgZHao3xTL4Y4KWq-VYK_yFLNw&s"
+                }),
+                // Bright Skin Licorice Root Exfoliating Peel
+                ("Bright Skin Licorice Root Exfoliating Peel", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTL9Oq6DD-KmiZGSPvBt6viuJI3wf059HorRQ&s", 
+                    "https://emstore.com/cdn/shop/files/licorice-root-exfoliating-peel-pads.jpg?v=1695202885", 
+                }),
+                // Calm Skin Chamomile Exfoliating Peel
+                ("Calm Skin Chamomile Exfoliating Peel", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFf6rWs4EsBBhwJBa458IvTlMEnUf1ZZqiXQ&s", 
+                    "https://static.thcdn.com/productimg/960/960/11370437-1344871983881681.jpg", 
+                }),
+                // Radish Seed Refining Peel
+                ("Radish Seed Refining Peel", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-radish-seed-refining-peel-400x400px.png?itok=G7HyJYY5", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS7PLc_tx0I_lQDDPwITKuaqEAVUN7u7IsuMw&s", 
+                }),
+                // Anua Heartleaf 77% Clear Pad
+                ("Anua Heartleaf 77% Clear Pad", new List<string>
+                {
+                    "https://bizweb.dktcdn.net/100/525/087/products/56aa5b2e-5258-4122-beee-d53128f44c3c.jpg?v=1733139782937", 
+                    "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lrqzijemkds443", 
+                    "https://cdn.shopify.com/s/files/1/0560/7328/9826/files/IMG-4057.jpg?v=1714980820"
+                }),
+                // No.5 Vitamin-Niacinamide Concentrated Pad
+                ("No.5 Vitamin-Niacinamide Concentrated Pad", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkRt0Da2RE6ez4IpyF-9eVbo1rgj_6wA-4LQ&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqjR310AXBDPsifkWK0rsXBxhDnTBDCW50Yg&s", 
+                    "https://www.mikaela-beauty.com/cdn/shop/files/AX6H2399w_1200x1200.jpg?v=1711843023"
+                }),
+                // Balanceful Cica Toner Pad
+                ("Balanceful Cica Toner Pad", new List<string>
+                {
+                    "https://product.hstatic.net/1000006063/product/bt_91f25bc0d4854817a2c94eff8a459e9e_1024x1024.jpg", 
+                    "https://product.hstatic.net/1000328823/product/_20__19__9352572e4c5245a4a9756cb089a6d047_master.png", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxFuy4bq9_k4ZsMOIcLNhKFheC0oJnhQ7gJQ&s"
+                }),
+                // Pine Needle Pore Pad Clear Touch
+                ("Pine Needle Pore Pad Clear Touch", new List<string>
+                {
+                    "https://down-vn.img.susercontent.com/file/7876b204a9fcf65d0930190e274bb254", 
+                    "https://cdn.zochil.shop/bbafea58-b901-4841-9319-281f9b7c4be3_t1500.jpg", 
+                }),
+                // Krave Kale-lalu-yAHA
+                ("Krave Kale-lalu-yAHA", new List<string>
+                {
+                    "https://kravebeauty.com/cdn/shop/files/9.24_KLY_PDP1.png?v=1727740531", 
+                    "https://i.ebayimg.com/images/g/M18AAOSw9BpkHShE/s-l400.jpg", 
+                    "https://lilabeauty.com.au/cdn/shop/products/buy-krave-beauty-kale-lalu-yaha-200ml-at-lila-beauty-korean-and-japanese-beauty-skin-care-255400.jpg?v=1648860498"
+                }),
+                // Yuzu Solid Body Oil
+                ("Yuzu Solid Body Oil", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTa6cZWEjkws8RPCsTXRPcfNM7GlmkJ86fuXg&s", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT091jFcMQELHhS2zqu8kDBc39zoRi4Sck4LQ&s", 
+                }),
+                // Mangosteen Body Lotion
+                ("Mangosteen Body Lotion", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-mangosteen-body-lotion-400x400px-compressed.png?itok=Ofu_3Y-c", 
+                    "https://cdn11.bigcommerce.com/s-wcc90u14r8/images/stencil/1280x1280/products/9804/24894/skin-beauty-eminence-mangosteen-body-lotion-8.4__31975.1729024904.jpg?c=2", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMES-hL9lyHa3KeoivJfChbejtJvNOfXyflQ&s"
+                }),
+                // Coconut Sugar Scrub
+                ("Coconut Sugar Scrub", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFrsNXy29hCQjfyrcStKLnNID2zv_9QuKvvQ&s", 
+                    "https://i5.walmartimages.com/seo/Eminence-Stone-Crop-Revitalizing-Body-Scrub-8-4-oz_f7168ae2-fd69-45f7-9c04-443ddcc24516.961abd73cdb34020becd439ede8416a6.jpeg", 
+                }),
+                // Stone Crop Contouring Body Cream
+                ("Stone Crop Contouring Body Cream", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/stone-crop-body-contouring-cream-400x400.png?itok=gTrvgdf1", 
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-slide/eminence-organics-stone-crop-body-contouring-cream-swatch-400x400.jpg?itok=CW8Z9DlV", 
+                }),
+                // Stone Crop Body Oil
+                ("Stone Crop Body Oil", new List<string>
+                {
+                    "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/stone-crop-body-oil-400x400.png?itok=kCbSF1gV", 
+                    "https://i5.walmartimages.com/asr/3c096190-35c1-443b-876c-65b80976c79b.d68538517adb4174192b340277828d4e.jpeg?odnHeight=768&odnWidth=768&odnBg=FFFFFF", 
+                }),
+                // Sacred Nature Body Butter
+                ("Sacred Nature Body Butter", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/9720a1e9b759cb104a72600261dc4320a1e31fe4_2000x.jpg", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/181a900228143e96fd981d63502195294ef76dfe_2000x-1091x1200.jpg", 
+                    "https://vonpreen.com/wp-content/uploads/2023/03/Comfort-Zone-Sacred-Nature-Body-Butter.jpg"
+                }),
+                // Tranquillity Oil
+                ("Tranquillity Oil", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSz0kljZlGJ8sUGfVH9Q5GXUrVZd51g4A83yQ&s", 
+                    "https://down-vn.img.susercontent.com/file/sg-11134201-22110-4gj57hclpnjv4b", 
+                }),
+                // Body Strategist Peel Scrub
+                ("Body Strategist Peel Scrub", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/4a34a3dd50e62994703db0d5db6c98c3ac321337_2000x.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNq-zuTktcugPue1xZh1lJ_BagEEnHf-x0mQ&s", 
+                    "https://i.makeup.ae/600x600/qgmotujz0cvp.jpg"
+                }),
+                // Body Strategist Oil
+                ("Body Strategist Oil", new List<string>
+                {
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/61200985bf4310406e0a68b32f26e54ffad19bf5_2000x.jpg", 
+                    "https://oadep.com/wp-content/uploads/2023/03/duong-the-Comfort-Zone-Body-Strategist-Oi-100ml-chinh-hang.jpg", 
+                    "https://comfortzone.com.vn/wp-content/uploads/2022/10/c0c3698e5819ca297e7b8be9f087c36a4a31cef4_2000x-1091x1200.jpg"
+                }),
+                // Body Strategist Contour Cream
+                ("Body Strategist Contour Cream", new List<string>
+                {
+                    "https://world.comfortzoneskin.com/cdn/shop/files/myqk9504x4uzbbh0gz8u_5000x.jpg?v=1718128996", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ1zUHTv9Xso7yRlufR12dR9ahzcB1Po3M0LBxOdrtbIOrBmPDpaq-lVlUdo-Dkey4qsQ&usqp=CAU", 
+                }),
+                // Body Hydrating Cream
+                ("Body Hydrating Cream", new List<string>
+                {
+                    "https://dangcapphaidep.vn/image-data/780-780/cdn/2018/07/Dermalogica-Body-Hydrating-Cream-1.jpg", 
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2021/06/2.1.jpg", 
+                    "https://bluemercury.com/cdn/shop/files/global_images-666151111103-2.jpg?v=1725057930&width=1500"
+                }),
+                // Phyto Replenish Body Oil
+                ("Phyto Replenish Body Oil", new List<string>
+                {
+                    "https://dr-skincare.com/wp-content/uploads/2024/03/64.png", 
+                    "https://product.hstatic.net/1000160964/product/phyto-replenish-body-oil-with-ingredients-400_2x_2b58ad161eca4e67851e178c2b38bfd4_master.jpg", 
+                    "https://dermalogica-vietnam.com/wp-content/uploads/2020/06/8.8.jpg"
+                }),
+                // Conditioning Body Wash
+                ("Conditioning Body Wash", new List<string>
+                {
+                    "https://hoaoaihuong.vn/upload/data/images/product/1587433351_ConditioningBodyWashwithRosemaryIllustration_1_700x800.jpg", 
+                    "https://www.depmoingay.net.vn/wp-content/uploads/2023/08/Sua-tam-min-da-Dermalogica-Conditioning-Hand-Body-Wash-1.jpg", 
+                    "https://www.dermalogica.ca/cdn/shop/products/conditioning-body-wash_84-01c_590x617_bf506ab2-c69d-47c3-8b74-6594dedaea1b.jpg?v=1600289356&width=1445"
+                }),
+                // Nourishing Glow Body Oil
+                ("Nourishing Glow Body Oil", new List<string>
+                {
+                    "https://hydropeptide.co.uk/cdn/shop/products/nourishing-glow_full-size.jpg?v=1660861721", 
+                    "https://cdn.shopify.com/s/files/1/0345/0444/1995/files/PDP-NourishingGlow-HowToUse.jpg?v=1660794950", 
+                    "https://i.makeup.ae/m/mu/muboadhvbzcg.jpg"
+                }),
+                // Firming Body Moisturizer
+                ("Firming Body Moisturizer", new List<string>
+                {
+                    "https://hydropeptide.co.uk/cdn/shop/products/firming-moisturizer_full-size.jpg?v=1681516762", 
+                    "https://www.fruitionskintherapy.ca/wp-content/uploads/hydropeptide-body-firming-body-moisturizer-2.jpg", 
+                }),
+                // Illiyoon Ceramide Ato Concentrate Cream
+                ("Illiyoon Ceramide Ato Concentrate Cream", new List<string>
+                {
+                    "https://seoulplus.com/wp-content/uploads/2023/07/Illiyoon-Ceramide-Ato-Concentrate-Cream-1.jpg", 
+                    "https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-llzx6x3exbdrb8", 
+                }),
+                // Dear Doer The Hidden Body Scrub & Wash
+                ("Dear Doer The Hidden Body Scrub & Wash", new List<string>
+                {
+                    "https://m.media-amazon.com/images/I/71f+T8Po-bL.jpg", 
+                    "https://m.media-amazon.com/images/I/71qOFL2EeUL._AC_UF350,350_QL80_.jpg", 
+                    "https://www.ballagrio.com/cdn/shop/files/2_ff23dccd-b3b9-471c-b9af-0e44d9101f2a_2048x.jpg?v=1689571364"
+                }),
+                // Aestura Atobarrier 365 Ceramide Lotion
+                ("Aestura Atobarrier 365 Ceramide Lotion", new List<string>
+                {
+                    "https://m.media-amazon.com/images/I/51mD15TJzJL._AC_UF1000,1000_QL80_.jpg", 
+                    "https://i.ebayimg.com/images/g/2zwAAOSwPxpi~wUt/s-l1200.jpg", 
+                    "https://down-vn.img.susercontent.com/file/sg-11134207-7rbm3-lpm4wcfn4hbpfd"
+                }),
+                // Dr. Orga pH-balanced Houttuynia Cordata Red Spot Mist
+                ("Dr. Orga pH-balanced Houttuynia Cordata Red Spot Mist", new List<string>
+                {
+                    "https://sokoglam.com/cdn/shop/files/Soko-Glam-PDP-Dr-Orga-Houttuynia-Cordata-Body-Mist-01_860x.png?v=1705971958", 
+                    "https://sokoglam.com/cdn/shop/files/Soko-Glam-PDP-Dr-Orga-Houttuynia-Cordata-Body-Wash-03_860x.png?v=1705972007", 
+                }),
+                // Derma B Daily Moisture Body Oil
+                ("Derma B Daily Moisture Body Oil", new List<string>
+                {
+                    "https://sokoglam.com/cdn/shop/files/Soko-Glam-PDP-Derma-B-Daily-Moisture-Body-Oil-02_860x.png?v=1687301614", 
+                    "https://down-vn.img.susercontent.com/file/8b3b623e8eeeddd133584f44dd7a77e1", 
+                    "https://koreamarket.ru/wa-data/public/shop/products/04/90/19004/images/10900/10900.970.jpg"
+                }),
+                // Davines Energizing Shampoo
+                ("Davines Energizing Shampoo", new List<string>
+                {
+                    "https://davinesvietnam.com/wp-content/uploads/2019/07/dau-goi-Davines-Energizing-Shampoo-1000ml-1.jpg", 
+                    "https://www.planetbeauty.com/cdn/shop/files/Energize_shp_bk_x2000.jpg?v=1684540681", 
+                }),
+                // Davines Volu Shampoo
+                ("Davines Volu Shampoo", new List<string>
+                {
+                    "https://vn.davines.com/cdn/shop/files/rtqshfyvzhwofcdaxnm9_2000x_bf029392-1ae3-48bf-99f6-dab3cb178723.jpg?v=1721123829", 
+                    "https://i.ebayimg.com/images/g/1gwAAOSwfi5kQG9-/s-l1200.jpg", 
+                }),
+                // Davines Calming Shampoo
+                ("Davines Calming Shampoo", new List<string>
+                {
+                    "https://vn.davines.com/cdn/shop/products/71262_NATURALTECH_CALMING_Calming_Shampoo_250ml_Davines_2000x.jpg?v=1721118741", 
+                    "https://bizweb.dktcdn.net/100/141/195/products/1363f1c28cd32f8d76c2.jpg?v=1718777142610", 
+                }),
+                // Davines Dede Shampoo
+                ("Davines Dede Shampoo", new List<string>
+                {
+                    "https://vn.davines.com/cdn/shop/products/75019_ESSENTIAL_HAIRCARE_DEDE_Shampoo_250ml_Davines_2000x.jpg?v=1721121499", 
+                    "https://www.planetbeauty.com/cdn/shop/products/Davines_Dede_Shampoo_back_x2000.jpg?v=1683765042", 
+                }),
+                // Davines Melu Shampoo
+                ("Davines Melu Shampoo", new List<string>
+                {
+                    "https://vn.davines.com/cdn/shop/products/75097_ESSENTIAL_HAIRCARE_MELU_Shampoo_250ml_Davines_600x.jpg?v=1721121211", 
+                    "https://down-vn.img.susercontent.com/file/sg-11134201-7rd4y-lxae2wn24xn0cb", 
+                }),
+                // Bain Décalcifiant Réparateur Repairing Shampoo
+                ("Bain Décalcifiant Réparateur Repairing Shampoo", new List<string>
+                {
+                    "https://www.lmching.com/cdn/shop/files/ProductSize_1_2_-2024-08-09T092055.601_800x.jpg?v=1723170064", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRImTYO-AKUfNQ9nQUAVCCmGJqOD7DmC3NTuw&s", 
+                }),
+                // Bain Densité Shampoo
+                ("Bain Densité Shampoo", new List<string>
+                {
+                    "https://www.lmching.com/cdn/shop/files/ProductSize_1_2_-2024-08-09T092055.601_800x.jpg?v=1723170064", 
+                    "https://beautytribe.com/cdn/shop/files/kerastase-densifique-bain-densite-250ml-105115-467836.jpg?v=1732792066&width=1500", 
+                }),
+                // Bain Hydra-Fortifiant Shampoo
+                ("Bain Hydra-Fortifiant Shampoo", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWOrdBrhw9Spr0jyNZMHmGhMMRTWI5QkzBJw&s", 
+                    "https://supernovasalon.com/cdn/shop/products/bain-hydra-fortifiant-lifestyle_900x.webp?v=1647475834", 
+                    "https://shopurbannirvana.com/cdn/shop/files/GENESIS-BAIN-HYDRA-500ML-2.jpg?v=1730219325&width=1445"
+                }),
+                // L'Oreal Paris Elseve Total Repair 5 Repairing
+                ("L'Oreal Paris Elseve Total Repair 5 Repairing Shampoo", new List<string>
+                {
+                    "https://product.hstatic.net/1000006063/product/l_oreal_elseve_total_repair_5_shampoo_650ml_cf374f7742d44e639abc23d1b63e3fcb_1024x1024.jpg", 
+                    "https://image.hsv-tech.io/1987x0/bbx/l_oreal_paris_elseve_total_repair_5_shampoo_330ml_d9cfd29c63b142db8bbf4201153ca0b7.png", 
+                }),
+                // L'Oreal Professional Hair Spa Deep Nourishing
+                ("L'Oreal Professional Hair Spa Deep Nourishing Shampoo", new List<string>
+                {
+                    "https://media.hcdn.vn/catalog/product/g/o/google-shopping-dau-goi-l-oreal-professionnel-cap-am-cho-toc-kho-600ml_img_680x680_d30c8d_fit_center.jpg", 
+                    "https://down-vn.img.susercontent.com/file/sg-11134201-7rd75-lty2ehqkzei8ac", 
+                }),
+                // L'Oreal Paris Elseve Fall Resist 3X Anti-Hairfall
+                ("L'Oreal Paris Elseve Fall Resist 3X Anti-Hairfall Shampoo", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNOiI0F3AwhpbFi1s-H6iAqE0Hy1y6Dv-L-w&s", 
+                    "https://m.media-amazon.com/images/I/612rxvwYs1L._AC_UF1000,1000_QL80_.jpg", 
+                }),
+                // Nº.4 Bond Maintenance Shampoo
+                ("Nº.4 Bond Maintenance Shampoo", new List<string>
+                {
+                    "https://image.hsv-tech.io/1987x0/bbx/common/3bb29575-9f8e-48eb-a709-f019f95cc65f.webp", 
+                    "https://image.hsv-tech.io/1987x0/bbx/common/1d335186-bd89-4e62-ab87-72d9bd03557a.webp", 
+                    "https://product.hstatic.net/1000172157/product/olaplex_cap_no4_5_250ml_04_b501890da8f440d6a4cf66d2069d1524_large.jpg"
+                }),
+                // Gold Lust Repair & Restore Shampoo
+                ("Gold Lust Repair & Restore Shampoo", new List<string>
+                {
+                    "https://www.sephora.com/productimages/sku/s2438166-main-zoom.jpg?imwidth=315", 
+                    "https://www.oribe.com/cdn/shop/files/1200Wx1200H-400172_1b27cf32-3e50-43b4-954b-1790ae536f2e.jpg?v=1698874898", 
+                    "https://images-na.ssl-images-amazon.com/images/I/71kp9RhJD3L.jpg"
+                }),
+                // Supershine Hydrating Shampoo
+                ("Supershine Hydrating Shampoo", new List<string>
+                {
+                    "https://www.oribe.com/cdn/shop/files/402453-0_b7d201cd-c3f9-4b48-84c5-f9e3b03a522a.jpg?v=1725462201", 
+                    "https://images.finncdn.no/dynamic/1280w/2024/12/vertical-0/13/8/384/925/188_a9edb849-aba8-4933-acad-827f251c0c4e.jpg", 
+                }),
+                // Acidic Bonding Concentrate sulfate-free Shampoo
+                ("Acidic Bonding Concentrate sulfate-free Shampoo", new List<string>
+                {
+                    "https://images-na.ssl-images-amazon.com/images/I/61T+3kBuHoL.jpg", 
+                    "https://images-na.ssl-images-amazon.com/images/I/71J1-1eoRbL.jpg", 
+                }),
+                // Redken All Soft Shampoo
+                ("Redken All Soft Shampoo", new List<string>
+                {
+                    "https://images-na.ssl-images-amazon.com/images/I/71xQ59SWkML.jpg", 
+                }),
+                // Izumi Tonic Strengthening Shampoo
+                ("Izumi Tonic Strengthening Shampoo", new List<string>
+                {
+                    "https://static.thcdn.com/productimg/original/14204021-6465063343389571.jpg", 
+                    "https://static.thcdn.com/productimg/original/14204021-9055063343445593.jpg", 
+                }),
+                // Ultimate Reset Extreme Repair Shampoo
+                ("Ultimate Reset Extreme Repair Shampoo", new List<string>
+                {
+                    "https://cdn.haarshop.ch/catalog/product/thumbnail/51ac8a89d88d4eed1e1f5a7566ce210ab624b84b71e44e4fa3b44063/image/0/570x570/111/99/7/0/70941222e739145ec75a7a705ff8f17b6f55fc15_3474636610181_bi_shu_uemura_ultimate_reset_shampoo.jpg", 
+                    "https://m.media-amazon.com/images/I/81j7Ha+ZN+L._AC_UF1000,1000_QL80_.jpg", 
+                }),
+                // Fusion Shampoo
+                ("Fusion Shampoo", new List<string>
+                {
+                    "https://www.wella.com/professional/m/Supernova/Fusion/PDP/Fusion-shampoo-supernova-slider-packshot-1_d.jpg", 
+                    "https://www.wella.com/professional/m/Supernova/Fusion/PDP/Fusion-shampoo-supernova-slider-packshot-6_d.jpg", 
+                }),
+                // Ultimate Repair Shampoo
+                ("Ultimate Repair Shampoo", new List<string>
+                {
+                    "https://www.wella.com/professional/m/care/Fire/Product_Packshots/Ultimate-Repair-Shampoo-slider-packshot-v2_d.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXUItcEx4vQtgGnn4SBGez8xi8-68r49hSaQ&s", 
+                    "https://cdn.awsli.com.br/613/613406/produto/2389103400b84107f38.jpg"
+                }),
+                // Davines Dede Conditioner 
+                ("Davines Dede Conditioner", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWFr_SKchvHJVFDWloohAIqYFse_GceySgQw&s", 
+                    "https://vn.davines.com/cdn/shop/products/PROSIZEWEBSITE-11_2084x.jpg?v=1721121409", 
+                }),
+                // Davines Love Smoothing Conditioner
+                ("Davines Love Smoothing Conditioner", new List<string>
+                {
+                    "https://davinesvietnam.com/wp-content/uploads/2019/07/dau-xa-Davines-Love-Smoothing-Conditioner-250ml-chinh-hang-gia-re.jpg", 
+                    "https://lizi.vn/wp-content/uploads/2020/02/dau-goi-davines-love-smoothing-3.jpeg", 
+                }),
+                // Davines Melu Conditioner
+                ("Davines Melu Conditioner", new List<string>
+                {
+                    "https://vn.davines.com/cdn/shop/products/75608_ESSENTIAL_HAIRCARE_MELU_Conditioner_250ml_Davines_2000x_4a9aa7af-bc07-4713-bd1f-4b8c9c5b4d53_2000x.jpg?v=1721121159", 
+                    "https://aslaboratory.com.ua/image/cache/catalog/import/001818-crop-600x750-product_thumb.jpg", 
+                }),
+                // Davines Momo Conditioner 
+                ("Davines Momo Conditioner", new List<string>
+                {
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlTOtpGa0eZH_hOfmHfed3ivvAl-PaNgDPpg&s", 
+                    "https://conceptcshop.com/cdn/shop/files/davines-revitalisant-hydratant-momo-1000-ml-130430.jpg?v=1728407522&width=2048", 
+                }),
+                // Fondant Renforçateur Conditioner
+                ("Fondant Renforçateur Conditioner", new List<string>
+                {
+                    "https://supernovasalon.com/cdn/shop/products/fondant-renforcateur-lifestyle_800x.webp?v=1647476539", 
+                    "https://millies.ie/cdn/shop/files/KerastaseGenesisFondantRenforcateur_3.jpg?v=1705681358&width=3024", 
+                }),
+                // Fondant Densité Conditioner
+                ("Fondant Densité Conditioner", new List<string>
+                {
+                    "https://emmakcreativestyling.ie/wp-content/uploads/2023/04/Kerastase-Densifique-Fondant-Densite_Gallery-Image-2.webp", 
+                    "https://img-cdn.heureka.group/v1/6cdbcbe4-8b14-535b-ad4c-34848f5dc065.jpg", 
+                }),
+                // Fondant Fluidealiste Conditioner
+                ("Fondant Fluidealiste Conditioner", new List<string>
+                {
+                    "https://cdn11.bigcommerce.com/s-f7ta3/images/stencil/1280x1280/products/3856/8706/kerastase-discipline-fondant-fluidealiste-conditioner-200ml__51586.1657021232.jpg?c=2", 
+                    "https://static.thcdn.com/productimg/960/960/10951828-6334927764118014.jpg", 
+                }),
+                // Ciment Anti-Usure Conditioner
+                ("Ciment Anti-Usure Conditioner", new List<string>
+                {
+                    "https://i0.wp.com/salonvenere.com/wp-content/uploads/2023/01/3474636397884.Main_.jpg?fit=930%2C930&ssl=1", 
+                    "https://www.kerastase.co.uk/dw/image/v2/AAQP_PRD/on/demandware.static/-/Sites-ker-master-catalog/en_GB/dwda75a874/product/resistance/3474636397884.pt01.jpg?sw=340&sh=340&sm=cut&sfrm=jpg&q=80", 
+                }),
+                // Redken All Soft Conditioner
+                ("Redken All Soft Conditioner", new List<string>
+                {
+                    "https://www.redken.com/dw/image/v2/AAFM_PRD/on/demandware.static/-/Sites-ppd-redken-master-catalog/default/dwf2db2623/images/pdp/all-soft-conditioner/redken-all-soft-conditioner-for-dry-hair.png", 
+                    "https://images-na.ssl-images-amazon.com/images/I/617nmDgkTfL.jpg", 
+                }),
+                // Redken Frizz Dismiss Conditioner
+                ("Redken Frizz Dismiss Conditioner", new List<string>
+                {
+                    "https://www.ubuy.vn/productimg/?image=aHR0cHM6Ly9tLm1lZGlhLWFtYXpvbi5jb20vaW1hZ2VzL0kvNjFSSTQ4VTMtV0wuX1NMMTUwMF8uanBn.jpg", 
+                    "https://m.media-amazon.com/images/I/61ERLLB3uSL.jpg", 
+                    "https://www.ozhairandbeauty.com/_next/image?url=https%3A%2F%2Fcdn.shopify.com%2Fs%2Ffiles%2F1%2F1588%2F9573%2Ffiles%2FRedken-Frizz-Dismiss-Sodium-Chloride-Free-Conditioner_7.jpg%3Fv%3D1714700684&w=3840&q=75"
+                }),
+                // L'Oréal Paris Elvive Total Repair 5 Conditioner
+                ("L'Oréal Paris Elvive Total Repair 5 Conditioner", new List<string>
+                {
+                    "https://i5.walmartimages.com/seo/L-Oreal-Paris-Elvive-Total-Repair-5-Repairing-Conditioner-For-Damaged-Hair-With-Protein-And-Ceramide-Strong-Silky-Shiny-Healthy-Renewed-28-Fl-Oz_cec04c0d-34eb-4fa9-9de8-3001f4a60d25.a403fb04c77a2dfe68657dcebd78d065.jpeg", 
+                    "https://images-na.ssl-images-amazon.com/images/I/81VWk+QHgyL.jpg", 
+                }),
+                // L'Oréal Paris EverPure Moisture Conditioner
+                ("L'Oréal Paris EverPure Moisture Conditioner", new List<string>
+                {
+                    "https://m.media-amazon.com/images/I/61wefZxO9gL.jpg", 
+                }),
+                // L'Oréal Paris EverCurl Hydracharge Conditioner
+                ("L'Oréal Paris EverCurl Hydracharge Conditioner", new List<string>
+                {
+                    "https://m.media-amazon.com/images/I/71I7nEWa6DL.jpg", 
+                }),
+                // Invigo Nutri-Enrich Conditioner
+                ("Invigo Nutri-Enrich Conditioner", new List<string>
+                {
+                    "https://mcgrocer.com/cdn/shop/files/aeb74ae52abdfdf7746a2a4a84d407ae.jpg?v=1710962092", 
+                    "https://www.capitalhairandbeauty.ie/Images/Product/Default/xlarge/867618.jpg", 
+                    "https://www.lookfantastic.com/images?url=https://static.thcdn.com/productimg/original/11711572-1815158483432062.jpg&format=webp&auto=avif&width=1200&height=1200&fit=cover"
+                }),
+                // Elements Renewing Conditioner
+                ("Elements Renewing Conditioner", new List<string>
+                {
+                    "https://www.modernhairbeauty.com/wp-content/uploads/2021/08/Elements-renewing-conditioner.jpg", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnbpIdPoJxjZzQ0dJZc1DVy5NRqkHgT7iWDw&s", 
+                }),
+                // Moisture Velvet Nourishing Conditioner
+                ("Moisture Velvet Nourishing Conditioner", new List<string>
+                {
+                    "https://www.everythinghairandbeauty.com.au/assets/full/SHUUEMURA-3474630146693.jpg?20220420183416", 
+                }),
+                // Ultimate Remedy Conditioner
+                ("Ultimate Remedy Conditioner", new List<string>
+                {
+                    "https://www.shuuemuraartofhair-usa.com/dw/image/v2/AANG_PRD/on/demandware.static/-/Sites-shu-master-catalog/default/dw328561bc/2019/Full/Ultimate-Reset/shu-uemura-ultimate-reset-conditioner.jpg?sw=270&sfrm=png&q=70", 
+                    "https://images.squarespace-cdn.com/content/v1/5b688fd0f407b48b1e37b441/1610912816432-JL6OFF0M1CVE9Z7RWEI9/ultimate_remedy_travel_size_shampoo.jpg?format=1000w", 
+                }),
+                // No. 5 Bond Maintenance Conditioner
+                ("No. 5 Bond Maintenance Conditioner", new List<string>
+                {
+                    "https://arterashop.com/wp-content/uploads/2021/01/OLAP5-600x600.jpg", 
+                    "https://image.hsv-tech.io/1987x0/bbx/common/5e14cb4a-d1d0-449b-b27b-467e92b456ce.webp", 
+                }),
+                // Gold Lust Repair & Restore Conditioner
+                ("Gold Lust Repair & Restore Conditioner", new List<string>
+                {
+                    "https://cdn.vuahanghieu.com/unsafe/0x900/left/top/smart/filters:quality(90)/https://admin.vuahanghieu.com/upload/product/2024/03/dau-xa-oribe-gold-lust-repair-restore-conditioner-200ml-66077ad485b29-30032024093708.jpg", 
+                    "https://bizweb.dktcdn.net/100/445/245/products/3-1719469113736.png?v=1720865387960", 
+                    "https://www.oribe.com/cdn/shop/products/1200Wx1200H-400103-4_8b6f47b7-d8fe-4613-a565-91248acdafee.jpg?v=1704092392&width=3840"
+                }),
+                // Signature Moisture Masque
+                ("Signature Moisture Masque", new List<string>
+                {
+                    "https://www.oribe.com/cdn/shop/products/1200Wx1200H-400298-2_60a552ba-8f61-4315-9260-0da9ab2c01a2.jpg?v=1691604399&width=3840", 
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSovZKp21hY7eOHYioOmG8ONQ3o4BO6xu5bPw&s", 
+                }),
+
+            };
+
+            // Duyệt qua danh sách các sản phẩm và thêm hình ảnh cho từng sản phẩm
+            foreach (var productData in productImageData)
+            {
+                // Tìm sản phẩm trong cơ sở dữ liệu theo tên
+                var product = products.FirstOrDefault(p => p.ProductName == productData.productName);
+
+                if (product != null)
+                {
+                    // Lặp qua danh sách các hình ảnh và thêm vào bảng ProductImages
+                    foreach (var imageUrl in productData.imageUrls)
+                    {
+                        var productImage = new ProductImages
+                        {
+                            ProductId = product.ProductId,
+                            image = imageUrl
+                        };
+
+                        // Thêm hình ảnh vào cơ sở dữ liệu
+                        await _context.ProductImages.AddAsync(productImage);
+                    }
+                }
             }
-        }
-    }
 
-    // Lưu tất cả thay đổi vào cơ sở dữ liệu
-    await _context.SaveChangesAsync();
-}
+            // Lưu tất cả thay đổi vào cơ sở dữ liệu
+            await _context.SaveChangesAsync();
+        }
 
 
         private async Task SeedServiceImages()
@@ -5657,20 +5668,40 @@ private async Task SeedProductImages()
     {
         var rooms = new List<Room>();
 
+        // Lấy danh sách các ServiceCategory
+        var serviceCategories = await _context.ServiceCategory.ToListAsync();
+
+        // Đảm bảo rằng có đủ 10 ServiceCategory
+        if (serviceCategories.Count != 10)
+        {
+            throw new InvalidOperationException("Cần có 10 ServiceCategory để chia đều cho 10 phòng.");
+        }
+
         // Duyệt qua mỗi chi nhánh (BranchId từ 1 đến 5)
         for (int branchId = 1; branchId <= 5; branchId++)
         {
-            // Tạo 10 phòng cho mỗi chi nhánh
-            for (int roomNumber = 1; roomNumber < 10; roomNumber++)
+            // Tạo 5 tầng, mỗi tầng có 2 phòng
+            for (int floor = 1; floor <= 5; floor++)
             {
-                rooms.Add(new Room
+                // Tạo 2 phòng cho mỗi tầng
+                for (int roomIndex = 1; roomIndex <= 2; roomIndex++)
                 {
-                    Name = $"Room {branchId}0{roomNumber}", // Tên phòng, ví dụ: Room 101, Room 201
-                    Description = $"Room {branchId}0{roomNumber} is a comfortable and relaxing space.",
-                    Thumbnail = $"room_{branchId}0{roomNumber}.jpg", // Tên file hình ảnh
-                    Status = ObjectStatus.Active.ToString(),
-                    BranchId = branchId
-                });
+                    var roomNumber = (floor * 100) + roomIndex; // Tạo tên phòng ví dụ: 101, 102, 201, 202,...
+
+                    // Tính chỉ số ServiceCategory cần gán cho phòng này
+                    int serviceCategoryIndex = ((branchId - 1) * 10 + (floor - 1) * 2 + (roomIndex - 1)) % 10;
+                    
+                    rooms.Add(new Room
+                    {
+                        Name = $"Room {roomNumber}", // Tên phòng, ví dụ: Room 101, Room 102, Room 201...
+                        Description = $"Room {roomNumber} is a comfortable and relaxing space in branch {branchId}.",
+                        Thumbnail = $"room_{roomNumber}.jpg", // Tên file hình ảnh
+                        Status = ObjectStatus.Active.ToString(),
+                        BranchId = branchId,
+                        // Gán mỗi phòng với một ServiceCategory tương ứng
+                        ServiceCategoryId = serviceCategories[serviceCategoryIndex].ServiceCategoryId
+                    });
+                }
             }
         }
 
@@ -5678,6 +5709,8 @@ private async Task SeedProductImages()
         await _context.Room.AddRangeAsync(rooms);
         await _context.SaveChangesAsync();
     }
+
+
     
     private async Task SeedBeds()
     {

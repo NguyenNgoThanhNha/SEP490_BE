@@ -22,6 +22,10 @@ public class Room
     public int BranchId { get; set; }
     public virtual Branch Branch { get; set; }
     
+    [ForeignKey("ServiceCategory_Room")]
+    public int ServiceCategoryId { get; set; }
+    public virtual ServiceCategory ServiceCategory { get; set; }
+    
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

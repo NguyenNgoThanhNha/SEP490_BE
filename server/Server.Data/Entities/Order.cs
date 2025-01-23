@@ -17,8 +17,8 @@ public class Order
     public virtual User Customer { get; set; }
 
     [ForeignKey("Voucher_Order")]
-    public int VoucherId { get; set; }
-    public virtual Voucher Voucher { get; set; }
+    public int? VoucherId { get; set; }
+    public virtual Voucher? Voucher { get; set; }
 
     public decimal TotalAmount { get; set; }
 

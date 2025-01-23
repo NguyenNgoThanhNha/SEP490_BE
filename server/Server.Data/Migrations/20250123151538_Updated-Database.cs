@@ -551,7 +551,7 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     OrderCode = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
-                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    VoucherId = table.Column<int>(type: "int", nullable: true),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     OrderType = table.Column<string>(type: "longtext", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
@@ -572,8 +572,7 @@ namespace Server.Data.Migrations
                         name: "FK_Order_Voucher_VoucherId",
                         column: x => x.VoucherId,
                         principalTable: "Voucher",
-                        principalColumn: "VoucherId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "VoucherId");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -832,6 +831,7 @@ namespace Server.Data.Migrations
                     Thumbnail = table.Column<string>(type: "longtext", nullable: true),
                     Status = table.Column<string>(type: "longtext", nullable: true),
                     BranchId = table.Column<int>(type: "int", nullable: false),
+                    ServiceCategoryId = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -843,6 +843,12 @@ namespace Server.Data.Migrations
                         column: x => x.BranchId,
                         principalTable: "Branch",
                         principalColumn: "BranchId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Room_ServiceCategory_ServiceCategoryId",
+                        column: x => x.ServiceCategoryId,
+                        principalTable: "ServiceCategory",
+                        principalColumn: "ServiceCategoryId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -1136,6 +1142,36 @@ namespace Server.Data.Migrations
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "BedAvailability",
+                columns: table => new
+                {
+                    BedAvailabilityId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    BedId = table.Column<int>(type: "int", nullable: true),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BedAvailability", x => x.BedAvailabilityId);
+                    table.ForeignKey(
+                        name: "FK_BedAvailability_Bed_BedId",
+                        column: x => x.BedId,
+                        principalTable: "Bed",
+                        principalColumn: "BedId");
+                    table.ForeignKey(
+                        name: "FK_BedAvailability_Room_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Room",
+                        principalColumn: "RoomId");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_BedId",
                 table: "Appointments",
@@ -1179,6 +1215,16 @@ namespace Server.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Bed_RoomId",
                 table: "Bed",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BedAvailability_BedId",
+                table: "BedAvailability",
+                column: "BedId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BedAvailability_RoomId",
+                table: "BedAvailability",
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
@@ -1336,6 +1382,11 @@ namespace Server.Data.Migrations
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Room_ServiceCategoryId",
+                table: "Room",
+                column: "ServiceCategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Schedule_BranchId",
                 table: "Schedule",
                 column: "BranchId");
@@ -1419,6 +1470,9 @@ namespace Server.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Appointments");
+
+            migrationBuilder.DropTable(
+                name: "BedAvailability");
 
             migrationBuilder.DropTable(
                 name: "BlogComment");
@@ -1514,13 +1568,13 @@ namespace Server.Data.Migrations
                 name: "Category");
 
             migrationBuilder.DropTable(
-                name: "ServiceCategory");
-
-            migrationBuilder.DropTable(
                 name: "Voucher");
 
             migrationBuilder.DropTable(
                 name: "Branch");
+
+            migrationBuilder.DropTable(
+                name: "ServiceCategory");
 
             migrationBuilder.DropTable(
                 name: "Company");

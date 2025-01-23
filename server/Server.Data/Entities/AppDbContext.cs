@@ -50,6 +50,7 @@ namespace Server.Data.Entities
         public DbSet<Room> Room { get; set; }
         public DbSet<Bed> Bed { get; set; }
         public DbSet<BedType> BedType { get; set; }
+        public DbSet<BedAvailability> BedAvailability { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
