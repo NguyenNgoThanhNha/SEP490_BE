@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Exceptions;
 using Server.Business.Models;
@@ -122,6 +123,77 @@ public class SkinAnalyzeService
            throw new BadRequestException(ex.Message);
         }
     }
+    
+    
+    public async Task<SkinAnalyzeResponse> AnalyzeSkinFromFormAsync(SkinHealthFormRequest request, int userId)
+    {
+        try
+        {
+            // Map API response to SkinHealth entity
+            var skinHealth = new SkinHealth
+            {
+                UserId = userId,
+                SkinColor = GetApiResponseValue(request.skin_color),
+                Ance = GetApiResponseValue(request.ance ?? null),
+                SkinToneIta = GetApiResponseValue(request.skintone_ita),
+                SkinTone = GetApiResponseValue(request.skin_tone),
+                SkinHueHa = GetApiResponseValue(request.skin_hue_ha),
+                SkinAge = GetApiResponseValue(request.skin_age),
+                SkinType = GetApiResponseValue(request.skin_type),
+                LeftEyelids = GetApiResponseValue(request.left_eyelids),
+                RightEyelids = GetApiResponseValue(request.right_eyelids),
+                EyePouch = GetApiResponseValue(request.eye_pouch),
+                EyePouchSeverity = GetApiResponseValue(request.eye_pouch_severity),
+                DarkCircle = GetApiResponseValue(request.dark_circle),
+                ForeheadWrinkle = GetApiResponseValue(request.forehead_wrinkle),
+                CrowsFeet = GetApiResponseValue(request.crows_feet),
+                GlabellaWrinkle = GetApiResponseValue(request.glabella_wrinkle),
+                NasolabialFold = GetApiResponseValue(request.nasolabial_fold),
+                NasolabialFoldSeverity = GetApiResponseValue(request.nasolabial_fold_severity),
+                PoresForehead = GetApiResponseValue(request.pores_forehead),
+                PoresLeftCheek = GetApiResponseValue(request.pores_left_cheek),
+                PoresRightCheek = GetApiResponseValue(request.pores_right_cheek),
+                PoresJaw = GetApiResponseValue(request.pores_jaw),
+                BlackHead = GetApiResponseValue(request.blackhead),
+                Rectangle = GetApiResponseValue(request.rectangle),
+                Mole = GetApiResponseValue(request.mole ?? null),
+                ClosedComedones = GetApiResponseValue(request.closed_comedones ?? null),
+                SkinSpot = GetApiResponseValue(request.skin_spot ?? null),
+                FaceMaps = GetApiResponseValue(request.face_maps),
+                Sensitivity = GetApiResponseValue(request.sensitivity),
+                SensitivityArea = GetApiResponseValue(request.sensitivity_area),
+                SensitivityIntensity = GetApiResponseValue(request.sensitivity_intensity),
+                EyeFineLines = GetApiResponseValue(request.eye_finelines),
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+
+            // Save SkinHealth data to the database
+            await _unitOfWorks.SkinHealthRepository.AddAsync(skinHealth);
+            await _unitOfWorks.SkinHealthRepository.Commit();
+
+            // Process skin concerns
+            var skinConcerns = GetSkinConcernsFromForm(request);
+            var routines = await GetSkincareRoutinesAsync(skinConcerns);
+
+            var result = new ApiSkinAnalyzeResponse()
+            {
+                skinhealth = request,
+                routines = _mapper.Map<List<SkincareRoutineModel>>(routines)
+            };
+
+            // Map routines to DTOs
+            return new SkinAnalyzeResponse()
+            {
+                message = "Analyze skin successfully",
+                data = result
+            };
+        }
+        catch (HttpRequestException ex)
+        {
+           throw new BadRequestException(ex.Message);
+        }
+    }
 
     private static string GetApiResponseValue(dynamic apiResponse)
     {
@@ -143,6 +215,22 @@ public class SkinAnalyzeService
             ("Dark Circles", (double)(apiResult.result.dark_circle?.confidence ?? 0)),
             ("Closed Comedones", (double)(apiResult.result.closed_comedones?.confidence ?? 0)),
             ("Glabella Wrinkles", (double)(apiResult.result.glabella_wrinkle?.confidence ?? 0))
+        };
+    }
+    
+    private List<(string Concern, double Confidence)> GetSkinConcernsFromForm(dynamic apiResult)
+    {
+        return new List<(string Concern, double Confidence)>
+        {
+            ("Oily Skin", (double)(apiResult.skin_type?.details[0]?.confidence ?? 0)),
+            ("Dry Skin", (double)(apiResult.skin_type?.details[1]?.confidence ?? 0)),
+            ("Neutral Skin", (double)(apiResult.skin_type?.details[2]?.confidence ?? 0)),
+            ("Combination Skin", (double)(apiResult.skin_type?.details[3]?.confidence ?? 0)),
+            ("Blackheads", (double)(apiResult.blackhead?.confidence ?? 0)),
+            /*("Acne", (double)(apiResult.acne != null ? apiResult.acne.confidence ?? 0 : 0)),*/
+            ("Dark Circles", (double)(apiResult.dark_circle?.confidence ?? 0)),
+            ("Closed Comedones", (double)(apiResult.closed_comedones?.confidence ?? 0)),
+            ("Glabella Wrinkles", (double)(apiResult.glabella_wrinkle?.confidence ?? 0))
         };
     }
 
