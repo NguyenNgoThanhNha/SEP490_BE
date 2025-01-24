@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Services;
 using Server.Business.Ultils;
+using Server.Data;
 using Server.Data.UnitOfWorks;
 
 namespace Server.API.Controllers
@@ -47,79 +49,101 @@ namespace Server.API.Controllers
             Response.Headers.Append("Location", response.checkoutUrl);
             return Ok(response.checkoutUrl);
         }
-
+        
         [HttpPost("receive-webhook")]
         public async Task<IActionResult> GetResultPayOsOrder([FromBody] WebhookRequest req)
         {
-            // Check if the request indicates a successful payment
-            /*if (req.success)
+            if (req.success)
             {
-                var data = req.data; // Assuming Data is of type DataObject
+                var data = req.data; // Dữ liệu từ webhook request
 
-                // Log or handle the description as needed
-                Console.WriteLine(data.description);
-
-                // Extract order detail code from the description
-                var orderDetailCode = data.description.Split(' ')[1];
-
-                // Combine fetching and updating order details
-                if (!int.TryParse(orderDetailCode, out int code))
+                // Lấy OrderCode từ vị trí thứ 3 trong description
+                string[] descriptionParts = data.description.Split(' ');
+                if (descriptionParts.Length < 3 || !int.TryParse(descriptionParts[2], out int orderCode))
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Invalid order detail code format!"
+                        message = "Invalid order code format in description!"
                     }));
                 }
 
-                var orderDetail = await _unitOfWorks.OrderDetailRepository
-                    .FindByCondition(x => x.OrderDetailCode == code)
-                    .Include(x => x.OrderInfo)
+                // Tìm Order theo OrderCode
+                var order = await _unitOfWorks.OrderRepository
+                    .FindByCondition(o => o.OrderCode == orderCode)
                     .FirstOrDefaultAsync();
 
-                var orderInfo = orderDetail?.OrderInfo;
-                if (orderInfo != null)
-                {
-                    var driver = await _unitOfWorks.UserRepository.FindByCondition(x => x.UserId == orderInfo.DriverId)
-                        .FirstOrDefaultAsync();
-                    if (driver != null)
-                    {
-                        driver.AccountBalance = orderInfo.DriverAmount.ToString();
-                        _unitOfWorks.UserRepository.Update(driver);
-                        await _unitOfWorks.UserRepository.Commit();
-                    }
-                }
-                
-                if (orderDetail == null)
+                if (order == null)
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Order detail not found!"
+                        message = "Order not found!"
                     }));
                 }
 
-                // Update order properties
-                orderDetail.PaymentMethod = "Payment via PayOS";
-                orderDetail.Status = StatusEnums.Paid.ToString();
-                orderDetail.reference = data.reference;
-                orderDetail.transactionDateTime = data.transactionDateTime;
+                // Cập nhật trạng thái dựa trên OrderType
+                if (order.OrderType == "Appointment")
+                {
+                    var appointments = await _unitOfWorks.AppointmentsRepository
+                        .FindByCondition(a => a.OrderId == order.OrderId)
+                        .ToListAsync();
 
-                // Update order details in the database
-                _unitOfWorks.OrderDetailRepository.Update(orderDetail);
-                var result = await _unitOfWorks.OrderDetailRepository.Commit();
+                    foreach (var appointment in appointments)
+                    {
+                        appointment.Status = OrderStatusEnum.Paid.ToString();
+                        appointment.UpdatedDate = DateTime.Now;
+                        _unitOfWorks.AppointmentsRepository.Update(appointment);
+                    }
+
+                    await _unitOfWorks.AppointmentsRepository.Commit();
+                }
+                else if (order.OrderType == "Product")
+                {
+                    var orderDetails = await _unitOfWorks.OrderDetailRepository
+                        .FindByCondition(od => od.OrderId == order.OrderId)
+                        .ToListAsync();
+
+                    foreach (var orderDetail in orderDetails)
+                    {
+                        orderDetail.Status = OrderStatusEnum.Paid.ToString();
+                        orderDetail.UpdatedDate = DateTime.Now;
+                        _unitOfWorks.OrderDetailRepository.Update(orderDetail);
+                    }
+
+                    await _unitOfWorks.OrderDetailRepository.Commit();
+                }
+
+                // Kiểm tra và cập nhật ghi chú (Notes) của Order
+                var percentPaidMatch = Regex.Match(order.Note ?? string.Empty, @"Đặt cọc (\d+)%");
+                if (percentPaidMatch.Success && int.TryParse(percentPaidMatch.Groups[1].Value, out int percent))
+                {
+                    order.Note = $"Đã thanh toán thành công {percent}%";
+                }
+                else
+                {
+                    order.Note = "Đã thanh toán thành công";
+                }
+
+                // Cập nhật trạng thái Order
+                order.Status = OrderStatusEnum.Paid.ToString();
+                order.UpdatedDate = DateTime.Now;
+
+                _unitOfWorks.OrderRepository.Update(order);
+                var result = await _unitOfWorks.OrderRepository.Commit();
 
                 if (result > 0)
                 {
                     return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                     {
-                        message = $"Payment successful for order code: {orderDetail.OrderDetailCode}"
+                        message = $"Payment successful for order code: {order.OrderCode}"
                     }));
                 }
-            }*/
+            }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Error updating status for order detail."
+                message = "Error updating order status."
             }));
         }
+
     }
 }

@@ -354,7 +354,7 @@ namespace Server.Business.Services
         var paymentLinkRequest = new PaymentData(
             orderCode: orderCode,
             amount: Convert.ToInt32(depositAmount),
-            description: $"Deposit - Order {order.OrderCode}",
+            description: $"Order {order.OrderCode} Deposit",
             items: new List<ItemData>
             {
                 new ItemData(
