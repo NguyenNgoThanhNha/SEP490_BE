@@ -4,6 +4,7 @@ using Server.Business.Commons.Response;
 using Server.Business.Commons;
 using Server.Business.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Nest;
 using Server.Business.Dtos;
 using Server.Business.Models;
@@ -14,12 +15,9 @@ namespace Server.API.Controllers
     [ApiController]
     public class BranchController : ControllerBase
     {
-
-
         private readonly BranchService _branchService;
         private readonly IMapper _mapper;
-
-
+        
         public BranchController(BranchService branchService, IMapper mapper)
         {
             _branchService = branchService;
@@ -84,6 +82,29 @@ namespace Server.API.Controllers
                     data = branches
                 }
             });
+        }
+        
+        [Authorize]
+        [HttpGet("get-room-by-branch")]
+        public async Task<IActionResult> GetRoomByBranch([FromQuery] int branchId)
+        {
+            // Gọi service để lấy danh sách phòng theo chi nhánh
+            var rooms = await _branchService.GetAllRoomAndBedInBranch(branchId);
+
+            // Kiểm tra kết quả
+            if (rooms == null || !rooms.Any())
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Currently, there are no rooms in this branch!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get rooms and beds successfully!",
+                data = rooms
+            }));
         }
 
 

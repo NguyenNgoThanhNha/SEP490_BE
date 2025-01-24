@@ -7,6 +7,12 @@ using Server.Business.Dtos;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
+using Net.payOS;
+using Net.payOS.Types;
+using Server.Business.Commons.Request;
+using Server.Business.Exceptions;
+using Server.Business.Ultils;
 using Server.Data;
 
 namespace Server.Business.Services
@@ -15,11 +21,13 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+        private readonly PayOSSetting _payOsSetting;
 
-        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper)
+        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _payOsSetting = payOsSetting.Value;
         }
 
         public async Task<Pagination<Order>> GetListAsync(
@@ -163,5 +171,213 @@ namespace Server.Business.Services
                 return ApiResult<object>.Error(null, $"An error occurred: {ex.Message}");
             }
         }
+        
+    public async Task<string> ConfirmOrderDetailAsync(ConfirmOrderRequest req)
+    {
+        var order = await _unitOfWorks.OrderRepository.GetByIdAsync(req.orderId);
+        if(order == null)
+        {
+            throw new BadRequestException("Order not found!");
+        }
+        // Lấy danh sách tất cả OrderDetail theo OrderId
+        var orderDetails = await _unitOfWorks.OrderDetailRepository
+            .FindByCondition(x => x.OrderId == req.orderId)
+            .Include(x => x.Product) // Include Product để lấy thông tin sản phẩm
+            .ToListAsync();
+
+        if (orderDetails == null || !orderDetails.Any())
+        {
+            throw new BadRequestException("No order details found for the given Order ID!");
+        }
+
+        // Tính tổng tiền của tất cả các OrderDetail
+        var totalAmount = orderDetails.Sum(od => od.Quantity * od.UnitPrice);
+
+        // Xác minh tổng tiền với giá trị từ request (nếu cần)
+        if (Convert.ToDecimal(req.totalAmount) != totalAmount)
+        {
+            throw new BadRequestException("Total amount mismatch!");
+        }
+
+        // Khởi tạo PayOS
+        var payOS = new PayOS(_payOsSetting.ClientId, _payOsSetting.ApiKey, _payOsSetting.ChecksumKey);
+        var domain = _payOsSetting.Domain;
+
+        // Tạo danh sách các item từ các OrderDetail
+        var itemsList = orderDetails.Select(od => new ItemData(
+            name: od.Product.ProductName,
+            quantity: od.Quantity,
+            price: Convert.ToInt32(od.UnitPrice) // Làm tròn giá thành số nguyên
+        )).ToList();
+        
+        // Tạo OrderCode duy nhất
+        var orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+        order.OrderCode = orderCode;
+        _unitOfWorks.OrderRepository.Update(order);
+        await _unitOfWorks.OrderRepository.Commit();
+        
+        // Chuẩn bị PaymentData
+        var paymentLinkRequest = new PaymentData(
+            orderCode: orderCode,
+            amount: Convert.ToInt32(totalAmount),
+            description: $"Order {order.OrderCode}",
+            items: itemsList,
+            returnUrl: $"{domain}/{req.Request.returnUrl}",
+            cancelUrl: $"{domain}/{req.Request.cancelUrl}"
+        );
+        
+        // Thực thi PayOS và trả về link thanh toán
+        try
+        {
+            var response = await payOS.createPaymentLink(paymentLinkRequest);
+            return response.checkoutUrl;
+        }
+        catch (Exception ex)
+        {
+            throw new BadRequestException($"Failed to create payment link: {ex.Message}");
+        }
+    }
+    
+    public async Task<string> ConfirmOrderAppointmentAsync(ConfirmOrderRequest req)
+    {
+        var order = await _unitOfWorks.OrderRepository.GetByIdAsync(req.orderId);
+        if(order == null)
+        {
+            throw new BadRequestException("Order not found!");
+        }
+        
+        // Lấy danh sách tất cả Appointments theo OrderId
+        var appointments = await _unitOfWorks.AppointmentsRepository
+            .FindByCondition(x => x.OrderId == req.orderId)
+            .Include(x => x.Service) // Include Service để lấy thông tin dịch vụ
+            .Include(x => x.Branch)  // Include Branch để lấy thông tin chi nhánh (nếu cần)
+            .ToListAsync();
+
+        if (appointments == null || !appointments.Any())
+        {
+            throw new BadRequestException("No appointments found for the given Order ID!");
+        }
+
+        // Tính tổng tiền của tất cả các Appointments
+        var totalAmount = appointments.Sum(ap => ap.Quantity * ap.UnitPrice);
+
+        // Xác minh tổng tiền với giá trị từ request (nếu cần)
+        if (Convert.ToDecimal(req.totalAmount) != totalAmount)
+        {
+            throw new BadRequestException("Total amount mismatch!");
+        }
+
+        // Khởi tạo PayOS
+        var payOS = new PayOS(_payOsSetting.ClientId, _payOsSetting.ApiKey, _payOsSetting.ChecksumKey);
+        var domain = _payOsSetting.Domain;
+
+        // Tạo danh sách các item từ các Appointments
+        var itemsList = appointments.Select(ap => new ItemData(
+            name: ap.Service.Name, // Lấy tên dịch vụ từ Service
+            quantity: ap.Quantity,
+            price: Convert.ToInt32(ap.UnitPrice) // Làm tròn giá thành số nguyên
+        )).ToList();
+        
+        // Tạo OrderCode duy nhất
+        var orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+        order.OrderCode = orderCode;
+        _unitOfWorks.OrderRepository.Update(order);
+        await _unitOfWorks.OrderRepository.Commit();
+
+        // Chuẩn bị PaymentData
+        var paymentLinkRequest = new PaymentData(
+            orderCode: orderCode,
+            amount: Convert.ToInt32(totalAmount),
+            description: $"Order {order.OrderCode} - Appointments",
+            items: itemsList,
+            returnUrl: $"{domain}/{req.Request.returnUrl}",
+            cancelUrl: $"{domain}/{req.Request.cancelUrl}"
+        );
+
+        // Thực thi PayOS và trả về link thanh toán
+        try
+        {
+            var response = await payOS.createPaymentLink(paymentLinkRequest);
+            return response.checkoutUrl;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Failed to create payment link.", ex);
+        }
+    }
+
+    public async Task<string> DepositAppointmentAsync(DepositRequest req)
+    {
+        // Tìm Order theo OrderId từ yêu cầu
+        var order = await _unitOfWorks.OrderRepository
+            .FindByCondition(o => o.OrderId == req.orderId)
+            .FirstOrDefaultAsync();
+
+        if (order == null)
+        {
+            throw new BadRequestException("Order not found!");
+        }
+
+        // Xác định phần trăm đặt cọc
+        if (!decimal.TryParse(req.percent, out decimal depositPercent) || depositPercent <= 0 || depositPercent > 100)
+        {
+            throw new BadRequestException("Invalid deposit percentage!");
+        }
+
+        // Chuyển đổi TotalAmount sang decimal
+        if (!decimal.TryParse(req.totalAmount, out decimal totalAmount) || totalAmount <= 0)
+        {
+            throw new BadRequestException("Invalid total amount!");
+        }
+
+        // Tính số tiền đặt cọc
+        decimal depositAmount = totalAmount * (depositPercent / 100);
+        
+        // Tạo OrderCode duy nhất
+        var orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+        
+        // Cập nhật thông tin đặt cọc vào Order
+        order.OrderCode = orderCode;
+        order.Note = $"Đặt cọc {depositPercent}% với số tiền: {depositAmount:C}";
+        order.Status = "Deposit Pending";
+        order.UpdatedDate = DateTime.Now;
+
+        // Lưu thay đổi
+        _unitOfWorks.OrderRepository.Update(order);
+        await _unitOfWorks.OrderRepository.Commit();
+
+        // Khởi tạo PayOS
+        var payOS = new PayOS(_payOsSetting.ClientId, _payOsSetting.ApiKey, _payOsSetting.ChecksumKey);
+        var domain = _payOsSetting.Domain;
+
+        // Tạo PaymentData cho PayOS
+        var paymentLinkRequest = new PaymentData(
+            orderCode: orderCode,
+            amount: Convert.ToInt32(depositAmount),
+            description: $"Deposit - Order {order.OrderCode}",
+            items: new List<ItemData>
+            {
+                new ItemData(
+                    name: $"Thanh toán cọc {depositPercent}%",
+                    quantity: 1,
+                    price: Convert.ToInt32(depositAmount)
+                )
+            },
+            returnUrl: $"{domain}/{req.Request.returnUrl}",
+            cancelUrl: $"{domain}/{req.Request.cancelUrl}"
+        );
+
+        // Tạo liên kết thanh toán
+        try
+        {
+            var response = await payOS.createPaymentLink(paymentLinkRequest);
+            return response.checkoutUrl;
+        }
+        catch (Exception ex)
+        {
+            throw new BadRequestException($"Failed to create payment link: {ex.Message}");
+        }
+    }
+
     }
 }

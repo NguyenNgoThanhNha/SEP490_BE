@@ -45,9 +45,9 @@ namespace Server.API.Extensions
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<ZaloPaySetting>>().Value);*/
 
             // payOs
-            /*var payOsSetting = configuration.GetSection(nameof(PayOSSetting)).Get<PayOSSetting>();
+            var payOsSetting = configuration.GetSection(nameof(PayOSSetting)).Get<PayOSSetting>();
             services.Configure<PayOSSetting>(configuration.GetSection(nameof(PayOSSetting)));
-            services.AddSingleton(sp => sp.GetRequiredService<IOptions<PayOSSetting>>().Value);*/
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<PayOSSetting>>().Value);
 
             // mail
             services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));

@@ -134,7 +134,7 @@ namespace Server.API.Controllers
             var servicesDetails = string.Join("", appointmentsList.Select(a =>
             {
                 var service = _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(s => s.ServiceId == a.ServiceId).Result;
-                return $"<li>{service.Name} - {service.Price:C}</li>";
+                return $"<li>{service.Name} - {service.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))}</li>";
             }));
 
             var mailData = new MailData()
@@ -150,7 +150,10 @@ namespace Server.API.Controllers
                         Thank you for placing an order with us. Below are the details of your order and appointments:
                     </p>
                     <p style=""font-size: 16px; color: #555;""><strong>Order Code:</strong> {order.OrderCode}</p>
-                    <p style=""font-size: 16px; color: #555;""><strong>Total Amount:</strong> {order.TotalAmount:C}</p>
+                    <p style=""font-size: 16px; color: #555;"">
+                        <strong>Total Amount:</strong> {order.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))}
+                    </p>
+
                     <p style=""font-size: 16px; color: #555;""><strong>Appointment Date:</strong> {appointmentDate}</p>
                     <p style=""font-size: 16px; color: #555;""><strong>Appointment Time:</strong> {appointmentTime}</p>
                     <p style=""font-size: 16px; color: #555;""><strong>Services:</strong></p>
@@ -161,6 +164,7 @@ namespace Server.API.Controllers
                     <p style=""text-align: center; color: #888; font-size: 14px;"">Powered by Team Solace</p>
                 </div>"
             };
+
 
             // Gửi email thông báo
             _ = Task.Run(async () =>
