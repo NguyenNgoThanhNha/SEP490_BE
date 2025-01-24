@@ -16,6 +16,15 @@ namespace Server.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Cấu hình Localization
+            var supportedCultures = new[] { "vi-VN", "en-US" }; // Định nghĩa các văn hóa được hỗ trợ
+            var localizationOptions = new RequestLocalizationOptions()
+                .SetDefaultCulture("vi-VN") // Thiết lập mặc định là văn hóa Việt Nam
+                .AddSupportedCultures(supportedCultures)
+                .AddSupportedUICultures(supportedCultures);
+
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+            
             builder.Services.AddInfrastructure(builder.Configuration);
 
             builder.Services.AddTransient<IAIMLService, AIMLService>();
@@ -110,6 +119,8 @@ namespace Server.API
             app.UseAuthentication();
 
             app.UseAuthorization();
+            
+            app.UseRequestLocalization(localizationOptions);
 
             app.MapControllers();
 
