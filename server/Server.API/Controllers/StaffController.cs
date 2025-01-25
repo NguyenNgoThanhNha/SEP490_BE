@@ -308,5 +308,50 @@ namespace Server.API.Controllers
                 return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
             }
         }
+
+        [HttpGet("staff-busy-times")]
+        public async Task<IActionResult> GetStaffBusyTimes(int staffId, DateTime date)
+        {
+            try
+            {
+                var busyTimes = await _staffService.GetStaffBusyTimesAsync(staffId, date);
+
+                if (busyTimes == null || !busyTimes.Any())
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        result = new
+                        {
+                            message = "No busy times found for the staff on the specified date.",
+                            data = (object)null
+                        }
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    result = new
+                    {
+                        message = "Successfully retrieved the staff's busy times!",
+                        data = busyTimes
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    result = new
+                    {
+                        message = $"System error: {ex.Message}",
+                        data = (object)null
+                    }
+                });
+            }
+        }
+
     }
 }
