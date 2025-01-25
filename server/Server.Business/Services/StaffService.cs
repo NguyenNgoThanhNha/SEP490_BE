@@ -534,5 +534,38 @@ namespace Server.Business.Services
         }
 
 
+        public async Task<List<BusyTimeDto>> GetStaffBusyTimesAsync(int staffId, DateTime date)
+        {
+            // Lấy tất cả Appointments của nhân viên trong ngày
+            var appointments = await _unitOfWorks.AppointmentsRepository
+                .FindByCondition(a => a.StaffId == staffId &&
+                                      a.AppointmentsTime.Date == date.Date &&
+                                      a.Status == "Confirmed") // Chỉ lấy trạng thái đã xác nhận
+                .Include(a => a.Service) // Include Service để lấy duration
+                .ToListAsync();
+
+            // Tính toán thời gian bận
+            var busyTimes = appointments
+                .Where(a => a.Service != null) // Bỏ qua các bản ghi không có Service
+                .Select(a =>
+                {
+                    // Parse duration từ Service (VD: "60 minutes")
+                    var durationParts = a.Service.Duration.Split(' ');
+                    int durationMinutes = int.TryParse(durationParts[0], out var minutes) ? minutes : 0;
+
+                    return new BusyTimeDto
+                    {
+                        StartTime = a.AppointmentsTime,
+                        EndTime = a.AppointmentsTime.AddMinutes(durationMinutes)
+                    };
+                })
+                .OrderBy(bt => bt.StartTime) // Sắp xếp theo thời gian bắt đầu
+                .ToList();
+
+            return busyTimes;
+        }
+
+
+
     }
 }
