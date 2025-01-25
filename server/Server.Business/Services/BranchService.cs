@@ -110,6 +110,24 @@ namespace Server.Business.Services
             return listRoomModel;
         }
 
+        public async Task<BranchModel> GetBranchByIdAsync(int branchId)
+        {
+            
+            var branch = await _context.Branchs
+                .Include(b => b.ManagerBranch)  
+                .Include(b => b.Company)       
+                .Include(b => b.Branch_Promotion) 
+                .SingleOrDefaultAsync(b => b.BranchId == branchId && b.Status == "Active");
+
+          
+            if (branch == null) return null;
+
+           
+            var branchModel = _mapper.Map<BranchModel>(branch);
+            return branchModel;
+        }
+
+
 
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Nest;
 using Server.Business.Dtos;
 using Server.Business.Models;
+using Server.Data.Entities;
 
 namespace Server.API.Controllers
 {
@@ -106,6 +107,28 @@ namespace Server.API.Controllers
                 data = rooms
             }));
         }
+
+        [HttpGet("get-by-id/{id}")]
+        public async Task<IActionResult> GetBranchById(int id)
+        {
+            // Gọi service để lấy thông tin chi nhánh theo ID
+            var branch = await _branchService.GetBranchByIdAsync(id);
+
+            if (branch == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Currently, there are no branch!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get branch successfully!",
+                data = branch
+            }));
+        }
+
 
 
     }
