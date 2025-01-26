@@ -179,7 +179,7 @@ namespace Server.API.Controllers
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Appointments and order created successfully! Confirmation email has been sent.",
-                data = appointmentsList.Select(a => _mapper.Map<AppointmentsDTO>(a)).ToList()
+                data = order
             }));
         }
 
@@ -287,7 +287,7 @@ namespace Server.API.Controllers
 
         [Authorize]
         [HttpGet("history-booking")]
-        public async Task<IActionResult> HistoryBooking([FromQuery] int page = 1, int pageSize = 5)
+        public async Task<IActionResult> HistoryBooking([FromQuery] string status ,int page = 1, int pageSize = 5)
         {
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
@@ -310,7 +310,7 @@ namespace Server.API.Controllers
                     message = "Customer info not found!"
                 }));
             }
-            var appointments = await _appointmentsService.BookingAppointmentHistory(currentUser.UserId,page, pageSize);
+            var appointments = await _appointmentsService.BookingAppointmentHistory(currentUser.UserId, status ,page, pageSize);
             if (appointments.data == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()

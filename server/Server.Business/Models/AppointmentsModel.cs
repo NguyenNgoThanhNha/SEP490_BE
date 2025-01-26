@@ -1,4 +1,5 @@
-﻿using Server.Data.Entities;
+﻿using Server.Data;
+using Server.Data.Entities;
 
 namespace Server.Business.Models;
 
@@ -28,8 +29,8 @@ public class AppointmentsModel
     public virtual Bed Bed { get; set; }
     
     public DateTime AppointmentsTime { get; set; }
-    
-    public string Status { get; set; }
+
+    public string Status { get; set; } = OrderStatusEnum.Pending.ToString(); // Pending, Paid, Completed, Cancelled
     
     public string Notes { get; set; }
     

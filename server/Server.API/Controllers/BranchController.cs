@@ -128,8 +128,6 @@ namespace Server.API.Controllers
                 data = branch
             }));
         }
-
-
-
+        
     }
 }

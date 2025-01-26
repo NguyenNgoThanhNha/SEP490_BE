@@ -2,8 +2,9 @@
 
 public enum OrderStatusEnum
 {
-    Pending = 1, 
-    Paid = 2,
-    Completed = 3,
-    Cancelled = 4
+    Pending = 1,
+    Arrived = 2,
+    Paid = 3,
+    Completed = 4,
+    Cancelled = 5
 }

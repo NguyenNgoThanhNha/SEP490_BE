@@ -120,7 +120,7 @@ public class AppointmentsService
             var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == serviceId);
             if (service == null)
             {
-                throw new BadRequestException($"Service with ID {serviceId} not found!");
+                throw new BadRequestException($"Service not found!");
             }
 
             var totalDuration = int.Parse(service.Duration) + 5; // Thời gian điều trị + thời gian chờ
@@ -131,7 +131,7 @@ public class AppointmentsService
                 .FirstOrDefaultAsync(sb => sb.ServiceId == serviceId && sb.BranchId == request.BranchId);
             if (serviceInBranch == null)
             {
-                throw new BadRequestException($"Service with ID {serviceId} is not available in this branch!");
+                throw new BadRequestException($"Service is not available in this branch!");
             }
 
             // Lấy danh sách phòng phù hợp với service category
@@ -183,12 +183,12 @@ public class AppointmentsService
             var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == staffId);
             if (staff == null)
             {
-                throw new BadRequestException($"Staff with ID {staffId} not found!");
+                throw new BadRequestException($"Staff not found!");
             }
 
             if (staff.BranchId != request.BranchId)
             {
-                throw new BadRequestException($"Staff with ID {staffId} does not belong to branch ID {request.BranchId}!");
+                throw new BadRequestException($"Staff does not belong to branch ID {request.BranchId}!");
             }
 
             // Kiểm tra lịch làm việc của staff
@@ -198,7 +198,7 @@ public class AppointmentsService
                                           a.AppointmentsTime.AddMinutes(int.Parse(service.Duration) + 5) > request.AppointmentsTime) != null;
             if (isStaffBusy)
             {
-                throw new BadRequestException($"Staff with ID {staffId} is busy during this time!");
+                throw new BadRequestException($"Staff is busy during this time!");
             }
 
             // Tạo appointment mới
@@ -208,7 +208,7 @@ public class AppointmentsService
                 OrderId = createdOrder.OrderId,
                 StaffId = staffId,
                 ServiceId = serviceId,
-                Status = "Active",
+                Status = OrderStatusEnum.Pending.ToString(),
                 BranchId = request.BranchId,
                 RoomId = assignedRoomId.Value,
                 BedId = assignedBedId.Value,
@@ -335,13 +335,14 @@ public class AppointmentsService
         return null;
     }
 
-    public async Task<GetAllAppointmentResponse> BookingAppointmentHistory(int userId, int page = 1, int pageSize = 5)
+    public async Task<GetAllAppointmentResponse> BookingAppointmentHistory(int userId, string status, int page = 1, int pageSize = 5)
     {
         var listAppointments = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.CustomerId == userId)
             .Include(x => x.Order)
             .Include(x => x.Staff).ThenInclude(x => x.StaffInfo)
             .Include(x => x.Branch)
             .Include(x => x.Service)
+            .Where(x => x.Status == status)
             .ToListAsync();
         if (listAppointments.Equals(null))
         {
