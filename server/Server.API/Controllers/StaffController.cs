@@ -265,21 +265,35 @@ namespace Server.API.Controllers
                 {
                     return NotFound(new
                     {
-                        Message = "Không tìm thấy nhân viên nào cho chi nhánh này."
+                        success = true,
+                        result = new
+                        {
+                            message = "No staff found for this branch.",
+                            data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
+                        }
                     });
                 }
 
                 return Ok(new
                 {
-                    Message = "Lấy danh sách nhân viên thành công!",
-                    Data = staffList
+                    success = true,
+                    result = new
+                    {
+                        message = "Get staff list successfully.",
+                        data = staffList
+                    }
                 });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new
                 {
-                    Message = $"Lỗi hệ thống: {ex.Message}"
+                    success = false,
+                    result = new
+                    {
+                        message = $"Lỗi hệ thống: {ex.Message}",
+                        data = new List<object>()
+                    }
                 });
             }
         }
