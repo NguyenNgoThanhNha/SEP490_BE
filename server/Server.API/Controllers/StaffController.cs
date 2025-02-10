@@ -268,7 +268,7 @@ namespace Server.API.Controllers
                         success = true,
                         result = new
                         {
-                            message = "No staff found for this branch.",
+                            message = "No staff found for this branch..",
                             data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
                         }
                     });
@@ -308,20 +308,41 @@ namespace Server.API.Controllers
 
                 if (staffList == null || staffList.Count == 0)
                 {
-                    return NotFound(new { Message = "No staff found for the given branch and service." });
+                    return NotFound(new
+                    {
+                        success = true,
+                        result = new
+                        {
+                            message = "No staff found for the given branch and service.",
+                            data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
+                        }
+                    });
                 }
 
                 return Ok(new
                 {
-                    Message = "Staff list fetched successfully.",
-                    Data = staffList
+                    success = true,
+                    result = new
+                    {
+                        message = "Staff list fetched successfully.",
+                        data = staffList
+                    }
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { Message = $"An error occurred: {ex.Message}" });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    result = new
+                    {
+                        message = $"An error occurred: {ex.Message}",
+                        data = new List<object>()
+                    }
+                });
             }
         }
+
 
         [HttpGet("staff-busy-times")]
         public async Task<IActionResult> GetStaffBusyTimes(int staffId, DateTime date)
@@ -334,7 +355,7 @@ namespace Server.API.Controllers
                 {
                     return NotFound(new
                     {
-                        success = false,
+                        success = true,
                         result = new
                         {
                             message = "No busy times found for the staff on the specified date.",
