@@ -12,7 +12,6 @@ namespace Server.API.Controllers
     {
         private readonly CustomerService _customerService;
 
-
         public CustomerController(CustomerService customerService)
         {
             _customerService = customerService;
@@ -98,36 +97,6 @@ namespace Server.API.Controllers
                 {
                     message = $"Internal server error: {ex.Message}"
                 }));
-            }
-        }
-
-        [HttpGet("customer-busy-times")]
-        public async Task<IActionResult> GetCustomerBusyTimes(int customerId, DateTime date)
-        {
-            try
-            {
-                var busyTimes = await _customerService.GetCustomerBusyTimesAsync(customerId, date);
-
-                if (busyTimes == null || !busyTimes.Any())
-                {
-                    return NotFound(new
-                    {
-                        Message = "No busy times found for the customer on the specified date."
-                    });
-                }
-
-                return Ok(new
-                {
-                    Message = "Successfully retrieved the customer's busy times!",
-                    Data = busyTimes
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    Message = $"System error: {ex.Message}"
-                });
             }
         }
     }
