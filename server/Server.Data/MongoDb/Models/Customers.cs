@@ -22,6 +22,9 @@ public class Customers
 
     [BsonElement("firstName")]
     public string FirstName { get; set; }
+    
+    [BsonElement("userId")]
+    public int UserId { get; set; }
 
     [BsonElement("lastName")]
     public string LastName { get; set; }

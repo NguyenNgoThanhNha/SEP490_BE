@@ -12,6 +12,7 @@ using Server.Data.Entities;
 using Server.Data.SeedData;
 using Server.Data.UnitOfWorks;
 using System.Text;
+using Server.Data.MongoDb.Repository;
 
 namespace Server.API.Extensions
 {
@@ -63,6 +64,9 @@ namespace Server.API.Extensions
 
             // ElasticSettings
             services.Configure<ElasticSettings>(configuration.GetSection(nameof(ElasticSettings)));
+            
+            // MongoDbSetting
+            services.Configure<MongoDbSetting>(configuration.GetSection(nameof(MongoDbSetting)));
 
             services.AddAuthorization();
 
@@ -101,7 +105,10 @@ namespace Server.API.Extensions
 
             /*Config repository*/
             services.AddScoped(typeof(IRepository<,>), typeof(GenericRepository<,>));
-
+            services.AddScoped(typeof(IRepositoryMongoDB<>), typeof(RepositoryMongoDb<>));
+            services.AddScoped<CustomerRepository>();
+            services.AddScoped<MessageRepository>();
+            services.AddScoped<ChannelsRepository>();
             /*            Register UnitOfWorks*/
             services.AddScoped<UnitOfWorks>();
 
