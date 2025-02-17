@@ -12,6 +12,7 @@ using Server.Data.Entities;
 using Server.Data.SeedData;
 using Server.Data.UnitOfWorks;
 using System.Text;
+using Microsoft.AspNetCore.Http.Features;
 using Server.Data.MongoDb.Repository;
 
 namespace Server.API.Extensions
@@ -67,10 +68,13 @@ namespace Server.API.Extensions
             
             // MongoDbSetting
             services.Configure<MongoDbSetting>(configuration.GetSection(nameof(MongoDbSetting)));
-
+            
+            services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
+            });
             services.AddAuthorization();
-
-
+            
 
             services.AddAuthentication(options =>
             {
