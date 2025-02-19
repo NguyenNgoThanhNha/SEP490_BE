@@ -31,7 +31,7 @@ public class SkinAnalyzeService
 
     public async Task<SkinAnalyzeResponse> AnalyzeSkinAsync(IFormFile file, int userId)
     {
-        if (file == null || file.Length == 0)
+        /*if (file == null || file.Length == 0)
         {
             throw new BadRequestException("File cannot be null or empty.");
         }
@@ -39,6 +39,22 @@ public class SkinAnalyzeService
         using var content = new MultipartFormDataContent();
         using var fileStream = file.OpenReadStream();
         var fileContent = new StreamContent(fileStream)
+        {
+            Headers = { ContentType = MediaTypeHeaderValue.Parse(file.ContentType) }
+        };
+        content.Add(fileContent, "image", file.FileName);*/
+        
+        if (file == null || file.Length == 0)
+        {
+            throw new BadRequestException("File cannot be null or empty.");
+        }
+
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream); // Đọc file vào MemoryStream
+        memoryStream.Position = 0; // Đặt lại vị trí stream về đầu
+
+        using var content = new MultipartFormDataContent();
+        var fileContent = new StreamContent(memoryStream)
         {
             Headers = { ContentType = MediaTypeHeaderValue.Parse(file.ContentType) }
         };

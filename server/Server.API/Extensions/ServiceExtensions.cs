@@ -113,10 +113,14 @@ namespace Server.API.Extensions
             services.AddScoped<CustomerRepository>();
             services.AddScoped<MessageRepository>();
             services.AddScoped<ChannelsRepository>();
-            /*            Register UnitOfWorks*/
+            
+            /*Config SignalR*/
+            services.AddSignalR();
+            
+            /* Register UnitOfWorks*/
             services.AddScoped<UnitOfWorks>();
 
-            /*            Init Data*/
+            /* Init Data*/
             services.AddScoped<DatabaseInitializer>();
 
             /*Config Service*/
