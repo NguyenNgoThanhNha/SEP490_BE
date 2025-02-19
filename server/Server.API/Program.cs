@@ -115,6 +115,8 @@ namespace Server.API
 
             app.MapControllers();
 
+            app.MapHub<ChatHubs>("/chat");
+            
             app.Run();
         }
     }
