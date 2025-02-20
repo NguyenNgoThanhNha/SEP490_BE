@@ -36,40 +36,48 @@ public class SkinAnalyzeService
 
     public async Task<SkinAnalyzeResponse> AnalyzeSkinAsync(IFormFile file, int userId)
     {
-        /*if (file == null || file.Length == 0)
-        {
-            throw new BadRequestException("File cannot be null or empty.");
-        }
-
-        using var content = new MultipartFormDataContent();
-        using var fileStream = file.OpenReadStream();
-        var fileContent = new StreamContent(fileStream)
-        {
-            Headers = { ContentType = MediaTypeHeaderValue.Parse(file.ContentType) }
-        };
-        content.Add(fileContent, "image", file.FileName);*/
-        
         if (file == null || file.Length == 0)
         {
             throw new BadRequestException("File cannot be null or empty.");
         }
 
-        using var memoryStream = new MemoryStream();
-        await file.CopyToAsync(memoryStream); // Đọc file vào MemoryStream
-        memoryStream.Position = 0; // Đặt lại vị trí stream về đầu
-
-        using var content = new MultipartFormDataContent();
-        var fileContent = new StreamContent(memoryStream)
+        // Validate kích thước file <= 5MB
+        const long maxFileSize = 5 * 1024 * 1024; // 5MB
+        if (file.Length > maxFileSize)
         {
-            Headers = { ContentType = MediaTypeHeaderValue.Parse(file.ContentType) }
-        };
-        content.Add(fileContent, "image", file.FileName);
+            throw new BadRequestException("File size must be less than 5MB.");
+        }
 
-        HttpClient.DefaultRequestHeaders.Add("ailabapi-api-key", _aiSkinSetting.ApiKey);
+        // Validate định dạng file (chỉ chấp nhận jpg, jpeg)
+        var allowedExtensions = new[] { ".jpg", ".jpeg" };
+        var fileExtension = Path.GetExtension(file.FileName).ToLower();
+        if (!allowedExtensions.Contains(fileExtension))
+        {
+            throw new BadRequestException("Only JPG and JPEG formats are allowed.");
+        }
+
+        var apiKey = _aiSkinSetting.ApiKey;
+
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream); 
+        memoryStream.Position = 0;
+
+        using var client = new HttpClient();
+        using var request = new HttpRequestMessage(HttpMethod.Post, _aiSkinSetting.Url);
+    
+        request.Headers.Add("ailabapi-api-key", apiKey);
+    
+        using var content = new MultipartFormDataContent();
+        content.Add(new StreamContent(memoryStream), "image", file.FileName);
+        content.Add(new StringContent(""), "face_quality_control");
+        content.Add(new StringContent(""), "return_rect_confidence");
+        content.Add(new StringContent(""), "return_maps");
+    
+        request.Content = content;
 
         try
         {
-            var response = await HttpClient.PostAsync(_aiSkinSetting.Url, content);
+            using var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
             var responseData = await response.Content.ReadAsStringAsync();
