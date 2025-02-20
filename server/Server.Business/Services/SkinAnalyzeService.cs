@@ -13,20 +13,24 @@ using Server.Business.Ultils;
 using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
-
+using Microsoft.Extensions.Logging;
 namespace Server.Business.Services;
 
 public class SkinAnalyzeService
 {
     private readonly UnitOfWorks _unitOfWorks;
     private readonly IMapper _mapper;
+    private readonly ILogger<SkinAnalyzeService> _logger;
+
     private readonly AISkinSetting _aiSkinSetting;
     private static readonly HttpClient HttpClient = new HttpClient();
 
-    public SkinAnalyzeService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<AISkinSetting> aiSkinSetting)
+    public SkinAnalyzeService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<AISkinSetting> aiSkinSetting, ILogger<SkinAnalyzeService> logger)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
+        _logger = logger;
+        _logger = logger;
         _aiSkinSetting = aiSkinSetting.Value;
     }
 
@@ -156,6 +160,7 @@ public class SkinAnalyzeService
         }
         catch (HttpRequestException ex)
         {
+            _logger.LogInformation("AI_SKIN: " + ex.Message);
            throw new BadRequestException(ex.Message);
         }
     }
