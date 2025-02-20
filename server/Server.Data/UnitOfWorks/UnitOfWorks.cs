@@ -34,6 +34,7 @@ namespace Server.Data.UnitOfWorks
         private RoomRepository _roomRepository;
         private BedRepository _bedRepository;
         private BedAvailabilityRepository _bedAvailabilityRepository;
+        private UserRoutineRepository _userRoutineRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -172,6 +173,11 @@ namespace Server.Data.UnitOfWorks
         public BedAvailabilityRepository BedAvailabilityRepository
         {
             get { return _bedAvailabilityRepository ??= new BedAvailabilityRepository(_dbContext); }
+        }
+        
+        public UserRoutineRepository UserRoutineRepository
+        {
+            get { return _userRoutineRepository ??= new UserRoutineRepository(_dbContext); }
         }
     }
 }

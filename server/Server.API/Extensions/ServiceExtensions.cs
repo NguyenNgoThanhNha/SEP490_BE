@@ -145,6 +145,7 @@ namespace Server.API.Extensions
             services.AddScoped<AppointmentReminderWorker>();
             services.AddScoped<BlogCommentService>();
             services.AddScoped<ServiceCategoryService>();
+            services.AddScoped<RoutineService>();
             return services;
         }
     };

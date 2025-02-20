@@ -10,6 +10,7 @@ using Server.Business.Commons.Response;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Business.Ultils;
+using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 
@@ -120,7 +121,26 @@ public class SkinAnalyzeService
 
             // Retrieve skincare routines based on concerns
             var routines = await GetSkincareRoutinesAsync(skinConcerns);
+            List<UserRoutine> userRoutines = new List<UserRoutine>();
+            foreach (var routine in routines)
+            {
+                var newRoutine = new UserRoutine()
+                {
+                    UserId = userId,
+                    RoutineId = routine.SkincareRoutineId,
+                    Status = ObjectStatus.Active.ToString(),
+                    ProgressNotes = "Suitable for your skin",
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddMonths(1),
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+                userRoutines.Add(newRoutine);
+            }
+            await _unitOfWorks.UserRoutineRepository.AddRangeAsync(userRoutines);
+            await _unitOfWorks.UserRoutineRepository.Commit();
 
+            
             var result = new ApiSkinAnalyzeResponse()
             {
                 skinhealth = apiResult.result,
@@ -192,6 +212,25 @@ public class SkinAnalyzeService
             var skinConcerns = GetSkinConcernsFromForm(request);
             var routines = await GetSkincareRoutinesAsync(skinConcerns);
 
+            List<UserRoutine> userRoutines = new List<UserRoutine>();
+            foreach (var routine in routines)
+            {
+                var newRoutine = new UserRoutine()
+                {
+                    UserId = userId,
+                    RoutineId = routine.SkincareRoutineId,
+                    Status = ObjectStatus.Active.ToString(),
+                    ProgressNotes = "Suitable for your skin",
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddMonths(1),
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+                userRoutines.Add(newRoutine);
+            }
+            await _unitOfWorks.UserRoutineRepository.AddRangeAsync(userRoutines);
+            await _unitOfWorks.UserRoutineRepository.Commit();
+            
             var result = new ApiSkinAnalyzeResponse()
             {
                 skinhealth = request,
@@ -269,7 +308,7 @@ public class SkinAnalyzeService
         return routines
             .GroupBy(r => r.SkincareRoutineId)
             .Select(g => g.First())
-            .OrderByDescending(r => prioritizedConcerns.FirstOrDefault(c => r.TargetSkinTypes.Contains(c.Concern)).Confidence)
+            .OrderByDescending(r => prioritizedConcerns.FirstOrDefault(c => r.TargetSkinTypes!.Contains(c.Concern)).Confidence)
             .ToList();
     }
 
