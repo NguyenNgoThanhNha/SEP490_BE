@@ -69,10 +69,10 @@ namespace Server.API.Extensions
             // MongoDbSetting
             services.Configure<MongoDbSetting>(configuration.GetSection(nameof(MongoDbSetting)));
             
-            services.Configure<FormOptions>(options =>
+            /*services.Configure<FormOptions>(options =>
             {
                 options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
-            });
+            });*/
             services.AddAuthorization();
             
 
