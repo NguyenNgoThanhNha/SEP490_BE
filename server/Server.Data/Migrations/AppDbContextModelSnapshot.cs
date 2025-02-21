@@ -19,6 +19,58 @@ namespace Server.Data.Migrations
                 .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("Server.Data.Entities.AppointmentFeedback", b =>
+                {
+                    b.Property<int>("AppointmentFeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageAfter")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ImageBefore")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AppointmentFeedbackId");
+
+                    b.HasIndex("AppointmentId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AppointmentFeedback");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Appointments", b =>
                 {
                     b.Property<int>("AppointmentId")
@@ -820,6 +872,58 @@ namespace Server.Data.Migrations
                     b.ToTable("ProductCart", (string)null);
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.ProductFeedback", b =>
+                {
+                    b.Property<int>("ProductFeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageAfter")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ImageBefore")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductFeedbackId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProductFeedback");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.ProductImages", b =>
                 {
                     b.Property<int>("ProductImagesId")
@@ -1063,6 +1167,58 @@ namespace Server.Data.Migrations
                     b.HasKey("ServiceCategoryId");
 
                     b.ToTable("ServiceCategory");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.ServiceFeedback", b =>
+                {
+                    b.Property<int>("ServiceFeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageAfter")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ImageBefore")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ServiceFeedbackId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ServiceFeedback");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.ServiceImages", b =>
@@ -1542,6 +1698,86 @@ namespace Server.Data.Migrations
                     b.ToTable("UserRoutine", (string)null);
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.UserRoutineLogger", b =>
+                {
+                    b.Property<int>("UserRoutineLoggerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ActionDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("StepId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Step_Logger")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserRoutineLoggerId");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("StepId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRoutineLogger");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.UserRoutineStep", b =>
+                {
+                    b.Property<int>("UserRoutineStepId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Step")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StepName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserRoutineId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserRoutineStepId");
+
+                    b.HasIndex("UserRoutineId");
+
+                    b.ToTable("UserRoutineStep");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Voucher", b =>
                 {
                     b.Property<int>("VoucherId")
@@ -1584,6 +1820,23 @@ namespace Server.Data.Migrations
                     b.HasKey("VoucherId");
 
                     b.ToTable("Voucher");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.AppointmentFeedback", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Appointments", "Appointment")
+                        .WithMany()
+                        .HasForeignKey("AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Appointment");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Appointments", b =>
@@ -1919,6 +2172,23 @@ namespace Server.Data.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.ProductFeedback", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.ProductImages", b =>
                 {
                     b.HasOne("Server.Data.Entities.Product", "Product")
@@ -1998,6 +2268,23 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("ServiceCategory");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.ServiceFeedback", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Service");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.ServiceImages", b =>
@@ -2122,6 +2409,40 @@ namespace Server.Data.Migrations
                     b.Navigation("Routine");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.UserRoutineLogger", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Staff", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
+                    b.HasOne("Server.Data.Entities.UserRoutineStep", "UserRoutineStep")
+                        .WithMany()
+                        .HasForeignKey("StepId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Staff");
+
+                    b.Navigation("User");
+
+                    b.Navigation("UserRoutineStep");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.UserRoutineStep", b =>
+                {
+                    b.HasOne("Server.Data.Entities.UserRoutine", "UserRoutine")
+                        .WithMany()
+                        .HasForeignKey("UserRoutineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserRoutine");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Branch", b =>

@@ -52,6 +52,12 @@ namespace Server.Data.Entities
         public DbSet<BedType> BedType { get; set; }
         public DbSet<BedAvailability> BedAvailability { get; set; }
         
+        public DbSet<AppointmentFeedback> AppointmentFeedback { get; set; }
+        public DbSet<ProductFeedback> ProductFeedback { get; set; }
+        public DbSet<ServiceFeedback> ServiceFeedback { get; set; }
+        public DbSet<UserRoutineStep> UserRoutineStep { get; set; }
+        public DbSet<UserRoutineLogger> UserRoutineLogger { get; set; }
+        
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

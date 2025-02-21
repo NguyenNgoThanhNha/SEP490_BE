@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatedDatabase : Migration
+    public partial class Updated_Database : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -577,6 +577,78 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ProductFeedback",
+                columns: table => new
+                {
+                    ProductFeedbackId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    Comment = table.Column<string>(type: "longtext", nullable: true),
+                    Rating = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    ImageBefore = table.Column<string>(type: "longtext", nullable: true),
+                    ImageAfter = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductFeedback", x => x.ProductFeedbackId);
+                    table.ForeignKey(
+                        name: "FK_ProductFeedback_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductFeedback_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ServiceFeedback",
+                columns: table => new
+                {
+                    ServiceFeedbackId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ServiceId = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    Comment = table.Column<string>(type: "longtext", nullable: true),
+                    Rating = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    ImageBefore = table.Column<string>(type: "longtext", nullable: true),
+                    ImageAfter = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceFeedback", x => x.ServiceFeedbackId);
+                    table.ForeignKey(
+                        name: "FK_ServiceFeedback_Service_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "Service",
+                        principalColumn: "ServiceId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ServiceFeedback_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "SkinHealth",
                 columns: table => new
                 {
@@ -1009,6 +1081,31 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "UserRoutineStep",
+                columns: table => new
+                {
+                    UserRoutineStepId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserRoutineId = table.Column<int>(type: "int", nullable: false),
+                    StepName = table.Column<string>(type: "longtext", nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: false),
+                    Step = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoutineStep", x => x.UserRoutineStepId);
+                    table.ForeignKey(
+                        name: "FK_UserRoutineStep_UserRoutine_UserRoutineId",
+                        column: x => x.UserRoutineId,
+                        principalTable: "UserRoutine",
+                        principalColumn: "UserRoutineId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Bed",
                 columns: table => new
                 {
@@ -1071,6 +1168,44 @@ namespace Server.Data.Migrations
                         principalTable: "Staff",
                         principalColumn: "StaffId",
                         onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "UserRoutineLogger",
+                columns: table => new
+                {
+                    UserRoutineLoggerId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    StepId = table.Column<int>(type: "int", nullable: false),
+                    StaffId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    ActionDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    Step_Logger = table.Column<string>(type: "longtext", nullable: false),
+                    Notes = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoutineLogger", x => x.UserRoutineLoggerId);
+                    table.ForeignKey(
+                        name: "FK_UserRoutineLogger_Staff_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staff",
+                        principalColumn: "StaffId");
+                    table.ForeignKey(
+                        name: "FK_UserRoutineLogger_UserRoutineStep_StepId",
+                        column: x => x.StepId,
+                        principalTable: "UserRoutineStep",
+                        principalColumn: "UserRoutineStepId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoutineLogger_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -1171,6 +1306,52 @@ namespace Server.Data.Migrations
                         principalColumn: "RoomId");
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "AppointmentFeedback",
+                columns: table => new
+                {
+                    AppointmentFeedbackId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    AppointmentId = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    Comment = table.Column<string>(type: "longtext", nullable: true),
+                    Rating = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    ImageBefore = table.Column<string>(type: "longtext", nullable: true),
+                    ImageAfter = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppointmentFeedback", x => x.AppointmentFeedbackId);
+                    table.ForeignKey(
+                        name: "FK_AppointmentFeedback_Appointments_AppointmentId",
+                        column: x => x.AppointmentId,
+                        principalTable: "Appointments",
+                        principalColumn: "AppointmentId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AppointmentFeedback_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId");
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppointmentFeedback_AppointmentId",
+                table: "AppointmentFeedback",
+                column: "AppointmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AppointmentFeedback_UserId",
+                table: "AppointmentFeedback",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Appointments_BedId",
@@ -1361,6 +1542,16 @@ namespace Server.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductFeedback_ProductId",
+                table: "ProductFeedback",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductFeedback_UserId",
+                table: "ProductFeedback",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProductImages_ProductId",
                 table: "ProductImages",
                 column: "ProductId");
@@ -1400,6 +1591,16 @@ namespace Server.Data.Migrations
                 name: "IX_Service_ServiceCategoryId",
                 table: "Service",
                 column: "ServiceCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceFeedback_ServiceId",
+                table: "ServiceFeedback",
+                column: "ServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceFeedback_UserId",
+                table: "ServiceFeedback",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceImages_ServiceId",
@@ -1463,13 +1664,33 @@ namespace Server.Data.Migrations
                 table: "UserRoutine",
                 columns: new[] { "UserId", "RoutineId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoutineLogger_StaffId",
+                table: "UserRoutineLogger",
+                column: "StaffId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoutineLogger_StepId",
+                table: "UserRoutineLogger",
+                column: "StepId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoutineLogger_UserId",
+                table: "UserRoutineLogger",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoutineStep_UserRoutineId",
+                table: "UserRoutineStep",
+                column: "UserRoutineId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Appointments");
+                name: "AppointmentFeedback");
 
             migrationBuilder.DropTable(
                 name: "BedAvailability");
@@ -1505,6 +1726,9 @@ namespace Server.Data.Migrations
                 name: "ProductCart");
 
             migrationBuilder.DropTable(
+                name: "ProductFeedback");
+
+            migrationBuilder.DropTable(
                 name: "ProductImages");
 
             migrationBuilder.DropTable(
@@ -1512,6 +1736,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Schedule");
+
+            migrationBuilder.DropTable(
+                name: "ServiceFeedback");
 
             migrationBuilder.DropTable(
                 name: "ServiceImages");
@@ -1529,10 +1756,10 @@ namespace Server.Data.Migrations
                 name: "Transaction");
 
             migrationBuilder.DropTable(
-                name: "UserRoutine");
+                name: "UserRoutineLogger");
 
             migrationBuilder.DropTable(
-                name: "Bed");
+                name: "Appointments");
 
             migrationBuilder.DropTable(
                 name: "Blog");
@@ -1547,16 +1774,25 @@ namespace Server.Data.Migrations
                 name: "Product");
 
             migrationBuilder.DropTable(
-                name: "Staff");
+                name: "UserRoutineStep");
 
             migrationBuilder.DropTable(
-                name: "Service");
+                name: "Bed");
 
             migrationBuilder.DropTable(
                 name: "Order");
 
             migrationBuilder.DropTable(
-                name: "SkincareRoutine");
+                name: "Service");
+
+            migrationBuilder.DropTable(
+                name: "Staff");
+
+            migrationBuilder.DropTable(
+                name: "Category");
+
+            migrationBuilder.DropTable(
+                name: "UserRoutine");
 
             migrationBuilder.DropTable(
                 name: "BedType");
@@ -1565,10 +1801,10 @@ namespace Server.Data.Migrations
                 name: "Room");
 
             migrationBuilder.DropTable(
-                name: "Category");
+                name: "Voucher");
 
             migrationBuilder.DropTable(
-                name: "Voucher");
+                name: "SkincareRoutine");
 
             migrationBuilder.DropTable(
                 name: "Branch");
