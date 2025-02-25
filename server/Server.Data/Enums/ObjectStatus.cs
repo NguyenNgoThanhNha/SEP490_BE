@@ -6,5 +6,4 @@ public enum ObjectStatus
     InActive = 2,
     Banned = 3,
     Expired = 4,
-    Pending = 5,
 }

@@ -21,7 +21,7 @@ public class AppointmentFeedback
     
     public int? Rating { get; set; }
 
-    public string Status { get; set; } = ObjectStatus.Pending.ToString();
+    public string Status { get; set; } = FeedbackStatus.Pending.ToString();
     
     public string? CreatedBy { get; set; }
     

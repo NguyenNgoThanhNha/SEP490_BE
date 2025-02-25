@@ -36,6 +36,9 @@ namespace Server.Data.UnitOfWorks
         private BedAvailabilityRepository _bedAvailabilityRepository;
         private UserRoutineRepository _userRoutineRepository;
         private SkinHealthImageRepository _skinHealthImageRepository;
+        private WorkScheduleRepository _workScheduleRepository;
+        private ShiftRepository _shiftRepository;
+        private StaffLeaveRepository _staffLeaveRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -184,6 +187,21 @@ namespace Server.Data.UnitOfWorks
         public SkinHealthImageRepository SkinHealthImageRepository
         {
             get { return _skinHealthImageRepository ??= new SkinHealthImageRepository(_dbContext); }
+        }
+        
+        public WorkScheduleRepository WorkScheduleRepository
+        {
+            get { return _workScheduleRepository ??= new WorkScheduleRepository(_dbContext); }
+        }
+        
+        public ShiftRepository ShiftRepository
+        {
+            get { return _shiftRepository ??= new ShiftRepository(_dbContext); }
+        }
+        
+        public StaffLeaveRepository StaffLeaveRepository
+        {
+            get { return _staffLeaveRepository ??= new StaffLeaveRepository(_dbContext); }
         }
     }
 }
