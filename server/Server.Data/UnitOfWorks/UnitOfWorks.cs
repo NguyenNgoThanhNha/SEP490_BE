@@ -35,6 +35,7 @@ namespace Server.Data.UnitOfWorks
         private BedRepository _bedRepository;
         private BedAvailabilityRepository _bedAvailabilityRepository;
         private UserRoutineRepository _userRoutineRepository;
+        private SkinHealthImageRepository _skinHealthImageRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -178,6 +179,11 @@ namespace Server.Data.UnitOfWorks
         public UserRoutineRepository UserRoutineRepository
         {
             get { return _userRoutineRepository ??= new UserRoutineRepository(_dbContext); }
+        }
+        
+        public SkinHealthImageRepository SkinHealthImageRepository
+        {
+            get { return _skinHealthImageRepository ??= new SkinHealthImageRepository(_dbContext); }
         }
     }
 }

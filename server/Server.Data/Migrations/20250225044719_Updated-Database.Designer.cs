@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250225022953_Updated-Database")]
+    [Migration("20250225044719_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -1465,6 +1465,32 @@ namespace Server.Data.Migrations
                     b.ToTable("SkinHealth");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.SkinHealthImage", b =>
+                {
+                    b.Property<int>("SkinHealthImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("SkinHealthId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("SkinHealthImageId");
+
+                    b.HasIndex("SkinHealthId");
+
+                    b.ToTable("SkinHealthImage");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.SkincareRoutine", b =>
                 {
                     b.Property<int>("SkincareRoutineId")
@@ -2433,6 +2459,17 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.SkinHealthImage", b =>
+                {
+                    b.HasOne("Server.Data.Entities.SkinHealth", "SkinHealth")
+                        .WithMany()
+                        .HasForeignKey("SkinHealthId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SkinHealth");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Staff", b =>

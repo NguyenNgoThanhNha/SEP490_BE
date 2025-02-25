@@ -61,6 +61,7 @@ namespace Server.Data.Entities
         public DbSet<Shifts> Shifts { get; set; }
         public DbSet<StaffRole> StaffRole { get; set; }
         public DbSet<WorkSchedule> WorkSchedule { get; set; }
+        public DbSet<SkinHealthImage> SkinHealthImage { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
