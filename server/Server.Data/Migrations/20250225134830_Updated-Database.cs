@@ -290,6 +290,32 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "SkinCareRoutineStep",
+                columns: table => new
+                {
+                    SkinCareRoutineStepId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    SkincareRoutineId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: true),
+                    Step = table.Column<int>(type: "int", nullable: false),
+                    IntervalBeforeNextStep = table.Column<TimeSpan>(type: "time(6)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkinCareRoutineStep", x => x.SkinCareRoutineStepId);
+                    table.ForeignKey(
+                        name: "FK_SkinCareRoutineStep_SkincareRoutine_SkincareRoutineId",
+                        column: x => x.SkincareRoutineId,
+                        principalTable: "SkincareRoutine",
+                        principalColumn: "SkincareRoutineId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -1155,6 +1181,8 @@ namespace Server.Data.Migrations
                     StepName = table.Column<string>(type: "longtext", nullable: false),
                     Description = table.Column<string>(type: "longtext", nullable: false),
                     Step = table.Column<int>(type: "int", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -1271,6 +1299,7 @@ namespace Server.Data.Migrations
                     ShiftId = table.Column<int>(type: "int", nullable: false),
                     DayOfWeek = table.Column<int>(type: "int", nullable: false),
                     WorkDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -1745,6 +1774,11 @@ namespace Server.Data.Migrations
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SkinCareRoutineStep_SkincareRoutineId",
+                table: "SkinCareRoutineStep",
+                column: "SkincareRoutineId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SkinHealth_UserId",
                 table: "SkinHealth",
                 column: "UserId");
@@ -1894,6 +1928,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Shipping");
+
+            migrationBuilder.DropTable(
+                name: "SkinCareRoutineStep");
 
             migrationBuilder.DropTable(
                 name: "SkinHealthImage");

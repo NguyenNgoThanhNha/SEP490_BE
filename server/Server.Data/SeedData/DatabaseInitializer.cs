@@ -178,6 +178,11 @@ namespace Server.Data.SeedData
                     await SeedSkincareRoutines();
                 }
                 
+                if (!_context.SkinCareRoutineStep.Any())
+                {
+                    await SeedSkincareRoutineSteps();
+                }
+                
                 if (!_context.BedType.Any())
                 {
                     await SeedBedTypes();
@@ -5779,6 +5784,36 @@ namespace Server.Data.SeedData
         }
     }
 
+    public async Task SeedSkincareRoutineSteps()
+    {
+        var skincareRoutines = _context.SkincareRoutines.ToList();
+        var skincareSteps = new List<SkinCareRoutineStep>();
+
+        foreach (var routine in skincareRoutines)
+        {
+            var steps = routine.Steps.Split(", "); // Tách các bước từ chuỗi Steps
+            for (int i = 0; i < steps.Length; i++)
+            {
+                skincareSteps.Add(new SkinCareRoutineStep
+                {
+                    SkincareRoutineId = routine.SkincareRoutineId,
+                    Name = steps[i],
+                    Step = i + 1,
+                    IntervalBeforeNextStep = i < steps.Length - 1 ? TimeSpan.FromDays(2) : null
+                });
+            }
+        }
+
+        foreach (var step in skincareSteps)
+        {
+            if (!_context.SkinCareRoutineStep.Any(s => s.SkincareRoutineId == step.SkincareRoutineId && s.Step == step.Step))
+            {
+                _context.SkinCareRoutineStep.Add(step);
+            }
+        }
+        await _context.SaveChangesAsync();
+    }
+    
     private async Task SeedBedTypes()
 {
     var bedTypes = new List<BedType>
