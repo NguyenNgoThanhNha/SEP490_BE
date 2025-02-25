@@ -57,6 +57,10 @@ namespace Server.Data.Entities
         public DbSet<ServiceFeedback> ServiceFeedback { get; set; }
         public DbSet<UserRoutineStep> UserRoutineStep { get; set; }
         public DbSet<UserRoutineLogger> UserRoutineLogger { get; set; }
+
+        public DbSet<Shifts> Shifts { get; set; }
+        public DbSet<StaffRole> StaffRole { get; set; }
+        public DbSet<WorkSchedule> WorkSchedule { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
