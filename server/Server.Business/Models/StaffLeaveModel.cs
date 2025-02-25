@@ -1,17 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Server.Data;
 
-namespace Server.Data.Entities;
-[Table("StaffLeave")]
-public class StaffLeave
+namespace Server.Business.Models;
+
+public class StaffLeaveModel
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int StaffLeaveId { get; set; }
 
-    [ForeignKey("StaffLeave")]
     public int StaffId { get; set; }
-    public virtual Staff Staff { get; set; }
+    public StaffModel Staff { get; set; } = null!;
 
     public DateTime LeaveDate { get; set; } // Ngày xin nghỉ
 

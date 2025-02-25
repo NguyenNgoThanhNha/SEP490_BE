@@ -148,6 +148,7 @@ namespace Server.API.Extensions
             services.AddScoped<RoutineService>();
             services.AddScoped<WorkScheduleService>();
             services.AddScoped<ShiftService>();
+            services.AddScoped<StaffLeaveService>();
             return services;
         }
     };

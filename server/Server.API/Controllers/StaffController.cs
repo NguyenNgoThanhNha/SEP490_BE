@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
+using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
@@ -15,11 +16,13 @@ namespace Server.API.Controllers
     {
         private readonly StaffService _staffService;
         private readonly UserService _userService;
+        private readonly StaffLeaveService _staffLeaveService;
 
-        public StaffController(StaffService staffService, UserService userService)
+        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService)
         {
             _staffService = staffService;
             _userService = userService;
+            _staffLeaveService = staffLeaveService;
         }
 
         [HttpGet("get-list")]
@@ -386,6 +389,26 @@ namespace Server.API.Controllers
                     }
                 });
             }
+        }
+        
+        [Authorize]
+        [HttpPost("create-staff-leave")]
+        public async Task<IActionResult> CreateStaffLeaveAsync(StaffLeaveRequest staffLeaveRequest)
+        {
+            var result = await _staffLeaveService.CreateStaffLeaveAsync(staffLeaveRequest);
+            if (result == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Failed to create staff leave."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Staff leave created successfully.",
+                data = result
+            }));
         }
 
     }

@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250225081519_Updated-Database")]
+    [Migration("20250225091549_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -1575,16 +1575,16 @@ namespace Server.Data.Migrations
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StaffLeave_StaffId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
                     b.HasKey("StaffLeaveId");
 
-                    b.HasIndex("StaffLeave_StaffId");
+                    b.HasIndex("StaffId");
 
                     b.ToTable("StaffLeave");
                 });
@@ -2536,7 +2536,7 @@ namespace Server.Data.Migrations
                 {
                     b.HasOne("Server.Data.Entities.Staff", "Staff")
                         .WithMany()
-                        .HasForeignKey("StaffLeave_StaffId")
+                        .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

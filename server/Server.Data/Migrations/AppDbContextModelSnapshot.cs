@@ -1572,16 +1572,16 @@ namespace Server.Data.Migrations
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StaffLeave_StaffId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
                     b.HasKey("StaffLeaveId");
 
-                    b.HasIndex("StaffLeave_StaffId");
+                    b.HasIndex("StaffId");
 
                     b.ToTable("StaffLeave");
                 });
@@ -2533,7 +2533,7 @@ namespace Server.Data.Migrations
                 {
                     b.HasOne("Server.Data.Entities.Staff", "Staff")
                         .WithMany()
-                        .HasForeignKey("StaffLeave_StaffId")
+                        .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
