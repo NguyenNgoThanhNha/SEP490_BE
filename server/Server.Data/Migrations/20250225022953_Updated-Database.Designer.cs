@@ -11,8 +11,8 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250221084513_Updated_Database")]
-    partial class Updated_Database
+    [Migration("20250225022953_Updated-Database")]
+    partial class UpdatedDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1276,6 +1276,34 @@ namespace Server.Data.Migrations
                     b.ToTable("ServiceRoutine", (string)null);
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Shifts", b =>
+                {
+                    b.Property<int>("ShiftId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time(6)");
+
+                    b.Property<string>("ShiftName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time(6)");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ShiftId");
+
+                    b.ToTable("Shifts");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Shipping", b =>
                 {
                     b.Property<int>("ShippingId")
@@ -1481,6 +1509,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
@@ -1491,10 +1522,37 @@ namespace Server.Data.Migrations
 
                     b.HasIndex("BranchId");
 
+                    b.HasIndex("RoleId");
+
                     b.HasIndex("UserId")
                         .IsUnique();
 
                     b.ToTable("Staff");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.StaffRole", b =>
+                {
+                    b.Property<int>("StaffRoleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("StaffRoleName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("StaffRoleId");
+
+                    b.ToTable("StaffRole");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Transaction", b =>
@@ -1823,6 +1881,39 @@ namespace Server.Data.Migrations
                     b.HasKey("VoucherId");
 
                     b.ToTable("Voucher");
+                });
+
+            modelBuilder.Entity("WorkSchedule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShiftId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("WorkDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShiftId");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("Work_Schedule");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.AppointmentFeedback", b =>
@@ -2352,6 +2443,12 @@ namespace Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Server.Data.Entities.StaffRole", "Role")
+                        .WithMany("Staffs")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Server.Data.Entities.User", "StaffInfo")
                         .WithOne("Staff")
                         .HasForeignKey("Server.Data.Entities.Staff", "UserId")
@@ -2359,6 +2456,8 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Branch");
+
+                    b.Navigation("Role");
 
                     b.Navigation("StaffInfo");
                 });
@@ -2448,6 +2547,25 @@ namespace Server.Data.Migrations
                     b.Navigation("UserRoutine");
                 });
 
+            modelBuilder.Entity("WorkSchedule", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Shifts", "Shift")
+                        .WithMany("WorkSchedules")
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.Staff", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shift");
+
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Branch", b =>
                 {
                     b.Navigation("Branch_Products");
@@ -2509,6 +2627,11 @@ namespace Server.Data.Migrations
                     b.Navigation("Services");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Shifts", b =>
+                {
+                    b.Navigation("WorkSchedules");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.SkincareRoutine", b =>
                 {
                     b.Navigation("ProductRoutines");
@@ -2516,6 +2639,11 @@ namespace Server.Data.Migrations
                     b.Navigation("ServiceRoutines");
 
                     b.Navigation("UserRoutines");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.StaffRole", b =>
+                {
+                    b.Navigation("Staffs");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.User", b =>

@@ -131,6 +131,12 @@ namespace Server.Data.SeedData
                 {
                     await SeedBranchPromotions();
                 }
+                
+                // Staff Role
+                if (!_context.StaffRole.Any())
+                {
+                    await SeedStaffRole();
+                }
 
                 // Staff
                 if (!_context.Staffs.Any())
@@ -186,6 +192,16 @@ namespace Server.Data.SeedData
                 {
                     await SeedBeds();
                 }
+                
+                if (!_context.Shifts.Any())
+                {
+                    await SeedShifts();
+                }
+                
+                if (!_context.WorkSchedule.Any())
+                {
+                    await SeedWorkSchedules();
+                }
             }
             catch (Exception ex)
             {
@@ -193,7 +209,7 @@ namespace Server.Data.SeedData
             }
         }
 
-        // Seed các role
+        // Seed các user role
         private async Task SeedUserRole()
         {
             var adminRole = new UserRole { RoleName = "Admin" };
@@ -211,6 +227,35 @@ namespace Server.Data.SeedData
             await _context.UserRoles.AddRangeAsync(userRoles);
             await _context.SaveChangesAsync();
         }
+        
+        // Seed các staff role
+        private async Task SeedStaffRole()
+        {
+            var cashierRole = new StaffRole
+            {
+                StaffRoleName = "Cashier",
+                Description = "Responsible for handling payments and invoices"
+            };
+
+            var specialistRole = new StaffRole
+            {
+                StaffRoleName = "Specialist",
+                Description = "Provides specialized services to customers"
+            };
+
+            List<StaffRole> staffRoles = new()
+            {
+                cashierRole,
+                specialistRole
+            };
+
+            if (!_context.StaffRole.Any()) // Kiểm tra nếu bảng chưa có dữ liệu
+            {
+                await _context.StaffRole.AddRangeAsync(staffRoles);
+                await _context.SaveChangesAsync();
+            }
+        }
+
 
         // Seed các user
         private async Task SeedUser()
@@ -290,7 +335,7 @@ namespace Server.Data.SeedData
             users.Add(customer);
 
             // Staff
-            for (int i = 1; i <= 10; i++)
+            for (int i = 1; i <= 50; i++)
             {
                 var staff = new User
                 {
@@ -317,6 +362,66 @@ namespace Server.Data.SeedData
             await _context.Users.AddRangeAsync(users);
             await _context.SaveChangesAsync();
         }
+        
+        private async Task SeedShifts()
+        {
+            var shifts = new List<Shifts>
+            {
+                new Shifts { ShiftName = "Morning Shift", StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(13, 0, 0) },
+                new Shifts { ShiftName = "Afternoon Shift", StartTime = new TimeSpan(13, 0, 0), EndTime = new TimeSpan(17, 0, 0) },
+                new Shifts { ShiftName = "Evening Shift", StartTime = new TimeSpan(17, 0, 0), EndTime = new TimeSpan(21, 0, 0) }
+            };
+
+            if (!_context.Shifts.Any()) // Kiểm tra nếu chưa có dữ liệu
+            {
+                await _context.Shifts.AddRangeAsync(shifts);
+                await _context.SaveChangesAsync();
+            }
+        }
+        
+        private async Task SeedWorkSchedules()
+        {
+            var staffs = await _context.Staffs.ToListAsync();
+            var shifts = await _context.Shifts.ToListAsync();
+
+            if (!staffs.Any() || !shifts.Any())
+            {
+                throw new Exception("Staffs or Shifts are missing. Please seed them first.");
+            }
+
+            var scheduleList = new List<WorkSchedule>();
+            var random = new Random();
+
+            var startDate = new DateTime(2024, 3, 3); // Bắt đầu từ tuần đầu tiên của tháng (Thứ 2)
+            var endDate = new DateTime(2024, 3, 30); // Kết thúc vào thứ 7 của tuần cuối cùng
+
+            foreach (var staff in staffs)
+            {
+                // Chọn một ca ngẫu nhiên cho nhân viên (cố định suốt tháng)
+                var assignedShift = shifts[random.Next(shifts.Count)];
+
+                for (var date = startDate; date <= endDate; date = date.AddDays(1))
+                {
+                    if (date.DayOfWeek != DayOfWeek.Sunday) // Chỉ làm từ Thứ 2 - Thứ 7
+                    {
+                        scheduleList.Add(new WorkSchedule
+                        {
+                            StaffId = staff.StaffId,
+                            ShiftId = assignedShift.ShiftId,
+                            DayOfWeek = (int)date.DayOfWeek, // Chuyển thành số (Monday = 1, ..., Saturday = 6)
+                            WorkDate = date, // Ngày làm việc cụ thể
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now
+                        });
+                    }
+                }
+            }
+
+            await _context.WorkSchedule.AddRangeAsync(scheduleList);
+            await _context.SaveChangesAsync();
+        }
+
+
 
         private async Task SeedCompany()
         {
@@ -3785,33 +3890,58 @@ namespace Server.Data.SeedData
         {
             var staffUsers = await _context.Users.Where(u => u.RoleID == 4).ToListAsync();
 
-            // Lấy danh sách các Branch có sẵn
-            var branches = await _context.Branchs.ToListAsync();
-            if (!branches.Any())
+            if (staffUsers.Count < 50)
             {
-                throw new Exception("No branches found in the database. Please seed branches first.");
+                throw new Exception("Not enough staff users in the database. Please add more users.");
             }
 
-            // Ánh xạ Staff vào các Branch
-            var branchIds = branches.Select(b => b.BranchId).ToList();
-            var random = new Random();
-            var staffList = new List<Staff>();
-
-            foreach (var user in staffUsers)
+            var branches = await _context.Branchs.ToListAsync();
+            if (branches.Count < 5)
             {
+                throw new Exception("Not enough branches found. Please seed at least 5 branches.");
+            }
+
+            var cashierRole = await _context.StaffRole.FirstOrDefaultAsync(r => r.StaffRoleName == "Cashier");
+            var specialistRole = await _context.StaffRole.FirstOrDefaultAsync(r => r.StaffRoleName == "Specialist");
+
+            if (cashierRole == null || specialistRole == null)
+            {
+                throw new Exception("Staff roles not found. Please seed 'Cashier' and 'Specialist' roles first.");
+            }
+
+            var staffList = new List<Staff>();
+            int userIndex = 0;
+
+            foreach (var branch in branches)
+            {
+                // 1 Cashier
                 staffList.Add(new Staff
                 {
-                    UserId = user.UserId, // Lấy ID của user tương ứng
-                    BranchId = branchIds[random.Next(branchIds.Count)], // Gán Branch ngẫu nhiên
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
+                    UserId = staffUsers[userIndex++].UserId,
+                    BranchId = branch.BranchId,
+                    RoleId = cashierRole.StaffRoleId,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
                 });
+
+                // 9 Specialists
+                for (int i = 0; i < 9; i++)
+                {
+                    staffList.Add(new Staff
+                    {
+                        UserId = staffUsers[userIndex++].UserId,
+                        BranchId = branch.BranchId,
+                        RoleId = specialistRole.StaffRoleId,
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
+                    });
+                }
             }
 
-            // Lưu danh sách Staff vào cơ sở dữ liệu
             await _context.Staffs.AddRangeAsync(staffList);
             await _context.SaveChangesAsync();
         }
+
 
         private async Task SeedProductImages()
         {

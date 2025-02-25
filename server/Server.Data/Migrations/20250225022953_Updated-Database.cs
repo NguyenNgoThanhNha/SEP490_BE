@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Updated_Database : Migration
+    public partial class UpdatedDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -132,6 +132,24 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Shifts",
+                columns: table => new
+                {
+                    ShiftId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ShiftName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time(6)", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time(6)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Shifts", x => x.ShiftId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "SkincareRoutine",
                 columns: table => new
                 {
@@ -148,6 +166,23 @@ namespace Server.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SkincareRoutine", x => x.SkincareRoutineId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "StaffRole",
+                columns: table => new
+                {
+                    StaffRoleId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    StaffRoleName = table.Column<string>(type: "longtext", nullable: false),
+                    Description = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffRole", x => x.StaffRoleId);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -933,6 +968,7 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     BranchId = table.Column<int>(type: "int", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -944,6 +980,12 @@ namespace Server.Data.Migrations
                         column: x => x.BranchId,
                         principalTable: "Branch",
                         principalColumn: "BranchId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Staff_StaffRole_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "StaffRole",
+                        principalColumn: "StaffRoleId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Staff_User_UserId",
@@ -1164,6 +1206,37 @@ namespace Server.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Schedule_Staff_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staff",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Work_Schedule",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    ShiftId = table.Column<int>(type: "int", nullable: false),
+                    DayOfWeek = table.Column<int>(type: "int", nullable: false),
+                    WorkDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Work_Schedule", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Work_Schedule_Shifts_ShiftId",
+                        column: x => x.ShiftId,
+                        principalTable: "Shifts",
+                        principalColumn: "ShiftId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Work_Schedule_Staff_StaffId",
                         column: x => x.StaffId,
                         principalTable: "Staff",
                         principalColumn: "StaffId",
@@ -1634,6 +1707,11 @@ namespace Server.Data.Migrations
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Staff_RoleId",
+                table: "Staff",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Staff_UserId",
                 table: "Staff",
                 column: "UserId",
@@ -1684,6 +1762,16 @@ namespace Server.Data.Migrations
                 name: "IX_UserRoutineStep_UserRoutineId",
                 table: "UserRoutineStep",
                 column: "UserRoutineId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Work_Schedule_ShiftId",
+                table: "Work_Schedule",
+                column: "ShiftId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Work_Schedule_StaffId",
+                table: "Work_Schedule",
+                column: "StaffId");
         }
 
         /// <inheritdoc />
@@ -1759,6 +1847,9 @@ namespace Server.Data.Migrations
                 name: "UserRoutineLogger");
 
             migrationBuilder.DropTable(
+                name: "Work_Schedule");
+
+            migrationBuilder.DropTable(
                 name: "Appointments");
 
             migrationBuilder.DropTable(
@@ -1775,6 +1866,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserRoutineStep");
+
+            migrationBuilder.DropTable(
+                name: "Shifts");
 
             migrationBuilder.DropTable(
                 name: "Bed");
@@ -1802,6 +1896,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Voucher");
+
+            migrationBuilder.DropTable(
+                name: "StaffRole");
 
             migrationBuilder.DropTable(
                 name: "SkincareRoutine");
