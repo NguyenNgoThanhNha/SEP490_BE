@@ -21,15 +21,18 @@ public class SkinAnalyzeService
     private readonly UnitOfWorks _unitOfWorks;
     private readonly IMapper _mapper;
     private readonly ILogger<SkinAnalyzeService> _logger;
+    private readonly CloudianryService _cloudianryService;
 
     private readonly AISkinSetting _aiSkinSetting;
     private static readonly HttpClient HttpClient = new HttpClient();
 
-    public SkinAnalyzeService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<AISkinSetting> aiSkinSetting, ILogger<SkinAnalyzeService> logger)
+    public SkinAnalyzeService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<AISkinSetting> aiSkinSetting, 
+        ILogger<SkinAnalyzeService> logger, CloudianryService cloudianryService)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
         _logger = logger;
+        _cloudianryService = cloudianryService;
         _logger = logger;
         _aiSkinSetting = aiSkinSetting.Value;
     }
@@ -127,6 +130,20 @@ public class SkinAnalyzeService
             // Save SkinHealth data to the database
             await _unitOfWorks.SkinHealthRepository.AddAsync(skinHealth);
             await _unitOfWorks.SkinHealthRepository.Commit();
+            
+            // upload image to cloudinary
+            var uploadResult = await _cloudianryService.UploadImageAsync(file);
+            
+            var skinHealthImage = new SkinHealthImage
+            {
+                ImageUrl = uploadResult != null ? uploadResult.SecureUrl.ToString() : "",
+                SkinHealthId = skinHealth.SkinHealthId,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+            
+            await _unitOfWorks.SkinHealthImageRepository.AddAsync(skinHealthImage);
+            await _unitOfWorks.SkinHealthImageRepository.Commit();
 
             // Process skin concerns
             var skinConcerns = GetSkinConcerns(apiResult);

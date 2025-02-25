@@ -1123,6 +1123,29 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "SkinHealthImage",
+                columns: table => new
+                {
+                    SkinHealthImageId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ImageUrl = table.Column<string>(type: "longtext", nullable: false),
+                    SkinHealthId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkinHealthImage", x => x.SkinHealthImageId);
+                    table.ForeignKey(
+                        name: "FK_SkinHealthImage_SkinHealth_SkinHealthId",
+                        column: x => x.SkinHealthId,
+                        principalTable: "SkinHealth",
+                        principalColumn: "SkinHealthId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "UserRoutineStep",
                 columns: table => new
                 {
@@ -1702,6 +1725,11 @@ namespace Server.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SkinHealthImage_SkinHealthId",
+                table: "SkinHealthImage",
+                column: "SkinHealthId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Staff_BranchId",
                 table: "Staff",
                 column: "BranchId");
@@ -1838,7 +1866,7 @@ namespace Server.Data.Migrations
                 name: "Shipping");
 
             migrationBuilder.DropTable(
-                name: "SkinHealth");
+                name: "SkinHealthImage");
 
             migrationBuilder.DropTable(
                 name: "Transaction");
@@ -1863,6 +1891,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Product");
+
+            migrationBuilder.DropTable(
+                name: "SkinHealth");
 
             migrationBuilder.DropTable(
                 name: "UserRoutineStep");
