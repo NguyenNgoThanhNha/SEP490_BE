@@ -40,6 +40,7 @@ namespace Server.Data.Entities
         public DbSet<ServiceImages> ServiceImages { get; set; }
         public DbSet<SkinHealth> SkinHealths { get; set; }
         public DbSet<SkincareRoutine> SkincareRoutines { get; set; }
+        public DbSet<SkinCareRoutineStep> SkinCareRoutineStep { get; set; }
         public DbSet<UserRoutine> UserRoutines { get; set; }
         public DbSet<ProductRoutine> ProductRoutines { get; set; }
         public DbSet<ServiceRoutine> ServiceRoutine { get; set; }

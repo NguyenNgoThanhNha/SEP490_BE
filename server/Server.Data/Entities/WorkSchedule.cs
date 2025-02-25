@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Server.Data;
 using Server.Data.Entities;
 
 [Table("Work_Schedule")]
@@ -23,6 +24,7 @@ public class WorkSchedule
     
     public DateTime WorkDate { get; set; }
     
+    public string Status { get; set; } = ObjectStatus.Active.ToString();
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

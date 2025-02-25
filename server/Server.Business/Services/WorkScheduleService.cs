@@ -38,6 +38,12 @@ public class WorkScheduleService
             throw new BadRequestException("Staff or Shift not found");
         }
         
+        // Kiểm tra nếu ngày đăng ký nhỏ hơn 7 ngày so với hôm nay
+        if (workSheduleRequest.FromDate < DateTime.Today.AddDays(7))
+        {
+            throw new BadRequestException("Lịch làm việc phải được đăng ký trước ít nhất 1 tuần.");
+        }
+        
         var existingSchedules = await _unitOfWork.WorkScheduleRepository
             .FindByCondition(ws => ws.StaffId == staff.StaffId 
                                 && ws.WorkDate >= workSheduleRequest.FromDate 

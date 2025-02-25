@@ -1347,6 +1347,41 @@ namespace Server.Data.Migrations
                     b.ToTable("Shipping");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.SkinCareRoutineStep", b =>
+                {
+                    b.Property<int>("SkinCareRoutineStepId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<TimeSpan?>("IntervalBeforeNextStep")
+                        .HasColumnType("time(6)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("SkincareRoutineId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Step")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("SkinCareRoutineStepId");
+
+                    b.HasIndex("SkincareRoutineId");
+
+                    b.ToTable("SkinCareRoutineStep");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.SkinHealth", b =>
                 {
                     b.Property<int>("SkinHealthId")
@@ -1875,6 +1910,12 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("Step")
                         .HasColumnType("int");
 
@@ -1956,6 +1997,10 @@ namespace Server.Data.Migrations
 
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
@@ -2478,6 +2523,17 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.SkinCareRoutineStep", b =>
+                {
+                    b.HasOne("Server.Data.Entities.SkincareRoutine", "SkincareRoutine")
+                        .WithMany()
+                        .HasForeignKey("SkincareRoutineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SkincareRoutine");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.SkinHealth", b =>
