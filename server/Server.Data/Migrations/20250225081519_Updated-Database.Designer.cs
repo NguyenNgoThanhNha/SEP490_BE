@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250225044719_Updated-Database")]
+    [Migration("20250225081519_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -1556,6 +1556,39 @@ namespace Server.Data.Migrations
                     b.ToTable("Staff");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.StaffLeave", b =>
+                {
+                    b.Property<int>("StaffLeaveId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("LeaveDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StaffLeave_StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("StaffLeaveId");
+
+                    b.HasIndex("StaffLeave_StaffId");
+
+                    b.ToTable("StaffLeave");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.StaffRole", b =>
                 {
                     b.Property<int>("StaffRoleId")
@@ -2497,6 +2530,17 @@ namespace Server.Data.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("StaffInfo");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.StaffLeave", b =>
+                {
+                    b.HasOne("Server.Data.Entities.Staff", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffLeave_StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Transaction", b =>

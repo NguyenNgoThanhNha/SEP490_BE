@@ -1237,6 +1237,31 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "StaffLeave",
+                columns: table => new
+                {
+                    StaffLeaveId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    StaffLeave_StaffId = table.Column<int>(type: "int", nullable: false),
+                    LeaveDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Reason = table.Column<string>(type: "longtext", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StaffLeave", x => x.StaffLeaveId);
+                    table.ForeignKey(
+                        name: "FK_StaffLeave_Staff_StaffLeave_StaffId",
+                        column: x => x.StaffLeave_StaffId,
+                        principalTable: "Staff",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Work_Schedule",
                 columns: table => new
                 {
@@ -1746,6 +1771,11 @@ namespace Server.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_StaffLeave_StaffLeave_StaffId",
+                table: "StaffLeave",
+                column: "StaffLeave_StaffId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transaction_CustomerId",
                 table: "Transaction",
                 column: "CustomerId");
@@ -1867,6 +1897,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "SkinHealthImage");
+
+            migrationBuilder.DropTable(
+                name: "StaffLeave");
 
             migrationBuilder.DropTable(
                 name: "Transaction");

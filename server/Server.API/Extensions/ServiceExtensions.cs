@@ -146,6 +146,8 @@ namespace Server.API.Extensions
             services.AddScoped<BlogCommentService>();
             services.AddScoped<ServiceCategoryService>();
             services.AddScoped<RoutineService>();
+            services.AddScoped<WorkScheduleService>();
+            services.AddScoped<ShiftService>();
             return services;
         }
     };
