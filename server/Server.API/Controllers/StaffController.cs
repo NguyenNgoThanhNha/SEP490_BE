@@ -457,7 +457,7 @@ namespace Server.API.Controllers
             {
                 return NotFound(new
                 {
-                    success = false,
+                    success = true,
                     result = new
                     {
                         message = "Specialist schedule not found or the staff is not a specialist."
@@ -471,6 +471,35 @@ namespace Server.API.Controllers
                 result = new
                 {
                     message = "Specialist schedule retrieved successfully.",
+                    data = schedule
+                }
+            });
+        }
+
+        //[Authorize]
+        [HttpGet("cashier-schedule")]
+        public async Task<IActionResult> GetCashierScheduleAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int? month, [FromQuery] int? week)
+        {
+            var schedule = await _staffService.GetCashierScheduleAsync(staffId, year, month, week);
+
+            if (schedule == null || !schedule.Any())
+            {
+                return NotFound(new
+                {
+                    success = true,
+                    result = new
+                    {
+                        message = "Cashier schedule not found or the staff is not a cashier."
+                    }
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Cashier schedule retrieved successfully.",
                     data = schedule
                 }
             });

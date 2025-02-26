@@ -12,6 +12,7 @@ using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
 using Server.Business.Exceptions;
 using Server.Business.Models;
+using System.Globalization;
 
 namespace Server.Business.Services
 {
@@ -628,6 +629,60 @@ namespace Server.Business.Services
 
             return new List<SpecialistScheduleDto> { result };
         }
+
+        public async Task<List<CashierScheduleDto>> GetCashierScheduleAsync(int staffId, int year, int? month, int? week)
+        {
+            var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
+            if (staff == null || staff.RoleId != 1)
+            {
+                return new List<CashierScheduleDto>(); // Không phải cashier, trả về danh sách rỗng
+            }
+
+            DateTime startDate, endDate;
+
+            if (month.HasValue)
+            {
+                startDate = new DateTime(year, month.Value, 1);
+                endDate = startDate.AddMonths(1).AddDays(-1);
+            }
+            else if (week.HasValue)
+            {
+                startDate = ISOWeek.ToDateTime(year, week.Value, DayOfWeek.Monday);
+                endDate = startDate.AddDays(6);
+            }
+            else
+            {
+                return new List<CashierScheduleDto>(); // Nếu không có tháng hoặc tuần hợp lệ, trả về danh sách rỗng
+            }
+
+            var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
+                ws => ws.StaffId == staffId && ws.WorkDate >= startDate && ws.WorkDate <= endDate
+            );
+
+            if (!schedules.Any())
+            {
+                return new List<CashierScheduleDto>();
+            }
+
+            var result = new CashierScheduleDto
+            {
+                StaffId = staffId,
+                //FullName = staff., // Gán tên của cashier
+                Schedules = schedules.Select(s => new WorkScheduleDto
+                {
+                    ScheduleId = s.Id,
+                    WorkDate = s.WorkDate,
+                    DayOfWeek = s.DayOfWeek,
+                    ShiftName = s.Shift.ShiftName,
+                    StartTime = s.Shift.StartTime,
+                    EndTime = s.Shift.EndTime,
+                    Status = s.Status
+                }).ToList()
+            };
+
+            return new List<CashierScheduleDto> { result };
+        }
+
 
 
 
