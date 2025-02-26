@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons.Request;
 using Server.Business.Exceptions;
 using Server.Business.Models;
+using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 
@@ -85,5 +86,45 @@ public class WorkScheduleService
         await _unitOfWork.WorkScheduleRepository.AddRangeAsync(workSchedule);
     }
 
-    
+    public async Task<bool> UpdateWorkScheduleForStaffLeaveAsync(WorkScheduleForStaffLeaveRequest workScheduleForStaffLeaveRequest)
+    {
+        var workSchedule = await _unitOfWork.WorkScheduleRepository
+            .FirstOrDefaultAsync(ws => ws.StaffId == workScheduleForStaffLeaveRequest.StaffLeaveId 
+                                       && ws.ShiftId == workScheduleForStaffLeaveRequest.ShiftId
+                                    && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate
+                                    && ws.DayOfWeek == workScheduleForStaffLeaveRequest.DayOfWeek);
+        if (workSchedule == null)
+        {
+            throw new BadRequestException("Work schedule not found");
+        }
+        
+        var workScheduleReplace = await _unitOfWork.WorkScheduleRepository
+            .FirstOrDefaultAsync(ws => ws.StaffId == workScheduleForStaffLeaveRequest.StaffReplaceId 
+                                       && ws.ShiftId == workScheduleForStaffLeaveRequest.ShiftId
+                                       && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate
+                                       && ws.DayOfWeek == workScheduleForStaffLeaveRequest.DayOfWeek);
+        
+        if (workScheduleReplace != null)
+        {
+            throw new BadRequestException("Work schedule for staff replace already exists");
+        }
+
+        workSchedule.Status = ObjectStatus.InActive.ToString();
+        workSchedule.UpdatedDate = DateTime.Now;
+
+        _unitOfWork.WorkScheduleRepository.Update(workSchedule);
+        
+        var createWorkSchedule = new WorkSchedule
+        {
+            StaffId = workScheduleForStaffLeaveRequest.StaffReplaceId,
+            ShiftId = workScheduleForStaffLeaveRequest.ShiftId,
+            DayOfWeek = workScheduleForStaffLeaveRequest.DayOfWeek,
+            WorkDate = workScheduleForStaffLeaveRequest.WorkDate,
+            CreatedDate = DateTime.Now,
+            UpdatedDate = DateTime.Now
+        };
+        await _unitOfWork.WorkScheduleRepository.AddAsync(createWorkSchedule);
+        return await _unitOfWork.WorkScheduleRepository.Commit() > 0;
+    }
+ 
 }

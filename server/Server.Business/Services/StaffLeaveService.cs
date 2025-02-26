@@ -3,6 +3,7 @@ using MongoDB.Driver.Linq;
 using Server.Business.Commons.Request;
 using Server.Business.Exceptions;
 using Server.Business.Models;
+using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 
@@ -60,6 +61,38 @@ public class StaffLeaveService
         }
 
         return null;
+    }
+    
+    public async Task<bool> ApproveStaffLeaveAsync(int staffLeaveId)
+    {
+        var staffLeave = await _unitOfWorks.StaffLeaveRepository.GetByIdAsync(staffLeaveId);
+        if (staffLeave == null)
+        {
+            throw new BadRequestException("Staff leave not found");
+        }
+
+        staffLeave.Status = StaffLeaveStatus.Approved.ToString();
+        staffLeave.UpdatedDate = DateTime.Now;
+
+        _unitOfWorks.StaffLeaveRepository.Update(staffLeave);
+        var result = await _unitOfWorks.StaffLeaveRepository.Commit();
+        return result > 0;
+    }
+    
+    public async Task<bool> RejectStaffLeaveAsync(int staffLeaveId)
+    {
+        var staffLeave = await _unitOfWorks.StaffLeaveRepository.GetByIdAsync(staffLeaveId);
+        if (staffLeave == null)
+        {
+            throw new BadRequestException("Staff leave not found");
+        }
+
+        staffLeave.Status = StaffLeaveStatus.Rejected.ToString();
+        staffLeave.UpdatedDate = DateTime.Now;
+
+        _unitOfWorks.StaffLeaveRepository.Update(staffLeave);
+        var result = await _unitOfWorks.StaffLeaveRepository.Commit();
+        return result > 0;
     }
 
 }

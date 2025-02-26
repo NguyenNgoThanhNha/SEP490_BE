@@ -1,6 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Server.Business.Exceptions;
 using Server.Business.Ultils;
 
 namespace Server.Business.Services;
@@ -66,8 +67,7 @@ public class MailService
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it as per your application's requirements
-                return false;
+                throw new BadRequestException(ex.Message);
             }
         }
     }

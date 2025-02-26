@@ -380,4 +380,29 @@ public class AppointmentsService
 
         return null;
     }
+    
+    public async Task<List<AppointmentsModel>> GetListAppointmentsByStaffId(int staffId, int shiftId, DateTime workDate)
+    {
+
+        var shiftOfStaff = await _unitOfWorks.ShiftRepository.FirstOrDefaultAsync(x => x.ShiftId == shiftId);
+        if (shiftOfStaff == null)
+        {
+            return new List<AppointmentsModel>(); 
+        }
+        
+        var listAppointments = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => 
+                x.StaffId == staffId &&
+                x.AppointmentsTime >= workDate.Date.Add(shiftOfStaff.StartTime) &&
+                x.AppointmentsTime <= workDate.Date.Add(shiftOfStaff.EndTime))
+            .Include(x => x.Staff)
+            .ThenInclude(x => x.StaffInfo)
+            .Include(x => x.Customer)
+            .Include(x => x.Branch)
+            .Include(x => x.Service)
+            .ToListAsync();
+
+        return _mapper.Map<List<AppointmentsModel>>(listAppointments);
+    }
+
+
 }

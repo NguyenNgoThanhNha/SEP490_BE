@@ -170,11 +170,7 @@ namespace Server.API.Controllers
                 data = response.data
             });
         }
-
-
-
-
-
+        
 
         [HttpDelete("delete/{staffId}")]
         public async Task<ApiResult<ApiResponse>> DeleteStaff(int staffId)
@@ -410,6 +406,45 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+        
+        [Authorize("Admin, Manager")]
+        [HttpPut("approve-staff-leave/{staffLeaveId}")]
+        public async Task<IActionResult> ApproveStaffLeaveAsync(int staffLeaveId, [FromBody] string note)
+        {
+            var result = await _staffLeaveService.ApproveStaffLeaveAsync(staffLeaveId);
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Failed to approve staff leave."
+                }));
+            }
 
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Staff leave approved successfully.",
+                data = note
+            }));
+        }
+
+        [Authorize("Admin, Manager")]
+        [HttpPut("reject-staff-leave/{staffLeaveId}")]
+        public async Task<IActionResult> RejectStaffLeaveAsync(int staffLeaveId, [FromBody] string note)
+        {
+            var result = await _staffLeaveService.RejectStaffLeaveAsync(staffLeaveId);
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Failed to reject staff leave."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Staff leave rejected successfully.",
+                data = note
+            }));
+        }
     }
 }
