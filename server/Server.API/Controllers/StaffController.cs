@@ -446,5 +446,92 @@ namespace Server.API.Controllers
                 data = note
             }));
         }
+
+       // [Authorize]
+        [HttpGet("specialist-schedule")]
+        public async Task<IActionResult> GetSpecialistScheduleAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int month)
+        {
+            var schedule = await _staffService.GetSpecialistScheduleAsync(staffId, year, month);
+
+            if (schedule == null || !schedule.Any())
+            {
+                return NotFound(new
+                {
+                    success = true,
+                    result = new
+                    {
+                        message = "Specialist schedule not found or the staff is not a specialist."
+                    }
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Specialist schedule retrieved successfully.",
+                    data = schedule
+                }
+            });
+        }
+
+        //[Authorize]
+        [HttpGet("cashier-schedule")]
+        public async Task<IActionResult> GetCashierScheduleAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int? month, [FromQuery] int? week)
+        {
+            var schedule = await _staffService.GetCashierScheduleAsync(staffId, year, month, week);
+
+            if (schedule == null || !schedule.Any())
+            {
+                return NotFound(new
+                {
+                    success = true,
+                    result = new
+                    {
+                        message = "Cashier schedule not found or the staff is not a cashier."
+                    }
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Cashier schedule retrieved successfully.",
+                    data = schedule
+                }
+            });
+        }
+
+       // [Authorize]
+        [HttpGet("staff-schedule/{staffId}/{workDate}")]
+        public async Task<IActionResult> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
+        {
+            var schedule = await _staffService.GetStaffScheduleByDayAsync(staffId, workDate);
+
+            if (schedule == null || !schedule.Schedules.Any())
+            {
+                return NotFound(new
+                {
+                    success = true,
+                    message = "No work schedule found for this staff on the given date."
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Successfully retrieved staff schedule!",
+                    data = schedule
+                }
+            });
+        }
+
+
+
     }
 }
