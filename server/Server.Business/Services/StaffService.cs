@@ -590,5 +590,47 @@ namespace Server.Business.Services
           
         }
 
+        public async Task<List<SpecialistScheduleDto>> GetSpecialistScheduleAsync(int staffId, int year, int month)
+        {
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            // Kiểm tra xem nhân viên có phải là specialist (StaffRoleId = 2)
+            var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
+            if (staff == null || staff.RoleId != 2)
+            {
+                return new List<SpecialistScheduleDto>();  // Trả về danh sách rỗng nếu không phải specialist
+            }
+
+            var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
+                ws => ws.StaffId == staffId && ws.WorkDate >= startDate && ws.WorkDate <= endDate
+            );
+
+            if (!schedules.Any())
+            {
+                return new List<SpecialistScheduleDto>();
+            }
+
+            var result = new SpecialistScheduleDto
+            {
+                StaffId = staffId,
+                Schedules = schedules.Select(s => new WorkScheduleDto
+                {
+                    ScheduleId = s.Id,
+                    WorkDate = s.WorkDate,
+                    DayOfWeek = s.DayOfWeek,
+                    ShiftName = s.Shift.ShiftName,
+                    StartTime = s.Shift.StartTime,
+                    EndTime = s.Shift.EndTime,
+                    Status = s.Status
+                }).ToList()
+            };
+
+            return new List<SpecialistScheduleDto> { result };
+        }
+
+
+
+
     }
 }

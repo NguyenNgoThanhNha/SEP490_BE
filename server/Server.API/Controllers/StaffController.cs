@@ -446,5 +446,37 @@ namespace Server.API.Controllers
                 data = note
             }));
         }
+
+       // [Authorize]
+        [HttpGet("specialist-schedule")]
+        public async Task<IActionResult> GetSpecialistScheduleAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int month)
+        {
+            var schedule = await _staffService.GetSpecialistScheduleAsync(staffId, year, month);
+
+            if (schedule == null || !schedule.Any())
+            {
+                return NotFound(new
+                {
+                    success = false,
+                    result = new
+                    {
+                        message = "Specialist schedule not found or the staff is not a specialist."
+                    }
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Specialist schedule retrieved successfully.",
+                    data = schedule
+                }
+            });
+        }
+
+
+
     }
 }
