@@ -505,6 +505,32 @@ namespace Server.API.Controllers
             });
         }
 
+       // [Authorize]
+        [HttpGet("staff-schedule/{staffId}/{workDate}")]
+        public async Task<IActionResult> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
+        {
+            var schedule = await _staffService.GetStaffScheduleByDayAsync(staffId, workDate);
+
+            if (schedule == null || !schedule.Schedules.Any())
+            {
+                return NotFound(new
+                {
+                    success = true,
+                    message = "No work schedule found for this staff on the given date."
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Successfully retrieved staff schedule!",
+                    data = schedule
+                }
+            });
+        }
+
 
 
     }

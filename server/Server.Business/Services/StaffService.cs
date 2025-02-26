@@ -683,6 +683,37 @@ namespace Server.Business.Services
             return new List<CashierScheduleDto> { result };
         }
 
+        public async Task<StaffScheduleDto> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
+        {
+            var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
+            if (staff == null)
+            {
+                return null; // Không tìm thấy nhân viên
+            }
+
+            var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
+                ws => ws.StaffId == staffId && ws.WorkDate.Date == workDate.Date
+            );
+
+            var result = new StaffScheduleDto
+            {
+                StaffId = staffId,
+                //FullName = staff.StaffInfo.FullName,
+                Schedules = schedules.Select(s => new WorkScheduleDto
+                {
+                    ScheduleId = s.Id,
+                    WorkDate = s.WorkDate,
+                    DayOfWeek = s.DayOfWeek,
+                    ShiftName = s.Shift.ShiftName,
+                    StartTime = s.Shift.StartTime,
+                    EndTime = s.Shift.EndTime,
+                    Status = s.Status
+                }).ToList()
+            };
+
+            return result;
+        }
+
 
 
 
