@@ -149,6 +149,7 @@ namespace Server.API.Extensions
             services.AddScoped<WorkScheduleService>();
             services.AddScoped<ShiftService>();
             services.AddScoped<StaffLeaveService>();
+            services.AddScoped<MongoDbService>();
             return services;
         }
     };

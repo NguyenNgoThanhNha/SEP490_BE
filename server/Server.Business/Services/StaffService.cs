@@ -10,6 +10,8 @@ using Server.Data.Entities;
 using Server.Data.Helpers;
 using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
+using Server.Business.Exceptions;
+using Server.Business.Models;
 
 namespace Server.Business.Services
 {
@@ -337,6 +339,7 @@ namespace Server.Business.Services
             }
         }
 
+        
 
 
         public async Task<ApiResponse> GetStaffByIdAsync(int staffId)
@@ -566,6 +569,26 @@ namespace Server.Business.Services
         }
 
 
+        public async Task<StaffModel> GetStaffById(int staffId)
+        {
+
+                // Sử dụng UnitOfWorks để lấy thông tin Staff
+                var staff = await _unitOfWorks.StaffRepository
+                    .GetAll() // Lấy tất cả dữ liệu từ repository
+                    .Include(s => s.StaffInfo)  // Bao gồm thông tin người dùng (User)
+                    .Include(s => s.Branch) // Bao gồm thông tin chi nhánh (Branch)
+                    .FirstOrDefaultAsync(s => s.StaffId == staffId);
+
+                // Kiểm tra nếu không tìm thấy staff
+                if (staff == null)
+                {
+                    throw new BadRequestException("Staff not found.");
+                }
+
+                // Trả về dữ liệu staff
+                return _mapper.Map<StaffModel>(staff);
+          
+        }
 
     }
 }
