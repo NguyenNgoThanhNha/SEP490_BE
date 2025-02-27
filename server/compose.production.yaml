@@ -41,6 +41,8 @@ services:
       - ElasticSettings__defaultIndex=${ElasticSettingsDefaultIndex}
       - ElasticSettings__finger=${ElasticSettingsFinger}
       - ElasticSettings__password=${ElasticSettingsPassword}
+      - MongoDbSetting__ConnectionString=${MongoDbSettingConnectionString}
+      - MongoDbSetting__DatabaseName=${MongoDbSettingDatabaseName}
     ports:
       - ${PortServer}:8080
     depends_on:
@@ -68,9 +70,21 @@ services:
       - es_data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - 27017:27017
 volumes:
   spa_mysql_data:
   es_data:
+  mongo_data:
 
     # The commented out section below is an example of how to define a PostgreSQL
     # database that your application can use. `depends_on` tells Docker Compose to
