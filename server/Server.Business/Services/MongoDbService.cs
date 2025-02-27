@@ -1,5 +1,8 @@
-﻿using Server.Data.MongoDb.Models;
+﻿using MongoDB.Driver.Linq;
+using Server.Data.Entities;
+using Server.Data.MongoDb.Models;
 using Server.Data.MongoDb.Repository;
+using Server.Data.UnitOfWorks;
 
 namespace Server.Business.Services;
 
@@ -8,11 +11,48 @@ public class MongoDbService
     private readonly CustomerRepository _customerRepository;
     private readonly ChannelsRepository _channelsRepository;
     private readonly MessageRepository _messageRepository;
-    public MongoDbService(CustomerRepository customerRepository, ChannelsRepository channelsRepository, MessageRepository messageRepository)
+    private readonly UnitOfWorks _unitOfWorks;
+
+    public MongoDbService(CustomerRepository customerRepository, ChannelsRepository channelsRepository, 
+        MessageRepository messageRepository, UnitOfWorks unitOfWorks)
     {
         _customerRepository = customerRepository;
         _channelsRepository = channelsRepository;
         _messageRepository = messageRepository;
+        _unitOfWorks = unitOfWorks;
+    }
+    
+    // create customer from MySQL to MongoDB
+    public async Task<Customers> CreateCustomerAsync(int userId)
+    {
+        var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == userId);
+        var newCustomer = new Customers
+        {
+            FullName = customer.FullName ?? "",
+            Password = customer.Password ?? "",
+            UserId = customer.UserId,
+            Image = customer.Avatar ?? "",
+            Email = customer.Email,
+        };
+        await _customerRepository.AddAsync(newCustomer);
+        return newCustomer;
+    }
+    
+    // sync all customer from MySQL to MongoDB
+    public async Task SyncAllCustomersAsync(List<User> customers)
+    {
+        foreach (var customer in customers)
+        {
+            var newCustomer = new Customers
+            {
+                FullName = customer.FullName ?? "",
+                Password = customer.Password ?? "",
+                UserId = customer.UserId,
+                Image = customer.Avatar ?? "",
+                Email = customer.Email,
+            };
+            await _customerRepository.AddAsync(newCustomer);
+        }
     }
     
     // tạo mới channel

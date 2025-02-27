@@ -60,11 +60,11 @@ public class ChatHubs : Hub
 
         if (UserSocketMap.TryGetValue(recipientId, out var recipientSocketId))
         {
-            await Clients.Client(recipientSocketId).SendAsync("receiveMessage", sender.FirstName, content);
+            await Clients.Client(recipientSocketId).SendAsync("receiveMessage", sender.FullName, content);
         }
         if (UserSocketMap.TryGetValue(senderId, out var senderSocketId))
         {
-            await Clients.Client(senderSocketId).SendAsync("receiveMessage", sender.FirstName, content);
+            await Clients.Client(senderSocketId).SendAsync("receiveMessage", sender.FullName, content);
         }
     }
 

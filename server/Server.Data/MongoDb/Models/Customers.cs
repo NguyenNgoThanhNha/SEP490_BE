@@ -20,14 +20,11 @@ public class Customers
     [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
     public string Password { get; set; }
 
-    [BsonElement("firstName")]
-    public string FirstName { get; set; }
+    [BsonElement("fullName")]
+    public string FullName { get; set; }
     
     [BsonElement("userId")]
     public int UserId { get; set; }
-
-    [BsonElement("lastName")]
-    public string LastName { get; set; }
 
     [BsonElement("image")]
     public string Image { get; set; }
