@@ -376,8 +376,16 @@ public class SkinAnalyzeService
             .ToList();
     }
 
+    
+    public async Task<List<SkinHealthImage>> GetSkinHealthImages(int userId)
+    {
+        var skinHealthImages = await _unitOfWorks.SkinHealthImageRepository
+            .FindByCondition(shi => shi.SkinHealth.UserId == userId)
+            .Include(x => x.SkinHealth)
+            .ToListAsync();
 
-
+        return skinHealthImages;
+    }
 
 
 }
