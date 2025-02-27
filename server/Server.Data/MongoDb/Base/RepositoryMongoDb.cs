@@ -31,6 +31,11 @@ public class RepositoryMongoDb<T> : IRepositoryMongoDB<T> where T : class
         var objectId = new ObjectId(id);
         return await _collection.Find(Builders<T>.Filter.Eq("_id", objectId)).FirstOrDefaultAsync();
     }
+    
+    public async Task<T?> GetByIdAsync(int id)
+    {
+        return await _collection.Find(Builders<T>.Filter.Eq("userId", id)).FirstOrDefaultAsync();
+    }
 
     public async Task<T> AddAsync(T entity)
     {
