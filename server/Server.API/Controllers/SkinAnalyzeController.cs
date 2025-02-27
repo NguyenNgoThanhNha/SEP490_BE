@@ -110,6 +110,41 @@ namespace Server.API.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("get-skin-healths")]
+        public async Task<IActionResult> GetSkinHealth()
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+
+            // Lấy thông tin user từ token
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Customer info not found!"
+                }));
+            }
+
+            var skinHealthImages = await _skinAnalyzeService.GetSkinHealthImages(currentUser.UserId);
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get skin health successfully!",
+                data = skinHealthImages
+            }));
+        }
 
     }
 }
