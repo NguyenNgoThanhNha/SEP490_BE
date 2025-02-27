@@ -82,4 +82,10 @@ public class MongoDbService
     {
         return await _channelsRepository.GetByIdAsync(channelId);
     }
+    
+    // get customer theo id
+    public async Task<Customers?> GetCustomerByIdAsync(int userId)
+    {
+        return await _customerRepository.GetByIdAsync(userId);
+    }
 }

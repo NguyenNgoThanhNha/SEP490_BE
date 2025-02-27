@@ -19,9 +19,11 @@ namespace Server.API.Controllers
         private readonly StaffService _staffService;
         private readonly MongoDbService _mongoDbService;
         private readonly AuthService _authService;
+        private readonly UserService _userService;
 
         public WorkScheduleController(WorkScheduleService workScheduleService, AppointmentsService appointmentsService, 
-            MailService mailService, StaffService staffService, MongoDbService mongoDbService, AuthService authService)
+            MailService mailService, StaffService staffService, MongoDbService mongoDbService, AuthService authService,
+            UserService userService)
         {
             _workScheduleService = workScheduleService;
             _appointmentsService = appointmentsService;
@@ -29,6 +31,7 @@ namespace Server.API.Controllers
             _staffService = staffService;
             _mongoDbService = mongoDbService;
             _authService = authService;
+            _userService = userService;
         }
         
         [Authorize]
@@ -64,6 +67,26 @@ namespace Server.API.Controllers
         var listAppointments = await _appointmentsService
             .GetListAppointmentsByStaffId(workScheduleRequest.StaffLeaveId, workScheduleRequest.ShiftId, workScheduleRequest.WorkDate);
 
+        if(listAppointments == null)
+        {
+            return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+            {
+                message = "Staff does not have any appointments."
+            }));
+        }
+        
+        
+        // 3. Cập nhật lịch làm việc
+        var result = await _workScheduleService.UpdateWorkScheduleForStaffLeaveAsync(workScheduleRequest);
+        if (!result)
+        {
+            return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+            {
+                message = "Update work schedules failed",
+            }));
+        }
+        
+        // 4. Gửi email thông báo cho Specialist và Customer
         if (listAppointments != null && listAppointments.Count > 0)
         {
             var newStaff = await _staffService.GetStaffById(workScheduleRequest.StaffReplaceId);
@@ -135,9 +158,22 @@ namespace Server.API.Controllers
                         <p style=""text-align: center; color: #888; font-size: 14px;"">Powered by Team Solace</p>
                     </div>"
                 };
+                // get specialist MySQL
+                var specialistMySQL = await _staffService.GetStaffById(workScheduleRequest.StaffReplaceId);
+                
+                // get admin, specialist, customer from MongoDB
+                var adminMongo = await _mongoDbService.GetCustomerByIdAsync(admin.UserId);
+                var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+                var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+                
+                // create channel
+                var channel = await _mongoDbService.CreateChannelAsync("Channel", adminMongo!.Id);
+                
+                // add member to channel
+                await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+                await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
 
-
-                // 3. Gửi email thông báo
+                // Gửi email thông báo
                 _ = Task.Run(async () =>
                 {
                     await _mailService.SendEmailAsync(specialistEmailData, false);
@@ -146,19 +182,6 @@ namespace Server.API.Controllers
                 });
             }
         }
-
-        // 4. Cập nhật lịch làm việc
-        var result = await _workScheduleService.UpdateWorkScheduleForStaffLeaveAsync(workScheduleRequest);
-        if (!result)
-        {
-            return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-            {
-                message = "Update work schedules failed",
-            }));
-        }
-        
-        // create channel and add member to channel
-        
 
         // 5. Trả về kết quả thành công
         return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
