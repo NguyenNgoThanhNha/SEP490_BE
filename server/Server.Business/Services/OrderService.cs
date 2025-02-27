@@ -338,8 +338,8 @@ namespace Server.Business.Services
         
         // Cập nhật thông tin đặt cọc vào Order
         order.OrderCode = orderCode;
+        order.StatusPayment = OrderStatusPaymentEnum.PendingDeposit.ToString();
         order.Note = $"Đặt cọc {depositPercent}% với số tiền: {depositAmount:C}";
-        order.Status = "Deposit Pending";
         order.UpdatedDate = DateTime.Now;
 
         // Lưu thay đổi

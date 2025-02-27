@@ -20,7 +20,9 @@ public class Voucher
     
     public string Description { get; set; }
     
-    public decimal Discount { get; set; }
+    public decimal DiscountAmount { get; set; }
+    
+    public decimal MinOrderAmount { get; set; } // giá trị đơn hàng tối thiểu để sử dụng voucher
     
     public DateTime ValidFrom { get; set; }
     

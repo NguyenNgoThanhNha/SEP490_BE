@@ -119,6 +119,10 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("StatusPayment")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(18,2)");
 
@@ -706,6 +710,9 @@ namespace Server.Data.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Note")
                         .HasColumnType("longtext");
 
@@ -717,6 +724,10 @@ namespace Server.Data.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("StatusPayment")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -747,16 +758,26 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<decimal?>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PromotionId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("StatusPayment")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -774,6 +795,8 @@ namespace Server.Data.Migrations
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("PromotionId");
 
                     b.ToTable("OrderDetail");
                 });
@@ -1953,7 +1976,10 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<decimal>("Discount")
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("MinOrderAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
@@ -2322,9 +2348,15 @@ namespace Server.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ProductId");
 
+                    b.HasOne("Server.Data.Entities.Promotion", "Promotion")
+                        .WithMany()
+                        .HasForeignKey("PromotionId");
+
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+
+                    b.Navigation("Promotion");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Product", b =>

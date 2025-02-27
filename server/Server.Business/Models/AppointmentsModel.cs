@@ -30,7 +30,7 @@ public class AppointmentsModel
     
     public DateTime AppointmentsTime { get; set; }
 
-    public string Status { get; set; } = OrderStatusEnum.Pending.ToString(); // Pending, Paid, Completed, Cancelled
+    public string Status { get; set; }
     
     public string Notes { get; set; }
     
@@ -41,6 +41,9 @@ public class AppointmentsModel
     public decimal UnitPrice { get; set; }
     
     public decimal SubTotal  { get; set; } // (Quantity * UnitPrice)
+    
+    public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
+
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;

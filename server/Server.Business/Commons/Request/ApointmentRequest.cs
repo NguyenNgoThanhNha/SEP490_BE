@@ -20,4 +20,6 @@ public class ApointmentRequest
     public string Notes { get; set; }
     
     public string? Feedback { get; set; }
+    
+    public int VoucherId { get; set; }
 }

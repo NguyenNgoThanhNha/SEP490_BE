@@ -72,6 +72,8 @@ namespace Server.API.Controllers
                     .FindByCondition(o => o.OrderCode == orderCode)
                     .FirstOrDefaultAsync();
 
+                var deposit = order?.StatusPayment;
+
                 if (order == null)
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -89,7 +91,14 @@ namespace Server.API.Controllers
 
                     foreach (var appointment in appointments)
                     {
-                        appointment.Status = OrderStatusEnum.Paid.ToString();
+                        if(deposit == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                        {
+                            appointment.StatusPayment = OrderStatusPaymentEnum.PaidDeposit.ToString();
+                        }
+                        else
+                        {
+                            appointment.StatusPayment = OrderStatusPaymentEnum.Paid.ToString();
+                        }
                         appointment.UpdatedDate = DateTime.Now;
                         _unitOfWorks.AppointmentsRepository.Update(appointment);
                     }
@@ -104,7 +113,14 @@ namespace Server.API.Controllers
 
                     foreach (var orderDetail in orderDetails)
                     {
-                        orderDetail.Status = OrderStatusEnum.Paid.ToString();
+                        if(deposit == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                        {
+                            orderDetail.StatusPayment = OrderStatusPaymentEnum.PaidDeposit.ToString();
+                        }
+                        else
+                        {
+                            orderDetail.StatusPayment = OrderStatusPaymentEnum.Paid.ToString();
+                        }
                         orderDetail.UpdatedDate = DateTime.Now;
                         _unitOfWorks.OrderDetailRepository.Update(orderDetail);
                     }
@@ -124,7 +140,14 @@ namespace Server.API.Controllers
                 }
 
                 // Cập nhật trạng thái Order
-                order.Status = OrderStatusEnum.Paid.ToString();
+                if (order.StatusPayment == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                {
+                    order.StatusPayment = OrderStatusPaymentEnum.PaidDeposit.ToString();
+                }
+                else
+                {
+                    order.StatusPayment = OrderStatusPaymentEnum.Paid.ToString();
+                }
                 order.UpdatedDate = DateTime.Now;
 
                 _unitOfWorks.OrderRepository.Update(order);
