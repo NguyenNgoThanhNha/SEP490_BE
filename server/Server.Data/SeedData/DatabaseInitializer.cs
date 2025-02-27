@@ -453,49 +453,49 @@ namespace Server.Data.SeedData
                 new Category
                 {
                     Name = "Cleanser", 
-                    Description = "Sản phẩm làm sạch da mặt, loại bỏ bụi bẩn và dầu thừa", 
+                    Description = "Facial cleanser, removes dirt and excess oil", 
                     Status = "Active", 
                     ImageUrl = "https://example.com/facial-treatment.jpg"
                 },
                 new Category
                 {
                     Name = "Toner", 
-                    Description = "Cân bằng độ pH cho da, giúp da mềm mại và sẵn sàng hấp thụ dưỡng chất", 
+                    Description = "Balances skin pH, leaving skin soft and ready to absorb nutrients", 
                     Status = "Active", 
                     ImageUrl = "https://example.com/anti-aging.jpg"
                 },
                 new Category
                 {
                     Name = "Serum", 
-                    Description = "Tinh chất cô đặc giúp điều trị các vấn đề về da như mụn và thâm", 
+                    Description = "Concentrated essence helps treat skin problems such as acne and dark spots", 
                     Status = "Active", 
                     ImageUrl = "https://example.com/acne-treatment.jpg"
                 },
                 new Category
                 {
                     Name = "Moisturizer", 
-                    Description = "Kem dưỡng ẩm giúp cung cấp độ ẩm cần thiết cho da", 
+                    Description = "Moisturizer helps provide necessary moisture to the skin", 
                     Status = "Active", 
                     ImageUrl = "https://example.com/whitening-therapy.jpg"
                 },
                 new Category
                 {
                     Name = "Sun Cream", 
-                    Description = "Kem chống nắng bảo vệ da khỏi tác hại của tia UV", 
+                    Description = "Sunscreen protects skin from harmful UV rays", 
                     Status = "Active",
                     ImageUrl = "https://example.com/skin-detox.jpg"
                 },
                 new Category
                 {
                     Name = "Mask", 
-                    Description = "Mặt nạ dưỡng da giúp cung cấp dưỡng chất và độ ẩm sâu", 
+                    Description = "Skin care mask helps provide deep nutrients and moisture", 
                     Status = "Active", 
                     ImageUrl = "https://example.com/moisturizing.jpg"
                 },
                 new Category
                 {
                     Name = "Exfoliants", 
-                    Description = "Tẩy tế bào chết, làm sạch lỗ chân lông và cải thiện kết cấu da", 
+                    Description = "Exfoliates, unclogs pores and improves skin texture", 
 
                     Status = "Active", 
                     ImageUrl = "https://example.com/eye-treatment.jpg"
@@ -503,7 +503,7 @@ namespace Server.Data.SeedData
                 new Category
                 {
                     Name = "Body", 
-                    Description = "Sản phẩm chăm sóc cơ thể giúp da mịn màng và săn chắc", 
+                    Description = "Body care products for smooth and firm skin", 
 
                     Status = "Active", 
                     ImageUrl = "https://example.com/lifting-firming.jpg"
@@ -511,7 +511,7 @@ namespace Server.Data.SeedData
                 new Category
                 {
                     Name = "Shampoo", 
-                    Description = "Dầu gội giúp làm sạch tóc và da đầu", 
+                    Description = "Shampoo helps clean hair and scalp", 
  
                     Status = "Active",
                     ImageUrl = "https://example.com/body-massage.jpg"
@@ -519,7 +519,7 @@ namespace Server.Data.SeedData
                 new Category
                 {
                     Name = "Conditioner", 
-                    Description = "Dầu xả giúp tóc mềm mượt và chắc khỏe", 
+                    Description = "Conditioner for soft, smooth and strong hair", 
                     Status = "Active", 
                     ImageUrl = "https://example.com/hot-stone-therapy.jpg"
                 },
@@ -537,7 +537,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Facial Treatment", 
-                    Description = "Dịch vụ chăm sóc da mặt chuyên sâu, làm sạch và tái tạo làn da", 
+                    Description = "Intensive facial care, cleansing and skin regeneration", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/facial-treatment.jpg",
                     CreatedDate = DateTime.Now,
@@ -546,7 +546,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Massage Therapy", 
-                    Description = "Liệu pháp massage thư giãn, giảm căng thẳng và mệt mỏi", 
+                    Description = "Relaxing massage therapy, reduces stress and fatigue", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/massage-therapy.jpg",
                     CreatedDate = DateTime.Now,
@@ -555,7 +555,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Body Scrub", 
-                    Description = "Dịch vụ tẩy tế bào chết toàn thân giúp làm sáng và mịn da", 
+                    Description = "Full body exfoliation service helps brighten and smooth skin", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/body-scrub.jpg",
                     CreatedDate = DateTime.Now,
@@ -564,7 +564,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Hair Treatment", 
-                    Description = "Chăm sóc tóc chuyên nghiệp, phục hồi tóc hư tổn và nuôi dưỡng tóc", 
+                    Description = "Professional hair care, damaged hair repair and hair nourishment", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/hair-treatment.jpg",
                     CreatedDate = DateTime.Now,
@@ -573,7 +573,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Manicure & Pedicure", 
-                    Description = "Dịch vụ làm móng chuyên nghiệp, giúp bạn có bộ móng đẹp và khỏe", 
+                    Description = "Professional nail service, helping you have beautiful and healthy nails", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/manicure-pedicure.jpg",
                     CreatedDate = DateTime.Now,
@@ -582,7 +582,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Waxing & Hair Removal", 
-                    Description = "Dịch vụ tẩy lông chuyên nghiệp, an toàn và hiệu quả", 
+                    Description = "Professional, safe and effective hair removal service", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/waxing-hair-removal.jpg",
                     CreatedDate = DateTime.Now,
@@ -591,7 +591,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Anti-Aging Treatment", 
-                    Description = "Liệu trình chống lão hóa, giúp giảm nếp nhăn và trẻ hóa làn da", 
+                    Description = "Anti-aging treatment, helps reduce wrinkles and rejuvenate the skin", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/anti-aging-treatment.jpg",
                     CreatedDate = DateTime.Now,
@@ -600,7 +600,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Aromatherapy", 
-                    Description = "Liệu pháp sử dụng tinh dầu thiên nhiên để thư giãn và cân bằng cơ thể", 
+                    Description = "Therapy using natural essential oils to relax and balance the body", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/aromatherapy.jpg",
                     CreatedDate = DateTime.Now,
@@ -610,7 +610,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Hair Styling", 
-                    Description = "Dịch vụ tạo kiểu tóc, giúp bạn có mái tóc hoàn hảo và thời trang", 
+                    Description = "Hair styling service, helps you have perfect and fashionable hair", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/hair-styling.jpg",
                     CreatedDate = DateTime.Now,
@@ -619,7 +619,7 @@ namespace Server.Data.SeedData
                 new ServiceCategory
                 {
                     Name = "Nail Art", 
-                    Description = "Dịch vụ trang trí móng nghệ thuật, tạo nên vẻ đẹp độc đáo cho bộ móng của bạn", 
+                    Description = "Nail art decoration service, creating unique beauty for your nails", 
                     Status = "Active", 
                     Thumbnail = "https://example.com/nail-art.jpg",
                     CreatedDate = DateTime.Now,
