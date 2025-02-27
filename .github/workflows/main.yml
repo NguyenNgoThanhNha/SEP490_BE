@@ -45,3 +45,5 @@ jobs:
           ElasticSettingsDefaultIndex: ${{ secrets.ElasticSettingsDefaultIndex }}
           ElasticSettingsFinger: ${{ secrets.ElasticSettingsFinger }}
           ElasticSettingsPassword: ${{ secrets.ElasticSettingsPassword }}
+          MongoDbSettingConnectionString: ${{ secrets.MongoDbSettingConnectionString }}
+          MongoDbSettingDatabaseName: ${{ secrets.MongoDbSettingDatabaseName }}
