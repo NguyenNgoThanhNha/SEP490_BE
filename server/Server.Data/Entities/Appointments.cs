@@ -53,6 +53,7 @@ public class Appointments
     
     public decimal SubTotal  { get; set; } // (Quantity * UnitPrice)
     
+    public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

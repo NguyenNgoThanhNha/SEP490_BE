@@ -16,12 +16,21 @@ public class OrderDetail
     [ForeignKey("Product_OrderDetail")]
     public int? ProductId { get; set; }
     public virtual Product Product { get; set; }
+    
+    [ForeignKey("Product_OrderDetail_Promotion")]
+    public int? PromotionId { get; set; }
+    public virtual Promotion? Promotion { get; set; }
+    
     public int Quantity { get; set; }
     
     public decimal UnitPrice { get; set; }
     
     public decimal SubTotal  { get; set; } // (Quantity * UnitPrice)
+    
+    public decimal? DiscountAmount { get; set; } // (SubTotal * DiscountPercent)
     public string Status { get; set; } = OrderStatusEnum.Pending.ToString();
+    
+    public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

@@ -5527,7 +5527,8 @@ namespace Server.Data.SeedData
                     RemainQuantity = random.Next(0, 50), // Random remaining quantity (less than or equal to Quantity)
                     Status = random.NextDouble() < 0.5 ? "Active" : "Inactive", // Random status (50% chance for active or inactive)
                     Description = "Discount voucher for various products", // Example description
-                    Discount = random.Next(5, 50), // Random discount between 5% and 50%
+                    DiscountAmount = random.Next(5, 50), // Random discount between 5% and 50%
+                    MinOrderAmount = random.Next(5, 500),
                     ValidFrom = DateTime.Now.AddDays(-random.Next(30, 60)), // Random start date (between 30 and 60 days ago)
                     ValidTo = DateTime.Now.AddDays(random.Next(30, 60)), // Random expiration date (30 to 60 days from now)
                     CreatedDate = DateTime.Now,

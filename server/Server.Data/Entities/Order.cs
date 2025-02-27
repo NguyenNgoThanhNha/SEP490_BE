@@ -21,9 +21,13 @@ public class Order
     public virtual Voucher? Voucher { get; set; }
 
     public decimal TotalAmount { get; set; }
+    
+    public decimal? DiscountAmount { get; set; }
 
     public string OrderType { get; set; } 
     public string Status { get; set; } = OrderStatusEnum.Pending.ToString();
+
+    public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
 
     public string? Note { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
