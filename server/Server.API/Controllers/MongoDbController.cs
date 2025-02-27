@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Server.Business.Services;
 using Server.Data.MongoDb.Models;
 using Server.Data.MongoDb.Repository;
 using Server.Data.UnitOfWorks;
@@ -14,15 +16,17 @@ namespace Server.API.Controllers
         private readonly ChannelsRepository _channelsRepository;
         private readonly MessageRepository _messageRepository;
         private readonly UnitOfWorks _unitOfWorks;
+        private readonly MongoDbService _mongoDbService;
 
         public MongoDbController(CustomerRepository customerRepository, ChannelsRepository channelsRepository, 
-            MessageRepository messageRepository, UnitOfWorks unitOfWorks 
+            MessageRepository messageRepository, UnitOfWorks unitOfWorks, MongoDbService mongoDbService 
             )
         {
             _customerRepository = customerRepository;
             _channelsRepository = channelsRepository;
             _messageRepository = messageRepository;
             _unitOfWorks = unitOfWorks;
+            _mongoDbService = mongoDbService;
         }
         
         [HttpGet("customers")]
@@ -52,8 +56,7 @@ namespace Server.API.Controllers
             var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == 1);
             var newCustomer = new Customers()
             {
-                FirstName = "Customer 1",
-                LastName = "Customer 1",
+                FullName = customer.FullName ?? "",
                 Password = customer.Password ?? "",
                 UserId = customer.UserId,
                 Image = customer.Avatar ?? "",
@@ -62,5 +65,15 @@ namespace Server.API.Controllers
             var newCustomerCreated = await _customerRepository.AddAsync(newCustomer);
             return Ok(newCustomer);
         }
+        
+        // sync all customer from MySQL to MongoDB
+        [HttpPost("sync-customers")]
+        public async Task<IActionResult> SyncCustomers()
+        {
+            var customers = await _unitOfWorks.UserRepository.GetAll().ToListAsync();
+            await _mongoDbService.SyncAllCustomersAsync(customers);
+            return Ok();
+        }
+        
     }
 }
