@@ -34,4 +34,5 @@ public class Order
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+    public virtual ICollection<Appointments> Appointments { get; set; }
 }

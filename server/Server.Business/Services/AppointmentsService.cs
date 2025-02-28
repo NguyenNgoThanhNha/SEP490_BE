@@ -338,30 +338,26 @@ public class AppointmentsService
         return null;
     }
 
-    public async Task<GetAllAppointmentResponse> BookingAppointmentHistory(int userId, string status, int page = 1, int pageSize = 5)
+    public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, int page = 1, int pageSize = 5)
     {
-        var listAppointments = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.CustomerId == userId)
-            .Include(x => x.Order)
-            .Include(x => x.Staff).ThenInclude(x => x.StaffInfo)
-            .Include(x => x.Branch)
-            .Include(x => x.Service)
+        var listOrders = await _unitOfWorks.OrderRepository.FindByCondition(x => x.CustomerId == userId)
             .Where(x => x.Status == status)
             .ToListAsync();
-        if (listAppointments.Equals(null))
+        if (listOrders.Equals(null))
         {
             return null;
         }
-        var totalCount = listAppointments.Count();
+        var totalCount = listOrders.Count();
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-        var pagedServices = listAppointments.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        var pagedServices = listOrders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-        var appointmentsModels = _mapper.Map<List<AppointmentsModel>>(pagedServices);
+        var orderModels = _mapper.Map<List<OrderModel>>(pagedServices);
 
-        return new GetAllAppointmentResponse()
+        return new HistoryBookingResponse()
         {
-            data = appointmentsModels,
+            data = orderModels,
             pagination = new Pagination
             {
                 page = page,

@@ -86,7 +86,9 @@ namespace Server.Business.Mappers
             CreateMap<WorkSchedule, WorkScheduleModel>().ReverseMap();
             CreateMap<Shifts, ShiftModel>().ReverseMap();
             CreateMap<StaffLeave, StaffLeaveModel>().ReverseMap();
-
+            
+            CreateMap<Order, OrderModel>().ReverseMap();
+            CreateMap<OrderDetail, OrderDetailModels>();
         }
     }
 }

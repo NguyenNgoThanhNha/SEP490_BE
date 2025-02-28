@@ -284,49 +284,7 @@ namespace Server.API.Controllers
                 data = _mapper.Map<AppointmentsDTO>(appointmentsModel)
             }));
         }
-
-        [Authorize]
-        [HttpGet("history-booking")]
-        public async Task<IActionResult> HistoryBooking([FromQuery] string status ,int page = 1, int pageSize = 5)
-        {
-            // Lấy token từ header
-            if (!Request.Headers.TryGetValue("Authorization", out var token))
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Authorization header is missing."
-                }));
-            }
-
-            // Chia tách token
-            var tokenValue = token.ToString().Split(' ')[1];
-            // accessUser
-            var currentUser = await _authService.GetUserInToken(tokenValue);
-
-            if (currentUser == null)
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Customer info not found!"
-                }));
-            }
-            var appointments = await _appointmentsService.BookingAppointmentHistory(currentUser.UserId, status ,page, pageSize);
-            if (appointments.data == null)
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "History booking not found!"
-                }));
-            }
-
-            return Ok(ApiResult<GetAllAppointmentResponse>.Succeed(new GetAllAppointmentResponse()
-            {
-                message = appointments.message,
-                data = appointments.data,
-                pagination = appointments.pagination
-            }));
-        }
-
+        
         [Authorize]
         [HttpPut("cancel-booking/{id}")]
         public async Task<IActionResult> CancleBooking([FromRoute] int id)
