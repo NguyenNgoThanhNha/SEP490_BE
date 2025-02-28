@@ -36,6 +36,7 @@ public class OrderModel
     public string? Note { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
-
-    public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+    
+    public List<OrderDetailModels> OrderDetails { get; set; }
+    public List<AppointmentsModel> Appointments { get; set; }
 }
