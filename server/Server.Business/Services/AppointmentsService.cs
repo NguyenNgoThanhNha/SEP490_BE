@@ -96,7 +96,7 @@ public class AppointmentsService
             CustomerId = userId,
             TotalAmount = 0, // Sẽ tính toán dựa trên các dịch vụ
             OrderType = "Appointment",
-            VoucherId = request.VoucherId,
+            VoucherId = request.VoucherId > 0 ? request.VoucherId : null,
             DiscountAmount = voucher?.DiscountAmount,
             Status = OrderStatusEnum.Pending.ToString(),
             Note = request.Notes,
