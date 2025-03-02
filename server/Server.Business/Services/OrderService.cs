@@ -448,5 +448,74 @@ namespace Server.Business.Services
                 data = _mapper.Map<OrderModel>(order)
             };
         }
+
+        public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
+        {
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                return false;
+            }
+            
+            // Kiểm tra nếu Status không hợp lệ
+            if (!string.IsNullOrEmpty(request.Status) && !Enum.IsDefined(typeof(OrderStatusEnum), request.Status))
+            {
+                throw new BadRequestException($"Status must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusEnum)))}.");
+            }
+            
+            if (!string.IsNullOrEmpty(request.Status) && !Enum.IsDefined(typeof(OrderStatusPaymentEnum), request.Status))
+            {
+                throw new BadRequestException($"Status Order Payment must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusPaymentEnum)))}.");
+            }
+
+            var appointment = new Appointments()
+            {
+                CustomerId = request.CustomerId,
+                OrderId = order.OrderId,
+                BranchId = request.BranchId,
+                ServiceId = request.ServiceId,
+                StaffId = request.StaffId,
+                AppointmentsTime = request.AppointmentsTime,
+                Status = request.Status ?? OrderStatusEnum.Pending.ToString(),
+                StatusPayment = request.StatusPayment ?? OrderStatusPaymentEnum.Pending.ToString(),
+                Notes = request.Notes ?? "",
+                Feedback = request?.Feedback ?? "",
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+
+            await _unitOfWorks.AppointmentsRepository.AddAsync(appointment);
+            return await _unitOfWorks.AppointmentsRepository.Commit() > 0;
+        }
+        
+        public async Task<bool> CreateMoreOrderProduct(int orderId, OrderDetailRequest request)
+        {
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                return false;
+            }
+            
+            var product = await _unitOfWorks.ProductRepository.GetByIdAsync(request.ProductId);
+
+            var productPrice = product?.Price ?? 0;
+            
+            var orderDetail = new OrderDetail
+            {
+                OrderId = orderId,
+                ProductId = request.ProductId,
+                PromotionId = request.PromotionId > 0 ? request.PromotionId : null,
+                Quantity = request.Quantity,
+                UnitPrice = productPrice,
+                SubTotal = request.Quantity * productPrice,
+                Status = request.Status ?? OrderStatusEnum.Pending.ToString(),
+                StatusPayment = request.StatusPayment ?? OrderStatusPaymentEnum.Pending.ToString(),
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+
+            await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+            return await _unitOfWorks.OrderDetailRepository.Commit() > 0;
+        }
     }
 }

@@ -165,6 +165,86 @@ namespace Server.API.Controllers
                 data = order.data
             }));
         }
+        
+        [Authorize]
+        [HttpPost("create-order-appointment-more/{orderId}")]
+        public async Task<IActionResult> CreateOrderAppointmentMore(int orderId,[FromBody] AppointmentUpdateRequest req)
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Customer info not found!"
+                }));
+            }
+            var order = await _orderService.CreateMoreOrderAppointment(orderId, req);
+            if (order == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Create order appointment more failed!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Create order appointment more successfully"
+            }));
+        }
+        
+        [Authorize]
+        [HttpPost("create-order-product-more/{orderId}")]
+        public async Task<IActionResult> CreateOrderProductMore(int orderId,[FromBody] OrderDetailRequest req)
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Customer info not found!"
+                }));
+            }
+            var order = await _orderService.CreateMoreOrderProduct(orderId, req);
+            if (order == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Create order product more failed!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Create order product more successfully"
+            }));
+        }
 
     }
 }

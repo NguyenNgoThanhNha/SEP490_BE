@@ -2079,7 +2079,7 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Server.Data.Entities.Order", "Order")
-                        .WithMany()
+                        .WithMany("Appointments")
                         .HasForeignKey("OrderId");
 
                     b.HasOne("Server.Data.Entities.Room", "Room")
@@ -2762,6 +2762,8 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Order", b =>
                 {
+                    b.Navigation("Appointments");
+
                     b.Navigation("OrderDetails");
                 });
 

@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250227163456_Updated-Database")]
+    [Migration("20250302135123_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -2082,7 +2082,7 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Server.Data.Entities.Order", "Order")
-                        .WithMany()
+                        .WithMany("Appointments")
                         .HasForeignKey("OrderId");
 
                     b.HasOne("Server.Data.Entities.Room", "Room")
@@ -2765,6 +2765,8 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Order", b =>
                 {
+                    b.Navigation("Appointments");
+
                     b.Navigation("OrderDetails");
                 });
 
