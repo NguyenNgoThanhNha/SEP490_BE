@@ -20,7 +20,9 @@ public class AppointmentUpdateRequest
     
     public string? Status { get; set; }
     
-    public string Notes { get; set; }
+    public string? StatusPayment { get; set; }
+    
+    public string? Notes { get; set; }
     
     public string? Feedback { get; set; }
 }
