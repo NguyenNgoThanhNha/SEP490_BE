@@ -389,6 +389,10 @@ namespace Server.Business.Services
             int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository.FindByCondition(x => x.CustomerId == userId)
+                .Include(x => x.Customer)
+                .Include(x => x.Voucher)
+                .Include(x => x.Appointments)
+                .Include(x => x.OrderDetails)
                 .Where(x => x.Status == status)
                 .ToListAsync();
             if (listOrders.Equals(null))
@@ -426,6 +430,8 @@ namespace Server.Business.Services
                 var orderAppointments = await _unitOfWorks.AppointmentsRepository
                     .FindByCondition(x => x.OrderId == orderId)
                     .Include(x => x.Service)
+                    .Include(x => x.Staff)
+                    .ThenInclude(x => x.StaffInfo)
                     .ToListAsync();
                 order.Appointments = orderAppointments;
             }else if (order.OrderType == "Product")

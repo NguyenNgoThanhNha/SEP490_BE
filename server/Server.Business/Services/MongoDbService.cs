@@ -41,6 +41,7 @@ public class MongoDbService
     // sync all customer from MySQL to MongoDB
     public async Task SyncAllCustomersAsync(List<User> customers)
     {
+        await _customerRepository.RemoveAllAsync();
         foreach (var customer in customers)
         {
             var newCustomer = new Customers

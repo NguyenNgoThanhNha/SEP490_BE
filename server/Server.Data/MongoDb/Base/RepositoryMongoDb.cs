@@ -56,4 +56,10 @@ public class RepositoryMongoDb<T> : IRepositoryMongoDB<T> where T : class
         var filter = Builders<T>.Filter.Eq("_id", ObjectId.Parse(id));
         await _collection.DeleteOneAsync(filter);
     }
+    
+    public async Task RemoveAllAsync()
+    {
+        await _collection.DeleteManyAsync(FilterDefinition<T>.Empty);
+    }
+
 }

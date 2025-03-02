@@ -179,7 +179,7 @@ namespace Server.API.Controllers
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Appointments and order created successfully! Confirmation email has been sent.",
-                data = order
+                data = order.OrderId
             }));
         }
 
