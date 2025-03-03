@@ -39,6 +39,8 @@ namespace Server.Data.UnitOfWorks
         private WorkScheduleRepository _workScheduleRepository;
         private ShiftRepository _shiftRepository;
         private StaffLeaveRepository _staffLeaveRepository;
+        private FeedbackAppointmentRepository _feedbackAppointmentRepository;
+        private FeedbackServiceRepository _feedbackServiceRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -202,6 +204,16 @@ namespace Server.Data.UnitOfWorks
         public StaffLeaveRepository StaffLeaveRepository
         {
             get { return _staffLeaveRepository ??= new StaffLeaveRepository(_dbContext); }
+        }
+        
+        public FeedbackAppointmentRepository FeedbackAppointmentRepository
+        {
+            get { return _feedbackAppointmentRepository ??= new FeedbackAppointmentRepository(_dbContext); }
+        }
+        
+        public FeedbackServiceRepository FeedbackServiceRepository
+        {
+            get { return _feedbackServiceRepository ??= new FeedbackServiceRepository(_dbContext); }
         }
     }
 }

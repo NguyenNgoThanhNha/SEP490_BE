@@ -21,7 +21,7 @@ public class ProductFeedback
     
     public int? Rating { get; set; }
 
-    public string Status { get; set; } = FeedbackStatus.Pending.ToString();
+    public string Status { get; set; } = FeedbackStatus.NotFeedbacked.ToString();
     
     public string? CreatedBy { get; set; }
     

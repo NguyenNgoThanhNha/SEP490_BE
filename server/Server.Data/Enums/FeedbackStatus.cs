@@ -2,7 +2,6 @@
 
 public enum FeedbackStatus
 {
-    Pending = 0,  
-    Approved = 1, 
-    Rejected = 2
+    NotFeedbacked = 0, // Chưa Feedback
+    Feedbacked = 1      // Đã Feedback
 }
