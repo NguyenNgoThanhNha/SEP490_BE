@@ -48,10 +48,6 @@ namespace Server.Data.Entities
         public DbSet<Cart> Cart { get; set; }
         public DbSet<ProductCart> ProductCart { get; set; }
         public DbSet<ServiceCategory> ServiceCategory { get; set; }
-        public DbSet<Room> Room { get; set; }
-        public DbSet<Bed> Bed { get; set; }
-        public DbSet<BedType> BedType { get; set; }
-        public DbSet<BedAvailability> BedAvailability { get; set; }
         
         public DbSet<AppointmentFeedback> AppointmentFeedback { get; set; }
         public DbSet<ProductFeedback> ProductFeedback { get; set; }

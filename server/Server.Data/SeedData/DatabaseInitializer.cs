@@ -183,21 +183,6 @@ namespace Server.Data.SeedData
                     await SeedSkincareRoutineSteps();
                 }
                 
-                if (!_context.BedType.Any())
-                {
-                    await SeedBedTypes();
-                }
-                
-                if (!_context.Room.Any())
-                {
-                    await SeedRooms();
-                }
-                
-                if (!_context.Bed.Any())
-                {
-                    await SeedBeds();
-                }
-                
                 if (!_context.Shifts.Any())
                 {
                     await SeedShifts();
@@ -5624,7 +5609,7 @@ namespace Server.Data.SeedData
                             // Random thời gian hẹn trong khoảng 30 ngày tới
                             AppointmentsTime = DateTime.Now.AddDays(random.Next(1, 31)).AddHours(random.Next(8, 18)),
 
-                            Status = random.Next(2) == 0 ? "Pending" : "Confirmed", // Ngẫu nhiên trạng thái
+                            Status = random.Next(2) == 0 ? "Pending" : "Completed", // Ngẫu nhiên trạng thái
                             Notes = "Note " + random.Next(1, 1000), // Ghi chú ngẫu nhiên
                             Feedback = "No feedback yet", // Feedback hoặc null
                             CreatedDate = DateTime.Now,
@@ -5814,99 +5799,6 @@ namespace Server.Data.SeedData
         }
         await _context.SaveChangesAsync();
     }
-    
-    private async Task SeedBedTypes()
-{
-    var bedTypes = new List<BedType>
-    {
-        new BedType { Name = "Standard Bed", Description = "A basic bed for standard use.", Thumbnail = "standard_bed.jpg" },
-        new BedType { Name = "Deluxe Bed", Description = "A luxurious bed for enhanced comfort.", Thumbnail = "deluxe_bed.jpg" },
-        new BedType { Name = "Hydrotherapy Bed", Description = "A bed designed for hydrotherapy treatments.", Thumbnail = "hydrotherapy_bed.jpg" },
-        new BedType { Name = "Massage Bed", Description = "A specialized bed for massage services.", Thumbnail = "massage_bed.jpg" },
-        new BedType { Name = "Facial Bed", Description = "A comfortable bed for facial treatments.", Thumbnail = "facial_bed.jpg" }
-    };
-
-    await _context.BedType.AddRangeAsync(bedTypes);
-    await _context.SaveChangesAsync();
-}
-
-    private async Task SeedRooms()
-    {
-        var rooms = new List<Room>();
-
-        // Lấy danh sách các ServiceCategory
-        var serviceCategories = await _context.ServiceCategory.ToListAsync();
-
-        // Đảm bảo rằng có đủ 10 ServiceCategory
-        if (serviceCategories.Count != 10)
-        {
-            throw new InvalidOperationException("Cần có 10 ServiceCategory để chia đều cho 10 phòng.");
-        }
-
-        // Duyệt qua mỗi chi nhánh (BranchId từ 1 đến 5)
-        for (int branchId = 1; branchId <= 5; branchId++)
-        {
-            // Tạo 5 tầng, mỗi tầng có 2 phòng
-            for (int floor = 1; floor <= 5; floor++)
-            {
-                // Tạo 2 phòng cho mỗi tầng
-                for (int roomIndex = 1; roomIndex <= 2; roomIndex++)
-                {
-                    var roomNumber = (floor * 100) + roomIndex; // Tạo tên phòng ví dụ: 101, 102, 201, 202,...
-
-                    // Tính chỉ số ServiceCategory cần gán cho phòng này
-                    int serviceCategoryIndex = ((branchId - 1) * 10 + (floor - 1) * 2 + (roomIndex - 1)) % 10;
-                    
-                    rooms.Add(new Room
-                    {
-                        Name = $"Room {roomNumber}", // Tên phòng, ví dụ: Room 101, Room 102, Room 201...
-                        Description = $"Room {roomNumber} is a comfortable and relaxing space in branch {branchId}.",
-                        Thumbnail = $"room_{roomNumber}.jpg", // Tên file hình ảnh
-                        Status = ObjectStatus.Active.ToString(),
-                        BranchId = branchId,
-                        // Gán mỗi phòng với một ServiceCategory tương ứng
-                        ServiceCategoryId = serviceCategories[serviceCategoryIndex].ServiceCategoryId
-                    });
-                }
-            }
-        }
-
-        // Thêm danh sách phòng vào database
-        await _context.Room.AddRangeAsync(rooms);
-        await _context.SaveChangesAsync();
-    }
-
-
-    
-    private async Task SeedBeds()
-    {
-        var rooms = await _context.Room.ToListAsync();
-        var bedTypes = await _context.BedType.ToListAsync();
-
-        var beds = new List<Bed>();
-        var random = new Random();
-
-        foreach (var room in rooms)
-        {
-            for (int i = 0; i < 5; i++) // Mỗi phòng có 5 giường
-            {
-                var bedType = bedTypes[random.Next(bedTypes.Count)]; // Chọn ngẫu nhiên BedType
-
-                beds.Add(new Bed
-                {
-                    Name = $"{room.Name} - Bed {i + 1}",
-                    Description = $"{bedType.Name} in {room.Name}.",
-                    Thumbnail = bedType.Thumbnail,
-                    RoomId = room.RoomId,
-                    Status = ObjectStatus.Active.ToString(),
-                    BedTypeId = bedType.BedTypeId
-                });
-            }
-        }
-
-        await _context.Bed.AddRangeAsync(beds);
-        await _context.SaveChangesAsync();
-    } 
     }
 
 

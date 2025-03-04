@@ -71,6 +71,13 @@ namespace Server.Business.Services
             };
         }
 
+        public async Task<StaffModel> GetStaffByUserId(int userId)
+        {
+            var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.UserId == userId)
+                .FirstOrDefaultAsync();
+            if (staff == null) return null;
+            return _mapper.Map<StaffModel>(staff);
+        }
 
 
 

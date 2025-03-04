@@ -77,28 +77,6 @@ namespace Server.API.Controllers
             }));
         }
         
-        [Authorize]
-        [HttpGet("get-room-by-branch")]
-        public async Task<IActionResult> GetRoomByBranch([FromQuery] int branchId)
-        {
-            // Gọi service để lấy danh sách phòng theo chi nhánh
-            var rooms = await _branchService.GetAllRoomAndBedInBranch(branchId);
-
-            // Kiểm tra kết quả
-            if (rooms == null || !rooms.Any())
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Currently, there are no rooms in this branch!"
-                }));
-            }
-
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-            {
-                message = "Get rooms and beds successfully!",
-                data = rooms
-            }));
-        }
 
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetBranchById(int id)
