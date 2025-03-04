@@ -19,12 +19,6 @@ public class AppointmentsDTO
     public int BranchId { get; set; }
     public virtual BranchDTO Branch { get; set; }
     
-    public int? RoomId { get; set; }
-    public virtual Room Room { get; set; }
-    
-    public int? BedId { get; set; }
-    public virtual Bed Bed { get; set; }
-    
     public DateTime AppointmentsTime { get; set; }
     
     public string Status { get; set; }

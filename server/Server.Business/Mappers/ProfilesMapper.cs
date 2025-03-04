@@ -77,12 +77,6 @@ namespace Server.Business.Mappers
             CreateMap<ServiceCategory, ServiceCategoryDto>().ReverseMap();
             CreateMap<ServiceCategoryModel, ServiceCategoryDto>().ReverseMap();
             
-            
-            CreateMap<BedType, BedTypeModel>().ReverseMap();
-
-            CreateMap<Bed, BedModel>().ReverseMap();
-
-            CreateMap<Room, RoomModel>().ReverseMap();
             CreateMap<WorkSchedule, WorkScheduleModel>().ReverseMap();
             CreateMap<Shifts, ShiftModel>().ReverseMap();
             CreateMap<StaffLeave, StaffLeaveModel>().ReverseMap();

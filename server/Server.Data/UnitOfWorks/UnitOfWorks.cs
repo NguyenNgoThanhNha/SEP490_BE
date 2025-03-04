@@ -31,9 +31,6 @@ namespace Server.Data.UnitOfWorks
         private SkincareRoutineRepository _skincareRoutineRepository;
         private SkinHealthRepository _skinHealthRepository;
         private ServiceCategoryRepository _serviceCategoryRepository;
-        private RoomRepository _roomRepository;
-        private BedRepository _bedRepository;
-        private BedAvailabilityRepository _bedAvailabilityRepository;
         private UserRoutineRepository _userRoutineRepository;
         private SkinHealthImageRepository _skinHealthImageRepository;
         private WorkScheduleRepository _workScheduleRepository;
@@ -164,21 +161,6 @@ namespace Server.Data.UnitOfWorks
         public ServiceCategoryRepository ServiceCategoryRepository
         {
             get { return _serviceCategoryRepository ??= new ServiceCategoryRepository(_dbContext); }
-        }
-        
-        public RoomRepository RoomRepository
-        {
-            get { return _roomRepository ??= new RoomRepository(_dbContext); }
-        }
-        
-        public BedRepository BedRepository
-        {
-            get { return _bedRepository ??= new BedRepository(_dbContext); }
-        }
-        
-        public BedAvailabilityRepository BedAvailabilityRepository
-        {
-            get { return _bedAvailabilityRepository ??= new BedAvailabilityRepository(_dbContext); }
         }
         
         public UserRoutineRepository UserRoutineRepository

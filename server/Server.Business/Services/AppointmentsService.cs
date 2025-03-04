@@ -25,7 +25,7 @@ public class AppointmentsService
 
     public async Task<GetAllAppointmentResponse> GetAllAppointments(int page = 1, int pageSize = 5)
     {
-        var listAppointments = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.Status == "Active").OrderByDescending(x => x.AppointmentId)
+        var listAppointments = await _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.Status == "Pending" || x.Status == "Completed").OrderByDescending(x => x.AppointmentId)
             .Include(x => x.Customer)
             .Include(x => x.Staff)
             .Include(x => x.Branch)
@@ -137,9 +137,9 @@ public class AppointmentsService
             }
 
             // Lấy danh sách phòng phù hợp với service category
-            var listRoom = await _unitOfWorks.RoomRepository
+            /*var listRoom = await _unitOfWorks.RoomRepository
                 .FindByCondition(r => r.ServiceCategoryId == service.ServiceCategoryId && r.BranchId == request.BranchId)
-                .ToListAsync();
+                .ToListAsync();*/
 
             /*if (listRoom == null || !listRoom.Any())
             {

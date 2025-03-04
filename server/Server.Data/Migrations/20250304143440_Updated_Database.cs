@@ -7,30 +7,12 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatedDatabase : Migration
+    public partial class Updated_Database : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "BedType",
-                columns: table => new
-                {
-                    BedTypeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false),
-                    Description = table.Column<string>(type: "longtext", nullable: true),
-                    Thumbnail = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BedType", x => x.BedTypeId);
-                })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -957,39 +939,6 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Room",
-                columns: table => new
-                {
-                    RoomId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false),
-                    Description = table.Column<string>(type: "longtext", nullable: true),
-                    Thumbnail = table.Column<string>(type: "longtext", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: true),
-                    BranchId = table.Column<int>(type: "int", nullable: false),
-                    ServiceCategoryId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Room", x => x.RoomId);
-                    table.ForeignKey(
-                        name: "FK_Room_Branch_BranchId",
-                        column: x => x.BranchId,
-                        principalTable: "Branch",
-                        principalColumn: "BranchId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Room_ServiceCategory_ServiceCategoryId",
-                        column: x => x.ServiceCategoryId,
-                        principalTable: "ServiceCategory",
-                        principalColumn: "ServiceCategoryId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Staff",
                 columns: table => new
                 {
@@ -1210,34 +1159,58 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Bed",
+                name: "Appointments",
                 columns: table => new
                 {
-                    BedId = table.Column<int>(type: "int", nullable: false)
+                    AppointmentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false),
-                    Description = table.Column<string>(type: "longtext", nullable: true),
-                    Thumbnail = table.Column<string>(type: "longtext", nullable: true),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    BedTypeId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "longtext", nullable: true),
+                    OrderId = table.Column<int>(type: "int", nullable: true),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    ServiceId = table.Column<int>(type: "int", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    AppointmentsTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    Notes = table.Column<string>(type: "longtext", nullable: false),
+                    Feedback = table.Column<string>(type: "longtext", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    StatusPayment = table.Column<string>(type: "longtext", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Bed", x => x.BedId);
+                    table.PrimaryKey("PK_Appointments", x => x.AppointmentId);
                     table.ForeignKey(
-                        name: "FK_Bed_BedType_BedTypeId",
-                        column: x => x.BedTypeId,
-                        principalTable: "BedType",
-                        principalColumn: "BedTypeId",
+                        name: "FK_Appointments_Branch_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branch",
+                        principalColumn: "BranchId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Bed_Room_RoomId",
-                        column: x => x.RoomId,
-                        principalTable: "Room",
-                        principalColumn: "RoomId",
+                        name: "FK_Appointments_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "OrderId");
+                    table.ForeignKey(
+                        name: "FK_Appointments_Service_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "Service",
+                        principalColumn: "ServiceId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Appointments_Staff_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staff",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Appointments_User_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -1371,105 +1344,6 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Appointments",
-                columns: table => new
-                {
-                    AppointmentId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    OrderId = table.Column<int>(type: "int", nullable: true),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    StaffId = table.Column<int>(type: "int", nullable: false),
-                    ServiceId = table.Column<int>(type: "int", nullable: false),
-                    BranchId = table.Column<int>(type: "int", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: true),
-                    BedId = table.Column<int>(type: "int", nullable: true),
-                    AppointmentsTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Status = table.Column<string>(type: "longtext", nullable: false),
-                    Notes = table.Column<string>(type: "longtext", nullable: false),
-                    Feedback = table.Column<string>(type: "longtext", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    StatusPayment = table.Column<string>(type: "longtext", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Appointments", x => x.AppointmentId);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Bed_BedId",
-                        column: x => x.BedId,
-                        principalTable: "Bed",
-                        principalColumn: "BedId");
-                    table.ForeignKey(
-                        name: "FK_Appointments_Branch_BranchId",
-                        column: x => x.BranchId,
-                        principalTable: "Branch",
-                        principalColumn: "BranchId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "OrderId");
-                    table.ForeignKey(
-                        name: "FK_Appointments_Room_RoomId",
-                        column: x => x.RoomId,
-                        principalTable: "Room",
-                        principalColumn: "RoomId");
-                    table.ForeignKey(
-                        name: "FK_Appointments_Service_ServiceId",
-                        column: x => x.ServiceId,
-                        principalTable: "Service",
-                        principalColumn: "ServiceId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_Staff_StaffId",
-                        column: x => x.StaffId,
-                        principalTable: "Staff",
-                        principalColumn: "StaffId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Appointments_User_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "BedAvailability",
-                columns: table => new
-                {
-                    BedAvailabilityId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    BedId = table.Column<int>(type: "int", nullable: true),
-                    RoomId = table.Column<int>(type: "int", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BedAvailability", x => x.BedAvailabilityId);
-                    table.ForeignKey(
-                        name: "FK_BedAvailability_Bed_BedId",
-                        column: x => x.BedId,
-                        principalTable: "Bed",
-                        principalColumn: "BedId");
-                    table.ForeignKey(
-                        name: "FK_BedAvailability_Room_RoomId",
-                        column: x => x.RoomId,
-                        principalTable: "Room",
-                        principalColumn: "RoomId");
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "AppointmentFeedback",
                 columns: table => new
                 {
@@ -1516,11 +1390,6 @@ namespace Server.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointments_BedId",
-                table: "Appointments",
-                column: "BedId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Appointments_BranchId",
                 table: "Appointments",
                 column: "BranchId");
@@ -1536,11 +1405,6 @@ namespace Server.Data.Migrations
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointments_RoomId",
-                table: "Appointments",
-                column: "RoomId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Appointments_ServiceId",
                 table: "Appointments",
                 column: "ServiceId");
@@ -1549,26 +1413,6 @@ namespace Server.Data.Migrations
                 name: "IX_Appointments_StaffId",
                 table: "Appointments",
                 column: "StaffId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Bed_BedTypeId",
-                table: "Bed",
-                column: "BedTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Bed_RoomId",
-                table: "Bed",
-                column: "RoomId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BedAvailability_BedId",
-                table: "BedAvailability",
-                column: "BedId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BedAvailability_RoomId",
-                table: "BedAvailability",
-                column: "RoomId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Blog_AuthorId",
@@ -1735,16 +1579,6 @@ namespace Server.Data.Migrations
                 column: "RoutineId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Room_BranchId",
-                table: "Room",
-                column: "BranchId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Room_ServiceCategoryId",
-                table: "Room",
-                column: "ServiceCategoryId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Schedule_BranchId",
                 table: "Schedule",
                 column: "BranchId");
@@ -1890,9 +1724,6 @@ namespace Server.Data.Migrations
                 name: "AppointmentFeedback");
 
             migrationBuilder.DropTable(
-                name: "BedAvailability");
-
-            migrationBuilder.DropTable(
                 name: "BlogComment");
 
             migrationBuilder.DropTable(
@@ -1989,9 +1820,6 @@ namespace Server.Data.Migrations
                 name: "Shifts");
 
             migrationBuilder.DropTable(
-                name: "Bed");
-
-            migrationBuilder.DropTable(
                 name: "Order");
 
             migrationBuilder.DropTable(
@@ -2007,25 +1835,19 @@ namespace Server.Data.Migrations
                 name: "UserRoutine");
 
             migrationBuilder.DropTable(
-                name: "BedType");
-
-            migrationBuilder.DropTable(
-                name: "Room");
-
-            migrationBuilder.DropTable(
                 name: "Voucher");
+
+            migrationBuilder.DropTable(
+                name: "ServiceCategory");
+
+            migrationBuilder.DropTable(
+                name: "Branch");
 
             migrationBuilder.DropTable(
                 name: "StaffRole");
 
             migrationBuilder.DropTable(
                 name: "SkincareRoutine");
-
-            migrationBuilder.DropTable(
-                name: "Branch");
-
-            migrationBuilder.DropTable(
-                name: "ServiceCategory");
 
             migrationBuilder.DropTable(
                 name: "Company");

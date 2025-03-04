@@ -17,12 +17,14 @@ namespace Server.API.Controllers
         private readonly StaffService _staffService;
         private readonly UserService _userService;
         private readonly StaffLeaveService _staffLeaveService;
+        private readonly AuthService _authService;
 
-        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService)
+        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService, AuthService authService)
         {
             _staffService = staffService;
             _userService = userService;
             _staffLeaveService = staffLeaveService;
+            _authService = authService;
         }
 
         [HttpGet("get-list")]
@@ -411,11 +413,45 @@ namespace Server.API.Controllers
             }));
         }
 
-       // [Authorize]
+        [Authorize]
         [HttpGet("specialist-schedule")]
-        public async Task<IActionResult> GetSpecialistScheduleAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int month)
+        public async Task<IActionResult> GetSpecialistScheduleAsync([FromQuery] int year, [FromQuery] int month)
         {
-            var schedule = await _staffService.GetSpecialistScheduleAsync(staffId, year, month);
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<List<string>>.Error(errors));
+            }
+
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // Lấy thông tin user từ token
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Customer info not found!"
+                }));
+            }
+
+            var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
+            
+            var schedule = await _staffService.GetSpecialistScheduleAsync(staff.StaffId, year, month);
 
             if (schedule == null || !schedule.Any())
             {

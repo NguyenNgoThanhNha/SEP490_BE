@@ -88,28 +88,6 @@ namespace Server.Business.Services
             return branchModels;
         }
 
-        public async Task<List<RoomModel>> GetAllRoomAndBedInBranch(int branchId)
-        {
-            var listRoom = await unitOfWorks.RoomRepository
-                .FindByCondition(x => x.BranchId == branchId)
-                .ToListAsync();
-            var listRoomModel = _mapper.Map<List<RoomModel>>(listRoom);
-            foreach (var room in listRoomModel)
-            {
-                var listBed = await unitOfWorks.BedRepository
-                    .FindByCondition(x => x.RoomId == room.RoomId)
-                    .ToListAsync();
-                room.Beds = _mapper.Map<List<BedModel>>(listBed);
-            }
-
-            if (listRoomModel == null || !listRoomModel.Any())
-            {
-                return null;
-            }
-
-            return listRoomModel;
-        }
-
         public async Task<BranchModel> GetBranchByIdAsync(int branchId)
         {
             
