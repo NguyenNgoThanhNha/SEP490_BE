@@ -63,26 +63,18 @@ namespace Server.API.Controllers
             // Kiểm tra kết quả
             if (branches == null || !branches.Any())
             {
-                return BadRequest(new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    result = new
-                    {
-                        message = "Currently, there are no branches!",
-                        data = new List<object>()
-                    }
-                });
+                    message = "Currently, there are no branches!",
+                    data = new List<object>()
+                }));
             }
 
-            return Ok(new
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                success = true,
-                result = new
-                {
-                    message = "Get branches successfully!",
-                    data = branches
-                }
-            });
+                message = "Get branches successfully!",
+                data = branches
+            }));
         }
         
         [Authorize]
