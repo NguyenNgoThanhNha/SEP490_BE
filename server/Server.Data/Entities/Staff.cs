@@ -25,4 +25,6 @@ public class Staff
     public virtual Branch Branch { get; set; }
     
     public virtual StaffRole Role { get; set; }
+    public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
+
 }

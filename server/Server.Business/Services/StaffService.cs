@@ -498,44 +498,82 @@ namespace Server.Business.Services
             return staffDtoList;
         }
 
-        public async Task<List<StaffBranchServiceDto>> GetStaffByBranchAndServiceAsync(int branchId, int serviceId)
+        //public async Task<List<StaffBranchServiceDto>> GetStaffByBranchAndServiceAsync(int branchId, int serviceId)
+        //{
+        //    try
+        //    {
+        //        // Truy vấn danh sách nhân viên thuộc chi nhánh và dịch vụ yêu cầu
+        //        var staffList = await _unitOfWorks.StaffRepository
+        //            .GetAll()
+        //            .Where(s => s.BranchId == branchId) // Lọc theo chi nhánh
+        //            .Include(s => s.Branch) // Lấy thông tin chi nhánh
+        //            .Include(s => s.StaffInfo) // Lấy thông tin nhân viên
+        //            .Select(s => new StaffBranchServiceDto
+        //            {
+        //                Staff = new Staff
+        //                {
+        //                    StaffId = s.StaffId,
+        //                    UserId = s.UserId,
+        //                    BranchId = s.BranchId,
+        //                    CreatedDate = s.CreatedDate,
+        //                    UpdatedDate = s.UpdatedDate,
+        //                    StaffInfo = s.StaffInfo, // Đảm bảo thông tin nhân viên được bao gồm
+        //                    Branch = s.Branch // Lấy thông tin chi nhánh trong DTO
+        //                },
+        //                // Lấy dịch vụ đầu tiên có serviceId phù hợp
+        //                Service = s.Branch.Branch_Services
+        //                    .Where(bs => bs.ServiceId == serviceId)
+        //                    .Select(bs => bs.Service)
+        //                    .FirstOrDefault()
+        //            })
+        //            .ToListAsync();
+
+        //        return staffList;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Xử lý lỗi
+        //        throw new Exception($"Lỗi khi lấy danh sách nhân viên: {ex.Message}", ex);
+        //    }
+        //}
+
+        public async Task<List<StaffBranchServiceDto>> GetStaffByBranchAndDateAsync(int branchId, DateTime workDate)
         {
             try
             {
-                // Truy vấn danh sách nhân viên thuộc chi nhánh và dịch vụ yêu cầu
                 var staffList = await _unitOfWorks.StaffRepository
-                    .GetAll()
-                    .Where(s => s.BranchId == branchId) // Lọc theo chi nhánh
-                    .Include(s => s.Branch) // Lấy thông tin chi nhánh
-                    .Include(s => s.StaffInfo) // Lấy thông tin nhân viên
-                    .Select(s => new StaffBranchServiceDto
-                    {
-                        Staff = new Staff
-                        {
-                            StaffId = s.StaffId,
-                            UserId = s.UserId,
-                            BranchId = s.BranchId,
-                            CreatedDate = s.CreatedDate,
-                            UpdatedDate = s.UpdatedDate,
-                            StaffInfo = s.StaffInfo, // Đảm bảo thông tin nhân viên được bao gồm
-                            Branch = s.Branch // Lấy thông tin chi nhánh trong DTO
-                        },
-                        // Lấy dịch vụ đầu tiên có serviceId phù hợp
-                        Service = s.Branch.Branch_Services
-                            .Where(bs => bs.ServiceId == serviceId)
-                            .Select(bs => bs.Service)
-                            .FirstOrDefault()
-                    })
-                    .ToListAsync();
+    .GetAll()
+    .Include(s => s.WorkSchedules) // Ensure WorkSchedules is included
+    .Where(s => s.BranchId == branchId &&
+                s.WorkSchedules.Any(ws => ws.WorkDate.Date == workDate.Date))
+    .Include(s => s.Branch)
+    .Include(s => s.StaffInfo)
+    .Select(s => new StaffBranchServiceDto
+    {
+        Staff = new Staff
+        {
+            StaffId = s.StaffId,
+            UserId = s.UserId,
+            BranchId = s.BranchId,
+            CreatedDate = s.CreatedDate,
+            UpdatedDate = s.UpdatedDate,
+            StaffInfo = s.StaffInfo,
+            Branch = s.Branch
+        }
+    })
+    .ToListAsync();
+
 
                 return staffList;
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi
-                throw new Exception($"Lỗi khi lấy danh sách nhân viên: {ex.Message}", ex);
+                throw new Exception($"Error retrieving staff list: {ex.Message}", ex);
             }
         }
+
+
+
 
 
         public async Task<List<BusyTimeDto>> GetStaffBusyTimesAsync(int staffId, DateTime date)

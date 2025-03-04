@@ -170,7 +170,7 @@ namespace Server.API.Controllers
                 data = response.data
             });
         }
-        
+
 
         [HttpDelete("delete/{staffId}")]
         public async Task<ApiResult<ApiResponse>> DeleteStaff(int staffId)
@@ -297,50 +297,37 @@ namespace Server.API.Controllers
             }
         }
 
-        [HttpGet("get-staff-by-branch-and-service")]
-        public async Task<IActionResult> GetStaffByBranchAndService(int branchId, int serviceId)
+        
+        [HttpGet("staff-by-branch-and-date")]
+        public async Task<IActionResult> GetStaffByBranchAndDate(int branchId, DateTime workDate)
         {
-            try
-            {
-                // Gọi service để lấy danh sách nhân viên
-                var staffList = await _staffService.GetStaffByBranchAndServiceAsync(branchId, serviceId);
 
-                if (staffList == null || staffList.Count == 0)
-                {
-                    return NotFound(new
-                    {
-                        success = true,
-                        result = new
-                        {
-                            message = "No staff found for the given branch and service.",
-                            data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
-                        }
-                    });
-                }
+            var staffList = await _staffService.GetStaffByBranchAndDateAsync(branchId, workDate);
 
-                return Ok(new
-                {
-                    success = true,
-                    result = new
-                    {
-                        message = "Staff list fetched successfully.",
-                        data = staffList
-                    }
-                });
-            }
-            catch (Exception ex)
+            if (staffList == null || !staffList.Any())
             {
-                return StatusCode(500, new
+                return NotFound(new
                 {
                     success = false,
                     result = new
                     {
-                        message = $"An error occurred: {ex.Message}",
-                        data = new List<object>()
+                        message = "No staff found for the given branch and date.",
+                        data = Array.Empty<object>() // Optimized empty array
                     }
                 });
             }
-        }
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Staff list fetched successfully.",
+                    data = staffList
+                }
+            });
+        }  
+        
+
 
 
         [HttpGet("staff-busy-times")]
