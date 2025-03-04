@@ -262,38 +262,26 @@ namespace Server.API.Controllers
 
                 if (staffList == null || !staffList.Any())
                 {
-                    return NotFound(new
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        success = true,
-                        result = new
-                        {
-                            message = "No staff found for this branch..",
-                            data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
-                        }
-                    });
+                        message = "No staff found for this branch..",
+                        data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
+                    }));
                 }
 
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Get staff list successfully.",
-                        data = staffList
-                    }
-                });
+                    message = "Get staff list successfully.",
+                    data = staffList
+                }));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    result = new
-                    {
-                        message = $"Lỗi hệ thống: {ex.Message}",
-                        data = new List<object>()
-                    }
-                });
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
             }
         }
 
@@ -307,38 +295,26 @@ namespace Server.API.Controllers
 
                 if (staffList == null || staffList.Count == 0)
                 {
-                    return NotFound(new
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        success = true,
-                        result = new
-                        {
-                            message = "No staff found for the given branch and service.",
-                            data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
-                        }
-                    });
+                        message = "No staff found for the given branch and service.",
+                        data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
+                    }));
                 }
 
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Staff list fetched successfully.",
-                        data = staffList
-                    }
-                });
+                    message = "Staff list fetched successfully.",
+                    data = staffList
+                }));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    result = new
-                    {
-                        message = $"An error occurred: {ex.Message}",
-                        data = new List<object>()
-                    }
-                });
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
             }
         }
 
@@ -352,38 +328,26 @@ namespace Server.API.Controllers
 
                 if (busyTimes == null || !busyTimes.Any())
                 {
-                    return NotFound(new
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        success = true,
-                        result = new
-                        {
-                            message = "No busy times found for the staff on the specified date.",
-                            data = (object)null
-                        }
-                    });
+                        message = "No busy times found for the staff on the specified date.",
+                        data = (object)null
+                    }));
                 }
 
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Successfully retrieved the staff's busy times!",
-                        data = busyTimes
-                    }
-                });
+                    message = "Successfully retrieved the staff's busy times!",
+                    data = busyTimes
+                }));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    result = new
-                    {
-                        message = $"System error: {ex.Message}",
-                        data = (object)null
-                    }
-                });
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
             }
         }
         
@@ -455,25 +419,17 @@ namespace Server.API.Controllers
 
             if (schedule == null || !schedule.Any())
             {
-                return NotFound(new
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Specialist schedule not found or the staff is not a specialist."
-                    }
-                });
+                    message = "Specialist schedule not found or the staff is not a specialist."
+                }));
             }
 
-            return Ok(new
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                success = true,
-                result = new
-                {
-                    message = "Specialist schedule retrieved successfully.",
-                    data = schedule
-                }
-            });
+                message = "Specialist schedule retrieved successfully.",
+                data = schedule
+            }));
         }
 
         //[Authorize]
@@ -484,25 +440,17 @@ namespace Server.API.Controllers
 
             if (schedule == null || !schedule.Any())
             {
-                return NotFound(new
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Cashier schedule not found or the staff is not a cashier."
-                    }
-                });
+                    message = "Cashier schedule not found or the staff is not a cashier."
+                }));
             }
 
-            return Ok(new
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                success = true,
-                result = new
-                {
-                    message = "Cashier schedule retrieved successfully.",
-                    data = schedule
-                }
-            });
+                message = "Cashier schedule retrieved successfully.",
+                data = schedule
+            }));
         }
 
        // [Authorize]
@@ -513,22 +461,17 @@ namespace Server.API.Controllers
 
             if (schedule == null || !schedule.Schedules.Any())
             {
-                return NotFound(new
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = true,
                     message = "No work schedule found for this staff on the given date."
-                });
+                }));
             }
 
-            return Ok(new
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                success = true,
-                result = new
-                {
-                    message = "Successfully retrieved staff schedule!",
-                    data = schedule
-                }
-            });
+                message = "Successfully retrieved staff schedule!",
+                data = schedule
+            }));
         }
 
 
