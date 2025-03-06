@@ -330,7 +330,7 @@ namespace Server.API.Controllers
 
                 if (busyTimes == null || !busyTimes.Any())
                 {
-                    return NotFound(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                     {
                         message = "No busy times found for the staff on the specified date.",
                         data = new List<BusyTimeDto>()
