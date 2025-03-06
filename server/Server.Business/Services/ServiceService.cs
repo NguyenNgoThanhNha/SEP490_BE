@@ -130,6 +130,23 @@ namespace Server.Business.Services
                 }
             };
         }
+
+        public async Task<List<ServiceModel>> GetListImagesOfServices(List<Data.Entities.Service> listService)
+        {
+            var serviceModels = _mapper.Map<List<ServiceModel>>(listService);
+            // chạy lặp qua services và lấy hình của chúng ra trong service_images
+            foreach (var service in serviceModels)
+            {
+                var serviceImages = await _unitOfWorks.ServiceImageRepository.GetAll()
+                    .Where(si => si.ServiceId == service.ServiceId)
+                    .Select(si => si.image)
+                    .ToArrayAsync();
+
+                service.images = serviceImages;
+            }
+
+            return serviceModels;
+        }
         
         public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId)
         {
