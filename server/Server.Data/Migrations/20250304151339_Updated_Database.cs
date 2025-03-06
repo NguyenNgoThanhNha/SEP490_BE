@@ -532,36 +532,6 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Chat",
-                columns: table => new
-                {
-                    ChatId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    SenderId = table.Column<int>(type: "int", nullable: false),
-                    ReceiverId = table.Column<int>(type: "int", nullable: false),
-                    content = table.Column<string>(type: "longtext", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Chat", x => x.ChatId);
-                    table.ForeignKey(
-                        name: "FK_Chat_User_ReceiverId",
-                        column: x => x.ReceiverId,
-                        principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Chat_User_SenderId",
-                        column: x => x.SenderId,
-                        principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Notifications",
                 columns: table => new
                 {
@@ -1075,40 +1045,6 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Transaction",
-                columns: table => new
-                {
-                    TransactionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    TransactionCode = table.Column<int>(type: "int", nullable: true),
-                    Reference = table.Column<string>(type: "longtext", nullable: true),
-                    PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
-                    TransactionDateTime = table.Column<string>(type: "longtext", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Transaction", x => x.TransactionId);
-                    table.ForeignKey(
-                        name: "FK_Transaction_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "OrderId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Transaction_User_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "User",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "SkinHealthImage",
                 columns: table => new
                 {
@@ -1492,16 +1428,6 @@ namespace Server.Data.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Chat_ReceiverId",
-                table: "Chat",
-                column: "ReceiverId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Chat_SenderId",
-                table: "Chat",
-                column: "SenderId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UserId",
                 table: "Notifications",
                 column: "UserId");
@@ -1661,16 +1587,6 @@ namespace Server.Data.Migrations
                 column: "StaffId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transaction_CustomerId",
-                table: "Transaction",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Transaction_OrderId",
-                table: "Transaction",
-                column: "OrderId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_User_RoleID",
                 table: "User",
                 column: "RoleID");
@@ -1739,9 +1655,6 @@ namespace Server.Data.Migrations
                 name: "Branch_Service");
 
             migrationBuilder.DropTable(
-                name: "Chat");
-
-            migrationBuilder.DropTable(
                 name: "Logger");
 
             migrationBuilder.DropTable(
@@ -1785,9 +1698,6 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "StaffLeave");
-
-            migrationBuilder.DropTable(
-                name: "Transaction");
 
             migrationBuilder.DropTable(
                 name: "UserRoutineLogger");
