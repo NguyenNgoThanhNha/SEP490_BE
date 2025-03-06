@@ -333,7 +333,7 @@ namespace Server.API.Controllers
                     return NotFound(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                     {
                         message = "No busy times found for the staff on the specified date.",
-                        data = (object)null
+                        data = new List<BusyTimeDto>()
                     }));
                 }
 
