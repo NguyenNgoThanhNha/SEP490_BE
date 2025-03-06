@@ -27,8 +27,10 @@ public class RoutineService
         var routine =  await _unitOfWorks.SkincareRoutineRepository.FindByCondition(x => x.SkincareRoutineId == id)
             .Include(x => x.ProductRoutines)
             .ThenInclude(x => x.Products)
+            .ThenInclude(x => x.Category)
             .Include(x => x.ServiceRoutines)
             .ThenInclude(x => x.Service)
+            .ThenInclude(x => x.ServiceCategory)
             .FirstOrDefaultAsync();
         if (routine == null) return null;
 
