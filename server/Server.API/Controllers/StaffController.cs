@@ -511,6 +511,27 @@ namespace Server.API.Controllers
         }
 
 
+        [HttpGet("staff-free-in-time")]
+        public async Task<IActionResult> ListStaffFreeInTime([FromQuery] ListStaffFreeInTimeRequest request)
+        {
+            var result = await _staffService.ListStaffFreeInTime(request);
+
+            if (result == null || !result.Any()) // Kiểm tra danh sách nhân viên có rỗng không
+            {
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "No available staff at the selected time."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Successfully retrieved available staff.",
+                data = result
+            }));
+        }
+
+
 
     }
 }
