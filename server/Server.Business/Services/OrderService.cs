@@ -394,7 +394,9 @@ namespace Server.Business.Services
                 .Include(x => x.Customer)
                 .Include(x => x.Voucher)
                 .Include(x => x.Appointments)
+                .ThenInclude(x => x.Service)
                 .Include(x => x.OrderDetails)
+                .ThenInclude(x => x.Product)
                 .Where(x => x.Status == status)
                 .ToListAsync();
             if (listOrders.Equals(null))
