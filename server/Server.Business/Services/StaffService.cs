@@ -13,6 +13,7 @@ using System.Linq.Expressions;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using System.Globalization;
+using Server.Data;
 
 namespace Server.Business.Services
 {
@@ -551,7 +552,7 @@ namespace Server.Business.Services
             var appointments = await _unitOfWorks.AppointmentsRepository
                 .FindByCondition(a => a.StaffId == staffId &&
                                       a.AppointmentsTime.Date == date.Date &&
-                                      a.Status == "Confirmed") // Chỉ lấy trạng thái đã xác nhận
+                                      a.Status == OrderStatusEnum.Pending.ToString()) // Chỉ lấy trạng thái đã xác nhận
                 .Include(a => a.Service) // Include Service để lấy duration
                 .ToListAsync();
 
