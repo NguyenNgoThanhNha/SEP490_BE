@@ -23,12 +23,14 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+        private readonly ServiceService _serviceService;
         private readonly PayOSSetting _payOsSetting;
 
-        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting)
+        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting, ServiceService serviceService)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _serviceService = serviceService;
             _payOsSetting = payOsSetting.Value;
         }
 
@@ -424,16 +426,26 @@ namespace Server.Business.Services
         {
             var order = await _unitOfWorks.OrderRepository.FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
                 .FirstOrDefaultAsync();
-            
+            var listService = new List<Data.Entities.Service>();
+            var listSerivceModels = new List<ServiceModel>();
             if (order.OrderType == "Appointment")
             {
                 var orderAppointments = await _unitOfWorks.AppointmentsRepository
                     .FindByCondition(x => x.OrderId == orderId)
+                    .Include(x => x.Branch)
                     .Include(x => x.Service)
                     .Include(x => x.Staff)
                     .ThenInclude(x => x.StaffInfo)
                     .ToListAsync();
                 order.Appointments = orderAppointments;
+                
+                // get list service images
+                foreach (var appointment in orderAppointments)
+                {
+                    listService.Add(appointment.Service);
+                }
+
+                listSerivceModels = await _serviceService.GetListImagesOfServices(listService);
             }else if (order.OrderType == "Product")
             {
                 var orderDetails = await _unitOfWorks.OrderDetailRepository
@@ -447,11 +459,25 @@ namespace Server.Business.Services
             {
                 return null;
             }
-            
+
+            var orderModel = _mapper.Map<OrderModel>(order);
+            if (orderModel.Appointments.Any())
+            {
+                foreach (var appointment in orderModel.Appointments)
+                {
+                    foreach (var serviceModel in listSerivceModels)
+                    {
+                        if (appointment.ServiceId == serviceModel.ServiceId)
+                        {
+                            appointment.Service.images = serviceModel.images;
+                        }
+                    }
+                }
+            }
             return new DetailOrderResponse()
             {
                 message = "Get detail order success",
-                data = _mapper.Map<OrderModel>(order)
+                data = orderModel
             };
         }
 
