@@ -27,8 +27,6 @@ namespace Server.Data.Entities
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Shipping> Shippings { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<Chat> Chats { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogRating> BlogRatings { get; set; }
