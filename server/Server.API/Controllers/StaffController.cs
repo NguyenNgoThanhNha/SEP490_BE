@@ -287,10 +287,14 @@ namespace Server.API.Controllers
             }
         }
 
-        
-        [HttpGet("staff-by-branch-and-date")]
-        public async Task<IActionResult> GetStaffByBranchAndDate(int branchId, DateTime workDate)
+
+        [HttpGet("get-staff-by-branch-and-service")]
+        public async Task<IActionResult> GetStaffByBranchAndService(int branchId, int serviceId)
         {
+            try
+            {
+                // Gọi service để lấy danh sách nhân viên
+                var staffList = await _staffService.GetStaffByBranchAndServiceAsync(branchId, serviceId);
 
                 if (staffList == null || staffList.Count == 0)
                 {
@@ -316,8 +320,6 @@ namespace Server.API.Controllers
                 }));
             }
         }
-
-
 
 
         [HttpGet("staff-busy-times")]
@@ -351,7 +353,7 @@ namespace Server.API.Controllers
                 }));
             }
         }
-        
+
         [Authorize]
         [HttpPost("create-staff-leave")]
         public async Task<IActionResult> CreateStaffLeaveAsync(StaffLeaveRequest staffLeaveRequest)
@@ -371,7 +373,7 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
-        
+
         [Authorize("Admin, Manager")]
         [HttpPut("approve-staff-leave/{staffLeaveId}")]
         public async Task<IActionResult> ApproveStaffLeaveAsync(int staffLeaveId, [FromBody] string note)
@@ -449,7 +451,7 @@ namespace Server.API.Controllers
             }
 
             var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
-            
+
             var schedule = await _staffService.GetSpecialistScheduleAsync(staff.StaffId, year, month);
 
             if (schedule == null || !schedule.Any())
@@ -488,7 +490,7 @@ namespace Server.API.Controllers
             }));
         }
 
-       // [Authorize]
+        // [Authorize]
         [HttpGet("staff-schedule/{staffId}/{workDate}")]
         public async Task<IActionResult> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
         {
@@ -528,8 +530,8 @@ namespace Server.API.Controllers
                 message = "Successfully retrieved available staff.",
                 data = result
             }));
-        }
-
+        }     
+            
 
 
     }
