@@ -35,9 +35,10 @@ namespace Server.Business.Services
         {
             // Truy vấn dữ liệu từ repository với điều kiện ban đầu là `status == "Active"`
             IQueryable<Server.Data.Entities.Service> query = _unitOfWorks.ServiceRepository.GetAll()
-      .Include(s => s.Branch_Services) // Bao gồm Branch_Services
-          .ThenInclude(bs => bs.Branch) // Bao gồm thông tin Branch từ Branch_Services
-      .Where(s => s.Status == "Active"); // Chỉ lấy các Service có trạng thái Active
+                .Include(x => x.ServiceCategory)
+                .Include(s => s.Branch_Services) // Bao gồm Branch_Services
+                .ThenInclude(bs => bs.Branch) // Bao gồm thông tin Branch từ Branch_Services
+                .Where(s => s.Status == "Active"); // Chỉ lấy các Service có trạng thái Active
 
 
             // Áp dụng bộ lọc (nếu có)
@@ -98,6 +99,7 @@ namespace Server.Business.Services
         public async Task<GetAllServicePaginationResponse> GetAllService(int page, int pageSize)
         {
             var services = await _unitOfWorks.ServiceRepository.GetAll()
+                .Include(x => x.ServiceCategory)
                 .OrderByDescending(x => x.ServiceId).ToListAsync();
 
             var serviceModels = _mapper.Map<List<ServiceModel>>(services);
@@ -130,6 +132,23 @@ namespace Server.Business.Services
                 }
             };
         }
+
+        public async Task<List<ServiceModel>> GetListImagesOfServices(List<Data.Entities.Service> listService)
+        {
+            var serviceModels = _mapper.Map<List<ServiceModel>>(listService);
+            // chạy lặp qua services và lấy hình của chúng ra trong service_images
+            foreach (var service in serviceModels)
+            {
+                var serviceImages = await _unitOfWorks.ServiceImageRepository.GetAll()
+                    .Where(si => si.ServiceId == service.ServiceId)
+                    .Select(si => si.image)
+                    .ToArrayAsync();
+
+                service.images = serviceImages;
+            }
+
+            return serviceModels;
+        }
         
         public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId)
         {
@@ -142,6 +161,7 @@ namespace Server.Business.Services
 
             // Lấy danh sách Service dựa trên danh sách ServiceId
             var services = await _unitOfWorks.ServiceRepository.GetAll()
+                .Include(x => x.ServiceCategory)
                 .Where(s => serviceIdsOfBranch.Contains(s.ServiceId))
                 .OrderByDescending(s => s.ServiceId)
                 .ToListAsync();
@@ -185,6 +205,7 @@ namespace Server.Business.Services
             // Truy vấn dịch vụ và bao gồm thông tin danh mục
             var service = await _unitOfWorks.ServiceRepository
                 .FindByCondition(s => s.ServiceId == id&&s.Status=="Active")
+                .Include(x => x.ServiceCategory)
                 .FirstOrDefaultAsync();
             
             // Kiểm tra nếu không tìm thấy dịch vụ

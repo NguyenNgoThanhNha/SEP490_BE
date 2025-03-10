@@ -12,31 +12,22 @@ public class OrderModel
     public int CustomerId { get; set; }
     public virtual UserInfoModel Customer { get; set; }
     
-    public int VoucherId { get; set; }
-    public virtual Voucher Voucher { get; set; }
+    public int? VoucherId { get; set; }
+    public virtual Voucher? Voucher { get; set; }
 
     public decimal TotalAmount { get; set; }
+    
+    public decimal? DiscountAmount { get; set; }
 
     public string OrderType { get; set; } 
-    
-    public string Status { get; set; }
-    
-    public string Notes { get; set; }
-    
-    public string Feedback { get; set; }
-    
-    public int Quantity { get; set; }
-    
-    public decimal UnitPrice { get; set; }
-    
-    public decimal SubTotal  { get; set; } // (Quantity * UnitPrice)
-    
+    public string Status { get; set; } = OrderStatusEnum.Pending.ToString();
+
     public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
 
     public string? Note { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
-    
-    public List<OrderDetailModels> OrderDetails { get; set; }
-    public List<AppointmentsModel> Appointments { get; set; }
+
+    public virtual ICollection<OrderDetailModels> OrderDetails { get; set; }
+    public virtual ICollection<AppointmentsModel> Appointments { get; set; }
 }

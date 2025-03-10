@@ -80,9 +80,6 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("AppointmentsTime")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("BedId")
-                        .HasColumnType("int");
-
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
@@ -104,9 +101,6 @@ namespace Server.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("RoomId")
                         .HasColumnType("int");
 
                     b.Property<int>("ServiceId")
@@ -134,125 +128,17 @@ namespace Server.Data.Migrations
 
                     b.HasKey("AppointmentId");
 
-                    b.HasIndex("BedId");
-
                     b.HasIndex("BranchId");
 
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("RoomId");
-
                     b.HasIndex("ServiceId");
 
                     b.HasIndex("StaffId");
 
                     b.ToTable("Appointments");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Bed", b =>
-                {
-                    b.Property<int>("BedId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("BedTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("RoomId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Thumbnail")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("BedId");
-
-                    b.HasIndex("BedTypeId");
-
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("Bed");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.BedAvailability", b =>
-                {
-                    b.Property<int>("BedAvailabilityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int?>("BedId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int?>("RoomId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("BedAvailabilityId");
-
-                    b.HasIndex("BedId");
-
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("BedAvailability");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.BedType", b =>
-                {
-                    b.Property<int>("BedTypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Thumbnail")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("BedTypeId");
-
-                    b.ToTable("BedType");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Blog", b =>
@@ -563,37 +449,6 @@ namespace Server.Data.Migrations
                     b.HasKey("CategoryId");
 
                     b.ToTable("Category");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Chat", b =>
-                {
-                    b.Property<int>("ChatId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("ReceiverId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SenderId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("content")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("ChatId");
-
-                    b.HasIndex("ReceiverId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("Chat");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Company", b =>
@@ -1036,46 +891,6 @@ namespace Server.Data.Migrations
                     b.HasKey("PromotionId");
 
                     b.ToTable("Promotion");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Room", b =>
-                {
-                    b.Property<int>("RoomId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("ServiceCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Thumbnail")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("RoomId");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("ServiceCategoryId");
-
-                    b.ToTable("Room");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
@@ -1669,49 +1484,6 @@ namespace Server.Data.Migrations
                     b.ToTable("StaffRole");
                 });
 
-            modelBuilder.Entity("Server.Data.Entities.Transaction", b =>
-                {
-                    b.Property<int>("TransactionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PaymentMethod")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Reference")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("TransactionCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TransactionDateTime")
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("TransactionId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("Transaction");
-                });
-
             modelBuilder.Entity("Server.Data.Entities.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -2062,10 +1834,6 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Appointments", b =>
                 {
-                    b.HasOne("Server.Data.Entities.Bed", "Bed")
-                        .WithMany()
-                        .HasForeignKey("BedId");
-
                     b.HasOne("Server.Data.Entities.Branch", "Branch")
                         .WithMany()
                         .HasForeignKey("BranchId")
@@ -2082,10 +1850,6 @@ namespace Server.Data.Migrations
                         .WithMany("Appointments")
                         .HasForeignKey("OrderId");
 
-                    b.HasOne("Server.Data.Entities.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId");
-
                     b.HasOne("Server.Data.Entities.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -2098,53 +1862,15 @@ namespace Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Bed");
-
                     b.Navigation("Branch");
 
                     b.Navigation("Customer");
 
                     b.Navigation("Order");
 
-                    b.Navigation("Room");
-
                     b.Navigation("Service");
 
                     b.Navigation("Staff");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Bed", b =>
-                {
-                    b.HasOne("Server.Data.Entities.BedType", "BedType")
-                        .WithMany()
-                        .HasForeignKey("BedTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Server.Data.Entities.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BedType");
-
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.BedAvailability", b =>
-                {
-                    b.HasOne("Server.Data.Entities.Bed", "Bed")
-                        .WithMany()
-                        .HasForeignKey("BedId");
-
-                    b.HasOne("Server.Data.Entities.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId");
-
-                    b.Navigation("Bed");
-
-                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Blog", b =>
@@ -2291,25 +2017,6 @@ namespace Server.Data.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("Server.Data.Entities.Chat", b =>
-                {
-                    b.HasOne("Server.Data.Entities.User", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Server.Data.Entities.User", "Sender")
-                        .WithMany()
-                        .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Receiver");
-
-                    b.Navigation("Sender");
-                });
-
             modelBuilder.Entity("Server.Data.Entities.Notifications", b =>
                 {
                     b.HasOne("Server.Data.Entities.User", "User")
@@ -2446,25 +2153,6 @@ namespace Server.Data.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("Routine");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Room", b =>
-                {
-                    b.HasOne("Server.Data.Entities.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Server.Data.Entities.ServiceCategory", "ServiceCategory")
-                        .WithMany()
-                        .HasForeignKey("ServiceCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("ServiceCategory");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
@@ -2626,25 +2314,6 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Staff");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Transaction", b =>
-                {
-                    b.HasOne("Server.Data.Entities.User", "Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Server.Data.Entities.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.User", b =>

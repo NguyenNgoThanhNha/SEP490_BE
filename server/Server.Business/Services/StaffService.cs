@@ -13,6 +13,8 @@ using System.Linq.Expressions;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using System.Globalization;
+using Server.Business.Commons.Request;
+using Server.Data;
 
 namespace Server.Business.Services
 {
@@ -71,9 +73,13 @@ namespace Server.Business.Services
             };
         }
 
-
-
-
+        public async Task<StaffModel> GetStaffByUserId(int userId)
+        {
+            var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.UserId == userId)
+                .FirstOrDefaultAsync();
+            if (staff == null) return null;
+            return _mapper.Map<StaffModel>(staff);
+        }
 
         public async Task<ApiResponse> CreateStaffAsync(CUStaffDto staffDto)
         {
@@ -167,11 +173,6 @@ namespace Server.Business.Services
             }
         }
 
-
-
-
-
-
         public async Task<List<Staff>> GetStaffByCustomerIdAsync(int customerId)
         {
             // Lấy danh sách Appointments có liên quan đến CustomerId thông qua UnitOfWorks
@@ -198,8 +199,7 @@ namespace Server.Business.Services
 
             return staffs;
         }
-
-
+        
         public async Task<Staff> GetStaffLastByCustomerIdAsync(int customerId)
         {
             // Lấy tất cả các cuộc hẹn liên quan đến khách hàng qua UnitOfWorks
@@ -227,8 +227,7 @@ namespace Server.Business.Services
 
             return staff;
         }
-
-
+        
         public async Task<ApiResponse> AssignRoleAsync(int staffId, int roleId)
         {
             try
@@ -292,9 +291,7 @@ namespace Server.Business.Services
                 return ApiResponse.Error($"An error occurred: {ex.Message}");
             }
         }
-
-
-
+        
         public async Task<ApiResponse> AssignBranchAsync(int staffId, int branchId)
         {
             try
@@ -340,9 +337,6 @@ namespace Server.Business.Services
             }
         }
 
-        
-
-
         public async Task<ApiResponse> GetStaffByIdAsync(int staffId)
         {
             try
@@ -369,9 +363,7 @@ namespace Server.Business.Services
                 return ApiResponse.Error($"An error occurred: {ex.Message}");
             }
         }
-
-
-
+        
         public async Task<ApiResponse> UpdateStaffAsync(int staffId, UpdateStaffDto staffUpdateDto)
         {
             try
@@ -424,11 +416,6 @@ namespace Server.Business.Services
                 };
             }
         }
-
-
-
-
-
 
         public async Task<ApiResponse> DeleteStaffAsync(int staffId)
         {
@@ -582,7 +569,7 @@ namespace Server.Business.Services
             var appointments = await _unitOfWorks.AppointmentsRepository
                 .FindByCondition(a => a.StaffId == staffId &&
                                       a.AppointmentsTime.Date == date.Date &&
-                                      a.Status == "Confirmed") // Chỉ lấy trạng thái đã xác nhận
+                                      a.Status == OrderStatusEnum.Pending.ToString()) // Chỉ lấy trạng thái đã xác nhận
                 .Include(a => a.Service) // Include Service để lấy duration
                 .ToListAsync();
 
@@ -753,7 +740,47 @@ namespace Server.Business.Services
         }
 
 
+        public async Task<List<StaffModel>> ListStaffFreeInTime(ListStaffFreeInTimeRequest request)
+        {
+            // Kiểm tra xem service có tồn tại trong branch không
+            var branchService = await _unitOfWorks.Branch_ServiceRepository
+                .FindByCondition(x => x.BranchId == request.BranchId && x.ServiceId == request.ServiceId)
+                .FirstOrDefaultAsync();
 
+            if (branchService == null)
+                throw new BadRequestException("Service does not exist in branch");
+
+            // Lấy danh sách tất cả nhân viên thuộc branch
+            var listStaff = await _unitOfWorks.StaffRepository
+                .FindByCondition(x => x.BranchId == request.BranchId)
+                .ToListAsync();
+
+            // Lấy thời lượng của service (giả sử đã parse sang số phút)
+            var service = await _unitOfWorks.ServiceRepository.GetByIdAsync(request.ServiceId);
+            if (service == null || !int.TryParse(service.Duration, out int serviceDurationInMinutes))
+                throw new BadRequestException("Invalid service duration");
+
+            // Tính thời gian kết thúc của yêu cầu đặt lịch
+            var expectedEndTime = request.StartTime.AddMinutes(serviceDurationInMinutes);
+
+            // Truy vấn danh sách nhân viên bận trong khoảng thời gian này
+            var busyStaffIds = await _unitOfWorks.AppointmentsRepository
+                .FindByCondition(a =>
+                    a.BranchId == request.BranchId &&
+                    a.ServiceId == request.ServiceId &&
+                    (a.AppointmentsTime <= request.StartTime && a.AppointmentsTime.AddMinutes(serviceDurationInMinutes) > request.StartTime ||
+                     a.AppointmentsTime < expectedEndTime && a.AppointmentsTime.AddMinutes(serviceDurationInMinutes) >= expectedEndTime ||
+                     a.AppointmentsTime >= request.StartTime && a.AppointmentsTime.AddMinutes(serviceDurationInMinutes) <= expectedEndTime)
+                )
+                .Select(a => a.StaffId)
+                .Distinct()
+                .ToListAsync();
+
+            // Lọc danh sách nhân viên rảnh
+            var availableStaff = listStaff.Where(s => !busyStaffIds.Contains(s.StaffId)).ToList();
+
+            return _mapper.Map<List<StaffModel>>(availableStaff);
+        }
 
 
     }

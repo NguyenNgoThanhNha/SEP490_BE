@@ -63,50 +63,20 @@ namespace Server.API.Controllers
             // Kiểm tra kết quả
             if (branches == null || !branches.Any())
             {
-                return BadRequest(new
-                {
-                    success = false,
-                    result = new
-                    {
-                        message = "Currently, there are no branches!",
-                        data = new List<object>()
-                    }
-                });
-            }
-
-            return Ok(new
-            {
-                success = true,
-                result = new
-                {
-                    message = "Get branches successfully!",
-                    data = branches
-                }
-            });
-        }
-        
-        [Authorize]
-        [HttpGet("get-room-by-branch")]
-        public async Task<IActionResult> GetRoomByBranch([FromQuery] int branchId)
-        {
-            // Gọi service để lấy danh sách phòng theo chi nhánh
-            var rooms = await _branchService.GetAllRoomAndBedInBranch(branchId);
-
-            // Kiểm tra kết quả
-            if (rooms == null || !rooms.Any())
-            {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there are no rooms in this branch!"
+                    message = "Currently, there are no branches!",
+                    data = new List<object>()
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get rooms and beds successfully!",
-                data = rooms
+                message = "Get branches successfully!",
+                data = branches
             }));
         }
+        
 
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetBranchById(int id)

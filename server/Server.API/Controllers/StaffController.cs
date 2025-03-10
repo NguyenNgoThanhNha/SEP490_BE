@@ -17,12 +17,14 @@ namespace Server.API.Controllers
         private readonly StaffService _staffService;
         private readonly UserService _userService;
         private readonly StaffLeaveService _staffLeaveService;
+        private readonly AuthService _authService;
 
-        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService)
+        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService, AuthService authService)
         {
             _staffService = staffService;
             _userService = userService;
             _staffLeaveService = staffLeaveService;
+            _authService = authService;
         }
 
         [HttpGet("get-list")]
@@ -262,38 +264,26 @@ namespace Server.API.Controllers
 
                 if (staffList == null || !staffList.Any())
                 {
-                    return NotFound(new
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        success = true,
-                        result = new
-                        {
-                            message = "No staff found for this branch..",
-                            data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
-                        }
-                    });
+                        message = "No staff found for this branch..",
+                        data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
+                    }));
                 }
 
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Get staff list successfully.",
-                        data = staffList
-                    }
-                });
+                    message = "Get staff list successfully.",
+                    data = staffList
+                }));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    result = new
-                    {
-                        message = $"Lỗi hệ thống: {ex.Message}",
-                        data = new List<object>()
-                    }
-                });
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
             }
         }
 
@@ -302,31 +292,31 @@ namespace Server.API.Controllers
         public async Task<IActionResult> GetStaffByBranchAndDate(int branchId, DateTime workDate)
         {
 
-            var staffList = await _staffService.GetStaffByBranchAndDateAsync(branchId, workDate);
-
-            if (staffList == null || !staffList.Any())
-            {
-                return NotFound(new
+                if (staffList == null || staffList.Count == 0)
                 {
-                    success = false,
-                    result = new
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "No staff found for the given branch and date.",
-                        data = Array.Empty<object>() // Optimized empty array
-                    }
-                });
-            }
-            return Ok(new
-            {
-                success = true,
-                result = new
+                        message = "No staff found for the given branch and service.",
+                        data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
+                    }));
+                }
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
                     message = "Staff list fetched successfully.",
                     data = staffList
-                }
-            });
-        }  
-        
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
+            }
+        }
+
 
 
 
@@ -339,38 +329,26 @@ namespace Server.API.Controllers
 
                 if (busyTimes == null || !busyTimes.Any())
                 {
-                    return NotFound(new
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                     {
-                        success = true,
-                        result = new
-                        {
-                            message = "No busy times found for the staff on the specified date.",
-                            data = (object)null
-                        }
-                    });
+                        message = "No busy times found for the staff on the specified date.",
+                        data = new List<BusyTimeDto>()
+                    }));
                 }
 
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Successfully retrieved the staff's busy times!",
-                        data = busyTimes
-                    }
-                });
+                    message = "Successfully retrieved the staff's busy times!",
+                    data = busyTimes
+                }));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    result = new
-                    {
-                        message = $"System error: {ex.Message}",
-                        data = (object)null
-                    }
-                });
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
             }
         }
         
@@ -434,33 +412,59 @@ namespace Server.API.Controllers
             }));
         }
 
-       // [Authorize]
+        [Authorize]
         [HttpGet("specialist-schedule")]
-        public async Task<IActionResult> GetSpecialistScheduleAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int month)
+        public async Task<IActionResult> GetSpecialistScheduleAsync([FromQuery] int year, [FromQuery] int month)
         {
-            var schedule = await _staffService.GetSpecialistScheduleAsync(staffId, year, month);
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<List<string>>.Error(errors));
+            }
+
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // Lấy thông tin user từ token
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Customer info not found!"
+                }));
+            }
+
+            var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
+            
+            var schedule = await _staffService.GetSpecialistScheduleAsync(staff.StaffId, year, month);
 
             if (schedule == null || !schedule.Any())
             {
-                return NotFound(new
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Specialist schedule not found or the staff is not a specialist."
-                    }
-                });
+                    message = "Specialist schedule not found or the staff is not a specialist."
+                }));
             }
 
-            return Ok(new
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                success = true,
-                result = new
-                {
-                    message = "Specialist schedule retrieved successfully.",
-                    data = schedule
-                }
-            });
+                message = "Specialist schedule retrieved successfully.",
+                data = schedule
+            }));
         }
 
         //[Authorize]
@@ -471,25 +475,17 @@ namespace Server.API.Controllers
 
             if (schedule == null || !schedule.Any())
             {
-                return NotFound(new
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = true,
-                    result = new
-                    {
-                        message = "Cashier schedule not found or the staff is not a cashier."
-                    }
-                });
+                    message = "Cashier schedule not found or the staff is not a cashier."
+                }));
             }
 
-            return Ok(new
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                success = true,
-                result = new
-                {
-                    message = "Cashier schedule retrieved successfully.",
-                    data = schedule
-                }
-            });
+                message = "Cashier schedule retrieved successfully.",
+                data = schedule
+            }));
         }
 
        // [Authorize]
@@ -500,22 +496,38 @@ namespace Server.API.Controllers
 
             if (schedule == null || !schedule.Schedules.Any())
             {
-                return NotFound(new
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = true,
                     message = "No work schedule found for this staff on the given date."
-                });
+                }));
             }
 
-            return Ok(new
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                success = true,
-                result = new
+                message = "Successfully retrieved staff schedule!",
+                data = schedule
+            }));
+        }
+
+
+        [HttpGet("staff-free-in-time")]
+        public async Task<IActionResult> ListStaffFreeInTime([FromQuery] ListStaffFreeInTimeRequest request)
+        {
+            var result = await _staffService.ListStaffFreeInTime(request);
+
+            if (result == null || !result.Any()) // Kiểm tra danh sách nhân viên có rỗng không
+            {
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    message = "Successfully retrieved staff schedule!",
-                    data = schedule
-                }
-            });
+                    message = "No available staff at the selected time."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Successfully retrieved available staff.",
+                data = result
+            }));
         }
 
 
