@@ -92,7 +92,7 @@ public class SkinAnalyzeService
             var skinHealth = new SkinHealth
             {
                 UserId = userId,
-                Ance = GetApiResponseValue(apiResult.result.acne),
+                Acne = GetApiResponseValue(apiResult.result.acne),
                 SkinColor = GetApiResponseValue(apiResult.result.skin_color),
                 SkinToneIta = GetApiResponseValue(apiResult.result.skintone_ita),
                 SkinTone = GetApiResponseValue(apiResult.result.skin_tone),
@@ -234,7 +234,7 @@ public class SkinAnalyzeService
             {
                 UserId = userId,
                 SkinColor = GetApiResponseValue(request.skin_color),
-                Ance = GetApiResponseValue(request.ance ?? null),
+                Acne = GetApiResponseValue(request.acne ?? null),
                 SkinToneIta = GetApiResponseValue(request.skintone_ita),
                 SkinTone = GetApiResponseValue(request.skin_tone),
                 SkinHueHa = GetApiResponseValue(request.skin_hue_ha),
@@ -279,21 +279,44 @@ public class SkinAnalyzeService
             List<UserRoutine> userRoutines = new List<UserRoutine>();
             foreach (var routine in routines)
             {
-                var newRoutine = new UserRoutine()
+                var existingRoutine = await _unitOfWorks.UserRoutineRepository
+                    .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoutineId == routine.SkincareRoutineId);
+
+                if (existingRoutine != null)
                 {
-                    UserId = userId,
-                    RoutineId = routine.SkincareRoutineId,
-                    Status = ObjectStatus.Active.ToString(),
-                    ProgressNotes = "Suitable for your skin",
-                    StartDate = DateTime.Now,
-                    EndDate = DateTime.Now.AddMonths(1),
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                };
-                userRoutines.Add(newRoutine);
+                    // Nếu đã tồn tại, cập nhật thông tin
+                    existingRoutine.Status = ObjectStatus.Active.ToString();
+                    existingRoutine.ProgressNotes = "Suitable for your skin";
+                    existingRoutine.UpdatedDate = DateTime.Now;
+                    _unitOfWorks.UserRoutineRepository.Update(existingRoutine);
+                }
+                else
+                {
+                    // Nếu chưa tồn tại, thêm mới
+                    var newRoutine = new UserRoutine()
+                    {
+                        UserId = userId,
+                        RoutineId = routine.SkincareRoutineId,
+                        Status = ObjectStatus.Active.ToString(),
+                        ProgressNotes = "Suitable for your skin",
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now.AddMonths(1),
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+                    userRoutines.Add(newRoutine);
+                }
             }
-            await _unitOfWorks.UserRoutineRepository.AddRangeAsync(userRoutines);
+
+            // Chỉ thêm nếu có dữ liệu mới
+            if (userRoutines.Any())
+            {
+                await _unitOfWorks.UserRoutineRepository.AddRangeAsync(userRoutines);
+            }
+
+            // Lưu thay đổi
             await _unitOfWorks.UserRoutineRepository.Commit();
+
             
             var result = new ApiSkinAnalyzeResponse()
             {

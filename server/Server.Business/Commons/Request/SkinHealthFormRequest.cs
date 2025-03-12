@@ -32,5 +32,5 @@ public class SkinHealthFormRequest
     public dynamic? sensitivity { get; set; }
     public dynamic? sensitivity_area { get; set; }
     public dynamic? sensitivity_intensity { get; set; }
-    public dynamic? ance { get; set; }
+    public dynamic? acne { get; set; }
 }
