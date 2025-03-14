@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250306023322_Updated_Database")]
+    [Migration("20250312153410_Updated_Database")]
     partial class Updated_Database
     {
         /// <inheritdoc />
@@ -1229,7 +1229,7 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("Ance")
+                    b.Property<string>("Acne")
                         .HasColumnType("longtext");
 
                     b.Property<string>("BlackHead")
