@@ -41,6 +41,7 @@ namespace Server.Data.UnitOfWorks
         private StaffLeaveRepository _staffLeaveRepository;
         private FeedbackAppointmentRepository _feedbackAppointmentRepository;
         private FeedbackServiceRepository _feedbackServiceRepository;
+        private Staff_ServiceCategoryRepository _staffServiceCategoryRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -199,6 +200,11 @@ namespace Server.Data.UnitOfWorks
         public FeedbackServiceRepository FeedbackServiceRepository
         {
             get { return _feedbackServiceRepository ??= new FeedbackServiceRepository(_dbContext); }
+        }
+        
+        public Staff_ServiceCategoryRepository Staff_ServiceCategoryRepository
+        {
+            get { return _staffServiceCategoryRepository ??= new Staff_ServiceCategoryRepository(_dbContext); }
         }
         
         public async Task BeginTransactionAsync()

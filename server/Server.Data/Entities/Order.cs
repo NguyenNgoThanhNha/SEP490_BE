@@ -29,6 +29,7 @@ public class Order
 
     public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
 
+    public string? PaymentMethod { get; set; } = PaymentMethodEnum.PayOS.ToString();
     public string? Note { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;

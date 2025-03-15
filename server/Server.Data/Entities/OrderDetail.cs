@@ -17,6 +17,10 @@ public class OrderDetail
     public int? ProductId { get; set; }
     public virtual Product Product { get; set; }
     
+    public int? BranchId { get; set; }
+    
+    public virtual Branch Branch { get; set; }
+    
     [ForeignKey("Product_OrderDetail_Promotion")]
     public int? PromotionId { get; set; }
     public virtual Promotion? Promotion { get; set; }
@@ -31,6 +35,8 @@ public class OrderDetail
     public string Status { get; set; } = OrderStatusEnum.Pending.ToString();
     
     public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
+
+    public string? PaymentMethod { get; set; } = PaymentMethodEnum.PayOS.ToString();
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

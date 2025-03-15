@@ -14,8 +14,6 @@ public class Cart
     public virtual User Customer { get; set; }
     
     public decimal TotalPrice { get; set; } = 0;
-    public string PaymentMethod { get; set; }
-    
     public ICollection<ProductCart> ProductCarts { get; set; }
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;

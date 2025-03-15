@@ -192,6 +192,11 @@ namespace Server.Data.SeedData
                 {
                     await SeedWorkSchedules();
                 }
+                
+                if (!_context.Staff_ServiceCategory.Any())
+                {
+                    await SeedStaffServiceCategory();
+                }
             }
             catch (Exception ex)
             {
@@ -4184,6 +4189,40 @@ namespace Server.Data.SeedData
         }
 
 
+        private async Task SeedStaffServiceCategory()
+        {
+            var staffs = await _context.Staffs.ToListAsync();
+            var serviceCategories = await _context.ServiceCategory.ToListAsync();
+            
+            if (!staffs.Any() || serviceCategories.Count < 5)
+            {
+                throw new Exception("Không đủ nhân viên hoặc danh mục dịch vụ để gán.");
+            }
+            
+            var staffCategories = new List<Staff_ServiceCategory>();
+            var random = new Random();
+            
+            foreach (var staff in staffs)
+            {
+                var selectedCategories = serviceCategories.OrderBy(x => random.Next()).Take(5).ToList();
+                
+                foreach (var category in selectedCategories)
+                {
+                    staffCategories.Add(new Staff_ServiceCategory
+                    {
+                        StaffId = staff.StaffId,
+                        ServiceCategoryId = category.ServiceCategoryId,
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
+                    });
+                }
+            }
+            
+            await _context.Staff_ServiceCategory.AddRangeAsync(staffCategories);
+            await _context.SaveChangesAsync();
+        }
+
+        
         private async Task SeedProductImages()
         {
             // Lấy danh sách tất cả các sản phẩm hiện có

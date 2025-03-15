@@ -58,6 +58,7 @@ namespace Server.Data.Entities
         public DbSet<StaffLeave> StaffLeave { get; set; }
         public DbSet<WorkSchedule> WorkSchedule { get; set; }
         public DbSet<SkinHealthImage> SkinHealthImage { get; set; }
+        public DbSet<Staff_ServiceCategory> Staff_ServiceCategory { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
