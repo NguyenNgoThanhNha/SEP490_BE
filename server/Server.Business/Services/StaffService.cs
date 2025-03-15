@@ -199,7 +199,7 @@ namespace Server.Business.Services
 
             return staffs;
         }
-        
+
         public async Task<Staff> GetStaffLastByCustomerIdAsync(int customerId)
         {
             // Lấy tất cả các cuộc hẹn liên quan đến khách hàng qua UnitOfWorks
@@ -227,7 +227,7 @@ namespace Server.Business.Services
 
             return staff;
         }
-        
+
         public async Task<ApiResponse> AssignRoleAsync(int staffId, int roleId)
         {
             try
@@ -291,7 +291,7 @@ namespace Server.Business.Services
                 return ApiResponse.Error($"An error occurred: {ex.Message}");
             }
         }
-        
+
         public async Task<ApiResponse> AssignBranchAsync(int staffId, int branchId)
         {
             try
@@ -363,7 +363,7 @@ namespace Server.Business.Services
                 return ApiResponse.Error($"An error occurred: {ex.Message}");
             }
         }
-        
+
         public async Task<ApiResponse> UpdateStaffAsync(int staffId, UpdateStaffDto staffUpdateDto)
         {
             try
@@ -560,22 +560,22 @@ namespace Server.Business.Services
         public async Task<StaffModel> GetStaffById(int staffId)
         {
 
-                // Sử dụng UnitOfWorks để lấy thông tin Staff
-                var staff = await _unitOfWorks.StaffRepository
-                    .GetAll() // Lấy tất cả dữ liệu từ repository
-                    .Include(s => s.StaffInfo)  // Bao gồm thông tin người dùng (User)
-                    .Include(s => s.Branch) // Bao gồm thông tin chi nhánh (Branch)
-                    .FirstOrDefaultAsync(s => s.StaffId == staffId);
+            // Sử dụng UnitOfWorks để lấy thông tin Staff
+            var staff = await _unitOfWorks.StaffRepository
+                .GetAll() // Lấy tất cả dữ liệu từ repository
+                .Include(s => s.StaffInfo)  // Bao gồm thông tin người dùng (User)
+                .Include(s => s.Branch) // Bao gồm thông tin chi nhánh (Branch)
+                .FirstOrDefaultAsync(s => s.StaffId == staffId);
 
-                // Kiểm tra nếu không tìm thấy staff
-                if (staff == null)
-                {
-                    throw new BadRequestException("Staff not found.");
-                }
+            // Kiểm tra nếu không tìm thấy staff
+            if (staff == null)
+            {
+                throw new BadRequestException("Staff not found.");
+            }
 
-                // Trả về dữ liệu staff
-                return _mapper.Map<StaffModel>(staff);
-          
+            // Trả về dữ liệu staff
+            return _mapper.Map<StaffModel>(staff);
+
         }
 
         public async Task<List<SpecialistScheduleDto>> GetSpecialistScheduleAsync(int staffId, int year, int month)
