@@ -325,6 +325,8 @@ namespace Server.Data.Migrations
                     ModifyDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
                     Status = table.Column<string>(type: "longtext", nullable: true),
                     RefreshToken = table.Column<string>(type: "longtext", nullable: true),
+                    District = table.Column<int>(type: "int", nullable: true),
+                    WardCode = table.Column<int>(type: "int", nullable: true),
                     BonusPoint = table.Column<int>(type: "int", nullable: false),
                     TypeLogin = table.Column<string>(type: "longtext", nullable: false),
                     RoleID = table.Column<int>(type: "int", nullable: false),
@@ -486,6 +488,8 @@ namespace Server.Data.Migrations
                     Status = table.Column<string>(type: "longtext", nullable: true),
                     ManagerId = table.Column<int>(type: "int", nullable: false),
                     CompanyId = table.Column<int>(type: "int", nullable: false),
+                    District = table.Column<int>(type: "int", nullable: true),
+                    WardCode = table.Column<int>(type: "int", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -515,7 +519,6 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PaymentMethod = table.Column<string>(type: "longtext", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -571,6 +574,7 @@ namespace Server.Data.Migrations
                     OrderType = table.Column<string>(type: "longtext", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
                     StatusPayment = table.Column<string>(type: "longtext", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
                     Note = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
@@ -984,6 +988,7 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     OrderId = table.Column<int>(type: "int", nullable: true),
                     ProductId = table.Column<int>(type: "int", nullable: true),
+                    BranchId = table.Column<int>(type: "int", nullable: true),
                     PromotionId = table.Column<int>(type: "int", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -991,12 +996,18 @@ namespace Server.Data.Migrations
                     DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Status = table.Column<string>(type: "longtext", nullable: false),
                     StatusPayment = table.Column<string>(type: "longtext", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderDetail", x => x.OrderDetailId);
+                    table.ForeignKey(
+                        name: "FK_OrderDetail_Branch_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branch",
+                        principalColumn: "BranchId");
                     table.ForeignKey(
                         name: "FK_OrderDetail_Order_OrderId",
                         column: x => x.OrderId,
@@ -1106,6 +1117,7 @@ namespace Server.Data.Migrations
                     ServiceId = table.Column<int>(type: "int", nullable: false),
                     BranchId = table.Column<int>(type: "int", nullable: false),
                     AppointmentsTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    AppointmentEndTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
                     Notes = table.Column<string>(type: "longtext", nullable: false),
                     Feedback = table.Column<string>(type: "longtext", nullable: false),
@@ -1113,6 +1125,7 @@ namespace Server.Data.Migrations
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     StatusPayment = table.Column<string>(type: "longtext", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -1177,6 +1190,35 @@ namespace Server.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Schedule_Staff_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staff",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Staff_ServiceCategory",
+                columns: table => new
+                {
+                    Staff_ServiceCategoryId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    ServiceCategoryId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Staff_ServiceCategory", x => x.Staff_ServiceCategoryId);
+                    table.ForeignKey(
+                        name: "FK_Staff_ServiceCategory_ServiceCategory_ServiceCategoryId",
+                        column: x => x.ServiceCategoryId,
+                        principalTable: "ServiceCategory",
+                        principalColumn: "ServiceCategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Staff_ServiceCategory_Staff_StaffId",
                         column: x => x.StaffId,
                         principalTable: "Staff",
                         principalColumn: "StaffId",
@@ -1443,6 +1485,11 @@ namespace Server.Data.Migrations
                 column: "VoucherId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrderDetail_BranchId",
+                table: "OrderDetail",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_OrderId",
                 table: "OrderDetail",
                 column: "OrderId");
@@ -1582,6 +1629,16 @@ namespace Server.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Staff_ServiceCategory_ServiceCategoryId",
+                table: "Staff_ServiceCategory",
+                column: "ServiceCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Staff_ServiceCategory_StaffId",
+                table: "Staff_ServiceCategory",
+                column: "StaffId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StaffLeave_StaffId",
                 table: "StaffLeave",
                 column: "StaffId");
@@ -1695,6 +1752,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "SkinHealthImage");
+
+            migrationBuilder.DropTable(
+                name: "Staff_ServiceCategory");
 
             migrationBuilder.DropTable(
                 name: "StaffLeave");

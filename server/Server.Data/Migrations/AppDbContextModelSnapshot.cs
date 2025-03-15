@@ -77,6 +77,9 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("AppointmentEndTime")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime>("AppointmentsTime")
                         .HasColumnType("datetime(6)");
 
@@ -99,6 +102,9 @@ namespace Server.Data.Migrations
 
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("longtext");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -266,6 +272,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("District")
+                        .HasColumnType("int");
+
                     b.Property<string>("LatAddress")
                         .HasColumnType("longtext");
 
@@ -280,6 +289,9 @@ namespace Server.Data.Migrations
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("WardCode")
+                        .HasColumnType("int");
 
                     b.HasKey("BranchId");
 
@@ -404,10 +416,6 @@ namespace Server.Data.Migrations
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
@@ -578,6 +586,9 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -610,6 +621,9 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<int?>("BranchId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
@@ -618,6 +632,9 @@ namespace Server.Data.Migrations
 
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("longtext");
 
                     b.Property<int?>("ProductId")
                         .HasColumnType("int");
@@ -646,6 +663,8 @@ namespace Server.Data.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("OrderDetailId");
+
+                    b.HasIndex("BranchId");
 
                     b.HasIndex("OrderId");
 
@@ -1484,6 +1503,33 @@ namespace Server.Data.Migrations
                     b.ToTable("StaffRole");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Staff_ServiceCategory", b =>
+                {
+                    b.Property<int>("Staff_ServiceCategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ServiceCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Staff_ServiceCategoryId");
+
+                    b.HasIndex("ServiceCategoryId");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("Staff_ServiceCategory");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -1521,6 +1567,9 @@ namespace Server.Data.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("District")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1579,6 +1628,9 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
+
+                    b.Property<int?>("WardCode")
+                        .HasColumnType("int");
 
                     b.HasKey("UserId");
 
@@ -2047,6 +2099,10 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.OrderDetail", b =>
                 {
+                    b.HasOne("Server.Data.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId");
+
                     b.HasOne("Server.Data.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId");
@@ -2058,6 +2114,8 @@ namespace Server.Data.Migrations
                     b.HasOne("Server.Data.Entities.Promotion", "Promotion")
                         .WithMany()
                         .HasForeignKey("PromotionId");
+
+                    b.Navigation("Branch");
 
                     b.Navigation("Order");
 
@@ -2316,6 +2374,25 @@ namespace Server.Data.Migrations
                     b.Navigation("Staff");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Staff_ServiceCategory", b =>
+                {
+                    b.HasOne("Server.Data.Entities.ServiceCategory", "ServiceCategory")
+                        .WithMany()
+                        .HasForeignKey("ServiceCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Data.Entities.Staff", "StaffInfo")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceCategory");
+
+                    b.Navigation("StaffInfo");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.User", b =>
                 {
                     b.HasOne("Server.Data.Entities.UserRole", "UserRole")
@@ -2391,7 +2468,7 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Server.Data.Entities.Staff", "Staff")
-                        .WithMany()
+                        .WithMany("WorkSchedules")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2476,6 +2553,11 @@ namespace Server.Data.Migrations
                     b.Navigation("ServiceRoutines");
 
                     b.Navigation("UserRoutines");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Staff", b =>
+                {
+                    b.Navigation("WorkSchedules");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.StaffRole", b =>

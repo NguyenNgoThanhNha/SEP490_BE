@@ -8,7 +8,7 @@ public class ListStaffFreeInTimeRequest
     public int BranchId { get; set; }
     
     [Required(ErrorMessage = "ServiceId is required")]
-    public int ServiceId { get; set; }
+    public int[] ServiceIds { get; set; }
     
-    public DateTime StartTime { get; set; }
+    public DateTime[] StartTimes { get; set; }
 }

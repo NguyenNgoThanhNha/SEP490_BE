@@ -60,6 +60,10 @@ namespace Server.Data.Entities
         public string? Status { get; set; }
 
         public string? RefreshToken { get; set; }
+        
+        public int? District { get; set; }
+    
+        public int? WardCode { get; set; }
 
         public int BonusPoint { get; set; } = 0;
 

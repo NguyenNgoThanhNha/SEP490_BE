@@ -512,27 +512,20 @@ namespace Server.API.Controllers
         }
 
 
-        [HttpGet("staff-free-in-time")]
-        public async Task<IActionResult> ListStaffFreeInTime([FromQuery] ListStaffFreeInTimeRequest request)
+        [HttpPost("staff-free-in-time")]
+        public async Task<IActionResult> ListStaffFreeInTime(ListStaffFreeInTimeRequest request)
         {
-            var result = await _staffService.ListStaffFreeInTime(request);
+            var result = await _staffService.ListStaffFreeInTimeV4(request);
 
-            if (result == null || !result.Any()) // Kiểm tra danh sách nhân viên có rỗng không
-            {
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-                {
-                    message = "No available staff at the selected time."
-                }));
-            }
+            return Ok(ApiResult<ListStaffFreeInTimeResponse>.Succeed(result));
+        }
 
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-            {
-                message = "Successfully retrieved available staff.",
-                data = result
-            }));
-        }     
-            
-
-
+        
+        [HttpPost("staff-by-service-category")]
+        public async Task<IActionResult> GetListStaffByServiceCategory(GetListStaffByServiceCategoryRequest request)
+        {
+            var result = await _staffService.GetListStaffByServiceCategory(request);
+            return Ok(ApiResult<GetListStaffByServiceCategoryResponse>.Succeed(result));
+        }
     }
 }

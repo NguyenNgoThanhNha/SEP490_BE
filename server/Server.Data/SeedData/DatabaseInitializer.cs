@@ -192,6 +192,11 @@ namespace Server.Data.SeedData
                 {
                     await SeedWorkSchedules();
                 }
+                
+                if (!_context.Staff_ServiceCategory.Any())
+                {
+                    await SeedStaffServiceCategory();
+                }
             }
             catch (Exception ex)
             {
@@ -225,14 +230,12 @@ namespace Server.Data.SeedData
             {
                 StaffRoleName = "Cashier",
                 Description = "Chịu trách nhiệm xử lý thanh toán và hóa đơn"
-
             };
 
             var specialistRole = new StaffRole
             {
                 StaffRoleName = "Specialist",
                 Description = "Cung cấp dịch vụ chuyên biệt cho khách hàng"
-
             };
 
             List<StaffRole> staffRoles = new()
@@ -359,10 +362,18 @@ namespace Server.Data.SeedData
         {
             var shifts = new List<Shifts>
             {
-                new Shifts { ShiftName = "Ca sáng", StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(13, 0, 0) },
-                new Shifts { ShiftName = "Ca chiều", StartTime = new TimeSpan(13, 0, 0), EndTime = new TimeSpan(17, 0, 0) },
-                new Shifts { ShiftName = "Ca tối", StartTime = new TimeSpan(17, 0, 0), EndTime = new TimeSpan(21, 0, 0) }
-
+                new Shifts
+                {
+                    ShiftName = "Ca sáng", StartTime = new TimeSpan(9, 0, 0), EndTime = new TimeSpan(13, 0, 0)
+                },
+                new Shifts
+                {
+                    ShiftName = "Ca chiều", StartTime = new TimeSpan(13, 0, 0), EndTime = new TimeSpan(17, 0, 0)
+                },
+                new Shifts
+                {
+                    ShiftName = "Ca tối", StartTime = new TimeSpan(17, 0, 0), EndTime = new TimeSpan(21, 0, 0)
+                }
             };
 
             if (!_context.Shifts.Any()) // Kiểm tra nếu chưa có dữ liệu
@@ -380,7 +391,6 @@ namespace Server.Data.SeedData
             if (!staffs.Any() || !shifts.Any())
             {
                 throw new Exception("Nhân viên hoặc Ca làm việc bị thiếu. Vui lòng thêm họ vào trước.");
-
             }
 
             var scheduleList = new List<WorkSchedule>();
@@ -416,7 +426,6 @@ namespace Server.Data.SeedData
         }
 
 
-
         private async Task SeedCompany()
         {
             var company = new Company
@@ -434,6 +443,7 @@ namespace Server.Data.SeedData
             await _context.Companies.AddAsync(company);
             await _context.SaveChangesAsync();
         }
+
         //Làm từ đây
         private async Task SeedCategories()
         {
@@ -512,7 +522,6 @@ namespace Server.Data.SeedData
                     Status = "Active",
                     ImageUrl = "https://example.com/hot-stone-therapy.jpg"
                 },
-
             };
 
             // Thêm các danh mục vào cơ sở dữ liệu
@@ -525,97 +534,96 @@ namespace Server.Data.SeedData
             var serviceCategories = new List<ServiceCategory>
             {
                 new ServiceCategory
-{
-    Name = "Chăm sóc da mặt",
-    Description = "Dịch vụ chăm sóc da mặt chuyên sâu, làm sạch và tái tạo da",
-    Status = "Active",
-    Thumbnail = "https://example.com/facial-treatment.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
-new ServiceCategory
-{
-    Name = "Liệu pháp massage",
-    Description = "Liệu pháp massage thư giãn, giảm căng thẳng và mệt mỏi",
-    Status = "Active",
-    Thumbnail = "https://example.com/massage-therapy.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
-new ServiceCategory
-{
-    Name = "Tẩy tế bào chết toàn thân",
-    Description = "Dịch vụ tẩy tế bào chết toàn thân giúp da sáng mịn",
-    Status = "Active",
-    Thumbnail = "https://example.com/body-scrub.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
-new ServiceCategory
-{
-    Name = "Chăm sóc tóc",
-    Description = "Dịch vụ chăm sóc tóc chuyên nghiệp, phục hồi tóc hư tổn và nuôi dưỡng tóc",
-    Status = "Active",
-    Thumbnail = "https://example.com/hair-treatment.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
-new ServiceCategory
-{
-    Name = "Chăm sóc móng tay & chân",
-    Description = "Dịch vụ làm móng chuyên nghiệp, giúp bạn có bộ móng đẹp và khỏe",
-    Status = "Active",
-    Thumbnail = "https://example.com/manicure-pedicure.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
-new ServiceCategory
-{
-    Name = "Tẩy lông & triệt lông",
-    Description = "Dịch vụ triệt lông chuyên nghiệp, an toàn và hiệu quả",
-    Status = "Active",
-    Thumbnail = "https://example.com/waxing-hair-removal.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
-new ServiceCategory
-{
-    Name = "Điều trị chống lão hóa",
-    Description = "Liệu trình chống lão hóa, giúp giảm nếp nhăn và trẻ hóa làn da",
-    Status = "Active",
-    Thumbnail = "https://example.com/anti-aging-treatment.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
-new ServiceCategory
-{
-    Name = "Liệu pháp tinh dầu",
-    Description = "Liệu pháp sử dụng tinh dầu thiên nhiên giúp thư giãn và cân bằng cơ thể",
-    Status = "Active",
-    Thumbnail = "https://example.com/aromatherapy.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
+                {
+                    Name = "Chăm sóc da mặt",
+                    Description = "Dịch vụ chăm sóc da mặt chuyên sâu, làm sạch và tái tạo da",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/facial-treatment.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Liệu pháp massage",
+                    Description = "Liệu pháp massage thư giãn, giảm căng thẳng và mệt mỏi",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/massage-therapy.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Tẩy tế bào chết toàn thân",
+                    Description = "Dịch vụ tẩy tế bào chết toàn thân giúp da sáng mịn",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/body-scrub.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Chăm sóc tóc",
+                    Description = "Dịch vụ chăm sóc tóc chuyên nghiệp, phục hồi tóc hư tổn và nuôi dưỡng tóc",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/hair-treatment.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Chăm sóc móng tay & chân",
+                    Description = "Dịch vụ làm móng chuyên nghiệp, giúp bạn có bộ móng đẹp và khỏe",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/manicure-pedicure.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Tẩy lông & triệt lông",
+                    Description = "Dịch vụ triệt lông chuyên nghiệp, an toàn và hiệu quả",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/waxing-hair-removal.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Điều trị chống lão hóa",
+                    Description = "Liệu trình chống lão hóa, giúp giảm nếp nhăn và trẻ hóa làn da",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/anti-aging-treatment.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Liệu pháp tinh dầu",
+                    Description = "Liệu pháp sử dụng tinh dầu thiên nhiên giúp thư giãn và cân bằng cơ thể",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/aromatherapy.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
 // Thêm 2 danh mục mới
-new ServiceCategory
-{
-    Name = "Tạo kiểu tóc",
-    Description = "Dịch vụ tạo kiểu tóc, giúp bạn có mái tóc hoàn hảo và thời trang",
-    Status = "Active",
-    Thumbnail = "https://example.com/hair-styling.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-},
-new ServiceCategory
-{
-    Name = "Trang trí móng nghệ thuật",
-    Description = "Dịch vụ trang trí móng nghệ thuật, tạo nên vẻ đẹp độc đáo cho bộ móng của bạn",
-    Status = "Active",
-    Thumbnail = "https://example.com/nail-art.jpg",
-    CreatedDate = DateTime.Now,
-    UpdatedDate = DateTime.Now
-}
-
+                new ServiceCategory
+                {
+                    Name = "Tạo kiểu tóc",
+                    Description = "Dịch vụ tạo kiểu tóc, giúp bạn có mái tóc hoàn hảo và thời trang",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/hair-styling.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                },
+                new ServiceCategory
+                {
+                    Name = "Trang trí móng nghệ thuật",
+                    Description = "Dịch vụ trang trí móng nghệ thuật, tạo nên vẻ đẹp độc đáo cho bộ móng của bạn",
+                    Status = "Active",
+                    Thumbnail = "https://example.com/nail-art.jpg",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                }
             };
 
 
@@ -631,25 +639,26 @@ new ServiceCategory
             {
                 new Product
                 {
-                     Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dầu Tẩy Trang Remedy",
-    ProductDescription = "Sữa rửa mặt dịu nhẹ với kết cấu chuyển đổi từ kem sang dầu. Công thức chứa dầu Marula, lý tưởng cho da nhạy cảm, dễ bị mẩn đỏ.",
-    Price = 1_050_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 200m
-
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dầu Tẩy Trang Remedy",
+                    ProductDescription =
+                        "Sữa rửa mặt dịu nhẹ với kết cấu chuyển đổi từ kem sang dầu. Công thức chứa dầu Marula, lý tưởng cho da nhạy cảm, dễ bị mẩn đỏ.",
+                    Price = 1_050_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 200m
                 },
                 new Product
                 {
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Essential Face Wash",
-                    ProductDescription = "A creamy cleanser that gently removes make-up while restoring a natural glow to the skin.",
+                    ProductDescription =
+                        "A creamy cleanser that gently removes make-up while restoring a natural glow to the skin.",
                     Price = 990_000m, // Giá sản phẩm là 990.000 VND
                     Quantity = 100,
                     Discount = 0.0m, // Không có chiết khấu
@@ -660,2422 +669,2588 @@ new ServiceCategory
                 },
                 new Product
                 {
-                   Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Cơ Bản",
-    ProductDescription = "Sữa rửa mặt dạng kem nhẹ nhàng làm sạch lớp trang điểm và giúp da sáng tự nhiên.",
-    Price = 990_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 200m
-
-                },
-               new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Gel Rửa Mặt Làm Sạch Sâu",
-    ProductDescription = "Chứa 3% gluconolactone giúp làm sạch da sâu, tẩy tế bào chết và thông thoáng lỗ chân lông. Phù hợp cho da dầu, dễ bị mụn.",
-    Price = 1_120_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Làm Sạch Mụn",
-    ProductDescription = "Sữa rửa mặt tạo bọt giúp làm sạch da và giảm dấu hiệu lão hóa. Chứa Acid Salicylic giúp loại bỏ tế bào chết và thông thoáng lỗ chân lông.",
-    Price = 1_400_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "250ml",
-    Volume = 250m
-},
-
-                new Product
-                {
-                     Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Tẩy Trang Prebiotic Micellar",
-    ProductDescription = "Dầu tẩy trang giúp hòa tan lớp trang điểm, bụi bẩn và dầu thừa, mang lại làn da sạch khỏe mà không gây khô da.",
-    Price = 1_630_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Cơ Bản",
+                    ProductDescription =
+                        "Sữa rửa mặt dạng kem nhẹ nhàng làm sạch lớp trang điểm và giúp da sáng tự nhiên.",
+                    Price = 990_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 200m
                 },
                 new Product
                 {
                     Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Kombucha",
-    ProductDescription = "Giúp làm sạch và cân bằng làn da nhờ công thức chứa kombucha, gừng, trà trắng và hoa nhài.",
-    Price = 1_170_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-
-                },
-                new Product
-                {
-                     Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Tẩy Tế Bào Chết Monoi",
-    ProductDescription = "Sữa rửa mặt kết hợp tẩy tế bào chết nhẹ nhàng, chứa dầu Monoi và thành phần tự nhiên giúp da sáng khỏe, mịn màng.",
-    Price = 1_200_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "250ml",
-    Volume = 250m
-
-                },
-                new Product
-                {
-                   Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Ngừa Mụn",
-    ProductDescription = "Sữa rửa mặt tạo bọt giúp ngăn ngừa mụn, làm sạch da nhờ Acid Salicylic và chiết xuất thảo dược tự nhiên.",
-    Price = 1_250_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-
+                    SkinTypeSuitable = "All",
+                    ProductName = "Gel Rửa Mặt Làm Sạch Sâu",
+                    ProductDescription =
+                        "Chứa 3% gluconolactone giúp làm sạch da sâu, tẩy tế bào chết và thông thoáng lỗ chân lông. Phù hợp cho da dầu, dễ bị mụn.",
+                    Price = 1_120_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
                 },
                 new Product
                 {
                     Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Cỏ Chanh",
-    ProductDescription = "Chứa dầu ô liu, hạt lanh và cỏ chanh giúp làm sạch da nhẹ nhàng, đồng thời làm dịu và dưỡng ẩm.",
-    Price = 1_450_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Làm Sạch Mụn",
+                    ProductDescription =
+                        "Sữa rửa mặt tạo bọt giúp làm sạch da và giảm dấu hiệu lão hóa. Chứa Acid Salicylic giúp loại bỏ tế bào chết và thông thoáng lỗ chân lông.",
+                    Price = 1_400_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "250ml",
+                    Volume = 250m
                 },
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Tẩy Tế Bào Chết Than Hoạt Tính",
-    ProductDescription = "Được pha chế với than hoạt tính, đá quý malachite và matcha xanh, sữa rửa mặt thanh lọc mạnh mẽ này chuyển từ dạng gel sang dạng bọt tẩy tế bào chết, giúp loại bỏ tạp chất và mang lại làn da cân bằng.",
-    Price = 1_490_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Beplain Mung Bean pH-Balanced",
-    ProductDescription = "Sữa rửa mặt dịu nhẹ hàng ngày với 33% chiết xuất đậu xanh giúp làm sạch tạp chất mà vẫn giữ ẩm và mang lại cảm giác thoải mái cho da.",
-    Price = 355_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt ISNTREE Yam Root Vegan Milk",
-    ProductDescription = "Sản phẩm chăm sóc da dịu nhẹ và nuôi dưỡng, phù hợp với mọi loại da. Chứa chiết xuất từ rễ khoai mỡ Andong giúp loại bỏ tạp chất, bụi bẩn mà vẫn duy trì độ ẩm cần thiết. Công thức giàu axit amin giúp làm dịu da và tạo hàng rào bảo vệ, giữ lại độ ẩm quan trọng.",
-    Price = 450_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "220ml",
-    Volume = 220m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Gel Rửa Mặt Trị Mụn Normaderm",
-    ProductDescription = "Không giống như hầu hết các loại sữa rửa mặt trị mụn khác làm mất đi độ ẩm tự nhiên của da, gel rửa mặt của Vichy không chứa dầu và xà phòng, nhẹ nhàng và không gây kích ứng. Công thức đặc biệt chứa các thành phần hoạt tính giúp giảm mụn, kiểm soát dầu nhờn và củng cố hàng rào bảo vệ da.",
-    Price = 720_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Gel Rửa Mặt Tươi Mát Purete Thermale",
-    ProductDescription = "Sữa rửa mặt tạo bọt dày đặc giúp làm sạch hiệu quả bụi bẩn, lớp trang điểm và ô nhiễm khỏi da, đồng thời chống lại tác hại của nước cứng. Mang lại làn da mềm mại, tươi mới mà không gây cảm giác khô căng.",
-    Price = 600_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Rửa Mặt Tạo Bọt Purete Thermale",
-    ProductDescription = "Sữa rửa mặt dạng kem tạo bọt giúp làm sạch hiệu quả tạp chất, lớp trang điểm và ô nhiễm trên da mà không gây khô hay kích ứng. Đồng thời, sản phẩm còn giúp giảm tác động có hại của nước cứng lên da, mang lại cảm giác mềm mịn và tươi mới mà không bị căng da.",
-    Price = 650_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "125ml",
-    Volume = 125m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Tạo Bọt",
-    ProductDescription = "Công thức kem sang trọng giúp làm sạch và nhẹ nhàng tẩy tế bào chết, đồng thời cấp ẩm sâu với sự kết hợp của các axit amin. Nhờ sự kết hợp mạnh mẽ giữa axit tranexamic và niacinamide, sản phẩm giúp làm sáng da, mang lại làn da rạng rỡ và đều màu hơn.",
-    Price = 1_170_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "120ml",
-    Volume = 120m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Rửa Mặt Tẩy Tế Bào Chết",
-    ProductDescription = "Chứa các peptide giúp tăng cường collagen và giảm nếp nhăn, sữa rửa mặt này mang lại cảm giác tươi mới tức thì với lớp bọt mịn giàu dưỡng chất. Thành phần hạt jojoba thân thiện với môi trường giúp làm sạch mà không làm mất đi độ ẩm tự nhiên của da.",
-    Price = 1_250_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Gel Rửa Mặt Làm Sạch",
-    ProductDescription = "Sản phẩm giúp loại bỏ lớp trang điểm, bụi bẩn và dầu thừa một cách hiệu quả nhờ sự kết hợp nhẹ nhàng của các peptide, chất chống oxy hóa và thành phần làm dịu da. Mang lại cảm giác sạch thoáng và tươi mát.",
-    Price = 1_250_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 1,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Xịt Khoáng Măng Cụt",
-    ProductDescription = "Hòa mình vào thiên nhiên với từng tia xịt khoáng tươi mát. Sự kết hợp giữa măng cụt giàu chất chống oxy hóa, ribose tăng cường năng lượng và cỏ ba lá đỏ giúp se khít lỗ chân lông và làm mới làn da.",
-    Price = 1_120_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "125ml",
-    Volume = 125m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Tinh Chất Dứa",
-    ProductDescription = "Làm mới làn da với nước hoa hồng chiết xuất từ dứa! Công thức chứa PHA, bromelain và axit tranexamic giúp loại bỏ da xỉn màu mà không gây kích ứng. Sản phẩm giúp tẩy tế bào chết nhẹ nhàng, làm sáng và cấp ẩm cho da, phù hợp cho mọi loại da và có thể sử dụng hàng ngày.",
-    Price = 1_400_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "120ml",
-    Volume = 120m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Táo Gai",
-    ProductDescription = "Dành cho da mất nước, dễ kích ứng và nhạy cảm, nước hoa hồng từ táo gai giúp da trông tươi mới hơn. Thành phần từ hoa cúc, kinh giới và dầu khuynh diệp giúp bảo vệ và làm dịu da, trong khi chiết xuất cà rốt giàu vitamin giúp phục hồi và nuôi dưỡng làn da.",
-    Price = 1_200_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Tinh Chất Chanh",
-    ProductDescription = "Dành cho mọi loại da, đặc biệt là da dầu, nước hoa hồng này giàu vitamin C giúp cân bằng và làm sáng da. Chiết xuất chanh tươi cùng công thức Biocomplex2™ độc quyền mang đến làn da tươi mới và căng tràn sức sống.",
-    Price = 990_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "120ml",
-    Volume = 120m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Hoa Cúc Làm Dịu Da",
-    ProductDescription = "Nước hoa hồng làm dịu da với các loại thảo mộc giúp khôi phục độ cân bằng. Hoa cúc, rễ cây comfrey, cam thảo và lô hội giúp làm dịu và cấp ẩm, trong khi natri bicarbonate giúp trung hòa và bảo vệ da.",
-    Price = 990_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "120ml",
-    Volume = 120m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Đặc Trị Mụn",
-    ProductDescription = "Nước hoa hồng dưỡng ẩm nhẹ giúp làm dịu và tươi mát làn da. Công thức chứa arnica, bạc hà và hoa oải hương giúp làm dịu kích ứng, đồng thời cung cấp độ ẩm cần thiết. Hoàn hảo để cấp nước sau khi rửa mặt hoặc bất cứ khi nào da cần làm mới.",
-    Price = 1_510_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "250ml",
-    Volume = 250m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Xịt Khoáng Chống Oxy Hóa",
-    ProductDescription = "Nước cân bằng chống oxy hóa giúp làm săn chắc và cấp ẩm. Công thức dạng xịt tiện lợi bổ sung hàng rào bảo vệ da bằng cách tạo lớp màng chống oxy hóa, giúp chống lại tác hại của các gốc tự do và ngăn ngừa dấu hiệu lão hóa do các sản phẩm cuối của glycation (AGEs) gây ra. Chiết xuất đậu Hà Lan giúp làm săn chắc da, trong khi chiết xuất hoa hồng và đinh hương mang lại cảm giác dễ chịu và tươi mát, lý tưởng để sử dụng sau khi rửa mặt hoặc suốt cả ngày.",
-    Price = 1_640_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Xịt Dưỡng Ẩm UltraCalming",
-    ProductDescription = "Xịt dưỡng ẩm nhẹ dịu giúp làm dịu da và giảm đỏ. Sử dụng sau khi rửa mặt để khóa ẩm và chuẩn bị da cho các bước dưỡng với dòng sản phẩm UltraCalming. Công thức nhẹ hấp thụ nhanh, hỗ trợ hàng rào bảo vệ da, giúp giảm kích ứng trong tương lai. Phức hợp UltraCalming độc quyền chứa chiết xuất yến mạch và thực vật giúp làm dịu và củng cố da, trong khi lô hội giúp cân bằng độ ẩm tự nhiên.",
-    Price = 1_510_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "177ml",
-    Volume = 177m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Xịt Dưỡng Ẩm Hyaluronic Ceramide",
-    ProductDescription = "Xịt dưỡng ẩm giúp bão hòa làn da với độ ẩm và khóa chặt nước để da trở nên đàn hồi. Công thức giàu dưỡng chất chứa bốn loại Axit Hyaluronic giúp da giữ nước lâu dài. Ceramide kết hợp cùng Axit Hyaluronic giúp làm mịn các nếp nhăn và tăng cường hàng rào bảo vệ da. Nước hoa hồng giàu polyphenol và flavonoid chống oxy hóa giúp phục hồi và làm mới làn da.",
-    Price = 1_800_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Làm Dịu Da",
-    ProductDescription = "Xịt khoáng hoa hồng giúp củng cố và làm dịu da, đặc biệt phù hợp với làn da nhạy cảm và dễ bị đỏ.",
-    Price = 990_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Cân Bằng Da",
-    ProductDescription = "Nước hoa hồng không cồn giúp cân bằng độ ẩm và hỗ trợ tái tạo mô, lý tưởng để hoàn thiện bước làm sạch da.",
-    Price = 836_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Làm Sạch Sâu",
-    ProductDescription = "Nước hoa hồng giúp làm mịn da với 3% gluconolactone, có tác dụng tẩy tế bào chết nhẹ nhàng.",
-    Price = 990_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Tái Tạo Da",
-    ProductDescription = "Lấy cảm hứng từ ánh sáng phản chiếu trên đại dương, nước hoa hồng tái tạo da này được thiết kế để mang lại độ rạng rỡ và sáng mịn tối đa.",
-    Price = 1_320_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng Cân Bằng pH Acwell Licorice",
-    ProductDescription = "Nước hoa hồng Acwell Licorice có độ pH 5.5 giúp cân bằng da hiệu quả. Chứa chiết xuất mẫu đơn và hàm lượng cao nước cam thảo giúp làm sáng da tự nhiên. Chiết xuất trà xanh giúp làm dịu và giảm thâm nám, bao gồm cả sẹo mụn và đốm nâu. Sau khi sử dụng, da cảm thấy sạch và mềm mại, không khô căng. Giúp các sản phẩm dưỡng da thẩm thấu tốt hơn.",
-    Price = 460_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Hoa Hồng COSRX AHA/BHA",
-    ProductDescription = "Công thức chứa AHA + BHA + chiết xuất thực vật giúp cải thiện kết cấu da, tăng độ đàn hồi và kiểm soát lỗ chân lông. Loại bỏ tạp chất, tẩy tế bào chết và dưỡng ẩm chỉ trong một bước.",
-    Price = 355_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Cân Bằng Nhân Sâm Sulwhasoo",
-    ProductDescription = "Nước cân bằng cao cấp giúp cải thiện nếp nhăn, tăng độ đàn hồi và cấp ẩm sâu, mang lại làn da trẻ trung.",
-    Price = 3_450_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Toner Dưỡng Da Trước Điều Trị",
-    ProductDescription = "Chứa chất chống oxy hóa mạnh và peptide giúp thư giãn nếp nhăn và hỗ trợ sản xuất collagen, toner điều trị chống lão hóa này cân bằng độ ẩm cho da, đồng thời làm sáng và cải thiện kết cấu, tông da.",
-    Price = 1_120_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Nước Cân Bằng Hydraflora",
-    ProductDescription = "Tinh chất này được pha chế với phức hợp pre- và probiotic giúp cân bằng và củng cố hệ vi sinh trên bề mặt da. Hỗn hợp chiết xuất thực vật giàu chất chống oxy hóa giúp làm sáng và bảo vệ da khỏi tác hại của các gốc tự do. Nước dừa và cây thùa xanh giúp thu nhỏ lỗ chân lông và mang lại làn da mịn màng.",
-    Price = 1_750_000m,
-    Quantity = 100,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "120ml",
-    Volume = 120m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Miếng Lót Toner Làm Sạch",
-    ProductDescription = "Chứa các thành phần tẩy tế bào chết, chiết xuất kháng khuẩn và peptide tái tạo mạnh mẽ, miếng lót toner thấm sẵn giúp làm sạch da khỏi mụn, làm sáng da, làm mịn kết cấu da không đều và giảm viêm.",
-    Price = 1_250_000m,
-    Quantity = 60,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "60 miếng",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Toner Vichy Aqualia Thermal Dưỡng Ẩm Tươi Mát",
-    ProductDescription = "Toner 200ml dành cho da hỗn hợp và da dầu giúp loại bỏ bụi bẩn như nam châm, nuôi dưỡng da mềm mịn và săn chắc, đồng thời cân bằng độ pH để kem dưỡng dễ dàng thẩm thấu hơn.",
-    Price = 690_000m,
-    Quantity = 200,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Toner Vichy Normaderm Se Khít Lỗ Chân Lông",
-    ProductDescription = "Nước cân bằng giúp làm sạch lỗ chân lông, giảm kích thước lỗ chân lông và kiểm soát dầu cho da dầu, dễ bị mụn.",
-    Price = 780_000m,
-    Quantity = 200,
-    Discount = 0.0m,
-    CategoryId = 2,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Chăm Sóc Da Chuyên Sâu Sublime Skin",
-    ProductDescription = "Tinh chất phục hồi đa chức năng giúp làm mịn, săn chắc và bảo vệ da, làm đầy nếp nhăn và mang lại đường nét khuôn mặt thon gọn hơn.",
-    Price = 3_520_000m,
-    Quantity = 30,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tinh Chất Dưỡng Ẩm & Làm Sáng Hydramemory",
-    ProductDescription = "Tinh chất dưỡng ẩm chuyên sâu với phức hợp làm sáng (Niacinamide và NAG) và Polyglutamic Acid (PGA) giúp da khỏe mạnh hơn, mềm mại và mịn màng hơn.",
-    Price = 1_350_000m,
-    Quantity = 7,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "7 x 2ml",
-    Volume = 14m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tinh Chất Nâng Cơ & Căng Da Sublime Skin",
-    ProductDescription = "Liệu pháp thẩm mỹ chuyên sâu với peptide chống nhăn, yếu tố tăng trưởng biểu bì (EGFs) và axit hyaluronic phân tử lớn giúp nâng cơ, giảm nếp nhăn. Da được cấp ẩm tức thì và trở nên mịn màng hơn.",
-    Price = 1_890_000m,
-    Quantity = 8,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "8 x 2ml",
-    Volume = 16m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Vitamin C Biolumin-C",
-    ProductDescription = "Tinh chất hiệu suất cao giúp tăng cường hệ thống phòng vệ tự nhiên của da để làm sáng, săn chắc và giảm đáng kể nếp nhăn. Công nghệ sinh học tiên tiến kết hợp với phức hợp Vitamin C siêu ổn định giúp tối ưu hóa khả năng hấp thụ Vitamin C, chống lại tác hại oxy hóa và các dấu hiệu lão hóa da.",
-    Price = 3_320_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Giảm Mụn & Lão Hóa Age Bright",
-    ProductDescription = "Tinh chất hoạt động kép giúp giảm và ngăn ngừa mụn trong khi giảm các dấu hiệu lão hóa da. Axit Salicylic giúp làm sạch mụn, loại bỏ tế bào chết, đẩy nhanh quá trình tái tạo da. Phức hợp AGE Bright™ hỗ trợ hệ vi sinh da để mang lại làn da sáng khỏe hơn.",
-    Price = 2_620_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Làm Mờ Đốm Nâu Powerbright",
-    ProductDescription = "Bắt đầu làm mờ sự xuất hiện của các đốm nâu trong vài ngày: serum tiên tiến giúp giảm nhanh sự không đồng đều về sắc tố và tiếp tục cải thiện tông màu da theo thời gian.",
-    Price = 3_810_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Tinh Chất Làm Dịu Da UltraCalming",
-    ProductDescription = "Giải pháp cho làn da nhạy cảm. Serum siêu cô đặc này giúp làm dịu, phục hồi và bảo vệ làn da nhạy cảm. Công thức UltraCalming™ độc quyền chứa yến mạch và chiết xuất thực vật giúp giảm kích ứng, kết hợp với peptide và dầu hoa anh thảo, hạt hướng dương, bơ giúp bảo vệ da khỏi các tác động bên ngoài.",
-    Price = 2_310_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "40ml",
-    Volume = 40m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Cấp Ẩm Hyaluronic Circular",
-    ProductDescription = "Kích hoạt chu trình cấp ẩm cho da: serum dưỡng ẩm lâu dài ngay lập tức cung cấp độ ẩm cho da, bổ sung từ bên trong và giúp ngăn chặn sự mất nước trong tương lai. Công thức chứa Hyaluronic Acid cải tiến giúp thẩm thấu sâu, mang lại làn da căng mọng, rạng rỡ hơn theo thời gian. Ma trận dưỡng ẩm chứa chiết xuất tảo biển mang lại hiệu quả cấp ẩm nhanh chóng và bền vững.",
-    Price = 2_230_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Dưỡng Ẩm Dâu & Đại Hoàng",
-    ProductDescription = "Khám phá làn da rạng rỡ, trẻ trung với serum chứa dâu tây, đại hoàng và phức hợp Hyaluronic thực vật độc đáo. Kết hợp với rau má giúp cấp ẩm sâu, mang lại làn da mềm mịn và săn chắc hơn. Phù hợp với mọi loại da, đặc biệt là da khô hoặc mất nước.",
-    Price = 1_500_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum C+E Chống Oxy Hóa Citrus & Kale",
-    ProductDescription = "Serum nhẹ dịu dành cho mọi loại da. Vitamin C mạnh mẽ được ổn định bằng axit ferulic từ thực vật, cung cấp chất chống oxy hóa giúp làm sáng da, cải thiện nếp nhăn và giảm tác động của các gốc tự do.",
-    Price = 2_990_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Peptide Chiết Xuất Hoa Biển",
-    ProductDescription = "Serum dạng gel dễ hấp thụ, cung cấp peptide thực vật cô đặc và chiết xuất thực vật giúp giảm sự xuất hiện của nếp nhăn, mang lại làn da săn chắc và căng mịn. Công thức Smart Collagen+ giúp trẻ hóa làn da, trong khi chiết xuất tảo biển tăng độ đàn hồi và giữ ẩm lâu dài.",
-    Price = 2_990_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Trị Mụn Vỏ Liễu",
-    ProductDescription = "Hỗ trợ làm dịu kích ứng và giảm các vấn đề về da với serum cô đặc chứa chiết xuất vỏ liễu và tinh dầu tràm trà.",
-    Price = 1_680_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Phục Hồi Hoa Thanh Cúc",
-    ProductDescription = "Phục hồi và thanh lọc da với sức mạnh của hoa thanh cúc, cúc la mã và dâm bụt. Serum này giúp cải thiện độ đàn hồi của da, mang lại hiệu ứng trẻ hóa và săn chắc.",
-    Price = 1_480_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "15ml",
-    Volume = 15m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Căng Bóng Power",
-    ProductDescription = "Liệu pháp đa nhiệm mạnh mẽ chứa phức hợp peptide hiệu suất cao và chất chống oxy hóa kích thích collagen, giúp cải thiện rõ rệt nếp nhăn và mang lại làn da săn chắc, trẻ trung hơn.",
-    Price = 3_910_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Làm Sáng Da Firma-Bright",
-    ProductDescription = "Chứa hàm lượng cao vitamin C ổn định, chất chống oxy hóa và peptide làm sáng da, chỉ vài giọt mỗi ngày giúp da trở nên săn chắc, căng bóng và rạng rỡ hơn.",
-    Price = 3_380_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Hydrostem",
-    ProductDescription = "Liệu pháp chống lão hóa mạnh mẽ này kết hợp các peptide trẻ hóa với chiết xuất thực vật giúp bảo vệ da khỏi tác hại của tia UV và ô nhiễm. Tế bào gốc thực vật giàu chất chống oxy hóa nuôi dưỡng tế bào da, tăng cường độ rạng rỡ và săn chắc, mang lại làn da sáng khỏe hơn.",
-    Price = 4_270_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Minéral 89 Booster",
-    ProductDescription = "Công thức đột phá với 89% nước khoáng núi lửa Vichy giàu 15 khoáng chất thiết yếu, kết hợp với axit hyaluronic tinh khiết giúp củng cố hàng rào độ ẩm, bảo vệ da trước các tác nhân gây hại. Da được cấp ẩm, săn chắc và căng mọng, mang lại vẻ rạng rỡ khỏe mạnh mỗi ngày.",
-    Price = 1_170_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Minéral 89 Probiotic Fractions",
-    ProductDescription = "Giải pháp phục hồi da chịu căng thẳng từ tác nhân bên trong và bên ngoài như ô nhiễm, căng thẳng tâm lý và biến đổi khí hậu. Công thức chứa các phân đoạn lợi khuẩn được nuôi dưỡng trong nước khoáng núi lửa Vichy kết hợp với Niacinamide (Vitamin B3) giúp tái tạo và củng cố làn da, giảm dấu hiệu căng thẳng rõ rệt.",
-    Price = 1_300_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 3,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem dưỡng phục hồi Barrier Builder",
-    ProductDescription = "Kem dưỡng chuyên sâu giúp làm dịu và tái tạo làn da bị kích ứng. Công thức giàu dưỡng chất thẩm thấu sâu vào biểu bì, cung cấp sự kết hợp mạnh mẽ của các thành phần đã được kiểm nghiệm giúp phục hồi, cấp ẩm và củng cố hàng rào bảo vệ da.",
-    Price = 1_480_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem dưỡng Power Luxe",
-    ProductDescription = "Bước cuối cùng trong chu trình dưỡng da ban đêm, khóa ẩm và hỗ trợ tái tạo tế bào trong lúc ngủ. Power Luxe hoạt động theo nhịp sinh học của da, giúp cân bằng và phục hồi hàng rào lipid tự nhiên, ngăn ngừa khô da và nhạy cảm. Công thức chứa 4 loại axit hyaluronic, Bakuchiol (thay thế tự nhiên cho retinol), chiết xuất tảo đỏ và peptide hỗ trợ tăng cường độ săn chắc và đàn hồi của da.",
-    Price = 3_960_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem dưỡng ẩm không dầu AquaBoost",
-    ProductDescription = "Công thức chứa 6 loại peptide với các tác dụng như giảm mụn, làm sáng, chống lão hóa, giảm đỏ và bảo vệ da. Chiết xuất hoa loa kèn linh thiêng giúp duy trì làn da trẻ trung, giảm kích ứng và tăng cường bảo vệ da khỏi tác động môi trường.",
-    Price = 1_750_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem dưỡng Face Lift",
-    ProductDescription = "Face Lift sử dụng phức hợp lipid L22 giúp phục hồi chức năng bảo vệ da như khi còn trẻ. Công thức cung cấp độ ẩm hoàn hảo, đồng thời chứa chất chống oxy hóa và peptide giúp bảo vệ da khỏi các gốc tự do gây hại, duy trì vẻ ngoài săn chắc và tươi trẻ.",
-    Price = 2_110_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Dạng Lỏng Sublime Skin",
-    ProductDescription = "Kem dưỡng dạng lỏng Comfort Zone giúp săn chắc và làm đều màu da. Được chiết xuất từ thực vật chống lão hóa Achillea Millefolilum và Axit Hyaluronic, sản phẩm giúp làm căng, mịn và sáng da. Sử dụng kết hợp với Tinh Chất Sublime Skin Intensive. Chứa 99% thành phần có nguồn gốc tự nhiên, không chứa silicone, dẫn xuất động vật, dầu khoáng, chất tạo màu nhân tạo, ethoxylates (PEG) và acrylates. Không gây bít tắc lỗ chân lông.",
-    Price = 3_530_000m, // Giá sản phẩm là 3.530.000 VND
-    Quantity = 1, // Sản phẩm có dung tích 60ml
-    Discount = 0.0m, // Không có chiết khấu
-    CategoryId = 4, // Kem dưỡng ẩm
-    CompanyId = 1, // Comfortzone
-    Dimension = "60ml",
-    Volume = 60m, // Tổng dung tích là 60ml
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Chất Dinh Dưỡng Sacred Nature",
-    ProductDescription = "Kem dưỡng giàu thành phần tự nhiên và hữu cơ, mang lại hiệu quả tức thì và lâu dài, giúp da trông trẻ trung hơn. Công thức chứa phức hợp chiết xuất khoa học Sacred Nature™, bao gồm Myrtus, Cây Cơm Cháy và Lựu, giúp cải thiện đáng kể sức khỏe tổng thể của làn da. Chứa thành phần hương liệu tự nhiên.",
-    Price = 1_780_000m, // Giá sản phẩm là 1.780.000 VND
-    Quantity = 1, // Sản phẩm có dung tích 60ml
-    Discount = 0.0m, // Không có chiết khấu
-    CategoryId = 4, // Kem dưỡng ẩm
-    CompanyId = 1, // Comfortzone
-    Dimension = "60ml",
-    Volume = 60m, // Tổng dung tích là 60ml
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Active Pureness",
-    ProductDescription = "Sự kết hợp độc đáo giữa Vitamin C và bột kiềm dầu giúp kem dưỡng này trở thành lựa chọn lý tưởng cho da dầu và dễ bị mụn. Sản phẩm cũng có thể được sử dụng như kem lót trang điểm.",
-    Price = 1_400_000m, // Giá sản phẩm là 1.400.000 VND
-    Quantity = 1, // Sản phẩm có dung tích 30ml
-    Discount = 0.0m, // Không có chiết khấu
-    CategoryId = 4, // Kem dưỡng ẩm
-    CompanyId = 1, // Comfortzone
-    Dimension = "30ml",
-    Volume = 30m, // Tổng dung tích là 30ml
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Remedy",
-    ProductDescription = "Kem dưỡng nhẹ, mịn giúp củng cố hàng rào bảo vệ da, mang lại cảm giác thoải mái và bảo vệ. Prebiotics từ đường tự nhiên giúp duy trì sự cân bằng hệ vi sinh tự nhiên của da. Phù hợp cho làn da nhạy cảm, dễ kích ứng và dễ bị đỏ.",
-    Price = 1_960_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ẩm Dâu Tây & Đại Hoàng",
-    ProductDescription = "Với kết cấu gel-cream thuần chay nhẹ nhàng, kem dưỡng giúp phục hồi vẻ tươi sáng của làn da xỉn màu. Kết hợp phức hợp Hyaluronic Acid thực vật với panthenol, dâu tây và đại hoàng giúp khóa ẩm và mang lại làn da rạng rỡ. Phù hợp với mọi loại da.",
-    Price = 1_730_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "35ml",
-    Volume = 35m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Bakuchiol + Niacinamide",
-    ProductDescription = "Kem dưỡng dạng gel-cream giúp phục hồi độ ẩm tự nhiên cho da, kết hợp độc đáo giữa Bakuchiol – một sự thay thế cho retinol – và Niacinamide. Công thức giúp làm mịn nếp nhăn, săn chắc da, thu nhỏ lỗ chân lông và cải thiện kết cấu da mà không gây kích ứng.",
-    Price = 2_000_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Kiểm Soát Dầu Mụn",
-    ProductDescription = "Kem dưỡng siêu nhẹ giúp giảm bóng dầu, mang lại làn da mềm mại với lớp kết thúc lì. Chiết xuất sen giúp kiểm soát dầu nhờn, trong khi Salicylic Acid giải phóng theo thời gian giúp giảm mụn. Kẽm hyaluronate và arbutin hỗ trợ làm dịu kích ứng và mờ sẹo.",
-    Price = 2_000_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "35ml",
-    Volume = 35m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Phục Hồi Da Echinacea",
-    ProductDescription = "Chiết xuất cúc dại Echinacea, ngải cứu và dầu hoa anh thảo giúp sửa chữa các dấu hiệu lão hóa mà không gây cảm giác nhờn rít. Kem dưỡng dạng lỏng này rất lý tưởng cho làn da mất nước hoặc bị kích ứng.",
-    Price = 1_990_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ban Đêm PowerBright",
-    ProductDescription = "Kem dưỡng đêm giúp phục hồi độ ẩm, làm sáng và giảm đốm nâu khi bạn ngủ. Công thức chứa Niacinamide, Hexylresorcinol và Vitamin C giúp làm mờ vết thâm. Enzyme bí ngô giúp làm mịn kết cấu da. Dầu hạt việt quất và mâm xôi giàu chất chống oxy hóa bảo vệ da khỏi tác động của ô nhiễm môi trường.",
-    Price = 2_260_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ẩm Làm Dịu Da",
-    ProductDescription = "Tạm biệt làn da khô thiếu nước với kem dưỡng nhẹ này! Công thức mỏng nhẹ giúp làm dịu da bị kích ứng và dưỡng ẩm cho các vùng da khô. Ngoài ra, còn giúp giảm tình trạng khô da do một số phương pháp điều trị mụn.",
-    Price = 635_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ẩm Sâu",
-    ProductDescription = "Kem dưỡng thế hệ mới với công nghệ Active HydraMesh Technology™ cung cấp độ ẩm liên tục trong 48 giờ và bảo vệ da khỏi tác động môi trường. Hyaluronic Acid kết hợp với chiết xuất cẩm quỳ, dưa chuột và arnica giúp da duy trì độ ẩm lâu dài. Ngoài ra, còn chứa chiết xuất nho, Vitamin C và E giúp bảo vệ da.",
-    Price = 1_930_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "100ml",
-    Volume = 100m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Phục Hồi Bảo Vệ Da",
-    ProductDescription = "Kem dưỡng mịn giúp củng cố hàng rào bảo vệ da bị tổn thương. Công thức không chứa nước, giúp bảo vệ da khỏi các tác nhân gây căng thẳng. Phức hợp UltraCalming độc quyền chứa yến mạch và chiết xuất thực vật giúp giảm kích ứng, khó chịu, nóng rát. Dầu hoa anh thảo, dầu hạt lưu ly cùng Vitamin C và E giúp phục hồi làn da.",
-    Price = 1_430_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ẩm Vichy Minéral 89 72H Không Mùi",
-    ProductDescription = "Kem dưỡng ẩm Vichy Minéral 89 72H là một loại kem nhẹ, cung cấp độ ẩm kéo dài cho da. Công thức chứa Hyaluronic Acid, Nước khoáng núi lửa Vichy giàu khoáng chất, Vitamin B3 & E, và Squalane giúp củng cố hàng rào độ ẩm của da, bảo vệ khỏi tác nhân gây hại từ môi trường. Phù hợp với mọi loại da, đặc biệt là da khô và nhạy cảm. Thẩm thấu nhanh, mang lại làn da mềm mại, căng mướt và đủ ẩm.",
-    Price = 550_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Đêm Vichy Liftactiv B3 Giúp Làm Đều Màu Da Với Retinol Nguyên Chất",
-    ProductDescription = "Kem dưỡng đêm Liftactiv B3 giúp cải thiện tình trạng tăng sắc tố và màu da không đồng đều. Kết hợp Niacinamide (Vitamin B3) và Retinol, sản phẩm hỗ trợ tái tạo tế bào da, giảm đốm nâu và cải thiện kết cấu da. Phù hợp với mọi loại da, kể cả da nhạy cảm, mang lại làn da rạng rỡ và đều màu hơn.",
-    Price = 1_670_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ẩm Belif The True Cream Aqua Bomb",
-    ProductDescription = "Kem dưỡng dạng gel nhẹ giúp cấp ẩm tức thì và mang lại cảm giác mát lạnh trên da. Công thức chứa hỗn hợp thảo mộc, bao gồm Lady's Mantle, giàu chất chống oxy hóa. Phù hợp với mọi loại da, đặc biệt là da dầu và da hỗn hợp. Thẩm thấu nhanh, mang lại làn da tươi mát, ẩm mượt mà không gây nhờn rít.",
-    Price = 970_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Oat So Simple Water Cream",
-    ProductDescription = "Kem dưỡng ẩm nhẹ như nước mang lại cảm giác tươi mát trên da. Công thức đơn giản với chưa đến 10 thành phần, bao gồm chiết xuất yến mạch giúp làm dịu da. Dưỡng ẩm thiết yếu, giúp da cảm thấy thoải mái và cân bằng độ ẩm.",
-    Price = 700_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "80ml",
-    Volume = 80m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Làm Dịu Da AESTURA A-CICA 365",
-    ProductDescription = "Kem dưỡng ẩm giúp làm dịu da nhạy cảm và kích ứng. Công thức chứa chiết xuất rau má giúp làm dịu và phục hồi da. Cung cấp độ ẩm lâu dài, giảm đỏ và viêm da. Phù hợp cho da khô, nhạy cảm hoặc dễ bị mụn.",
-    Price = 790_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 4,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Chống Nắng Sun Soul Face SPF30",
-    ProductDescription = "Kem chống nắng Sun Soul Face SPF30 bảo vệ da khỏi tia UV có hại. Cung cấp khả năng chống nắng phổ rộng UVA/UVB, giúp ngăn ngừa cháy nắng, lão hóa sớm và ung thư da. Công thức nhẹ dịu, thích hợp sử dụng hằng ngày cho mọi loại da, kể cả da nhạy cảm. Thẩm thấu nhanh, không gây nhờn rít, có thể sử dụng làm lớp lót trang điểm.",
-    Price = 880_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Chống Nắng Skin Regimen Urban Shield SPF30",
-    ProductDescription = "Kem chống nắng Skin Regimen Urban Shield SPF30 của Comfort Zone là sản phẩm nhẹ, không nhờn rít, giúp bảo vệ da khỏi tác hại của ô nhiễm đô thị và bức xạ UV.",
-    Price = 1_670_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "40ml",
-    Volume = 40m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Chống Nắng PoreScreen SPF40",
-    ProductDescription = "Kem chống nắng PoreScreen SPF40 giúp giảm sự xuất hiện của lỗ chân lông và bảo vệ da khỏi tia UVA + UVB. Hiệu ứng như kem lót với lớp nền mỏng nhẹ, mang lại lớp phủ trong suốt tự nhiên.",
-    Price = 1_390_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Chống Nắng Invisible Physical Defense SPF30",
-    ProductDescription = "Nói lời tạm biệt với lớp kem chống nắng dày, trắng bệt! Công thức chống nắng vật lý này cung cấp khả năng bảo vệ chống lại ánh sáng xanh và giúp làm dịu tác động của các tác nhân gây hại từ môi trường. Phức hợp nấm hoạt tính giúp làm dịu da, giảm mẩn đỏ và khô da do tia UV. Chiết xuất trà xanh chống oxy hóa giúp bảo vệ da khỏi gốc tự do. Phù hợp với mọi loại da, kể cả da nhạy cảm.",
-    Price = 1_245_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Chống Nắng Protection 50 Sport SPF50",
-    ProductDescription = "Kem chống nắng bảo vệ da khỏi tác hại kéo dài của tia UV và ô nhiễm môi trường. Công nghệ vi hạt Oleosome giúp tăng hiệu quả chống nắng và duy trì độ ẩm cho da. Công thức nhẹ, không gây nhờn rít, giúp trung hòa tác hại và giữ ẩm cho da mà không tạo cảm giác nặng mặt.",
-    Price = 1_000_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Chống Nắng Kiềm Dầu SPF30",
-    ProductDescription = "Kem chống nắng phổ rộng giúp ngăn ngừa bóng dầu và lão hóa da trên làn da dầu, dễ bị mụn. Công thức nhẹ, siêu mỏng chứa hỗn hợp tiên tiến gồm Kẽm Gluconate, Caffeine, Niacinamide, Biotin và Chiết xuất Men. Các chất hấp thụ dầu giúp duy trì lớp nền lì suốt cả ngày, ngăn ngừa bóng dầu mà không để lại cặn phấn.",
-    Price = 2_030_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tinh Chất Chống Nắng Bảo Vệ Da",
-    ProductDescription = "Giúp bảo vệ da khỏi tác động khắc nghiệt của ánh nắng mặt trời đồng thời làm mịn các nếp nhăn. Với cảm giác dưỡng ẩm, nuôi dưỡng và lớp hoàn thiện căng bóng, sản phẩm này giúp da trông trẻ trung đồng thời cung cấp khả năng bảo vệ SPF 30 phổ rộng cho da thường đến da khô.",
-    Price = 1_600_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dưỡng Ẩm Chống Nắng Hàng Ngày SPF 40",
-    ProductDescription = "Kem dưỡng ẩm nhẹ hàng ngày với chiết xuất hạt ca cao, vỏ quýt satsuma và SPF 40 hoàn toàn từ khoáng chất giúp cải thiện làn da tiếp xúc với ánh sáng xanh và ô nhiễm. Phù hợp với mọi loại da.",
-    Price = 1_930_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Chống Nắng Khoáng Chất Cho Thể Thao SPF 30",
-    ProductDescription = "Dễ dàng thoa lên mặt và cơ thể, kem chống nắng khoáng chất SPF 30 này không nhờn rít và có khả năng chống nước lên đến 40 phút. Hiệu quả cao cho các hoạt động ngoài trời như bơi lội và thể thao cường độ cao, bảo vệ làn da khỏi tác động của tia UV.",
-    Price = 1_480_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "147ml",
-    Volume = 147m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Chống Nắng Nâng Tông SPF 50+",
-    ProductDescription = "Mang lại lớp nền tự nhiên với kem chống nắng SPF 50+ có màu nhẹ. Công thức hoàn toàn từ khoáng chất, không gây bít tắc lỗ chân lông và giàu chất chống oxy hóa giúp dưỡng ẩm, bảo vệ da khỏi tia UV và ánh sáng xanh.",
-    Price = 1_750_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Serum Chống Nắng Khoáng Chất SPF 30",
-    ProductDescription = "Serum chống nắng này kết hợp bảo vệ da với lợi ích chăm sóc da. Peptide CellRenew-16 được cấp bằng sáng chế giúp dưỡng ẩm và ngăn chặn gốc tự do gây lão hóa. Mang lại làn da được bảo vệ và căng bóng mà không bị nhờn rít.",
-    Price = 1_730_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "40ml",
-    Volume = 40m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Chống Nắng Không Màu SPF 50",
-    ProductDescription = "Kem chống nắng khoáng chất SPF 50 với công thức mỏng nhẹ, kết hợp giữa chất chống oxy hóa thực vật, độ ẩm nhẹ nhàng và lớp nền mờ trong suốt giúp bảo vệ da khỏi tổn thương từ ánh nắng mặt trời và các gốc tự do.",
-    Price = 1_350_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Chống Nắng Nâng Tông Tự Điều Chỉnh SPF 30",
-    ProductDescription = "Chống nắng có màu tự điều chỉnh, phù hợp với hầu hết các tông da, mang lại vẻ ngoài khỏe khoắn đồng thời bảo vệ da khỏi tia UVA, UVB và hồng ngoại. Axit Hyaluronic giúp giữ ẩm, trong khi các chiết xuất giàu chất chống oxy hóa bảo vệ da khỏi gốc tự do.",
-    Price = 1_400_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Vichy Capital Soleil UV Age Daily SPF50 PA++++",
-    ProductDescription = "Kem chống nắng bảo vệ da khỏi tia UV có hại và ngăn ngừa lão hóa sớm. Công thức bảo vệ phổ rộng giúp ngăn ngừa cháy nắng, lão hóa sớm và ung thư da.",
-    Price = 570_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "40ml",
-    Volume = 40m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Chống Nắng Dạng Lỏng SPF 50",
-    ProductDescription = "Kem chống nắng dưỡng da chống lão hóa hằng ngày với SPF 50 phổ rộng trong công thức siêu nhẹ, không chứa oxybenzone, chống nước lên đến 80 phút và dễ dàng thẩm thấu vào da.",
-    Price = 880_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-
-                new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem chống nắng Neogen Day-Light Protection Airy",
-    ProductDescription = "Neogen Day-Light Protection Airy là kem chống nắng nhẹ, không nhờn, giúp bảo vệ da toàn diện trước tia UVA và UVB. Được điều chế với các thành phần dịu nhẹ, sản phẩm phù hợp với da nhạy cảm. Kem thẩm thấu nhanh, để lại lớp nền mịn lì và có thể sử dụng như lớp lót trang điểm. Ngoài ra, sản phẩm còn chứa các thành phần dưỡng da như chất chống oxy hóa và dưỡng ẩm, giúp bảo vệ và nuôi dưỡng làn da.",
-    Price = 815_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem chống nắng dưỡng ẩm Round Lab Birch Juice",
-    ProductDescription = "Round Lab Birch Juice Moisturizing Sunscreen là kem chống nắng dưỡng ẩm, bảo vệ da toàn diện trước tia UVA và UVB. Công thức chứa nước cây bạch dương giúp cấp ẩm hiệu quả, phù hợp với mọi loại da, đặc biệt là da khô và nhạy cảm. Sản phẩm thẩm thấu nhanh, để lại lớp nền căng bóng tự nhiên và có thể dùng làm lớp lót trang điểm.",
-    Price = 360_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem chống nắng Beet The Sun SPF 40 PA+++",
-    ProductDescription = "Beet The Sun là kem chống nắng hóa học nhẹ, giúp bảo vệ da trước ánh nắng mặt trời và các tác nhân môi trường. Thành phần chứa chiết xuất củ dền – một chất chống oxy hóa mạnh mẽ giúp bảo vệ da khỏi tác động oxy hóa. Kết cấu kem mềm mượt, không gây vệt trắng, phù hợp với mọi tông da.",
-    Price = 500_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem chống nắng khoáng Klairs All-day Airy SPF50+ PA++++",
-    ProductDescription = "Klairs All-day Airy là kem chống nắng khoáng dịu nhẹ, phù hợp với da nhạy cảm. Công thức chứa thành phần khoáng chất giúp kem thẩm thấu nhanh, để lại lớp nền mịn lì mà không gây bít tắc lỗ chân lông. Sản phẩm cũng giúp hạn chế tình trạng vệt trắng, mang lại lớp nền tự nhiên.",
-    Price = 480_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem chống nắng Goongbe Waterful Sun Lotion Mild SPF50+ PA++++",
-    ProductDescription = "Goongbe Waterful Sun Lotion Mild là kem chống nắng dịu nhẹ, gốc nước, phù hợp với da nhạy cảm, kể cả trẻ em. Sản phẩm bảo vệ da trước tia UVA và UVB, giúp ngăn ngừa cháy nắng và lão hóa sớm.",
-    Price = 450_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 5,
-    CompanyId = 1,
-    Dimension = "80ml",
-    Volume = 80m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ thảo dược Eight Greens Phyto – Hot",
-    ProductDescription = "Mặt nạ Eight Greens Phyto – Hot chứa các thành phần thực vật giàu phytoestrogen và chất chống oxy hóa. Sản phẩm giúp cung cấp độ ẩm, tăng độ đàn hồi da, giảm dấu hiệu lão hóa, điều tiết dầu thừa và hỗ trợ giảm mụn, mang lại làn da tươi trẻ rạng rỡ.",
-    Price = 1_580_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ Kombucha Microbiome Leave-On",
-    ProductDescription = "Mặt nạ dưỡng ẩm chuyên sâu giúp làm dịu da khô xỉn màu. Công thức giàu chiết xuất gừng, pre, pro và postbiotics giúp phục hồi làn da, củng cố hàng rào độ ẩm. Phù hợp với mọi loại da, giúp da căng bóng, khỏe mạnh.",
-    Price = 2_140_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ Vitamin C+E Citrus & Kale Potent",
-    ProductDescription = "Mặt nạ dạng kem-gel chứa Vitamin C+E giúp phục hồi làn da xỉn màu. Công thức từ cam quýt, rau lá xanh và dầu bơ giúp chống lại tác nhân oxy hóa, giảm thiểu nếp nhăn và tổn thương do môi trường.",
-    Price = 1_780_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ dưỡng ẩm Stone Crop",
-    ProductDescription = "Mặt nạ Stone Crop giúp cấp ẩm và phục hồi da, mang lại làn da sáng khỏe. Chiết xuất từ cây Stone Crop được sử dụng trong y học cổ truyền giúp chữa lành nhiều vấn đề da liễu, mang lại hiệu quả dưỡng da vượt trội.",
-    Price = 1_400_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ làm dịu Calm Skin Arnica",
-    ProductDescription = "Mặt nạ Calm Skin Arnica giúp làm dịu da nhạy cảm với chiết xuất từ cây kim sa, cúc calendula và lá thường xuân. Sản phẩm giúp giảm tình trạng kích ứng, thanh lọc da và hỗ trợ làm dịu viêm da.",
-    Price = 1_650_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Phục Hồi Đa Vitamin",
-    ProductDescription = "Mặt nạ siêu bổ sung giúp cứu làn da căng thẳng, lão hóa. Sử dụng sau bước làm sạch để cải thiện làn da xỉn màu, khô ráp, mất nước, bị tổn thương do ánh nắng và dấu hiệu lão hóa. Vitamin A, C và E đậm đặc cùng Axit Linoleic giúp phục hồi làn da hư tổn, cải thiện hàng rào bảo vệ da. Vitamin C và E giúp chống oxy hóa, bảo vệ da khỏi các gốc tự do. Chiết xuất Tảo biển giúp dưỡng ẩm, làm mềm da, trong khi Pro-Vitamin B5 nuôi dưỡng làn da tổn thương. Các chiết xuất thảo mộc từ Cam thảo, Comfrey và Ngưu bàng giúp làm dịu và tăng sức đề kháng cho da.",
-    Price = 2_050_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "75ml",
-    Volume = 75m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Kiểm Soát Dầu",
-    ProductDescription = "Mặt nạ đất sét làm dịu giúp làm sạch mụn và giảm dấu hiệu lão hóa sớm. Đất sét hấp thụ dầu giúp giải độc da, trong khi Axit Salicylic làm sạch tắc nghẽn lỗ chân lông. Chiết xuất từ Yến mạch và Bisabolol giúp làm dịu làn da bị kích ứng do mụn. Dầu cây Rum giúp dưỡng ẩm, giảm nếp nhăn do mất nước. Công thức chứa Cam thảo và Niacinamide cũng giúp làm đều màu da.",
-    Price = 1_700_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "75ml",
-    Volume = 75m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Dưỡng Ẩm Tan Chảy",
-    ProductDescription = "Mặt nạ siêu dưỡng ẩm chuyển đổi từ dạng sáp sang dầu để phục hồi làn da khô. Phức hợp MeltingPoint kích hoạt bởi nhiệt độ da giúp thẩm thấu sâu, nuôi dưỡng và cấp ẩm. Tảo vi sinh giúp bảo vệ da khỏi tác hại của ô nhiễm. Công thức giàu vitamin, mềm mịn giúp cung cấp độ ẩm lâu dài, mang lại làn da căng mịn. Axit Linoleic giúp nuôi dưỡng da, trong khi Vitamin E bảo vệ khỏi các gốc tự do, giúp da trông khỏe mạnh hơn.",
-    Price = 2_340_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "75ml",
-    Volume = 75m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Kỳ Diệu",
-    ProductDescription = "Mặt nạ đa chức năng sử dụng đất sét làm sạch sâu, giảm thiểu lỗ chân lông, đồng thời chứa peptide giúp cải thiện nếp nhăn và công thức nâng cơ tức thì.",
-    Price = 1_200_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Ngủ Khóa Ẩm",
-    ProductDescription = "Mặt nạ ngủ giúp làm mịn và hoàn thiện làn da ngay cả khi bạn ngủ. Peptide hoàng gia giúp thúc đẩy quá trình tái tạo tế bào, cung cấp dưỡng chất giúp da rạng rỡ hơn.",
-    Price = 2_230_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "75ml",
-    Volume = 75m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Collagen PolyPeptide",
-    ProductDescription = "Mặt nạ Hydrogel chứa peptide hỗ trợ collagen và dưỡng chất cấp ẩm giúp giảm nếp nhăn, làm sáng vùng da bị lão hóa.",
-    Price = 1_320_000m,
-    Quantity = 2,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "2 miếng",
-    Volume = null,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Cân Bằng Da",
-    ProductDescription = "Mặt nạ chống lão hóa độc đáo giúp bảo vệ làn da, giữ ẩm, làm dịu và duy trì vẻ ngoài trẻ trung.",
-    Price = 1_200_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Phục Hồi Trẻ Hóa",
-    ProductDescription = "Mặt nạ giải độc giúp làm dịu làn da nhạy cảm hoặc kích ứng với đất sét làm mát và peptide giúp phục hồi.",
-    Price = 1_200_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Dưỡng Ẩm Đêm Aqualia Thermal",
-    ProductDescription = "Kem dưỡng và mặt nạ ngủ cấp ẩm sâu với Hyaluronic Acid và nước khoáng núi lửa Vichy giúp khóa ẩm, cải thiện làn da khô và xỉn màu qua đêm. Mang lại làn da mềm mại, căng mướt vào buổi sáng.",
-    Price = 1_320_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Khoáng Dưỡng Ẩm",
-    ProductDescription = "Mặt nạ dưỡng ẩm đầu tiên của Vichy với 10% nước khoáng núi lửa và Vitamin B3 giúp cấp ẩm tức thì, làm dịu làn da khô và khó chịu.",
-    Price = 970_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m,
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ đất sét làm sạch lỗ chân lông",
-    ProductDescription = "Mặt nạ đất sét tốt nhất của chúng tôi kết hợp hai loại đất sét trắng siêu mịn với 15 khoáng chất từ nước núi lửa Vichy, giúp loại bỏ bã nhờn dư thừa và tạp chất, làm sạch lỗ chân lông và mang lại làn da mềm mại hơn.",
-    Price = 970_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ Sulwhasoo Activating",
-    ProductDescription = "Mặt nạ giấy thấm tinh chất từ First Care Activating Serum VI, giúp cung cấp độ ẩm chuyên sâu, cải thiện độ đàn hồi da và mang lại làn da khỏe mạnh, rạng rỡ.",
-    Price = 1_520_000m,
-    Quantity = 5,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "25ml x 5 miếng",
-    Volume = 125m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ ngủ dưỡng ẩm từ gạo COSRX Ultimate Nourishing",
-    ProductDescription = "Mặt nạ ngủ dịu nhẹ, giàu độ ẩm với chiết xuất từ gạo giúp nuôi dưỡng và làm sáng da. Cải thiện kết cấu da, giảm xỉn màu và cung cấp độ ẩm sâu. Công thức nhẹ, không gây nhờn rít, phù hợp cho mọi loại da, đặc biệt là da khô và nhạy cảm.",
-    Price = 690_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ giấy Klairs Rich Moist Soothing Tencel",
-    ProductDescription = "Ceramide trên bề mặt da giúp ngăn chặn mất nước, duy trì độ ẩm lý tưởng cho da, giúp da mềm mại và khỏe mạnh. Ceramide cũng giúp ngăn ngừa quá trình lão hóa da, giữ cho làn da luôn tươi trẻ.",
-    Price = 65_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "25ml",
-    Volume = 25m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ làm dịu Klairs Midnight Blue",
-    ProductDescription = "Mặt nạ chăm sóc lỗ chân lông với bột than tre giúp làm sạch sâu, ngăn ngừa sự hình thành mụn đầu đen. Thành phần vàng Erirythtol trong sản phẩm giúp nhanh chóng làm dịu nhiệt độ da.",
-    Price = 65_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "25ml",
-    Volume = 25m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ Klairs Freshly Juiced Vitamin E",
-    ProductDescription = "Sự kết hợp giữa Vitamin E và Niacinamide mang lại hiệu quả chống oxy hóa, làm sáng da, cải thiện nếp nhăn và ngăn ngừa các dấu hiệu lão hóa.",
-    Price = 545_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 6,
-    CompanyId = 1,
-    Dimension = "90ml",
-    Volume = 90m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt nạ tẩy tế bào chết Sacred Nature",
-    ProductDescription = "Mặt nạ tẩy tế bào chết hữu cơ chứa 9% gluconolactone giúp tẩy tế bào chết nhẹ nhàng và làm sáng da ngay lập tức. Chứa chất chống oxy hóa từ Garden of Science™ giúp tăng cường sức đề kháng và sức sống cho làn da. Phù hợp với làn da xỉn màu và có tạp chất.",
-    Price = 1_740_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "110ml",
-    Volume = 110m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tẩy tế bào chết Essential Scrub",
-    ProductDescription = "Tẩy tế bào chết dạng hạt giúp loại bỏ tạp chất, thu nhỏ lỗ chân lông, làm sáng da và mang lại làn da mềm mịn. Phù hợp cho mọi loại da, đặc biệt là da dầu và dễ bị mụn.",
-    Price = 1_295_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dung dịch tẩy tế bào chết Liquid Resurfacing",
-    ProductDescription = "Dung dịch tẩy tế bào chết dạng nhẹ chứa 2% salicylic acid kết hợp với chất chống oxy hóa mạnh mẽ và công nghệ CellRenew-16 độc quyền, giúp cải thiện tông màu và kết cấu da mà không làm mất đi độ ẩm tự nhiên của da.",
-    Price = 1_245_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "120ml",
-    Volume = 120m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tẩy tế bào chết 5X Power Peel",
-    ProductDescription = "Miếng tẩy tế bào chết nhẹ nhàng nhưng hiệu quả, giúp loại bỏ lớp da xỉn màu, cải thiện nếp nhăn và kích thích sản sinh collagen. Không gây đỏ hay kích ứng da, an toàn để sử dụng hàng ngày mà không cần thời gian nghỉ dưỡng.",
-    Price = 1_850_000m,
-    Quantity = 30,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "25ml x 30 miếng",
-    Volume = 750m
-},
-                new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bột Tẩy Tế Bào Chết Daily Milkfoliant",
-    ProductDescription = "Bột tẩy tế bào chết dạng sữa thuần chay với chiết xuất Yến Mạch và Dừa kích hoạt khi tiếp xúc với nước, giải phóng các chiết xuất thực vật giúp loại bỏ tế bào chết. Công thức nhẹ nhàng này kết hợp cùng chiết xuất Nho giàu Alpha Hydroxy Acid (AHA) và Beta Hydroxy Acid (BHA), cùng Sữa Dừa để mang lại làn da mịn màng, mềm mại. Chiết xuất Đu Đủ chứa enzym Papain giúp hỗ trợ quá trình tái tạo da.",
-    Price = 1_670_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "74ml",
-    Volume = 74m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dung Dịch Tẩy Da Chết Liquid Peelfoliant",
-    ProductDescription = "Dung dịch tẩy da chết chuyên nghiệp với hỗn hợp 30% axit và enzym (Glycolic, Lactic, Salicylic, Phytic, Tranexamic, Gluconolactone và enzym Lựu lên men) hoạt động trên nhiều tầng da, giúp loại bỏ tế bào chết, làm sạch lỗ chân lông và mang lại làn da mịn màng, rạng rỡ. Hỗn hợp giàu lipid với chiết xuất Nam Việt Quất giúp dưỡng ẩm lâu dài.",
-    Price = 1_650_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bột Tẩy Tế Bào Chết Daily Superfoliant",
-    ProductDescription = "Sản phẩm tái tạo da mạnh mẽ giúp mang lại làn da mịn màng và chống lại các tác nhân môi trường gây lão hóa sớm. Công thức bột tiên tiến kích hoạt khi tiếp xúc với nước, giải phóng các enzym mạnh mẽ, AHA giúp làm mịn da và công nghệ chống ô nhiễm. Than hoạt tính Binchotan giúp thanh lọc da bằng cách hấp thụ độc tố từ sâu trong lỗ chân lông, trong khi Niacinamide, Tảo Đỏ và Chiết xuất Quả Tara giúp bảo vệ da trước tác hại của ô nhiễm.",
-    Price = 1_670_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tẩy Tế Bào Chết Nhiệt Đa Vitamin",
-    ProductDescription = "Tẩy tế bào chết dạng nhiệt giúp truyền các thành phần chống lão hóa vào da. Công thức kết hợp giữa tẩy tế bào chết vật lý và hóa học để cải thiện kết cấu da và giúp vitamin thẩm thấu sâu hơn. Các hạt siêu mịn giúp loại bỏ tế bào chết, mang lại làn da tươi mới ngay lập tức. Công nghệ nhiệt kích hoạt khi tiếp xúc với nước giúp Salicylic Acid và Retinol thấm sâu, trong khi Chiết xuất Xương Rồng giúp đẩy nhanh quá trình tái tạo da. Trà Trắng ngăn chặn sự hình thành MMPs, còn Cam Thảo, Vitamin C và E giúp làm sáng da, bảo vệ khỏi gốc tự do và tăng độ săn chắc.",
-    Price = 1_670_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bột Tẩy Tế Bào Chết Daily Microfoliant",
-    ProductDescription = "Mang lại làn da sáng mịn mỗi ngày với bột tẩy tế bào chết huyền thoại này. Bột gạo kích hoạt khi tiếp xúc với nước, giải phóng Papain, Salicylic Acid và Enzym Gạo giúp làm sạch da tối ưu. Hợp chất làm sáng da từ Axit Phytic trong Cám Gạo, Trà Trắng và Cam Thảo giúp cân bằng tông màu da, trong khi hỗn hợp keo Yến Mạch và Allantoin giúp làm dịu da. Nhẹ nhàng để sử dụng hàng ngày.",
-    Price = 1_670_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bột Tẩy Tế Bào Chết Dâu Tây Rhubarb",
-    ProductDescription = "Làm sáng và mịn da với bột tẩy tế bào chết Dâu Tây Rhubarb từng đạt giải thưởng. Chứa axit lactic, hỗn hợp bột mịn và hợp chất Hyaluronic Acid thực vật, sản phẩm giúp loại bỏ tạp chất, dầu thừa và mang lại làn da sáng khỏe. Phù hợp với mọi loại da.",
-    Price = 1_350_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "120ml",
-    Volume = 120m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Nghệ Tẩy Da Chết",
-    ProductDescription = "Chứa nghệ, đá citrine và zeolite, sản phẩm dạng bột vàng rực này đánh thức làn da của bạn. Khi thêm nước, hỗn hợp chuyển thành dạng mousse nhẹ nhàng, mang lại cảm giác ấm nóng khi tẩy tế bào chết và giúp làn da trở nên mịn màng, rạng rỡ.",
-    Price = 2_490_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "60ml",
-    Volume = 60m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tẩy Da Chết Rễ Cam Thảo Làm Sáng Da",
-    ProductDescription = "Giải pháp tẩy tế bào chết chuyên sâu với bông thấm giúp làm đều màu da. Axit lactic và mandelic nhẹ nhàng loại bỏ tế bào chết, trong khi chiết xuất Cam Thảo và Hydroquinone tự nhiên từ Khoai Tây Châu Phi giúp làm sáng vùng da sạm màu và sắc tố không đều.",
-    Price = 2_260_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tẩy Da Chết Hoa Cúc Làm Dịu Da",
-    ProductDescription = "Giải pháp tẩy tế bào chết nhẹ nhàng với bông thấm dành cho làn da nhạy cảm. Axit lactic và mandelic giúp tái tạo da mà không gây kích ứng. Chiết xuất Hoa Cúc làm dịu, Cúc Vạn Thọ dưỡng ẩm, và Hoa Arnica giúp giảm viêm. Mang lại làn da khỏe mạnh, cân bằng và rạng rỡ hơn.",
-    Price = 2_260_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "50ml",
-    Volume = 50m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Mặt Nạ Tẩy Tế Bào Chết Hạt Củ Cải",
-    ProductDescription = "Mặt nạ tẩy tế bào chết dịu nhẹ này giúp ngăn ngừa mụn với chiết xuất thảo mộc giải độc. Cây tầm ma, yến mạch nguyên cám và vỏ cây liễu kích thích tái tạo da, làm mịn các nếp nhăn.",
-    Price = 1_670_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "30ml",
-    Volume = 30m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bông Tẩy Tế Bào Chết Anua Heartleaf 77%",
-    ProductDescription = "Bông tẩy tế bào chết Anua Heartleaf 77 giúp cân bằng và cải thiện làn da. Mỗi miếng bông chứa serum giàu chiết xuất thực vật như Ulmus Davidiana, Pueraria Lobata và lá thông Pinus Palustris, giúp kiểm soát dầu và thu nhỏ lỗ chân lông. Thành phần chính, chiết xuất diếp cá (77%), cung cấp độ ẩm và làm dịu kích ứng, phù hợp cho cả da nhạy cảm. Gluconolactone, một dạng PHA thân thiện với da, nhẹ nhàng loại bỏ tế bào chết, giúp da mịn màng và sáng hơn.",
-    Price = 660_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "180ml",
-    Volume = 180m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bông Dưỡng Da No.5 Vitamin-Niacinamide",
-    ProductDescription = "Chứa niacinamide và dẫn xuất vitamin C giúp giảm thâm nám, làm đều màu da và cải thiện kết cấu da. Các miếng bông được ngâm trong dung dịch tẩy tế bào chết nhẹ nhàng, giúp loại bỏ da chết, mang lại làn da sáng mịn hơn.",
-    Price = 400_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "180ml",
-    Volume = 180m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bông Dưỡng Ẩm Cica Balanceful",
-    ProductDescription = "Miếng bông chứa thành phần thuần chay với 5% tinh dầu từ jojoba, olive, macadamia và baobab, cung cấp độ ẩm vượt trội giúp da mềm mịn. Kết hợp với phức hợp Centella 5D và 5 dẫn xuất từ rau má, sản phẩm giúp làm dịu da, giảm đỏ và viêm mụn hiệu quả.",
-    Price = 506_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "180ml",
-    Volume = 180m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bông Làm Sạch Lỗ Chân Lông Chiết Xuất Lá Thông",
-    ProductDescription = "Chứa chiết xuất lá thông với hàm lượng 30.000ppm giúp giảm nhờn, loại bỏ dầu thừa sâu trong lỗ chân lông, mang lại làn da sạch và mịn màng.",
-    Price = 590_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "145ml",
-    Volume = 145m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dung Dịch Tẩy Da Chết Krave Kale-lalu-yAHA",
-    ProductDescription = "Dung dịch tẩy tế bào chết dịu nhẹ giúp làm mịn bề mặt da và mờ vết thâm, mang lại làn da khỏe mạnh, rạng rỡ hơn. Chứa 5.25% Glycolic Acid kích thích tái tạo da tự nhiên mà không làm tổn thương hàng rào bảo vệ da.",
-    Price = 640_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 7,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Dưỡng Thể Rắn Yuzu",
-    ProductDescription = "Dầu dưỡng thể dạng rắn giúp phục hồi làn da khô xỉn màu với chiết xuất yuzu và camu camu giàu vitamin, mang lại làn da sáng mịn từ mọi góc độ. PHA và tinh dầu nhiệt đới giúp cung cấp độ ẩm vượt trội cho mọi loại da.",
-    Price = 1_430_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Dưỡng Thể Măng Cụt",
-    ProductDescription = "Sữa dưỡng thể mang lại độ ẩm tuyệt vời cho cơ thể với hương thơm dễ chịu từ măng cụt. Công thức chứa Lactic Acid Complex gồm axit lactic, ribose và chiết xuất hoa cỏ ba lá đỏ, giúp làm sáng và tái tạo làn da.",
-    Price = 1_145_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "250ml",
-    Volume = 250m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tẩy Tế Bào Chết Đường Dừa",
-    ProductDescription = "Loại bỏ tế bào chết và dưỡng ẩm toàn thân với hạt đường mía nguyên chất, một nguồn Alpha Hydroxy Acids tự nhiên giúp tẩy da chết hiệu quả, kết hợp với dầu dừa nguyên chất để dưỡng ẩm.",
-    Price = 1_120_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "250ml",
-    Volume = 250m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Thể Săn Chắc Da Chiết Xuất Lô Hội",
-    ProductDescription = "Kem dưỡng thể giàu thành phần tự nhiên giúp làm mịn và săn chắc làn da. Có thể sử dụng như kem dưỡng toàn thân hoặc tập trung vào các vùng cần làm săn chắc. Chiết xuất cà phê và tảo vi sinh giúp giảm sự xuất hiện của cellulite, trong khi dầu jojoba, lô hội và bơ hạt mỡ giúp dưỡng ẩm và phục hồi da khô.",
-    Price = 1_730_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "140ml",
-    Volume = 140m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Dưỡng Thể Stone Crop",
-    ProductDescription = "Làm dịu và làm mềm da khô với dầu dưỡng thể nhẹ, hấp thụ nhanh, để lại lớp hoàn thiện mịn màng. Sự kết hợp giữa stone crop và arnica tạo nên dầu có mùi hương nhẹ nhàng, lý tưởng cho massage, chăm sóc tay chân hoặc dưỡng ẩm hàng ngày.",
-    Price = 940_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "240ml",
-    Volume = 240m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Bơ Dưỡng Thể Sacred Nature",
-    ProductDescription = "Thành phần hữu cơ Eco-Cert mang lại những dưỡng chất tự nhiên hiệu quả nhất giúp da mềm mại và mịn màng. Công thức chứa Scientific Garden Extract™, một hỗn hợp gồm cây sim, cây cơm cháy và lựu. Chứa hương liệu từ thiên nhiên.",
-    Price = 1_340_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "220ml",
-    Volume = 220m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Dưỡng Tranquillity",
-    ProductDescription = "Dầu tắm và dưỡng thể chứa dầu amaranth giàu dưỡng chất cùng hỗn hợp tinh dầu độc quyền giúp mang lại cảm giác thư thái tức thì, giảm căng thẳng và lo âu. Khi tiếp xúc với nước, dầu chuyển thành dạng sữa mịn. Khi thoa trực tiếp lên da, dầu giúp nuôi dưỡng, mang lại làn da mềm mại mà không để lại cảm giác nhờn dính.",
-    Price = 2_590_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tẩy Tế Bào Chết Body Strategist",
-    ProductDescription = "Tác động tẩy tế bào chết kép (cơ học và hóa học) giúp làn da trông mịn màng, mềm mại và sáng hơn ngay lập tức. Phù hợp với mọi loại da, đặc biệt là da khô và sần sùi. Lý tưởng để sử dụng hàng tuần quanh năm.",
-    Price = 1_500_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Dưỡng Thể Body Strategist",
-    ProductDescription = "Sự kết hợp giữa các loại dầu thiên nhiên quý giá giúp giảm khô da, rạn da và mất độ đàn hồi. Cải thiện kết cấu và tông da hiệu quả.",
-    Price = 1_680_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Săn Chắc Body Strategist",
-    ProductDescription = "Kem dưỡng thể Body Strategist nhẹ nhàng và dưỡng ẩm, mang lại cảm giác săn chắc tức thì cho làn da nhờ sự kết hợp giữa khoa học và thiên nhiên, với thành phần chiết xuất từ Acmella Oleracea giúp giảm co cơ. Phù hợp với mọi loại da bị mất độ đàn hồi và săn chắc.",
-    Price = 1_680_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ẩm Toàn Thân",
-    ProductDescription = "Dưỡng ẩm, làm mềm và săn chắc da với hỗn hợp tinh dầu từ khắp nơi trên thế giới. Dầu cam thơm và trà xanh Trung Quốc giúp làm dịu và mềm da. Oải hương Pháp và hoắc hương Indonesia làm dịu cảm giác căng thẳng, trong khi axit lactic tự nhiên và chiết xuất từ mía đường cùng táo giúp da mịn màng và giảm khô ráp.",
-    Price = 1_260_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "295ml",
-    Volume = 295m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Dưỡng Phục Hồi Da",
-    ProductDescription = "Giàu chất chống oxy hóa, hỗn hợp dầu dưỡng này giúp phục hồi, làm dịu và cấp ẩm cho da. Dầu hạt mận Pháp, dầu bơ và dầu hạt hướng dương giàu axit béo omega và vitamin E giúp bảo vệ hàng rào lipid của da. Chiết xuất nhân sâm đỏ lên men giúp làm dịu và nuôi dưỡng, mang lại làn da sáng khỏe.",
-    Price = 1_960_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "125ml",
-    Volume = 125m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Sữa Tắm Dưỡng Ẩm",
-    ProductDescription = "Làm sạch, nuôi dưỡng và tiếp thêm sinh lực cho làn da với sữa tắm giàu dưỡng chất này. Lấy cảm hứng từ các loại tinh dầu được sử dụng trong phòng tắm hơi Thổ Nhĩ Kỳ, công thức chứa dầu hương thảo Pháp, khuynh diệp Trung Quốc, tràm trà tươi và chanh giúp làm sạch da và đánh thức giác quan.",
-    Price = 1_260_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "295ml",
-    Volume = 295m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Dưỡng Thể Rạng Rỡ",
-    ProductDescription = "Hỗn hợp xa hoa từ các loại dầu thực vật tinh khiết và squalane giúp làm dịu và cấp ẩm sâu cho da. Vitamin C và E có tác dụng bảo vệ, làm sáng và làm mềm da, trong khi các hạt nhũ mịn giúp da sáng rạng rỡ. Chiết xuất từ các loại thảo mộc và hoa như hương thảo, hoa sứ, đàn hương và hoa nhài mang lại hương thơm quyến rũ.",
-    Price = 1_980_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "100ml",
-    Volume = 100m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ẩm Căng Mịn Cơ Thể",
-    ProductDescription = "Loại kem dưỡng thể giàu dưỡng chất này sẽ khiến bạn tự tin khoe làn da. Với công thức giúp làm săn chắc và dưỡng ẩm tuyệt vời, sản phẩm còn hỗ trợ giảm sự xuất hiện của vết rạn, sẹo và vùng da không đều màu.",
-    Price = 2_510_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Kem Dưỡng Ceramide Ato Illiyoon",
-    ProductDescription = "Kem dưỡng ẩm từ thương hiệu ILLIYOON Hàn Quốc, chứa các thành phần dưỡng ẩm kết hợp với dưỡng chất tự nhiên, nuôi dưỡng làn da nhẹ nhàng, lành tính, phù hợp với mọi lứa tuổi và mọi loại da.",
-    Price = 295_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Tẩy Tế Bào Chết & Sữa Tắm Dear Doer",
-    ProductDescription = "Sữa tắm và tẩy tế bào chết 2 trong 1 với thành phần từ thực vật, tạo bọt dày giúp làm sạch toàn thân. Chiết xuất từ đá núi lửa Perlite mịn và muối Andes thô giúp loại bỏ tế bào chết, mang lại hương thơm thư giãn.",
-    Price = 450_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "300ml",
-    Volume = 300m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Lotion Dưỡng Ẩm Aestura Atobarrier 365",
-    ProductDescription = "Dưỡng ẩm, làm sáng và tăng cường sức đề kháng cho da, giúp da khỏe mạnh, ngăn ngừa nứt nẻ và khô ráp.",
-    Price = 600_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Xịt Dưỡng Cân Bằng pH Dr. Orga",
-    ProductDescription = "Chiết xuất rau diếp cá giàu chất chống oxy hóa giúp làm dịu và giảm viêm, đồng thời ngăn ngừa mất nước cho da. Sản phẩm còn chứa AHA, BHA và PHA giúp tẩy tế bào chết nhẹ nhàng và hỗ trợ điều trị mụn cơ thể.",
-    Price = 590_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "150ml",
-    Volume = 150m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Dưỡng Ẩm Cơ Thể Derma B",
-    ProductDescription = "Dầu dưỡng thể nhẹ, lâu trôi, chứa dầu hạnh nhân, argan và dầu hoa trà giúp dưỡng ẩm và làm săn chắc da. Công thức dịu nhẹ phù hợp với mọi loại da, kể cả da nhạy cảm. Hương đào tươi mát mang đến trải nghiệm thư giãn.",
-    Price = 430_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 8,
-    CompanyId = 1,
-    Dimension = "200ml",
-    Volume = 200m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Gội Davines Volu",
-    ProductDescription = "Dành cho tóc mỏng và xẹp, giúp tăng độ bồng bềnh tự nhiên. Công thức đặc biệt tạo bọt siêu mịn giúp làm sạch nhẹ nhàng bụi bẩn hàng ngày, giúp tóc nhẹ và mềm mượt hơn. Hương hoa nhẹ nhàng đặc trưng của dòng Volu.",
-    Price = 915_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "1000ml",
-    Volume = 1000m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Gội Davines Calming",
-    ProductDescription = "Phù hợp cho da đầu nhạy cảm hoặc dễ bị kích ứng, mang lại cảm giác làm sạch nhẹ nhàng, dễ chịu. Chiết xuất việt quất giàu vitamin C, B và chất chống oxy hóa giúp bảo vệ và nuôi dưỡng tóc và da đầu, đồng thời có tác dụng kháng viêm hiệu quả.",
-    Price = 985_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "1000ml",
-    Volume = 1000m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Gội Davines Dede",
-    ProductDescription = "Phù hợp với mọi loại da đầu, giúp loại bỏ bụi bẩn hàng ngày, mang lại cảm giác tóc nhẹ nhàng, mềm mượt. Công thức tạo bọt siêu mịn giúp thư giãn và làm mới da đầu. Hương chanh tươi mát.",
-    Price = 915_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "1000ml",
-    Volume = 1000m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Gội Davines Melu",
-    ProductDescription = "Đặc biệt phù hợp với tóc dài hoặc tóc hư tổn, giúp phục hồi và ngăn ngừa chẻ ngọn hiệu quả. Dạng kem mềm mịn giúp làm sạch nhẹ nhàng. Hương thơm gỗ và hoa đặc trưng của dòng Melu.",
-    Price = 1_055_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "1000ml",
-    Volume = 1000m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội phục hồi Bain Décalcifiant Réparateur",
-    ProductDescription = "Nước tốt cho bạn, nhưng không hẳn tốt cho tóc. Canxi trong nước tắm có thể gây hư tổn kéo dài, khiến tóc cứng, xỉn màu và dễ gãy. Hệ thống mạnh mẽ này giúp loại bỏ sự tích tụ canxi gây tổn thương và phục hồi đến 99% độ chắc khỏe ban đầu của tóc. Nó sửa chữa hư tổn kéo dài, giúp tóc mềm mại, bóng hơn 73% và mượt hơn gấp 2 lần. Tóc chắc khỏe hơn 93%.",
-    Price = 1_780_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "500ml",
-    Volume = 500m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội tăng cường độ dày Bain Densité",
-    ProductDescription = "Làm sạch bụi bẩn tích tụ trên tóc. Tăng mật độ tóc. Tăng cường sức mạnh cho tóc. Tạo độ bóng. Giúp tóc dày dặn hơn đến tận ngọn. Tăng độ đàn hồi từ gốc tóc.",
-    Price = 1_780_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "500ml",
-    Volume = 500m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội dưỡng ẩm và tăng cường Bain Hydra-Fortifiant",
-    ProductDescription = "Không chứa silicone. Nhẹ nhàng loại bỏ bã nhờn và bụi bẩn trên da đầu và tóc. Kiểm soát dầu hiệu quả. Ngăn ngừa rụng tóc do gãy rụng khi chải. Giảm gãy rụng đến 97%.",
-    Price = 1_780_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "500ml",
-    Volume = 500m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội phục hồi toàn diện L'Oreal Paris Elseve Total Repair 5",
-    ProductDescription = "Total Repair 5 là giải pháp chăm sóc giúp giảm 5 dấu hiệu hư tổn của tóc. Với thành phần Ceramide mới tương tự như keratin tự nhiên trong sợi tóc, sản phẩm nhanh chóng thẩm thấu vào các vùng tóc yếu và hư tổn, giúp tóc chắc khỏe, mượt mà, bóng sáng và giảm chẻ ngọn.",
-    Price = 200_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "650ml",
-    Volume = 650m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội dưỡng sâu L'Oreal Professional Hair Spa",
-    ProductDescription = "Chiết xuất từ tinh dầu tràm trà giúp làm sạch gàu, ngăn mùi hôi và mồ hôi trên da đầu. Kết hợp với massage giúp thư giãn da đầu, mang lại mái tóc và da đầu khỏe mạnh, sảng khoái.",
-    Price = 319_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "600ml",
-    Volume = 600m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội chống rụng tóc L'Oreal Paris Elseve Fall Resist 3X",
-    ProductDescription = "Cung cấp dưỡng chất cần thiết cho tóc, ngăn ngừa rụng tóc, mang lại mái tóc chắc khỏe và đẹp hơn. Công thức chống rụng tóc với 3 tác động: nuôi dưỡng từ chân tóc, tái tạo cấu trúc tóc và giúp tóc chắc khỏe hơn.",
-    Price = 200_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "650ml",
-    Volume = 650m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội phục hồi liên kết Nº.4 Bond Maintenance",
-    ProductDescription = "Dầu gội cô đặc cao giúp tăng cường độ chắc khỏe và độ bóng cho tóc dễ hư tổn trong khi làm sạch nhẹ nhàng. Bọt kem dày giúp nuôi dưỡng và phục hồi, mang lại mái tóc mềm mại và dễ kiểm soát hơn.",
-    Price = 760_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "250ml",
-    Volume = 250m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội phục hồi và tái tạo Gold Lust",
-    ProductDescription = "Đánh thức mái tóc của bạn trở về thời kỳ óng ả, khỏe mạnh nhất. Sữa gội này kết hợp dầu dưỡng cổ truyền như cây bách và argan với phức hợp phục hồi sinh học tiên tiến để cân bằng da đầu và tăng cường độ chắc khỏe từ bên trong từng sợi tóc.",
-    Price = 1_350_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "250ml",
-    Volume = 250m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội dưỡng ẩm và làm sáng Supershine Hydrating",
-    ProductDescription = "Tận hưởng sự sang trọng. Dầu gội này cung cấp độ ẩm dồi dào và làm mượt tóc, biến mái tóc xỉn màu trở nên bóng mượt. Nhẹ nhàng làm sạch mà không làm mất đi dầu tự nhiên của tóc, tăng cường độ bóng, giữ độ ẩm mà không làm nặng tóc, làm mềm và mịn tóc để tăng độ sáng và vẻ đẹp tự nhiên.",
-    Price = 1_245_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "250ml",
-    Volume = 250m
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu gội không chứa sulfate Acidic Bonding Concentrate",
-    ProductDescription = "Dầu gội không chứa sulfate Acidic Bonding Concentrate là công thức đậm đặc nhất của Redken, giúp phục hồi sức mạnh cho tất cả các loại tóc hư tổn.",
-    Price = 840_000m,
-    Quantity = 1,
-    Discount = 0.0m,
-    CategoryId = 9,
-    CompanyId = 1,
-    Dimension = "300ml",
-    Volume = 300m
-},
 
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Tẩy Trang Prebiotic Micellar",
+                    ProductDescription =
+                        "Dầu tẩy trang giúp hòa tan lớp trang điểm, bụi bẩn và dầu thừa, mang lại làn da sạch khỏe mà không gây khô da.",
+                    Price = 1_630_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Kombucha",
+                    ProductDescription =
+                        "Giúp làm sạch và cân bằng làn da nhờ công thức chứa kombucha, gừng, trà trắng và hoa nhài.",
+                    Price = 1_170_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Tẩy Tế Bào Chết Monoi",
+                    ProductDescription =
+                        "Sữa rửa mặt kết hợp tẩy tế bào chết nhẹ nhàng, chứa dầu Monoi và thành phần tự nhiên giúp da sáng khỏe, mịn màng.",
+                    Price = 1_200_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "250ml",
+                    Volume = 250m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Ngừa Mụn",
+                    ProductDescription =
+                        "Sữa rửa mặt tạo bọt giúp ngăn ngừa mụn, làm sạch da nhờ Acid Salicylic và chiết xuất thảo dược tự nhiên.",
+                    Price = 1_250_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Cỏ Chanh",
+                    ProductDescription =
+                        "Chứa dầu ô liu, hạt lanh và cỏ chanh giúp làm sạch da nhẹ nhàng, đồng thời làm dịu và dưỡng ẩm.",
+                    Price = 1_450_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Tẩy Tế Bào Chết Than Hoạt Tính",
+                    ProductDescription =
+                        "Được pha chế với than hoạt tính, đá quý malachite và matcha xanh, sữa rửa mặt thanh lọc mạnh mẽ này chuyển từ dạng gel sang dạng bọt tẩy tế bào chết, giúp loại bỏ tạp chất và mang lại làn da cân bằng.",
+                    Price = 1_490_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Beplain Mung Bean pH-Balanced",
+                    ProductDescription =
+                        "Sữa rửa mặt dịu nhẹ hàng ngày với 33% chiết xuất đậu xanh giúp làm sạch tạp chất mà vẫn giữ ẩm và mang lại cảm giác thoải mái cho da.",
+                    Price = 355_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt ISNTREE Yam Root Vegan Milk",
+                    ProductDescription =
+                        "Sản phẩm chăm sóc da dịu nhẹ và nuôi dưỡng, phù hợp với mọi loại da. Chứa chiết xuất từ rễ khoai mỡ Andong giúp loại bỏ tạp chất, bụi bẩn mà vẫn duy trì độ ẩm cần thiết. Công thức giàu axit amin giúp làm dịu da và tạo hàng rào bảo vệ, giữ lại độ ẩm quan trọng.",
+                    Price = 450_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "220ml",
+                    Volume = 220m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Gel Rửa Mặt Trị Mụn Normaderm",
+                    ProductDescription =
+                        "Không giống như hầu hết các loại sữa rửa mặt trị mụn khác làm mất đi độ ẩm tự nhiên của da, gel rửa mặt của Vichy không chứa dầu và xà phòng, nhẹ nhàng và không gây kích ứng. Công thức đặc biệt chứa các thành phần hoạt tính giúp giảm mụn, kiểm soát dầu nhờn và củng cố hàng rào bảo vệ da.",
+                    Price = 720_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Gel Rửa Mặt Tươi Mát Purete Thermale",
+                    ProductDescription =
+                        "Sữa rửa mặt tạo bọt dày đặc giúp làm sạch hiệu quả bụi bẩn, lớp trang điểm và ô nhiễm khỏi da, đồng thời chống lại tác hại của nước cứng. Mang lại làn da mềm mại, tươi mới mà không gây cảm giác khô căng.",
+                    Price = 600_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Rửa Mặt Tạo Bọt Purete Thermale",
+                    ProductDescription =
+                        "Sữa rửa mặt dạng kem tạo bọt giúp làm sạch hiệu quả tạp chất, lớp trang điểm và ô nhiễm trên da mà không gây khô hay kích ứng. Đồng thời, sản phẩm còn giúp giảm tác động có hại của nước cứng lên da, mang lại cảm giác mềm mịn và tươi mới mà không bị căng da.",
+                    Price = 650_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "125ml",
+                    Volume = 125m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Tạo Bọt",
+                    ProductDescription =
+                        "Công thức kem sang trọng giúp làm sạch và nhẹ nhàng tẩy tế bào chết, đồng thời cấp ẩm sâu với sự kết hợp của các axit amin. Nhờ sự kết hợp mạnh mẽ giữa axit tranexamic và niacinamide, sản phẩm giúp làm sáng da, mang lại làn da rạng rỡ và đều màu hơn.",
+                    Price = 1_170_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "120ml",
+                    Volume = 120m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Rửa Mặt Tẩy Tế Bào Chết",
+                    ProductDescription =
+                        "Chứa các peptide giúp tăng cường collagen và giảm nếp nhăn, sữa rửa mặt này mang lại cảm giác tươi mới tức thì với lớp bọt mịn giàu dưỡng chất. Thành phần hạt jojoba thân thiện với môi trường giúp làm sạch mà không làm mất đi độ ẩm tự nhiên của da.",
+                    Price = 1_250_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Gel Rửa Mặt Làm Sạch",
+                    ProductDescription =
+                        "Sản phẩm giúp loại bỏ lớp trang điểm, bụi bẩn và dầu thừa một cách hiệu quả nhờ sự kết hợp nhẹ nhàng của các peptide, chất chống oxy hóa và thành phần làm dịu da. Mang lại cảm giác sạch thoáng và tươi mát.",
+                    Price = 1_250_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 1,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Xịt Khoáng Măng Cụt",
+                    ProductDescription =
+                        "Hòa mình vào thiên nhiên với từng tia xịt khoáng tươi mát. Sự kết hợp giữa măng cụt giàu chất chống oxy hóa, ribose tăng cường năng lượng và cỏ ba lá đỏ giúp se khít lỗ chân lông và làm mới làn da.",
+                    Price = 1_120_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "125ml",
+                    Volume = 125m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Tinh Chất Dứa",
+                    ProductDescription =
+                        "Làm mới làn da với nước hoa hồng chiết xuất từ dứa! Công thức chứa PHA, bromelain và axit tranexamic giúp loại bỏ da xỉn màu mà không gây kích ứng. Sản phẩm giúp tẩy tế bào chết nhẹ nhàng, làm sáng và cấp ẩm cho da, phù hợp cho mọi loại da và có thể sử dụng hàng ngày.",
+                    Price = 1_400_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "120ml",
+                    Volume = 120m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Táo Gai",
+                    ProductDescription =
+                        "Dành cho da mất nước, dễ kích ứng và nhạy cảm, nước hoa hồng từ táo gai giúp da trông tươi mới hơn. Thành phần từ hoa cúc, kinh giới và dầu khuynh diệp giúp bảo vệ và làm dịu da, trong khi chiết xuất cà rốt giàu vitamin giúp phục hồi và nuôi dưỡng làn da.",
+                    Price = 1_200_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Tinh Chất Chanh",
+                    ProductDescription =
+                        "Dành cho mọi loại da, đặc biệt là da dầu, nước hoa hồng này giàu vitamin C giúp cân bằng và làm sáng da. Chiết xuất chanh tươi cùng công thức Biocomplex2™ độc quyền mang đến làn da tươi mới và căng tràn sức sống.",
+                    Price = 990_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "120ml",
+                    Volume = 120m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Hoa Cúc Làm Dịu Da",
+                    ProductDescription =
+                        "Nước hoa hồng làm dịu da với các loại thảo mộc giúp khôi phục độ cân bằng. Hoa cúc, rễ cây comfrey, cam thảo và lô hội giúp làm dịu và cấp ẩm, trong khi natri bicarbonate giúp trung hòa và bảo vệ da.",
+                    Price = 990_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "120ml",
+                    Volume = 120m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Đặc Trị Mụn",
+                    ProductDescription =
+                        "Nước hoa hồng dưỡng ẩm nhẹ giúp làm dịu và tươi mát làn da. Công thức chứa arnica, bạc hà và hoa oải hương giúp làm dịu kích ứng, đồng thời cung cấp độ ẩm cần thiết. Hoàn hảo để cấp nước sau khi rửa mặt hoặc bất cứ khi nào da cần làm mới.",
+                    Price = 1_510_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "250ml",
+                    Volume = 250m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Xịt Khoáng Chống Oxy Hóa",
+                    ProductDescription =
+                        "Nước cân bằng chống oxy hóa giúp làm săn chắc và cấp ẩm. Công thức dạng xịt tiện lợi bổ sung hàng rào bảo vệ da bằng cách tạo lớp màng chống oxy hóa, giúp chống lại tác hại của các gốc tự do và ngăn ngừa dấu hiệu lão hóa do các sản phẩm cuối của glycation (AGEs) gây ra. Chiết xuất đậu Hà Lan giúp làm săn chắc da, trong khi chiết xuất hoa hồng và đinh hương mang lại cảm giác dễ chịu và tươi mát, lý tưởng để sử dụng sau khi rửa mặt hoặc suốt cả ngày.",
+                    Price = 1_640_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Xịt Dưỡng Ẩm UltraCalming",
+                    ProductDescription =
+                        "Xịt dưỡng ẩm nhẹ dịu giúp làm dịu da và giảm đỏ. Sử dụng sau khi rửa mặt để khóa ẩm và chuẩn bị da cho các bước dưỡng với dòng sản phẩm UltraCalming. Công thức nhẹ hấp thụ nhanh, hỗ trợ hàng rào bảo vệ da, giúp giảm kích ứng trong tương lai. Phức hợp UltraCalming độc quyền chứa chiết xuất yến mạch và thực vật giúp làm dịu và củng cố da, trong khi lô hội giúp cân bằng độ ẩm tự nhiên.",
+                    Price = 1_510_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "177ml",
+                    Volume = 177m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Xịt Dưỡng Ẩm Hyaluronic Ceramide",
+                    ProductDescription =
+                        "Xịt dưỡng ẩm giúp bão hòa làn da với độ ẩm và khóa chặt nước để da trở nên đàn hồi. Công thức giàu dưỡng chất chứa bốn loại Axit Hyaluronic giúp da giữ nước lâu dài. Ceramide kết hợp cùng Axit Hyaluronic giúp làm mịn các nếp nhăn và tăng cường hàng rào bảo vệ da. Nước hoa hồng giàu polyphenol và flavonoid chống oxy hóa giúp phục hồi và làm mới làn da.",
+                    Price = 1_800_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Làm Dịu Da",
+                    ProductDescription =
+                        "Xịt khoáng hoa hồng giúp củng cố và làm dịu da, đặc biệt phù hợp với làn da nhạy cảm và dễ bị đỏ.",
+                    Price = 990_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Cân Bằng Da",
+                    ProductDescription =
+                        "Nước hoa hồng không cồn giúp cân bằng độ ẩm và hỗ trợ tái tạo mô, lý tưởng để hoàn thiện bước làm sạch da.",
+                    Price = 836_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Làm Sạch Sâu",
+                    ProductDescription =
+                        "Nước hoa hồng giúp làm mịn da với 3% gluconolactone, có tác dụng tẩy tế bào chết nhẹ nhàng.",
+                    Price = 990_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Tái Tạo Da",
+                    ProductDescription =
+                        "Lấy cảm hứng từ ánh sáng phản chiếu trên đại dương, nước hoa hồng tái tạo da này được thiết kế để mang lại độ rạng rỡ và sáng mịn tối đa.",
+                    Price = 1_320_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng Cân Bằng pH Acwell Licorice",
+                    ProductDescription =
+                        "Nước hoa hồng Acwell Licorice có độ pH 5.5 giúp cân bằng da hiệu quả. Chứa chiết xuất mẫu đơn và hàm lượng cao nước cam thảo giúp làm sáng da tự nhiên. Chiết xuất trà xanh giúp làm dịu và giảm thâm nám, bao gồm cả sẹo mụn và đốm nâu. Sau khi sử dụng, da cảm thấy sạch và mềm mại, không khô căng. Giúp các sản phẩm dưỡng da thẩm thấu tốt hơn.",
+                    Price = 460_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Hoa Hồng COSRX AHA/BHA",
+                    ProductDescription =
+                        "Công thức chứa AHA + BHA + chiết xuất thực vật giúp cải thiện kết cấu da, tăng độ đàn hồi và kiểm soát lỗ chân lông. Loại bỏ tạp chất, tẩy tế bào chết và dưỡng ẩm chỉ trong một bước.",
+                    Price = 355_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Cân Bằng Nhân Sâm Sulwhasoo",
+                    ProductDescription =
+                        "Nước cân bằng cao cấp giúp cải thiện nếp nhăn, tăng độ đàn hồi và cấp ẩm sâu, mang lại làn da trẻ trung.",
+                    Price = 3_450_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Toner Dưỡng Da Trước Điều Trị",
+                    ProductDescription =
+                        "Chứa chất chống oxy hóa mạnh và peptide giúp thư giãn nếp nhăn và hỗ trợ sản xuất collagen, toner điều trị chống lão hóa này cân bằng độ ẩm cho da, đồng thời làm sáng và cải thiện kết cấu, tông da.",
+                    Price = 1_120_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Nước Cân Bằng Hydraflora",
+                    ProductDescription =
+                        "Tinh chất này được pha chế với phức hợp pre- và probiotic giúp cân bằng và củng cố hệ vi sinh trên bề mặt da. Hỗn hợp chiết xuất thực vật giàu chất chống oxy hóa giúp làm sáng và bảo vệ da khỏi tác hại của các gốc tự do. Nước dừa và cây thùa xanh giúp thu nhỏ lỗ chân lông và mang lại làn da mịn màng.",
+                    Price = 1_750_000m,
+                    Quantity = 100,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "120ml",
+                    Volume = 120m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Miếng Lót Toner Làm Sạch",
+                    ProductDescription =
+                        "Chứa các thành phần tẩy tế bào chết, chiết xuất kháng khuẩn và peptide tái tạo mạnh mẽ, miếng lót toner thấm sẵn giúp làm sạch da khỏi mụn, làm sáng da, làm mịn kết cấu da không đều và giảm viêm.",
+                    Price = 1_250_000m,
+                    Quantity = 60,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "60 miếng",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Toner Vichy Aqualia Thermal Dưỡng Ẩm Tươi Mát",
+                    ProductDescription =
+                        "Toner 200ml dành cho da hỗn hợp và da dầu giúp loại bỏ bụi bẩn như nam châm, nuôi dưỡng da mềm mịn và săn chắc, đồng thời cân bằng độ pH để kem dưỡng dễ dàng thẩm thấu hơn.",
+                    Price = 690_000m,
+                    Quantity = 200,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Toner Vichy Normaderm Se Khít Lỗ Chân Lông",
+                    ProductDescription =
+                        "Nước cân bằng giúp làm sạch lỗ chân lông, giảm kích thước lỗ chân lông và kiểm soát dầu cho da dầu, dễ bị mụn.",
+                    Price = 780_000m,
+                    Quantity = 200,
+                    Discount = 0.0m,
+                    CategoryId = 2,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Chăm Sóc Da Chuyên Sâu Sublime Skin",
+                    ProductDescription =
+                        "Tinh chất phục hồi đa chức năng giúp làm mịn, săn chắc và bảo vệ da, làm đầy nếp nhăn và mang lại đường nét khuôn mặt thon gọn hơn.",
+                    Price = 3_520_000m,
+                    Quantity = 30,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tinh Chất Dưỡng Ẩm & Làm Sáng Hydramemory",
+                    ProductDescription =
+                        "Tinh chất dưỡng ẩm chuyên sâu với phức hợp làm sáng (Niacinamide và NAG) và Polyglutamic Acid (PGA) giúp da khỏe mạnh hơn, mềm mại và mịn màng hơn.",
+                    Price = 1_350_000m,
+                    Quantity = 7,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "7 x 2ml",
+                    Volume = 14m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tinh Chất Nâng Cơ & Căng Da Sublime Skin",
+                    ProductDescription =
+                        "Liệu pháp thẩm mỹ chuyên sâu với peptide chống nhăn, yếu tố tăng trưởng biểu bì (EGFs) và axit hyaluronic phân tử lớn giúp nâng cơ, giảm nếp nhăn. Da được cấp ẩm tức thì và trở nên mịn màng hơn.",
+                    Price = 1_890_000m,
+                    Quantity = 8,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "8 x 2ml",
+                    Volume = 16m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Vitamin C Biolumin-C",
+                    ProductDescription =
+                        "Tinh chất hiệu suất cao giúp tăng cường hệ thống phòng vệ tự nhiên của da để làm sáng, săn chắc và giảm đáng kể nếp nhăn. Công nghệ sinh học tiên tiến kết hợp với phức hợp Vitamin C siêu ổn định giúp tối ưu hóa khả năng hấp thụ Vitamin C, chống lại tác hại oxy hóa và các dấu hiệu lão hóa da.",
+                    Price = 3_320_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Giảm Mụn & Lão Hóa Age Bright",
+                    ProductDescription =
+                        "Tinh chất hoạt động kép giúp giảm và ngăn ngừa mụn trong khi giảm các dấu hiệu lão hóa da. Axit Salicylic giúp làm sạch mụn, loại bỏ tế bào chết, đẩy nhanh quá trình tái tạo da. Phức hợp AGE Bright™ hỗ trợ hệ vi sinh da để mang lại làn da sáng khỏe hơn.",
+                    Price = 2_620_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Làm Mờ Đốm Nâu Powerbright",
+                    ProductDescription =
+                        "Bắt đầu làm mờ sự xuất hiện của các đốm nâu trong vài ngày: serum tiên tiến giúp giảm nhanh sự không đồng đều về sắc tố và tiếp tục cải thiện tông màu da theo thời gian.",
+                    Price = 3_810_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Tinh Chất Làm Dịu Da UltraCalming",
+                    ProductDescription =
+                        "Giải pháp cho làn da nhạy cảm. Serum siêu cô đặc này giúp làm dịu, phục hồi và bảo vệ làn da nhạy cảm. Công thức UltraCalming™ độc quyền chứa yến mạch và chiết xuất thực vật giúp giảm kích ứng, kết hợp với peptide và dầu hoa anh thảo, hạt hướng dương, bơ giúp bảo vệ da khỏi các tác động bên ngoài.",
+                    Price = 2_310_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "40ml",
+                    Volume = 40m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Cấp Ẩm Hyaluronic Circular",
+                    ProductDescription =
+                        "Kích hoạt chu trình cấp ẩm cho da: serum dưỡng ẩm lâu dài ngay lập tức cung cấp độ ẩm cho da, bổ sung từ bên trong và giúp ngăn chặn sự mất nước trong tương lai. Công thức chứa Hyaluronic Acid cải tiến giúp thẩm thấu sâu, mang lại làn da căng mọng, rạng rỡ hơn theo thời gian. Ma trận dưỡng ẩm chứa chiết xuất tảo biển mang lại hiệu quả cấp ẩm nhanh chóng và bền vững.",
+                    Price = 2_230_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Dưỡng Ẩm Dâu & Đại Hoàng",
+                    ProductDescription =
+                        "Khám phá làn da rạng rỡ, trẻ trung với serum chứa dâu tây, đại hoàng và phức hợp Hyaluronic thực vật độc đáo. Kết hợp với rau má giúp cấp ẩm sâu, mang lại làn da mềm mịn và săn chắc hơn. Phù hợp với mọi loại da, đặc biệt là da khô hoặc mất nước.",
+                    Price = 1_500_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum C+E Chống Oxy Hóa Citrus & Kale",
+                    ProductDescription =
+                        "Serum nhẹ dịu dành cho mọi loại da. Vitamin C mạnh mẽ được ổn định bằng axit ferulic từ thực vật, cung cấp chất chống oxy hóa giúp làm sáng da, cải thiện nếp nhăn và giảm tác động của các gốc tự do.",
+                    Price = 2_990_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Peptide Chiết Xuất Hoa Biển",
+                    ProductDescription =
+                        "Serum dạng gel dễ hấp thụ, cung cấp peptide thực vật cô đặc và chiết xuất thực vật giúp giảm sự xuất hiện của nếp nhăn, mang lại làn da săn chắc và căng mịn. Công thức Smart Collagen+ giúp trẻ hóa làn da, trong khi chiết xuất tảo biển tăng độ đàn hồi và giữ ẩm lâu dài.",
+                    Price = 2_990_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Trị Mụn Vỏ Liễu",
+                    ProductDescription =
+                        "Hỗ trợ làm dịu kích ứng và giảm các vấn đề về da với serum cô đặc chứa chiết xuất vỏ liễu và tinh dầu tràm trà.",
+                    Price = 1_680_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Phục Hồi Hoa Thanh Cúc",
+                    ProductDescription =
+                        "Phục hồi và thanh lọc da với sức mạnh của hoa thanh cúc, cúc la mã và dâm bụt. Serum này giúp cải thiện độ đàn hồi của da, mang lại hiệu ứng trẻ hóa và săn chắc.",
+                    Price = 1_480_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "15ml",
+                    Volume = 15m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Căng Bóng Power",
+                    ProductDescription =
+                        "Liệu pháp đa nhiệm mạnh mẽ chứa phức hợp peptide hiệu suất cao và chất chống oxy hóa kích thích collagen, giúp cải thiện rõ rệt nếp nhăn và mang lại làn da săn chắc, trẻ trung hơn.",
+                    Price = 3_910_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Làm Sáng Da Firma-Bright",
+                    ProductDescription =
+                        "Chứa hàm lượng cao vitamin C ổn định, chất chống oxy hóa và peptide làm sáng da, chỉ vài giọt mỗi ngày giúp da trở nên săn chắc, căng bóng và rạng rỡ hơn.",
+                    Price = 3_380_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Hydrostem",
+                    ProductDescription =
+                        "Liệu pháp chống lão hóa mạnh mẽ này kết hợp các peptide trẻ hóa với chiết xuất thực vật giúp bảo vệ da khỏi tác hại của tia UV và ô nhiễm. Tế bào gốc thực vật giàu chất chống oxy hóa nuôi dưỡng tế bào da, tăng cường độ rạng rỡ và săn chắc, mang lại làn da sáng khỏe hơn.",
+                    Price = 4_270_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Minéral 89 Booster",
+                    ProductDescription =
+                        "Công thức đột phá với 89% nước khoáng núi lửa Vichy giàu 15 khoáng chất thiết yếu, kết hợp với axit hyaluronic tinh khiết giúp củng cố hàng rào độ ẩm, bảo vệ da trước các tác nhân gây hại. Da được cấp ẩm, săn chắc và căng mọng, mang lại vẻ rạng rỡ khỏe mạnh mỗi ngày.",
+                    Price = 1_170_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Minéral 89 Probiotic Fractions",
+                    ProductDescription =
+                        "Giải pháp phục hồi da chịu căng thẳng từ tác nhân bên trong và bên ngoài như ô nhiễm, căng thẳng tâm lý và biến đổi khí hậu. Công thức chứa các phân đoạn lợi khuẩn được nuôi dưỡng trong nước khoáng núi lửa Vichy kết hợp với Niacinamide (Vitamin B3) giúp tái tạo và củng cố làn da, giảm dấu hiệu căng thẳng rõ rệt.",
+                    Price = 1_300_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 3,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem dưỡng phục hồi Barrier Builder",
+                    ProductDescription =
+                        "Kem dưỡng chuyên sâu giúp làm dịu và tái tạo làn da bị kích ứng. Công thức giàu dưỡng chất thẩm thấu sâu vào biểu bì, cung cấp sự kết hợp mạnh mẽ của các thành phần đã được kiểm nghiệm giúp phục hồi, cấp ẩm và củng cố hàng rào bảo vệ da.",
+                    Price = 1_480_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem dưỡng Power Luxe",
+                    ProductDescription =
+                        "Bước cuối cùng trong chu trình dưỡng da ban đêm, khóa ẩm và hỗ trợ tái tạo tế bào trong lúc ngủ. Power Luxe hoạt động theo nhịp sinh học của da, giúp cân bằng và phục hồi hàng rào lipid tự nhiên, ngăn ngừa khô da và nhạy cảm. Công thức chứa 4 loại axit hyaluronic, Bakuchiol (thay thế tự nhiên cho retinol), chiết xuất tảo đỏ và peptide hỗ trợ tăng cường độ săn chắc và đàn hồi của da.",
+                    Price = 3_960_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem dưỡng ẩm không dầu AquaBoost",
+                    ProductDescription =
+                        "Công thức chứa 6 loại peptide với các tác dụng như giảm mụn, làm sáng, chống lão hóa, giảm đỏ và bảo vệ da. Chiết xuất hoa loa kèn linh thiêng giúp duy trì làn da trẻ trung, giảm kích ứng và tăng cường bảo vệ da khỏi tác động môi trường.",
+                    Price = 1_750_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem dưỡng Face Lift",
+                    ProductDescription =
+                        "Face Lift sử dụng phức hợp lipid L22 giúp phục hồi chức năng bảo vệ da như khi còn trẻ. Công thức cung cấp độ ẩm hoàn hảo, đồng thời chứa chất chống oxy hóa và peptide giúp bảo vệ da khỏi các gốc tự do gây hại, duy trì vẻ ngoài săn chắc và tươi trẻ.",
+                    Price = 2_110_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Dạng Lỏng Sublime Skin",
+                    ProductDescription =
+                        "Kem dưỡng dạng lỏng Comfort Zone giúp săn chắc và làm đều màu da. Được chiết xuất từ thực vật chống lão hóa Achillea Millefolilum và Axit Hyaluronic, sản phẩm giúp làm căng, mịn và sáng da. Sử dụng kết hợp với Tinh Chất Sublime Skin Intensive. Chứa 99% thành phần có nguồn gốc tự nhiên, không chứa silicone, dẫn xuất động vật, dầu khoáng, chất tạo màu nhân tạo, ethoxylates (PEG) và acrylates. Không gây bít tắc lỗ chân lông.",
+                    Price = 3_530_000m, // Giá sản phẩm là 3.530.000 VND
+                    Quantity = 1, // Sản phẩm có dung tích 60ml
+                    Discount = 0.0m, // Không có chiết khấu
+                    CategoryId = 4, // Kem dưỡng ẩm
+                    CompanyId = 1, // Comfortzone
+                    Dimension = "60ml",
+                    Volume = 60m, // Tổng dung tích là 60ml
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Chất Dinh Dưỡng Sacred Nature",
+                    ProductDescription =
+                        "Kem dưỡng giàu thành phần tự nhiên và hữu cơ, mang lại hiệu quả tức thì và lâu dài, giúp da trông trẻ trung hơn. Công thức chứa phức hợp chiết xuất khoa học Sacred Nature™, bao gồm Myrtus, Cây Cơm Cháy và Lựu, giúp cải thiện đáng kể sức khỏe tổng thể của làn da. Chứa thành phần hương liệu tự nhiên.",
+                    Price = 1_780_000m, // Giá sản phẩm là 1.780.000 VND
+                    Quantity = 1, // Sản phẩm có dung tích 60ml
+                    Discount = 0.0m, // Không có chiết khấu
+                    CategoryId = 4, // Kem dưỡng ẩm
+                    CompanyId = 1, // Comfortzone
+                    Dimension = "60ml",
+                    Volume = 60m, // Tổng dung tích là 60ml
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Active Pureness",
+                    ProductDescription =
+                        "Sự kết hợp độc đáo giữa Vitamin C và bột kiềm dầu giúp kem dưỡng này trở thành lựa chọn lý tưởng cho da dầu và dễ bị mụn. Sản phẩm cũng có thể được sử dụng như kem lót trang điểm.",
+                    Price = 1_400_000m, // Giá sản phẩm là 1.400.000 VND
+                    Quantity = 1, // Sản phẩm có dung tích 30ml
+                    Discount = 0.0m, // Không có chiết khấu
+                    CategoryId = 4, // Kem dưỡng ẩm
+                    CompanyId = 1, // Comfortzone
+                    Dimension = "30ml",
+                    Volume = 30m, // Tổng dung tích là 30ml
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Remedy",
+                    ProductDescription =
+                        "Kem dưỡng nhẹ, mịn giúp củng cố hàng rào bảo vệ da, mang lại cảm giác thoải mái và bảo vệ. Prebiotics từ đường tự nhiên giúp duy trì sự cân bằng hệ vi sinh tự nhiên của da. Phù hợp cho làn da nhạy cảm, dễ kích ứng và dễ bị đỏ.",
+                    Price = 1_960_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ẩm Dâu Tây & Đại Hoàng",
+                    ProductDescription =
+                        "Với kết cấu gel-cream thuần chay nhẹ nhàng, kem dưỡng giúp phục hồi vẻ tươi sáng của làn da xỉn màu. Kết hợp phức hợp Hyaluronic Acid thực vật với panthenol, dâu tây và đại hoàng giúp khóa ẩm và mang lại làn da rạng rỡ. Phù hợp với mọi loại da.",
+                    Price = 1_730_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "35ml",
+                    Volume = 35m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Bakuchiol + Niacinamide",
+                    ProductDescription =
+                        "Kem dưỡng dạng gel-cream giúp phục hồi độ ẩm tự nhiên cho da, kết hợp độc đáo giữa Bakuchiol – một sự thay thế cho retinol – và Niacinamide. Công thức giúp làm mịn nếp nhăn, săn chắc da, thu nhỏ lỗ chân lông và cải thiện kết cấu da mà không gây kích ứng.",
+                    Price = 2_000_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Kiểm Soát Dầu Mụn",
+                    ProductDescription =
+                        "Kem dưỡng siêu nhẹ giúp giảm bóng dầu, mang lại làn da mềm mại với lớp kết thúc lì. Chiết xuất sen giúp kiểm soát dầu nhờn, trong khi Salicylic Acid giải phóng theo thời gian giúp giảm mụn. Kẽm hyaluronate và arbutin hỗ trợ làm dịu kích ứng và mờ sẹo.",
+                    Price = 2_000_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "35ml",
+                    Volume = 35m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Phục Hồi Da Echinacea",
+                    ProductDescription =
+                        "Chiết xuất cúc dại Echinacea, ngải cứu và dầu hoa anh thảo giúp sửa chữa các dấu hiệu lão hóa mà không gây cảm giác nhờn rít. Kem dưỡng dạng lỏng này rất lý tưởng cho làn da mất nước hoặc bị kích ứng.",
+                    Price = 1_990_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ban Đêm PowerBright",
+                    ProductDescription =
+                        "Kem dưỡng đêm giúp phục hồi độ ẩm, làm sáng và giảm đốm nâu khi bạn ngủ. Công thức chứa Niacinamide, Hexylresorcinol và Vitamin C giúp làm mờ vết thâm. Enzyme bí ngô giúp làm mịn kết cấu da. Dầu hạt việt quất và mâm xôi giàu chất chống oxy hóa bảo vệ da khỏi tác động của ô nhiễm môi trường.",
+                    Price = 2_260_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ẩm Làm Dịu Da",
+                    ProductDescription =
+                        "Tạm biệt làn da khô thiếu nước với kem dưỡng nhẹ này! Công thức mỏng nhẹ giúp làm dịu da bị kích ứng và dưỡng ẩm cho các vùng da khô. Ngoài ra, còn giúp giảm tình trạng khô da do một số phương pháp điều trị mụn.",
+                    Price = 635_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ẩm Sâu",
+                    ProductDescription =
+                        "Kem dưỡng thế hệ mới với công nghệ Active HydraMesh Technology™ cung cấp độ ẩm liên tục trong 48 giờ và bảo vệ da khỏi tác động môi trường. Hyaluronic Acid kết hợp với chiết xuất cẩm quỳ, dưa chuột và arnica giúp da duy trì độ ẩm lâu dài. Ngoài ra, còn chứa chiết xuất nho, Vitamin C và E giúp bảo vệ da.",
+                    Price = 1_930_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "100ml",
+                    Volume = 100m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Phục Hồi Bảo Vệ Da",
+                    ProductDescription =
+                        "Kem dưỡng mịn giúp củng cố hàng rào bảo vệ da bị tổn thương. Công thức không chứa nước, giúp bảo vệ da khỏi các tác nhân gây căng thẳng. Phức hợp UltraCalming độc quyền chứa yến mạch và chiết xuất thực vật giúp giảm kích ứng, khó chịu, nóng rát. Dầu hoa anh thảo, dầu hạt lưu ly cùng Vitamin C và E giúp phục hồi làn da.",
+                    Price = 1_430_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ẩm Vichy Minéral 89 72H Không Mùi",
+                    ProductDescription =
+                        "Kem dưỡng ẩm Vichy Minéral 89 72H là một loại kem nhẹ, cung cấp độ ẩm kéo dài cho da. Công thức chứa Hyaluronic Acid, Nước khoáng núi lửa Vichy giàu khoáng chất, Vitamin B3 & E, và Squalane giúp củng cố hàng rào độ ẩm của da, bảo vệ khỏi tác nhân gây hại từ môi trường. Phù hợp với mọi loại da, đặc biệt là da khô và nhạy cảm. Thẩm thấu nhanh, mang lại làn da mềm mại, căng mướt và đủ ẩm.",
+                    Price = 550_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Đêm Vichy Liftactiv B3 Giúp Làm Đều Màu Da Với Retinol Nguyên Chất",
+                    ProductDescription =
+                        "Kem dưỡng đêm Liftactiv B3 giúp cải thiện tình trạng tăng sắc tố và màu da không đồng đều. Kết hợp Niacinamide (Vitamin B3) và Retinol, sản phẩm hỗ trợ tái tạo tế bào da, giảm đốm nâu và cải thiện kết cấu da. Phù hợp với mọi loại da, kể cả da nhạy cảm, mang lại làn da rạng rỡ và đều màu hơn.",
+                    Price = 1_670_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ẩm Belif The True Cream Aqua Bomb",
+                    ProductDescription =
+                        "Kem dưỡng dạng gel nhẹ giúp cấp ẩm tức thì và mang lại cảm giác mát lạnh trên da. Công thức chứa hỗn hợp thảo mộc, bao gồm Lady's Mantle, giàu chất chống oxy hóa. Phù hợp với mọi loại da, đặc biệt là da dầu và da hỗn hợp. Thẩm thấu nhanh, mang lại làn da tươi mát, ẩm mượt mà không gây nhờn rít.",
+                    Price = 970_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Oat So Simple Water Cream",
+                    ProductDescription =
+                        "Kem dưỡng ẩm nhẹ như nước mang lại cảm giác tươi mát trên da. Công thức đơn giản với chưa đến 10 thành phần, bao gồm chiết xuất yến mạch giúp làm dịu da. Dưỡng ẩm thiết yếu, giúp da cảm thấy thoải mái và cân bằng độ ẩm.",
+                    Price = 700_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "80ml",
+                    Volume = 80m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Làm Dịu Da AESTURA A-CICA 365",
+                    ProductDescription =
+                        "Kem dưỡng ẩm giúp làm dịu da nhạy cảm và kích ứng. Công thức chứa chiết xuất rau má giúp làm dịu và phục hồi da. Cung cấp độ ẩm lâu dài, giảm đỏ và viêm da. Phù hợp cho da khô, nhạy cảm hoặc dễ bị mụn.",
+                    Price = 790_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 4,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Chống Nắng Sun Soul Face SPF30",
+                    ProductDescription =
+                        "Kem chống nắng Sun Soul Face SPF30 bảo vệ da khỏi tia UV có hại. Cung cấp khả năng chống nắng phổ rộng UVA/UVB, giúp ngăn ngừa cháy nắng, lão hóa sớm và ung thư da. Công thức nhẹ dịu, thích hợp sử dụng hằng ngày cho mọi loại da, kể cả da nhạy cảm. Thẩm thấu nhanh, không gây nhờn rít, có thể sử dụng làm lớp lót trang điểm.",
+                    Price = 880_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Chống Nắng Skin Regimen Urban Shield SPF30",
+                    ProductDescription =
+                        "Kem chống nắng Skin Regimen Urban Shield SPF30 của Comfort Zone là sản phẩm nhẹ, không nhờn rít, giúp bảo vệ da khỏi tác hại của ô nhiễm đô thị và bức xạ UV.",
+                    Price = 1_670_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "40ml",
+                    Volume = 40m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Chống Nắng PoreScreen SPF40",
+                    ProductDescription =
+                        "Kem chống nắng PoreScreen SPF40 giúp giảm sự xuất hiện của lỗ chân lông và bảo vệ da khỏi tia UVA + UVB. Hiệu ứng như kem lót với lớp nền mỏng nhẹ, mang lại lớp phủ trong suốt tự nhiên.",
+                    Price = 1_390_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Chống Nắng Invisible Physical Defense SPF30",
+                    ProductDescription =
+                        "Nói lời tạm biệt với lớp kem chống nắng dày, trắng bệt! Công thức chống nắng vật lý này cung cấp khả năng bảo vệ chống lại ánh sáng xanh và giúp làm dịu tác động của các tác nhân gây hại từ môi trường. Phức hợp nấm hoạt tính giúp làm dịu da, giảm mẩn đỏ và khô da do tia UV. Chiết xuất trà xanh chống oxy hóa giúp bảo vệ da khỏi gốc tự do. Phù hợp với mọi loại da, kể cả da nhạy cảm.",
+                    Price = 1_245_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Chống Nắng Protection 50 Sport SPF50",
+                    ProductDescription =
+                        "Kem chống nắng bảo vệ da khỏi tác hại kéo dài của tia UV và ô nhiễm môi trường. Công nghệ vi hạt Oleosome giúp tăng hiệu quả chống nắng và duy trì độ ẩm cho da. Công thức nhẹ, không gây nhờn rít, giúp trung hòa tác hại và giữ ẩm cho da mà không tạo cảm giác nặng mặt.",
+                    Price = 1_000_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Chống Nắng Kiềm Dầu SPF30",
+                    ProductDescription =
+                        "Kem chống nắng phổ rộng giúp ngăn ngừa bóng dầu và lão hóa da trên làn da dầu, dễ bị mụn. Công thức nhẹ, siêu mỏng chứa hỗn hợp tiên tiến gồm Kẽm Gluconate, Caffeine, Niacinamide, Biotin và Chiết xuất Men. Các chất hấp thụ dầu giúp duy trì lớp nền lì suốt cả ngày, ngăn ngừa bóng dầu mà không để lại cặn phấn.",
+                    Price = 2_030_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tinh Chất Chống Nắng Bảo Vệ Da",
+                    ProductDescription =
+                        "Giúp bảo vệ da khỏi tác động khắc nghiệt của ánh nắng mặt trời đồng thời làm mịn các nếp nhăn. Với cảm giác dưỡng ẩm, nuôi dưỡng và lớp hoàn thiện căng bóng, sản phẩm này giúp da trông trẻ trung đồng thời cung cấp khả năng bảo vệ SPF 30 phổ rộng cho da thường đến da khô.",
+                    Price = 1_600_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dưỡng Ẩm Chống Nắng Hàng Ngày SPF 40",
+                    ProductDescription =
+                        "Kem dưỡng ẩm nhẹ hàng ngày với chiết xuất hạt ca cao, vỏ quýt satsuma và SPF 40 hoàn toàn từ khoáng chất giúp cải thiện làn da tiếp xúc với ánh sáng xanh và ô nhiễm. Phù hợp với mọi loại da.",
+                    Price = 1_930_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Chống Nắng Khoáng Chất Cho Thể Thao SPF 30",
+                    ProductDescription =
+                        "Dễ dàng thoa lên mặt và cơ thể, kem chống nắng khoáng chất SPF 30 này không nhờn rít và có khả năng chống nước lên đến 40 phút. Hiệu quả cao cho các hoạt động ngoài trời như bơi lội và thể thao cường độ cao, bảo vệ làn da khỏi tác động của tia UV.",
+                    Price = 1_480_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "147ml",
+                    Volume = 147m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Chống Nắng Nâng Tông SPF 50+",
+                    ProductDescription =
+                        "Mang lại lớp nền tự nhiên với kem chống nắng SPF 50+ có màu nhẹ. Công thức hoàn toàn từ khoáng chất, không gây bít tắc lỗ chân lông và giàu chất chống oxy hóa giúp dưỡng ẩm, bảo vệ da khỏi tia UV và ánh sáng xanh.",
+                    Price = 1_750_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Serum Chống Nắng Khoáng Chất SPF 30",
+                    ProductDescription =
+                        "Serum chống nắng này kết hợp bảo vệ da với lợi ích chăm sóc da. Peptide CellRenew-16 được cấp bằng sáng chế giúp dưỡng ẩm và ngăn chặn gốc tự do gây lão hóa. Mang lại làn da được bảo vệ và căng bóng mà không bị nhờn rít.",
+                    Price = 1_730_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "40ml",
+                    Volume = 40m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Chống Nắng Không Màu SPF 50",
+                    ProductDescription =
+                        "Kem chống nắng khoáng chất SPF 50 với công thức mỏng nhẹ, kết hợp giữa chất chống oxy hóa thực vật, độ ẩm nhẹ nhàng và lớp nền mờ trong suốt giúp bảo vệ da khỏi tổn thương từ ánh nắng mặt trời và các gốc tự do.",
+                    Price = 1_350_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Chống Nắng Nâng Tông Tự Điều Chỉnh SPF 30",
+                    ProductDescription =
+                        "Chống nắng có màu tự điều chỉnh, phù hợp với hầu hết các tông da, mang lại vẻ ngoài khỏe khoắn đồng thời bảo vệ da khỏi tia UVA, UVB và hồng ngoại. Axit Hyaluronic giúp giữ ẩm, trong khi các chiết xuất giàu chất chống oxy hóa bảo vệ da khỏi gốc tự do.",
+                    Price = 1_400_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Vichy Capital Soleil UV Age Daily SPF50 PA++++",
+                    ProductDescription =
+                        "Kem chống nắng bảo vệ da khỏi tia UV có hại và ngăn ngừa lão hóa sớm. Công thức bảo vệ phổ rộng giúp ngăn ngừa cháy nắng, lão hóa sớm và ung thư da.",
+                    Price = 570_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "40ml",
+                    Volume = 40m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Chống Nắng Dạng Lỏng SPF 50",
+                    ProductDescription =
+                        "Kem chống nắng dưỡng da chống lão hóa hằng ngày với SPF 50 phổ rộng trong công thức siêu nhẹ, không chứa oxybenzone, chống nước lên đến 80 phút và dễ dàng thẩm thấu vào da.",
+                    Price = 880_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem chống nắng Neogen Day-Light Protection Airy",
+                    ProductDescription =
+                        "Neogen Day-Light Protection Airy là kem chống nắng nhẹ, không nhờn, giúp bảo vệ da toàn diện trước tia UVA và UVB. Được điều chế với các thành phần dịu nhẹ, sản phẩm phù hợp với da nhạy cảm. Kem thẩm thấu nhanh, để lại lớp nền mịn lì và có thể sử dụng như lớp lót trang điểm. Ngoài ra, sản phẩm còn chứa các thành phần dưỡng da như chất chống oxy hóa và dưỡng ẩm, giúp bảo vệ và nuôi dưỡng làn da.",
+                    Price = 815_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem chống nắng dưỡng ẩm Round Lab Birch Juice",
+                    ProductDescription =
+                        "Round Lab Birch Juice Moisturizing Sunscreen là kem chống nắng dưỡng ẩm, bảo vệ da toàn diện trước tia UVA và UVB. Công thức chứa nước cây bạch dương giúp cấp ẩm hiệu quả, phù hợp với mọi loại da, đặc biệt là da khô và nhạy cảm. Sản phẩm thẩm thấu nhanh, để lại lớp nền căng bóng tự nhiên và có thể dùng làm lớp lót trang điểm.",
+                    Price = 360_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem chống nắng Beet The Sun SPF 40 PA+++",
+                    ProductDescription =
+                        "Beet The Sun là kem chống nắng hóa học nhẹ, giúp bảo vệ da trước ánh nắng mặt trời và các tác nhân môi trường. Thành phần chứa chiết xuất củ dền – một chất chống oxy hóa mạnh mẽ giúp bảo vệ da khỏi tác động oxy hóa. Kết cấu kem mềm mượt, không gây vệt trắng, phù hợp với mọi tông da.",
+                    Price = 500_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem chống nắng khoáng Klairs All-day Airy SPF50+ PA++++",
+                    ProductDescription =
+                        "Klairs All-day Airy là kem chống nắng khoáng dịu nhẹ, phù hợp với da nhạy cảm. Công thức chứa thành phần khoáng chất giúp kem thẩm thấu nhanh, để lại lớp nền mịn lì mà không gây bít tắc lỗ chân lông. Sản phẩm cũng giúp hạn chế tình trạng vệt trắng, mang lại lớp nền tự nhiên.",
+                    Price = 480_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem chống nắng Goongbe Waterful Sun Lotion Mild SPF50+ PA++++",
+                    ProductDescription =
+                        "Goongbe Waterful Sun Lotion Mild là kem chống nắng dịu nhẹ, gốc nước, phù hợp với da nhạy cảm, kể cả trẻ em. Sản phẩm bảo vệ da trước tia UVA và UVB, giúp ngăn ngừa cháy nắng và lão hóa sớm.",
+                    Price = 450_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 5,
+                    CompanyId = 1,
+                    Dimension = "80ml",
+                    Volume = 80m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ thảo dược Eight Greens Phyto – Hot",
+                    ProductDescription =
+                        "Mặt nạ Eight Greens Phyto – Hot chứa các thành phần thực vật giàu phytoestrogen và chất chống oxy hóa. Sản phẩm giúp cung cấp độ ẩm, tăng độ đàn hồi da, giảm dấu hiệu lão hóa, điều tiết dầu thừa và hỗ trợ giảm mụn, mang lại làn da tươi trẻ rạng rỡ.",
+                    Price = 1_580_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ Kombucha Microbiome Leave-On",
+                    ProductDescription =
+                        "Mặt nạ dưỡng ẩm chuyên sâu giúp làm dịu da khô xỉn màu. Công thức giàu chiết xuất gừng, pre, pro và postbiotics giúp phục hồi làn da, củng cố hàng rào độ ẩm. Phù hợp với mọi loại da, giúp da căng bóng, khỏe mạnh.",
+                    Price = 2_140_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ Vitamin C+E Citrus & Kale Potent",
+                    ProductDescription =
+                        "Mặt nạ dạng kem-gel chứa Vitamin C+E giúp phục hồi làn da xỉn màu. Công thức từ cam quýt, rau lá xanh và dầu bơ giúp chống lại tác nhân oxy hóa, giảm thiểu nếp nhăn và tổn thương do môi trường.",
+                    Price = 1_780_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ dưỡng ẩm Stone Crop",
+                    ProductDescription =
+                        "Mặt nạ Stone Crop giúp cấp ẩm và phục hồi da, mang lại làn da sáng khỏe. Chiết xuất từ cây Stone Crop được sử dụng trong y học cổ truyền giúp chữa lành nhiều vấn đề da liễu, mang lại hiệu quả dưỡng da vượt trội.",
+                    Price = 1_400_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ làm dịu Calm Skin Arnica",
+                    ProductDescription =
+                        "Mặt nạ Calm Skin Arnica giúp làm dịu da nhạy cảm với chiết xuất từ cây kim sa, cúc calendula và lá thường xuân. Sản phẩm giúp giảm tình trạng kích ứng, thanh lọc da và hỗ trợ làm dịu viêm da.",
+                    Price = 1_650_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Phục Hồi Đa Vitamin",
+                    ProductDescription =
+                        "Mặt nạ siêu bổ sung giúp cứu làn da căng thẳng, lão hóa. Sử dụng sau bước làm sạch để cải thiện làn da xỉn màu, khô ráp, mất nước, bị tổn thương do ánh nắng và dấu hiệu lão hóa. Vitamin A, C và E đậm đặc cùng Axit Linoleic giúp phục hồi làn da hư tổn, cải thiện hàng rào bảo vệ da. Vitamin C và E giúp chống oxy hóa, bảo vệ da khỏi các gốc tự do. Chiết xuất Tảo biển giúp dưỡng ẩm, làm mềm da, trong khi Pro-Vitamin B5 nuôi dưỡng làn da tổn thương. Các chiết xuất thảo mộc từ Cam thảo, Comfrey và Ngưu bàng giúp làm dịu và tăng sức đề kháng cho da.",
+                    Price = 2_050_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "75ml",
+                    Volume = 75m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Kiểm Soát Dầu",
+                    ProductDescription =
+                        "Mặt nạ đất sét làm dịu giúp làm sạch mụn và giảm dấu hiệu lão hóa sớm. Đất sét hấp thụ dầu giúp giải độc da, trong khi Axit Salicylic làm sạch tắc nghẽn lỗ chân lông. Chiết xuất từ Yến mạch và Bisabolol giúp làm dịu làn da bị kích ứng do mụn. Dầu cây Rum giúp dưỡng ẩm, giảm nếp nhăn do mất nước. Công thức chứa Cam thảo và Niacinamide cũng giúp làm đều màu da.",
+                    Price = 1_700_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "75ml",
+                    Volume = 75m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Dưỡng Ẩm Tan Chảy",
+                    ProductDescription =
+                        "Mặt nạ siêu dưỡng ẩm chuyển đổi từ dạng sáp sang dầu để phục hồi làn da khô. Phức hợp MeltingPoint kích hoạt bởi nhiệt độ da giúp thẩm thấu sâu, nuôi dưỡng và cấp ẩm. Tảo vi sinh giúp bảo vệ da khỏi tác hại của ô nhiễm. Công thức giàu vitamin, mềm mịn giúp cung cấp độ ẩm lâu dài, mang lại làn da căng mịn. Axit Linoleic giúp nuôi dưỡng da, trong khi Vitamin E bảo vệ khỏi các gốc tự do, giúp da trông khỏe mạnh hơn.",
+                    Price = 2_340_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "75ml",
+                    Volume = 75m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Kỳ Diệu",
+                    ProductDescription =
+                        "Mặt nạ đa chức năng sử dụng đất sét làm sạch sâu, giảm thiểu lỗ chân lông, đồng thời chứa peptide giúp cải thiện nếp nhăn và công thức nâng cơ tức thì.",
+                    Price = 1_200_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Ngủ Khóa Ẩm",
+                    ProductDescription =
+                        "Mặt nạ ngủ giúp làm mịn và hoàn thiện làn da ngay cả khi bạn ngủ. Peptide hoàng gia giúp thúc đẩy quá trình tái tạo tế bào, cung cấp dưỡng chất giúp da rạng rỡ hơn.",
+                    Price = 2_230_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "75ml",
+                    Volume = 75m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Collagen PolyPeptide",
+                    ProductDescription =
+                        "Mặt nạ Hydrogel chứa peptide hỗ trợ collagen và dưỡng chất cấp ẩm giúp giảm nếp nhăn, làm sáng vùng da bị lão hóa.",
+                    Price = 1_320_000m,
+                    Quantity = 2,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "2 miếng",
+                    Volume = null,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Cân Bằng Da",
+                    ProductDescription =
+                        "Mặt nạ chống lão hóa độc đáo giúp bảo vệ làn da, giữ ẩm, làm dịu và duy trì vẻ ngoài trẻ trung.",
+                    Price = 1_200_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Phục Hồi Trẻ Hóa",
+                    ProductDescription =
+                        "Mặt nạ giải độc giúp làm dịu làn da nhạy cảm hoặc kích ứng với đất sét làm mát và peptide giúp phục hồi.",
+                    Price = 1_200_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Dưỡng Ẩm Đêm Aqualia Thermal",
+                    ProductDescription =
+                        "Kem dưỡng và mặt nạ ngủ cấp ẩm sâu với Hyaluronic Acid và nước khoáng núi lửa Vichy giúp khóa ẩm, cải thiện làn da khô và xỉn màu qua đêm. Mang lại làn da mềm mại, căng mướt vào buổi sáng.",
+                    Price = 1_320_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Khoáng Dưỡng Ẩm",
+                    ProductDescription =
+                        "Mặt nạ dưỡng ẩm đầu tiên của Vichy với 10% nước khoáng núi lửa và Vitamin B3 giúp cấp ẩm tức thì, làm dịu làn da khô và khó chịu.",
+                    Price = 970_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m,
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ đất sét làm sạch lỗ chân lông",
+                    ProductDescription =
+                        "Mặt nạ đất sét tốt nhất của chúng tôi kết hợp hai loại đất sét trắng siêu mịn với 15 khoáng chất từ nước núi lửa Vichy, giúp loại bỏ bã nhờn dư thừa và tạp chất, làm sạch lỗ chân lông và mang lại làn da mềm mại hơn.",
+                    Price = 970_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ Sulwhasoo Activating",
+                    ProductDescription =
+                        "Mặt nạ giấy thấm tinh chất từ First Care Activating Serum VI, giúp cung cấp độ ẩm chuyên sâu, cải thiện độ đàn hồi da và mang lại làn da khỏe mạnh, rạng rỡ.",
+                    Price = 1_520_000m,
+                    Quantity = 5,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "25ml x 5 miếng",
+                    Volume = 125m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ ngủ dưỡng ẩm từ gạo COSRX Ultimate Nourishing",
+                    ProductDescription =
+                        "Mặt nạ ngủ dịu nhẹ, giàu độ ẩm với chiết xuất từ gạo giúp nuôi dưỡng và làm sáng da. Cải thiện kết cấu da, giảm xỉn màu và cung cấp độ ẩm sâu. Công thức nhẹ, không gây nhờn rít, phù hợp cho mọi loại da, đặc biệt là da khô và nhạy cảm.",
+                    Price = 690_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ giấy Klairs Rich Moist Soothing Tencel",
+                    ProductDescription =
+                        "Ceramide trên bề mặt da giúp ngăn chặn mất nước, duy trì độ ẩm lý tưởng cho da, giúp da mềm mại và khỏe mạnh. Ceramide cũng giúp ngăn ngừa quá trình lão hóa da, giữ cho làn da luôn tươi trẻ.",
+                    Price = 65_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "25ml",
+                    Volume = 25m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ làm dịu Klairs Midnight Blue",
+                    ProductDescription =
+                        "Mặt nạ chăm sóc lỗ chân lông với bột than tre giúp làm sạch sâu, ngăn ngừa sự hình thành mụn đầu đen. Thành phần vàng Erirythtol trong sản phẩm giúp nhanh chóng làm dịu nhiệt độ da.",
+                    Price = 65_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "25ml",
+                    Volume = 25m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ Klairs Freshly Juiced Vitamin E",
+                    ProductDescription =
+                        "Sự kết hợp giữa Vitamin E và Niacinamide mang lại hiệu quả chống oxy hóa, làm sáng da, cải thiện nếp nhăn và ngăn ngừa các dấu hiệu lão hóa.",
+                    Price = 545_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 6,
+                    CompanyId = 1,
+                    Dimension = "90ml",
+                    Volume = 90m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt nạ tẩy tế bào chết Sacred Nature",
+                    ProductDescription =
+                        "Mặt nạ tẩy tế bào chết hữu cơ chứa 9% gluconolactone giúp tẩy tế bào chết nhẹ nhàng và làm sáng da ngay lập tức. Chứa chất chống oxy hóa từ Garden of Science™ giúp tăng cường sức đề kháng và sức sống cho làn da. Phù hợp với làn da xỉn màu và có tạp chất.",
+                    Price = 1_740_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "110ml",
+                    Volume = 110m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tẩy tế bào chết Essential Scrub",
+                    ProductDescription =
+                        "Tẩy tế bào chết dạng hạt giúp loại bỏ tạp chất, thu nhỏ lỗ chân lông, làm sáng da và mang lại làn da mềm mịn. Phù hợp cho mọi loại da, đặc biệt là da dầu và dễ bị mụn.",
+                    Price = 1_295_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dung dịch tẩy tế bào chết Liquid Resurfacing",
+                    ProductDescription =
+                        "Dung dịch tẩy tế bào chết dạng nhẹ chứa 2% salicylic acid kết hợp với chất chống oxy hóa mạnh mẽ và công nghệ CellRenew-16 độc quyền, giúp cải thiện tông màu và kết cấu da mà không làm mất đi độ ẩm tự nhiên của da.",
+                    Price = 1_245_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "120ml",
+                    Volume = 120m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tẩy tế bào chết 5X Power Peel",
+                    ProductDescription =
+                        "Miếng tẩy tế bào chết nhẹ nhàng nhưng hiệu quả, giúp loại bỏ lớp da xỉn màu, cải thiện nếp nhăn và kích thích sản sinh collagen. Không gây đỏ hay kích ứng da, an toàn để sử dụng hàng ngày mà không cần thời gian nghỉ dưỡng.",
+                    Price = 1_850_000m,
+                    Quantity = 30,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "25ml x 30 miếng",
+                    Volume = 750m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bột Tẩy Tế Bào Chết Daily Milkfoliant",
+                    ProductDescription =
+                        "Bột tẩy tế bào chết dạng sữa thuần chay với chiết xuất Yến Mạch và Dừa kích hoạt khi tiếp xúc với nước, giải phóng các chiết xuất thực vật giúp loại bỏ tế bào chết. Công thức nhẹ nhàng này kết hợp cùng chiết xuất Nho giàu Alpha Hydroxy Acid (AHA) và Beta Hydroxy Acid (BHA), cùng Sữa Dừa để mang lại làn da mịn màng, mềm mại. Chiết xuất Đu Đủ chứa enzym Papain giúp hỗ trợ quá trình tái tạo da.",
+                    Price = 1_670_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "74ml",
+                    Volume = 74m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dung Dịch Tẩy Da Chết Liquid Peelfoliant",
+                    ProductDescription =
+                        "Dung dịch tẩy da chết chuyên nghiệp với hỗn hợp 30% axit và enzym (Glycolic, Lactic, Salicylic, Phytic, Tranexamic, Gluconolactone và enzym Lựu lên men) hoạt động trên nhiều tầng da, giúp loại bỏ tế bào chết, làm sạch lỗ chân lông và mang lại làn da mịn màng, rạng rỡ. Hỗn hợp giàu lipid với chiết xuất Nam Việt Quất giúp dưỡng ẩm lâu dài.",
+                    Price = 1_650_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bột Tẩy Tế Bào Chết Daily Superfoliant",
+                    ProductDescription =
+                        "Sản phẩm tái tạo da mạnh mẽ giúp mang lại làn da mịn màng và chống lại các tác nhân môi trường gây lão hóa sớm. Công thức bột tiên tiến kích hoạt khi tiếp xúc với nước, giải phóng các enzym mạnh mẽ, AHA giúp làm mịn da và công nghệ chống ô nhiễm. Than hoạt tính Binchotan giúp thanh lọc da bằng cách hấp thụ độc tố từ sâu trong lỗ chân lông, trong khi Niacinamide, Tảo Đỏ và Chiết xuất Quả Tara giúp bảo vệ da trước tác hại của ô nhiễm.",
+                    Price = 1_670_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tẩy Tế Bào Chết Nhiệt Đa Vitamin",
+                    ProductDescription =
+                        "Tẩy tế bào chết dạng nhiệt giúp truyền các thành phần chống lão hóa vào da. Công thức kết hợp giữa tẩy tế bào chết vật lý và hóa học để cải thiện kết cấu da và giúp vitamin thẩm thấu sâu hơn. Các hạt siêu mịn giúp loại bỏ tế bào chết, mang lại làn da tươi mới ngay lập tức. Công nghệ nhiệt kích hoạt khi tiếp xúc với nước giúp Salicylic Acid và Retinol thấm sâu, trong khi Chiết xuất Xương Rồng giúp đẩy nhanh quá trình tái tạo da. Trà Trắng ngăn chặn sự hình thành MMPs, còn Cam Thảo, Vitamin C và E giúp làm sáng da, bảo vệ khỏi gốc tự do và tăng độ săn chắc.",
+                    Price = 1_670_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bột Tẩy Tế Bào Chết Daily Microfoliant",
+                    ProductDescription =
+                        "Mang lại làn da sáng mịn mỗi ngày với bột tẩy tế bào chết huyền thoại này. Bột gạo kích hoạt khi tiếp xúc với nước, giải phóng Papain, Salicylic Acid và Enzym Gạo giúp làm sạch da tối ưu. Hợp chất làm sáng da từ Axit Phytic trong Cám Gạo, Trà Trắng và Cam Thảo giúp cân bằng tông màu da, trong khi hỗn hợp keo Yến Mạch và Allantoin giúp làm dịu da. Nhẹ nhàng để sử dụng hàng ngày.",
+                    Price = 1_670_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bột Tẩy Tế Bào Chết Dâu Tây Rhubarb",
+                    ProductDescription =
+                        "Làm sáng và mịn da với bột tẩy tế bào chết Dâu Tây Rhubarb từng đạt giải thưởng. Chứa axit lactic, hỗn hợp bột mịn và hợp chất Hyaluronic Acid thực vật, sản phẩm giúp loại bỏ tạp chất, dầu thừa và mang lại làn da sáng khỏe. Phù hợp với mọi loại da.",
+                    Price = 1_350_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "120ml",
+                    Volume = 120m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Nghệ Tẩy Da Chết",
+                    ProductDescription =
+                        "Chứa nghệ, đá citrine và zeolite, sản phẩm dạng bột vàng rực này đánh thức làn da của bạn. Khi thêm nước, hỗn hợp chuyển thành dạng mousse nhẹ nhàng, mang lại cảm giác ấm nóng khi tẩy tế bào chết và giúp làn da trở nên mịn màng, rạng rỡ.",
+                    Price = 2_490_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "60ml",
+                    Volume = 60m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tẩy Da Chết Rễ Cam Thảo Làm Sáng Da",
+                    ProductDescription =
+                        "Giải pháp tẩy tế bào chết chuyên sâu với bông thấm giúp làm đều màu da. Axit lactic và mandelic nhẹ nhàng loại bỏ tế bào chết, trong khi chiết xuất Cam Thảo và Hydroquinone tự nhiên từ Khoai Tây Châu Phi giúp làm sáng vùng da sạm màu và sắc tố không đều.",
+                    Price = 2_260_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tẩy Da Chết Hoa Cúc Làm Dịu Da",
+                    ProductDescription =
+                        "Giải pháp tẩy tế bào chết nhẹ nhàng với bông thấm dành cho làn da nhạy cảm. Axit lactic và mandelic giúp tái tạo da mà không gây kích ứng. Chiết xuất Hoa Cúc làm dịu, Cúc Vạn Thọ dưỡng ẩm, và Hoa Arnica giúp giảm viêm. Mang lại làn da khỏe mạnh, cân bằng và rạng rỡ hơn.",
+                    Price = 2_260_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "50ml",
+                    Volume = 50m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Mặt Nạ Tẩy Tế Bào Chết Hạt Củ Cải",
+                    ProductDescription =
+                        "Mặt nạ tẩy tế bào chết dịu nhẹ này giúp ngăn ngừa mụn với chiết xuất thảo mộc giải độc. Cây tầm ma, yến mạch nguyên cám và vỏ cây liễu kích thích tái tạo da, làm mịn các nếp nhăn.",
+                    Price = 1_670_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "30ml",
+                    Volume = 30m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bông Tẩy Tế Bào Chết Anua Heartleaf 77%",
+                    ProductDescription =
+                        "Bông tẩy tế bào chết Anua Heartleaf 77 giúp cân bằng và cải thiện làn da. Mỗi miếng bông chứa serum giàu chiết xuất thực vật như Ulmus Davidiana, Pueraria Lobata và lá thông Pinus Palustris, giúp kiểm soát dầu và thu nhỏ lỗ chân lông. Thành phần chính, chiết xuất diếp cá (77%), cung cấp độ ẩm và làm dịu kích ứng, phù hợp cho cả da nhạy cảm. Gluconolactone, một dạng PHA thân thiện với da, nhẹ nhàng loại bỏ tế bào chết, giúp da mịn màng và sáng hơn.",
+                    Price = 660_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "180ml",
+                    Volume = 180m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bông Dưỡng Da No.5 Vitamin-Niacinamide",
+                    ProductDescription =
+                        "Chứa niacinamide và dẫn xuất vitamin C giúp giảm thâm nám, làm đều màu da và cải thiện kết cấu da. Các miếng bông được ngâm trong dung dịch tẩy tế bào chết nhẹ nhàng, giúp loại bỏ da chết, mang lại làn da sáng mịn hơn.",
+                    Price = 400_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "180ml",
+                    Volume = 180m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bông Dưỡng Ẩm Cica Balanceful",
+                    ProductDescription =
+                        "Miếng bông chứa thành phần thuần chay với 5% tinh dầu từ jojoba, olive, macadamia và baobab, cung cấp độ ẩm vượt trội giúp da mềm mịn. Kết hợp với phức hợp Centella 5D và 5 dẫn xuất từ rau má, sản phẩm giúp làm dịu da, giảm đỏ và viêm mụn hiệu quả.",
+                    Price = 506_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "180ml",
+                    Volume = 180m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bông Làm Sạch Lỗ Chân Lông Chiết Xuất Lá Thông",
+                    ProductDescription =
+                        "Chứa chiết xuất lá thông với hàm lượng 30.000ppm giúp giảm nhờn, loại bỏ dầu thừa sâu trong lỗ chân lông, mang lại làn da sạch và mịn màng.",
+                    Price = 590_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "145ml",
+                    Volume = 145m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dung Dịch Tẩy Da Chết Krave Kale-lalu-yAHA",
+                    ProductDescription =
+                        "Dung dịch tẩy tế bào chết dịu nhẹ giúp làm mịn bề mặt da và mờ vết thâm, mang lại làn da khỏe mạnh, rạng rỡ hơn. Chứa 5.25% Glycolic Acid kích thích tái tạo da tự nhiên mà không làm tổn thương hàng rào bảo vệ da.",
+                    Price = 640_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 7,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Dưỡng Thể Rắn Yuzu",
+                    ProductDescription =
+                        "Dầu dưỡng thể dạng rắn giúp phục hồi làn da khô xỉn màu với chiết xuất yuzu và camu camu giàu vitamin, mang lại làn da sáng mịn từ mọi góc độ. PHA và tinh dầu nhiệt đới giúp cung cấp độ ẩm vượt trội cho mọi loại da.",
+                    Price = 1_430_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Dưỡng Thể Măng Cụt",
+                    ProductDescription =
+                        "Sữa dưỡng thể mang lại độ ẩm tuyệt vời cho cơ thể với hương thơm dễ chịu từ măng cụt. Công thức chứa Lactic Acid Complex gồm axit lactic, ribose và chiết xuất hoa cỏ ba lá đỏ, giúp làm sáng và tái tạo làn da.",
+                    Price = 1_145_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "250ml",
+                    Volume = 250m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tẩy Tế Bào Chết Đường Dừa",
+                    ProductDescription =
+                        "Loại bỏ tế bào chết và dưỡng ẩm toàn thân với hạt đường mía nguyên chất, một nguồn Alpha Hydroxy Acids tự nhiên giúp tẩy da chết hiệu quả, kết hợp với dầu dừa nguyên chất để dưỡng ẩm.",
+                    Price = 1_120_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "250ml",
+                    Volume = 250m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Thể Săn Chắc Da Chiết Xuất Lô Hội",
+                    ProductDescription =
+                        "Kem dưỡng thể giàu thành phần tự nhiên giúp làm mịn và săn chắc làn da. Có thể sử dụng như kem dưỡng toàn thân hoặc tập trung vào các vùng cần làm săn chắc. Chiết xuất cà phê và tảo vi sinh giúp giảm sự xuất hiện của cellulite, trong khi dầu jojoba, lô hội và bơ hạt mỡ giúp dưỡng ẩm và phục hồi da khô.",
+                    Price = 1_730_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "140ml",
+                    Volume = 140m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Dưỡng Thể Stone Crop",
+                    ProductDescription =
+                        "Làm dịu và làm mềm da khô với dầu dưỡng thể nhẹ, hấp thụ nhanh, để lại lớp hoàn thiện mịn màng. Sự kết hợp giữa stone crop và arnica tạo nên dầu có mùi hương nhẹ nhàng, lý tưởng cho massage, chăm sóc tay chân hoặc dưỡng ẩm hàng ngày.",
+                    Price = 940_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "240ml",
+                    Volume = 240m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Bơ Dưỡng Thể Sacred Nature",
+                    ProductDescription =
+                        "Thành phần hữu cơ Eco-Cert mang lại những dưỡng chất tự nhiên hiệu quả nhất giúp da mềm mại và mịn màng. Công thức chứa Scientific Garden Extract™, một hỗn hợp gồm cây sim, cây cơm cháy và lựu. Chứa hương liệu từ thiên nhiên.",
+                    Price = 1_340_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "220ml",
+                    Volume = 220m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Dưỡng Tranquillity",
+                    ProductDescription =
+                        "Dầu tắm và dưỡng thể chứa dầu amaranth giàu dưỡng chất cùng hỗn hợp tinh dầu độc quyền giúp mang lại cảm giác thư thái tức thì, giảm căng thẳng và lo âu. Khi tiếp xúc với nước, dầu chuyển thành dạng sữa mịn. Khi thoa trực tiếp lên da, dầu giúp nuôi dưỡng, mang lại làn da mềm mại mà không để lại cảm giác nhờn dính.",
+                    Price = 2_590_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tẩy Tế Bào Chết Body Strategist",
+                    ProductDescription =
+                        "Tác động tẩy tế bào chết kép (cơ học và hóa học) giúp làn da trông mịn màng, mềm mại và sáng hơn ngay lập tức. Phù hợp với mọi loại da, đặc biệt là da khô và sần sùi. Lý tưởng để sử dụng hàng tuần quanh năm.",
+                    Price = 1_500_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Dưỡng Thể Body Strategist",
+                    ProductDescription =
+                        "Sự kết hợp giữa các loại dầu thiên nhiên quý giá giúp giảm khô da, rạn da và mất độ đàn hồi. Cải thiện kết cấu và tông da hiệu quả.",
+                    Price = 1_680_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Săn Chắc Body Strategist",
+                    ProductDescription =
+                        "Kem dưỡng thể Body Strategist nhẹ nhàng và dưỡng ẩm, mang lại cảm giác săn chắc tức thì cho làn da nhờ sự kết hợp giữa khoa học và thiên nhiên, với thành phần chiết xuất từ Acmella Oleracea giúp giảm co cơ. Phù hợp với mọi loại da bị mất độ đàn hồi và săn chắc.",
+                    Price = 1_680_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ẩm Toàn Thân",
+                    ProductDescription =
+                        "Dưỡng ẩm, làm mềm và săn chắc da với hỗn hợp tinh dầu từ khắp nơi trên thế giới. Dầu cam thơm và trà xanh Trung Quốc giúp làm dịu và mềm da. Oải hương Pháp và hoắc hương Indonesia làm dịu cảm giác căng thẳng, trong khi axit lactic tự nhiên và chiết xuất từ mía đường cùng táo giúp da mịn màng và giảm khô ráp.",
+                    Price = 1_260_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "295ml",
+                    Volume = 295m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Dưỡng Phục Hồi Da",
+                    ProductDescription =
+                        "Giàu chất chống oxy hóa, hỗn hợp dầu dưỡng này giúp phục hồi, làm dịu và cấp ẩm cho da. Dầu hạt mận Pháp, dầu bơ và dầu hạt hướng dương giàu axit béo omega và vitamin E giúp bảo vệ hàng rào lipid của da. Chiết xuất nhân sâm đỏ lên men giúp làm dịu và nuôi dưỡng, mang lại làn da sáng khỏe.",
+                    Price = 1_960_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "125ml",
+                    Volume = 125m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Sữa Tắm Dưỡng Ẩm",
+                    ProductDescription =
+                        "Làm sạch, nuôi dưỡng và tiếp thêm sinh lực cho làn da với sữa tắm giàu dưỡng chất này. Lấy cảm hứng từ các loại tinh dầu được sử dụng trong phòng tắm hơi Thổ Nhĩ Kỳ, công thức chứa dầu hương thảo Pháp, khuynh diệp Trung Quốc, tràm trà tươi và chanh giúp làm sạch da và đánh thức giác quan.",
+                    Price = 1_260_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "295ml",
+                    Volume = 295m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Dưỡng Thể Rạng Rỡ",
+                    ProductDescription =
+                        "Hỗn hợp xa hoa từ các loại dầu thực vật tinh khiết và squalane giúp làm dịu và cấp ẩm sâu cho da. Vitamin C và E có tác dụng bảo vệ, làm sáng và làm mềm da, trong khi các hạt nhũ mịn giúp da sáng rạng rỡ. Chiết xuất từ các loại thảo mộc và hoa như hương thảo, hoa sứ, đàn hương và hoa nhài mang lại hương thơm quyến rũ.",
+                    Price = 1_980_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "100ml",
+                    Volume = 100m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ẩm Căng Mịn Cơ Thể",
+                    ProductDescription =
+                        "Loại kem dưỡng thể giàu dưỡng chất này sẽ khiến bạn tự tin khoe làn da. Với công thức giúp làm săn chắc và dưỡng ẩm tuyệt vời, sản phẩm còn hỗ trợ giảm sự xuất hiện của vết rạn, sẹo và vùng da không đều màu.",
+                    Price = 2_510_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Kem Dưỡng Ceramide Ato Illiyoon",
+                    ProductDescription =
+                        "Kem dưỡng ẩm từ thương hiệu ILLIYOON Hàn Quốc, chứa các thành phần dưỡng ẩm kết hợp với dưỡng chất tự nhiên, nuôi dưỡng làn da nhẹ nhàng, lành tính, phù hợp với mọi lứa tuổi và mọi loại da.",
+                    Price = 295_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Tẩy Tế Bào Chết & Sữa Tắm Dear Doer",
+                    ProductDescription =
+                        "Sữa tắm và tẩy tế bào chết 2 trong 1 với thành phần từ thực vật, tạo bọt dày giúp làm sạch toàn thân. Chiết xuất từ đá núi lửa Perlite mịn và muối Andes thô giúp loại bỏ tế bào chết, mang lại hương thơm thư giãn.",
+                    Price = 450_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "300ml",
+                    Volume = 300m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Lotion Dưỡng Ẩm Aestura Atobarrier 365",
+                    ProductDescription =
+                        "Dưỡng ẩm, làm sáng và tăng cường sức đề kháng cho da, giúp da khỏe mạnh, ngăn ngừa nứt nẻ và khô ráp.",
+                    Price = 600_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Xịt Dưỡng Cân Bằng pH Dr. Orga",
+                    ProductDescription =
+                        "Chiết xuất rau diếp cá giàu chất chống oxy hóa giúp làm dịu và giảm viêm, đồng thời ngăn ngừa mất nước cho da. Sản phẩm còn chứa AHA, BHA và PHA giúp tẩy tế bào chết nhẹ nhàng và hỗ trợ điều trị mụn cơ thể.",
+                    Price = 590_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "150ml",
+                    Volume = 150m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Dưỡng Ẩm Cơ Thể Derma B",
+                    ProductDescription =
+                        "Dầu dưỡng thể nhẹ, lâu trôi, chứa dầu hạnh nhân, argan và dầu hoa trà giúp dưỡng ẩm và làm săn chắc da. Công thức dịu nhẹ phù hợp với mọi loại da, kể cả da nhạy cảm. Hương đào tươi mát mang đến trải nghiệm thư giãn.",
+                    Price = 430_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 8,
+                    CompanyId = 1,
+                    Dimension = "200ml",
+                    Volume = 200m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Gội Davines Volu",
+                    ProductDescription =
+                        "Dành cho tóc mỏng và xẹp, giúp tăng độ bồng bềnh tự nhiên. Công thức đặc biệt tạo bọt siêu mịn giúp làm sạch nhẹ nhàng bụi bẩn hàng ngày, giúp tóc nhẹ và mềm mượt hơn. Hương hoa nhẹ nhàng đặc trưng của dòng Volu.",
+                    Price = 915_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "1000ml",
+                    Volume = 1000m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Gội Davines Calming",
+                    ProductDescription =
+                        "Phù hợp cho da đầu nhạy cảm hoặc dễ bị kích ứng, mang lại cảm giác làm sạch nhẹ nhàng, dễ chịu. Chiết xuất việt quất giàu vitamin C, B và chất chống oxy hóa giúp bảo vệ và nuôi dưỡng tóc và da đầu, đồng thời có tác dụng kháng viêm hiệu quả.",
+                    Price = 985_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "1000ml",
+                    Volume = 1000m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Gội Davines Dede",
+                    ProductDescription =
+                        "Phù hợp với mọi loại da đầu, giúp loại bỏ bụi bẩn hàng ngày, mang lại cảm giác tóc nhẹ nhàng, mềm mượt. Công thức tạo bọt siêu mịn giúp thư giãn và làm mới da đầu. Hương chanh tươi mát.",
+                    Price = 915_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "1000ml",
+                    Volume = 1000m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Gội Davines Melu",
+                    ProductDescription =
+                        "Đặc biệt phù hợp với tóc dài hoặc tóc hư tổn, giúp phục hồi và ngăn ngừa chẻ ngọn hiệu quả. Dạng kem mềm mịn giúp làm sạch nhẹ nhàng. Hương thơm gỗ và hoa đặc trưng của dòng Melu.",
+                    Price = 1_055_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "1000ml",
+                    Volume = 1000m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội phục hồi Bain Décalcifiant Réparateur",
+                    ProductDescription =
+                        "Nước tốt cho bạn, nhưng không hẳn tốt cho tóc. Canxi trong nước tắm có thể gây hư tổn kéo dài, khiến tóc cứng, xỉn màu và dễ gãy. Hệ thống mạnh mẽ này giúp loại bỏ sự tích tụ canxi gây tổn thương và phục hồi đến 99% độ chắc khỏe ban đầu của tóc. Nó sửa chữa hư tổn kéo dài, giúp tóc mềm mại, bóng hơn 73% và mượt hơn gấp 2 lần. Tóc chắc khỏe hơn 93%.",
+                    Price = 1_780_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "500ml",
+                    Volume = 500m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội tăng cường độ dày Bain Densité",
+                    ProductDescription =
+                        "Làm sạch bụi bẩn tích tụ trên tóc. Tăng mật độ tóc. Tăng cường sức mạnh cho tóc. Tạo độ bóng. Giúp tóc dày dặn hơn đến tận ngọn. Tăng độ đàn hồi từ gốc tóc.",
+                    Price = 1_780_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "500ml",
+                    Volume = 500m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội dưỡng ẩm và tăng cường Bain Hydra-Fortifiant",
+                    ProductDescription =
+                        "Không chứa silicone. Nhẹ nhàng loại bỏ bã nhờn và bụi bẩn trên da đầu và tóc. Kiểm soát dầu hiệu quả. Ngăn ngừa rụng tóc do gãy rụng khi chải. Giảm gãy rụng đến 97%.",
+                    Price = 1_780_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "500ml",
+                    Volume = 500m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội phục hồi toàn diện L'Oreal Paris Elseve Total Repair 5",
+                    ProductDescription =
+                        "Total Repair 5 là giải pháp chăm sóc giúp giảm 5 dấu hiệu hư tổn của tóc. Với thành phần Ceramide mới tương tự như keratin tự nhiên trong sợi tóc, sản phẩm nhanh chóng thẩm thấu vào các vùng tóc yếu và hư tổn, giúp tóc chắc khỏe, mượt mà, bóng sáng và giảm chẻ ngọn.",
+                    Price = 200_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "650ml",
+                    Volume = 650m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội dưỡng sâu L'Oreal Professional Hair Spa",
+                    ProductDescription =
+                        "Chiết xuất từ tinh dầu tràm trà giúp làm sạch gàu, ngăn mùi hôi và mồ hôi trên da đầu. Kết hợp với massage giúp thư giãn da đầu, mang lại mái tóc và da đầu khỏe mạnh, sảng khoái.",
+                    Price = 319_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "600ml",
+                    Volume = 600m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội chống rụng tóc L'Oreal Paris Elseve Fall Resist 3X",
+                    ProductDescription =
+                        "Cung cấp dưỡng chất cần thiết cho tóc, ngăn ngừa rụng tóc, mang lại mái tóc chắc khỏe và đẹp hơn. Công thức chống rụng tóc với 3 tác động: nuôi dưỡng từ chân tóc, tái tạo cấu trúc tóc và giúp tóc chắc khỏe hơn.",
+                    Price = 200_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "650ml",
+                    Volume = 650m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội phục hồi liên kết Nº.4 Bond Maintenance",
+                    ProductDescription =
+                        "Dầu gội cô đặc cao giúp tăng cường độ chắc khỏe và độ bóng cho tóc dễ hư tổn trong khi làm sạch nhẹ nhàng. Bọt kem dày giúp nuôi dưỡng và phục hồi, mang lại mái tóc mềm mại và dễ kiểm soát hơn.",
+                    Price = 760_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "250ml",
+                    Volume = 250m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội phục hồi và tái tạo Gold Lust",
+                    ProductDescription =
+                        "Đánh thức mái tóc của bạn trở về thời kỳ óng ả, khỏe mạnh nhất. Sữa gội này kết hợp dầu dưỡng cổ truyền như cây bách và argan với phức hợp phục hồi sinh học tiên tiến để cân bằng da đầu và tăng cường độ chắc khỏe từ bên trong từng sợi tóc.",
+                    Price = 1_350_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "250ml",
+                    Volume = 250m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội dưỡng ẩm và làm sáng Supershine Hydrating",
+                    ProductDescription =
+                        "Tận hưởng sự sang trọng. Dầu gội này cung cấp độ ẩm dồi dào và làm mượt tóc, biến mái tóc xỉn màu trở nên bóng mượt. Nhẹ nhàng làm sạch mà không làm mất đi dầu tự nhiên của tóc, tăng cường độ bóng, giữ độ ẩm mà không làm nặng tóc, làm mềm và mịn tóc để tăng độ sáng và vẻ đẹp tự nhiên.",
+                    Price = 1_245_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "250ml",
+                    Volume = 250m
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu gội không chứa sulfate Acidic Bonding Concentrate",
+                    ProductDescription =
+                        "Dầu gội không chứa sulfate Acidic Bonding Concentrate là công thức đậm đặc nhất của Redken, giúp phục hồi sức mạnh cho tất cả các loại tóc hư tổn.",
+                    Price = 840_000m,
+                    Quantity = 1,
+                    Discount = 0.0m,
+                    CategoryId = 9,
+                    CompanyId = 1,
+                    Dimension = "300ml",
+                    Volume = 300m
+                },
+
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu Gội Redken All Soft",
-                    ProductDescription = "Dầu gội dành cho tóc khô với công thức dưỡng ẩm của Redken. Nhẹ nhàng làm sạch, đồng thời bổ sung độ ẩm, sự mềm mại và vẻ ngoài khỏe mạnh cho tóc. Giúp tóc trở nên mềm mượt, dễ chải và bóng sáng hơn.",
+                    ProductDescription =
+                        "Dầu gội dành cho tóc khô với công thức dưỡng ẩm của Redken. Nhẹ nhàng làm sạch, đồng thời bổ sung độ ẩm, sự mềm mại và vẻ ngoài khỏe mạnh cho tóc. Giúp tóc trở nên mềm mượt, dễ chải và bóng sáng hơn.",
                     Price = 770_000m, // Giá sản phẩm là 770.000 VND
                     Quantity = 1, // Sản phẩm có dung tích 300ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3089,7 +3264,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu Gội Tăng Cường Izumi Tonic",
-                    ProductDescription = "Dầu gội tăng cường giúp làm sạch nhẹ nhàng, phục hồi và làm dày tóc yếu. Được bổ sung nước gạo để tăng cường sức khỏe và phục hồi tóc, dầu gội Izumi Tonic giúp tóc chắc khỏe hơn gấp 30 lần* và giảm chẻ ngọn đến 91%*. Công thức nhẹ nhàng giúp làm sạch sâu mà không làm mất đi độ ẩm tự nhiên của tóc..",
+                    ProductDescription =
+                        "Dầu gội tăng cường giúp làm sạch nhẹ nhàng, phục hồi và làm dày tóc yếu. Được bổ sung nước gạo để tăng cường sức khỏe và phục hồi tóc, dầu gội Izumi Tonic giúp tóc chắc khỏe hơn gấp 30 lần* và giảm chẻ ngọn đến 91%*. Công thức nhẹ nhàng giúp làm sạch sâu mà không làm mất đi độ ẩm tự nhiên của tóc..",
                     Price = 1_250_000m, // Giá sản phẩm là 1.250.000 VND
                     Quantity = 1, // Sản phẩm có dung tích 300ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3101,9 +3277,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu Gội Phục Hồi Tối Ưu",
-                    ProductDescription = "Dầu gội này giúp phục hồi và tái tạo tóc hư tổn nặng do tẩy, nhuộm hoặc xử lý hóa chất thường xuyên. Cung cấp dưỡng chất chuyên sâu mà không làm nặng tóc. Làm sạch nhẹ nhàng, loại bỏ bụi bẩn, tạp chất và sản phẩm dư thừa, đồng thời tăng cường sức mạnh từ gốc đến ngọn, giúp giảm gãy rụng và duy trì sức khỏe tóc. An toàn cho tóc nhuộm, giúp bảo vệ màu sắc mà không ảnh hưởng đến sức khỏe tóc.",
+                    ProductDescription =
+                        "Dầu gội này giúp phục hồi và tái tạo tóc hư tổn nặng do tẩy, nhuộm hoặc xử lý hóa chất thường xuyên. Cung cấp dưỡng chất chuyên sâu mà không làm nặng tóc. Làm sạch nhẹ nhàng, loại bỏ bụi bẩn, tạp chất và sản phẩm dư thừa, đồng thời tăng cường sức mạnh từ gốc đến ngọn, giúp giảm gãy rụng và duy trì sức khỏe tóc. An toàn cho tóc nhuộm, giúp bảo vệ màu sắc mà không ảnh hưởng đến sức khỏe tóc.",
                     Price = 1_340_000m, // Giá sản phẩm là 1.340.000 VND
                     Quantity = 1, // Sản phẩm có dung tích 300ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3117,7 +3294,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu Gội Fusion",
-                    ProductDescription = "Công nghệ Metal Purifier trong dầu gội giúp loại bỏ tạp chất kim loại nhờ cơ chế chống oxy hóa. Thành phần lipid siêu nhỏ giúp dưỡng ẩm tức thì và phục hồi tóc chuyên sâu.",
+                    ProductDescription =
+                        "Công nghệ Metal Purifier trong dầu gội giúp loại bỏ tạp chất kim loại nhờ cơ chế chống oxy hóa. Thành phần lipid siêu nhỏ giúp dưỡng ẩm tức thì và phục hồi tóc chuyên sâu.",
                     Price = 965_000m, // Giá sản phẩm là 965.000 VND
                     Quantity = 1, // Sản phẩm có dung tích 250ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3129,9 +3307,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu Gội Ultimate Repair",
-                    ProductDescription = "Dầu gội dạng kem với công thức tạo bọt nhẹ nhàng giúp làm sạch tóc hiệu quả, tạo bọt sang trọng. Được phát triển với công nghệ Metal Purifier, dầu gội này giúp thải độc và phục hồi tóc hư tổn do nhiệt và tẩy nhuộm, mang lại mái tóc khỏe mạnh, bóng mượt và mềm mại.",
+                    ProductDescription =
+                        "Dầu gội dạng kem với công thức tạo bọt nhẹ nhàng giúp làm sạch tóc hiệu quả, tạo bọt sang trọng. Được phát triển với công nghệ Metal Purifier, dầu gội này giúp thải độc và phục hồi tóc hư tổn do nhiệt và tẩy nhuộm, mang lại mái tóc khỏe mạnh, bóng mượt và mềm mại.",
                     Price = 660_000m, // Giá sản phẩm là 660.000 VND
                     Quantity = 1, // Sản phẩm có dung tích 250ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3145,7 +3324,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Davines Dede",
-                    ProductDescription = "Sản phẩm có khả năng nuôi dưỡng tóc, ngăn ngừa rối và giữ cho mái tóc mềm mượt. Ngoài ra, khi sử dụng, bạn sẽ cảm nhận được tóc trở nên mềm mại, nhẹ nhàng và bồng bềnh hơn.",
+                    ProductDescription =
+                        "Sản phẩm có khả năng nuôi dưỡng tóc, ngăn ngừa rối và giữ cho mái tóc mềm mượt. Ngoài ra, khi sử dụng, bạn sẽ cảm nhận được tóc trở nên mềm mại, nhẹ nhàng và bồng bềnh hơn.",
                     Price = 1_318_000m, // Giá sản phẩm là 1.318.000 VND
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3157,9 +3337,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Davines Love Smoothing",
-                    ProductDescription = "Dầu xả Davines Love Smoothing được thiết kế đặc biệt dành cho tóc khô, xù và tóc xoăn, giúp mái tóc trở nên mượt mà hơn. Ngoài ra, sản phẩm còn giúp cân bằng độ ẩm cho tóc, làm tóc nhẹ nhàng, mềm mượt và bồng bềnh hơn.",
+                    ProductDescription =
+                        "Dầu xả Davines Love Smoothing được thiết kế đặc biệt dành cho tóc khô, xù và tóc xoăn, giúp mái tóc trở nên mượt mà hơn. Ngoài ra, sản phẩm còn giúp cân bằng độ ẩm cho tóc, làm tóc nhẹ nhàng, mềm mượt và bồng bềnh hơn.",
                     Price = 1_550_000m, // Giá sản phẩm là 1.550.000 VND
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3173,7 +3354,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Davines Melu",
-                    ProductDescription = "Sản phẩm có khả năng ngăn ngừa chẻ ngọn rất hiệu quả, đồng thời giúp tóc trở nên nhẹ nhàng và mềm mại hơn. Sản phẩm còn nuôi dưỡng nhẹ nhàng từ bên trong sợi tóc, làm tóc dày hơn và khỏe mạnh hơn. Dầu xả này có mùi hương hoa cỏ và gỗ nhẹ nhàng, mang lại cảm giác thư giãn.",
+                    ProductDescription =
+                        "Sản phẩm có khả năng ngăn ngừa chẻ ngọn rất hiệu quả, đồng thời giúp tóc trở nên nhẹ nhàng và mềm mại hơn. Sản phẩm còn nuôi dưỡng nhẹ nhàng từ bên trong sợi tóc, làm tóc dày hơn và khỏe mạnh hơn. Dầu xả này có mùi hương hoa cỏ và gỗ nhẹ nhàng, mang lại cảm giác thư giãn.",
                     Price = 1_220_000m, // Giá sản phẩm là 1.220.000 VND
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3185,9 +3367,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Davines Momo",
-                    ProductDescription = "Dầu xả nhẹ nhàng này cung cấp dưỡng chất và độ ẩm cho tóc, ngăn ngừa rối tóc và mang lại sự mềm mại, mượt mà. Bọt xà phòng dày đặc và hương hoa dễ chịu của sản phẩm giúp nâng cao trải nghiệm chăm sóc tóc của bạn.",
+                    ProductDescription =
+                        "Dầu xả nhẹ nhàng này cung cấp dưỡng chất và độ ẩm cho tóc, ngăn ngừa rối tóc và mang lại sự mềm mại, mượt mà. Bọt xà phòng dày đặc và hương hoa dễ chịu của sản phẩm giúp nâng cao trải nghiệm chăm sóc tóc của bạn.",
                     Price = 1_318_000m, // Giá sản phẩm là 1.318.000 VND
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3201,7 +3384,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Fondant Renforçateur",
-                    ProductDescription = "Không chứa silicone, không chứa sulfate. Dầu xả có tác dụng ngăn ngừa gãy tóc và củng cố sợi tóc. Công thức nhẹ nhàng, cung cấp độ bền và sự mềm mại ngay lập tức, đồng thời cung cấp độ ẩm và độ bóng cho tóc. Sản phẩm giúp dễ dàng gỡ rối và tạo độ phồng cho tóc. Giảm 97% gãy rụng tóc do chải tóc.",
+                    ProductDescription =
+                        "Không chứa silicone, không chứa sulfate. Dầu xả có tác dụng ngăn ngừa gãy tóc và củng cố sợi tóc. Công thức nhẹ nhàng, cung cấp độ bền và sự mềm mại ngay lập tức, đồng thời cung cấp độ ẩm và độ bóng cho tóc. Sản phẩm giúp dễ dàng gỡ rối và tạo độ phồng cho tóc. Giảm 97% gãy rụng tóc do chải tóc.",
                     Price = 1_220_000m, // Giá sản phẩm là 1.220.000 VND
                     Quantity = 1, // Dung tích là 200ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3213,9 +3397,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Fondant Densité",
-                    ProductDescription = "Cải thiện kết cấu tóc, giúp tóc trở nên dày dặn hơn. Dễ dàng gỡ rối và làm tóc mềm mượt, dễ chải.",
+                    ProductDescription =
+                        "Cải thiện kết cấu tóc, giúp tóc trở nên dày dặn hơn. Dễ dàng gỡ rối và làm tóc mềm mượt, dễ chải.",
                     Price = 1_220_000m, // Giá sản phẩm là 1.220.000 VND
                     Quantity = 1, // Dung tích là 200ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3229,7 +3414,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Fondant Fluidealiste",
-                    ProductDescription = "Dầu xả sang trọng này là giải pháp hoàn hảo cho tóc khô và tóc xù. Công thức nhẹ nhàng thẩm thấu sâu vào sợi tóc, cung cấp độ ẩm mạnh mẽ và làm mượt lớp biểu bì tóc. Tạm biệt tóc xù và chào đón mái tóc mềm mượt, dễ chải.",
+                    ProductDescription =
+                        "Dầu xả sang trọng này là giải pháp hoàn hảo cho tóc khô và tóc xù. Công thức nhẹ nhàng thẩm thấu sâu vào sợi tóc, cung cấp độ ẩm mạnh mẽ và làm mượt lớp biểu bì tóc. Tạm biệt tóc xù và chào đón mái tóc mềm mượt, dễ chải.",
                     Price = 1_220_000m, // Giá sản phẩm là 1.220.000 VND
                     Quantity = 1, // Dung tích là 200ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3241,9 +3427,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Ciment Anti-Usure",
-                    ProductDescription = "Hồi sinh mái tóc của bạn với liệu trình phục hồi này. Dầu xả giúp sửa chữa tóc hư tổn, mang lại độ bóng rực rỡ và tăng cường sức mạnh cho sợi tóc để ngăn ngừa gãy rụng. Trải nghiệm mái tóc mềm mại, khỏe mạnh và đầy sức sống.",
+                    ProductDescription =
+                        "Hồi sinh mái tóc của bạn với liệu trình phục hồi này. Dầu xả giúp sửa chữa tóc hư tổn, mang lại độ bóng rực rỡ và tăng cường sức mạnh cho sợi tóc để ngăn ngừa gãy rụng. Trải nghiệm mái tóc mềm mại, khỏe mạnh và đầy sức sống.",
                     Price = 1_110_000m, // Giá sản phẩm là 1.110.000 VND
                     Quantity = 1, // Dung tích là 200ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3257,7 +3444,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Redken All Soft",
-                    ProductDescription = "Dầu xả cung cấp dưỡng ẩm sâu và phục hồi cho tóc khô, dễ gãy, mang lại mái tóc mềm mượt, suôn sẻ và bóng khỏe. Sản phẩm giúp nuôi dưỡng và làm mềm tóc, cải thiện độ bóng và kết cấu tóc, đồng thời tăng cường độ ẩm cho tóc từ gốc đến ngọn.",
+                    ProductDescription =
+                        "Dầu xả cung cấp dưỡng ẩm sâu và phục hồi cho tóc khô, dễ gãy, mang lại mái tóc mềm mượt, suôn sẻ và bóng khỏe. Sản phẩm giúp nuôi dưỡng và làm mềm tóc, cải thiện độ bóng và kết cấu tóc, đồng thời tăng cường độ ẩm cho tóc từ gốc đến ngọn.",
                     Price = 840_000m, // Giá sản phẩm là 840.000 VND
                     Quantity = 1, // Dung tích là 300ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3269,7 +3457,7 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Redken Frizz Dismiss",
                     ProductDescription = "Làm mượt tóc xù và tóc bay, mang lại mái tóc mềm mại và dễ tạo kiểu.",
                     Price = 770_000m, // Giá sản phẩm là 770.000 VND
@@ -3285,7 +3473,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả L'Oréal Paris Elvive Total Repair 5",
-                    ProductDescription = "Dầu xả này được thiết kế để củng cố và phục hồi tóc hư tổn. Với công thức chứa sự kết hợp của ceramide, sản phẩm giúp khắc phục 5 dấu hiệu hư tổn: chẻ ngọn, yếu, xơ rối, xỉn màu và mất ẩm, mang lại mái tóc mượt mà và được tái tạo.",
+                    ProductDescription =
+                        "Dầu xả này được thiết kế để củng cố và phục hồi tóc hư tổn. Với công thức chứa sự kết hợp của ceramide, sản phẩm giúp khắc phục 5 dấu hiệu hư tổn: chẻ ngọn, yếu, xơ rối, xỉn màu và mất ẩm, mang lại mái tóc mượt mà và được tái tạo.",
                     Price = 145_000m, // Giá sản phẩm là 145.000 VND
                     Quantity = 1, // Dung tích là 355ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3297,9 +3486,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả L'Oréal Paris EverPure Moisture",
-                    ProductDescription = "Dầu xả không chứa sulfat này là lựa chọn hoàn hảo cho tóc nhuộm. Sản phẩm cung cấp độ ẩm sâu và dưỡng chất, làm tăng sự tươi sáng của màu tóc đồng thời giữ tóc mềm mại và dễ tạo kiểu. Được chiết xuất từ cây hương thảo, dầu xả giúp duy trì độ bóng và độ ẩm cho tóc mà không làm nặng tóc.",
+                    ProductDescription =
+                        "Dầu xả không chứa sulfat này là lựa chọn hoàn hảo cho tóc nhuộm. Sản phẩm cung cấp độ ẩm sâu và dưỡng chất, làm tăng sự tươi sáng của màu tóc đồng thời giữ tóc mềm mại và dễ tạo kiểu. Được chiết xuất từ cây hương thảo, dầu xả giúp duy trì độ bóng và độ ẩm cho tóc mà không làm nặng tóc.",
                     Price = 170_000m, // Giá sản phẩm là 170.000 VND
                     Quantity = 1, // Dung tích là 250ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3313,7 +3503,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả L'Oréal Paris EverCurl Hydracharge",
-                    ProductDescription = "Dầu xả này được đặc chế dành riêng cho tóc xoăn, giúp cung cấp độ ẩm và định hình các lọn tóc xoăn trong khi giảm tình trạng tóc xù. Công thức nhẹ nhàng làm tăng độ bouncy và mềm mại cho tóc, mang lại độ ẩm lâu dài và kết cấu mềm mượt mà không chứa sulfat hay muối gây hại.",
+                    ProductDescription =
+                        "Dầu xả này được đặc chế dành riêng cho tóc xoăn, giúp cung cấp độ ẩm và định hình các lọn tóc xoăn trong khi giảm tình trạng tóc xù. Công thức nhẹ nhàng làm tăng độ bouncy và mềm mại cho tóc, mang lại độ ẩm lâu dài và kết cấu mềm mượt mà không chứa sulfat hay muối gây hại.",
                     Price = 195_000m, // Giá sản phẩm là 195.000 VND
                     Quantity = 1, // Dung tích là 250ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3325,9 +3516,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Wella Invigo Nutri-Enrich",
-                    ProductDescription = "Dầu xả Wella Invigo Nutri-Enrich được thiết kế dành cho tóc khô và hư tổn, giúp nuôi dưỡng và cung cấp độ ẩm cho tóc. Chứa chiết xuất quả goji và vitamin E, sản phẩm giúp cải thiện độ đàn hồi và khả năng kiểm soát tóc, đồng thời mang lại vẻ ngoài mềm mại và khỏe mạnh cho mái tóc.",
+                    ProductDescription =
+                        "Dầu xả Wella Invigo Nutri-Enrich được thiết kế dành cho tóc khô và hư tổn, giúp nuôi dưỡng và cung cấp độ ẩm cho tóc. Chứa chiết xuất quả goji và vitamin E, sản phẩm giúp cải thiện độ đàn hồi và khả năng kiểm soát tóc, đồng thời mang lại vẻ ngoài mềm mại và khỏe mạnh cho mái tóc.",
                     Price = 460_000m, // Giá sản phẩm là 460.000 VND
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3341,7 +3533,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Redken Elements Renewing",
-                    ProductDescription = "Dầu xả không chứa silicone này giúp tái tạo và nuôi dưỡng mọi loại tóc. Được chiết xuất từ các thành phần tự nhiên, sản phẩm cung cấp độ ẩm sâu và giúp củng cố tóc, mang lại mái tóc mềm mại và khỏe mạnh mà không làm tóc nặng.",
+                    ProductDescription =
+                        "Dầu xả không chứa silicone này giúp tái tạo và nuôi dưỡng mọi loại tóc. Được chiết xuất từ các thành phần tự nhiên, sản phẩm cung cấp độ ẩm sâu và giúp củng cố tóc, mang lại mái tóc mềm mại và khỏe mạnh mà không làm tóc nặng.",
                     Price = 1_180_000m, // Giá sản phẩm là 1.180.000 VND
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3353,9 +3546,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Moisture Velvet Nourishing",
-                    ProductDescription = "Dầu xả cao cấp này cung cấp dưỡng chất sâu cho tóc khô và thô, mang lại độ ẩm thiết yếu và cải thiện độ mềm mại cho tóc. Công thức chứa hoa mẫu đơn Nhật Bản giúp gỡ rối tóc, đồng thời để lại mái tóc mềm mượt, khỏe mạnh và bóng bẩy.",
+                    ProductDescription =
+                        "Dầu xả cao cấp này cung cấp dưỡng chất sâu cho tóc khô và thô, mang lại độ ẩm thiết yếu và cải thiện độ mềm mại cho tóc. Công thức chứa hoa mẫu đơn Nhật Bản giúp gỡ rối tóc, đồng thời để lại mái tóc mềm mượt, khỏe mạnh và bóng bẩy.",
                     Price = 1_200_000m, // Giá sản phẩm là 1.200.000 VND
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3369,7 +3563,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Ultimate Remedy",
-                    ProductDescription = "Dầu xả Ultimate Remedy được thiết kế đặc biệt dành cho tóc hư tổn nặng, cung cấp khả năng phục hồi và dưỡng ẩm sâu. Enriched với các thành phần tự nhiên, sản phẩm giúp phục hồi sức mạnh và độ đàn hồi cho tóc, mang lại mái tóc khỏe mạnh, tươi mới và dễ dàng chải chuốt.",
+                    ProductDescription =
+                        "Dầu xả Ultimate Remedy được thiết kế đặc biệt dành cho tóc hư tổn nặng, cung cấp khả năng phục hồi và dưỡng ẩm sâu. Enriched với các thành phần tự nhiên, sản phẩm giúp phục hồi sức mạnh và độ đàn hồi cho tóc, mang lại mái tóc khỏe mạnh, tươi mới và dễ dàng chải chuốt.",
                     Price = 1_320_000m, // Giá sản phẩm là 1.320.000 VND
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3381,9 +3576,10 @@ new Product
                 new Product
                 {
                     Status = "Active",
-                        SkinTypeSuitable = "All",
+                    SkinTypeSuitable = "All",
                     ProductName = "Dầu xả No. 5 Bond Maintenance",
-                    ProductDescription = "Dầu xả No. 5 Bond Maintenance được công thức đặc biệt để dưỡng ẩm và phục hồi tóc hư tổn trong khi giảm thiểu sự gãy rụng. Sản phẩm giúp duy trì sức khỏe của tóc sau các liệu pháp hóa học, mang lại mái tóc mềm mại, bóng khỏe và dễ dàng chải chuốt.",
+                    ProductDescription =
+                        "Dầu xả No. 5 Bond Maintenance được công thức đặc biệt để dưỡng ẩm và phục hồi tóc hư tổn trong khi giảm thiểu sự gãy rụng. Sản phẩm giúp duy trì sức khỏe của tóc sau các liệu pháp hóa học, mang lại mái tóc mềm mại, bóng khỏe và dễ dàng chải chuốt.",
                     Price = 675_000m, // Giá sản phẩm là 675.000 VND
                     Quantity = 1, // Dung tích là 250ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3397,7 +3593,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Dầu xả Gold Lust Repair & Restore",
-                    ProductDescription = "Dầu xả Gold Lust Repair & Restore cao cấp giúp tái tạo và phục hồi tóc hư tổn, đồng thời làm tăng độ bóng và mềm mại cho tóc. Chứa sự kết hợp của các loại dầu và chiết xuất có khả năng phục hồi, sản phẩm giúp củng cố tóc và ngăn ngừa hư tổn trong tương lai, phù hợp cho mọi loại tóc.",
+                    ProductDescription =
+                        "Dầu xả Gold Lust Repair & Restore cao cấp giúp tái tạo và phục hồi tóc hư tổn, đồng thời làm tăng độ bóng và mềm mại cho tóc. Chứa sự kết hợp của các loại dầu và chiết xuất có khả năng phục hồi, sản phẩm giúp củng cố tóc và ngăn ngừa hư tổn trong tương lai, phù hợp cho mọi loại tóc.",
                     Price = 1_490_000m, // Giá sản phẩm là 1.490.000 VND
                     Quantity = 1, // Dung tích là 250ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3411,7 +3608,8 @@ new Product
                     Status = "Active",
                     SkinTypeSuitable = "All",
                     ProductName = "Mặt nạ dưỡng ẩm Signature",
-                    ProductDescription = "Mặt nạ dưỡng ẩm Signature cung cấp độ ẩm sâu và dưỡng chất cho tóc khô và dễ gãy. Với công thức giàu các thành phần tự nhiên, sản phẩm giúp cải thiện độ đàn hồi và phục hồi cân bằng độ ẩm tự nhiên của tóc, mang lại mái tóc mềm mại, dễ chải và khỏe mạnh.",
+                    ProductDescription =
+                        "Mặt nạ dưỡng ẩm Signature cung cấp độ ẩm sâu và dưỡng chất cho tóc khô và dễ gãy. Với công thức giàu các thành phần tự nhiên, sản phẩm giúp cải thiện độ đàn hồi và phục hồi cân bằng độ ẩm tự nhiên của tóc, mang lại mái tóc mềm mại, dễ chải và khỏe mạnh.",
                     Price = 1_640_000m, // Giá sản phẩm là 1.640.000 VND
                     Quantity = 1, // Dung tích là 160ml
                     Discount = 0.0m, // Không có chiết khấu
@@ -3421,34 +3619,35 @@ new Product
                     Volume = 160m, // Tổng dung tích là 160ml
                 },
                 new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Xả Phục Hồi Tối Ưu",
-    ProductDescription = "Được thiết kế dành cho tóc hư tổn nghiêm trọng, dầu xả này mang đến khả năng phục hồi và cấp ẩm chuyên sâu. Giàu dưỡng chất từ thiên nhiên, sản phẩm giúp tăng cường sức mạnh và độ đàn hồi cho tóc, mang lại vẻ ngoài tràn đầy sức sống và dễ dàng tạo kiểu.",
-    Price = 1_320_000m, // Giá sản phẩm là 1.320.000 VND
-    Quantity = 1, // Dung tích là 1000ml
-    Discount = 0.0m, // Không có chiết khấu
-    CategoryId = 10, // Conditioner
-    CompanyId = 1, // Shu Uemura (CompanyId mặc định là 1)
-    Dimension = "1000ml",
-    Volume = 1000m, // Tổng dung tích là 1000ml
-},
-new Product
-{
-    Status = "Active",
-    SkinTypeSuitable = "All",
-    ProductName = "Dầu Xả Invigo Nutri-Enrich",
-    ProductDescription = "Được thiết kế dành cho tóc khô hoặc căng thẳng, dầu xả này giúp nuôi dưỡng và bổ sung độ ẩm. Chứa chiết xuất goji berry và vitamin E, giúp cải thiện độ đàn hồi và dễ chải tóc, mang lại vẻ ngoài mềm mại và khỏe mạnh.",
-    Price = 460_000m, // Giá sản phẩm là 460.000 VND
-    Quantity = 1, // Dung tích là 1000ml
-    Discount = 0.0m, // Không có chiết khấu
-    CategoryId = 10, // Conditioner
-    CompanyId = 1, // Wella Professionals (CompanyId mặc định là 1)
-    Dimension = "1000ml",
-    Volume = 1000m, // Tổng dung tích là 1000ml
-},
-
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Xả Phục Hồi Tối Ưu",
+                    ProductDescription =
+                        "Được thiết kế dành cho tóc hư tổn nghiêm trọng, dầu xả này mang đến khả năng phục hồi và cấp ẩm chuyên sâu. Giàu dưỡng chất từ thiên nhiên, sản phẩm giúp tăng cường sức mạnh và độ đàn hồi cho tóc, mang lại vẻ ngoài tràn đầy sức sống và dễ dàng tạo kiểu.",
+                    Price = 1_320_000m, // Giá sản phẩm là 1.320.000 VND
+                    Quantity = 1, // Dung tích là 1000ml
+                    Discount = 0.0m, // Không có chiết khấu
+                    CategoryId = 10, // Conditioner
+                    CompanyId = 1, // Shu Uemura (CompanyId mặc định là 1)
+                    Dimension = "1000ml",
+                    Volume = 1000m, // Tổng dung tích là 1000ml
+                },
+                new Product
+                {
+                    Status = "Active",
+                    SkinTypeSuitable = "All",
+                    ProductName = "Dầu Xả Invigo Nutri-Enrich",
+                    ProductDescription =
+                        "Được thiết kế dành cho tóc khô hoặc căng thẳng, dầu xả này giúp nuôi dưỡng và bổ sung độ ẩm. Chứa chiết xuất goji berry và vitamin E, giúp cải thiện độ đàn hồi và dễ chải tóc, mang lại vẻ ngoài mềm mại và khỏe mạnh.",
+                    Price = 460_000m, // Giá sản phẩm là 460.000 VND
+                    Quantity = 1, // Dung tích là 1000ml
+                    Discount = 0.0m, // Không có chiết khấu
+                    CategoryId = 10, // Conditioner
+                    CompanyId = 1, // Wella Professionals (CompanyId mặc định là 1)
+                    Dimension = "1000ml",
+                    Volume = 1000m, // Tổng dung tích là 1000ml
+                },
             };
 
             // Thêm sản phẩm vào cơ sở dữ liệu
@@ -3470,15 +3669,17 @@ new Product
             var services = new List<Service>
             {
                 // Dịch vụ chăm sóc da mặt (10 dịch vụ cũ)
-               new Service
+                new Service
                 {
                     Status = "Active",
                     Name = "Chăm sóc da mặt đặc trưng",
                     Duration = "60",
                     Price = 600_000m,
-                    ServiceCategoryId = serviceCategories[0].ServiceCategoryId, // Chia dịch vụ vào ServiceCategory đầu tiên
+                    ServiceCategoryId =
+                        serviceCategories[0].ServiceCategoryId, // Chia dịch vụ vào ServiceCategory đầu tiên
                     Description = "Liệu pháp chăm sóc da mặt phù hợp với nhu cầu của làn da bạn.",
-                    Steps = "1. Tư vấn về da.\n2. Làm sạch.\n3. Tẩy tế bào chết.\n4. Đắp mặt nạ và dưỡng ẩm.\n5. Massage mặt thư giãn."
+                    Steps =
+                        "1. Tư vấn về da.\n2. Làm sạch.\n3. Tẩy tế bào chết.\n4. Đắp mặt nạ và dưỡng ẩm.\n5. Massage mặt thư giãn."
                 },
                 new Service
                 {
@@ -3488,188 +3689,200 @@ new Product
                     Price = 800_000m,
                     ServiceCategoryId = serviceCategories[1].ServiceCategoryId, // ServiceCategory thứ 2
                     Description = "Giảm nếp nhăn và phục hồi vẻ tươi trẻ rạng rỡ.",
-                    Steps = "1. Làm sạch.\n2. Thoa huyết thanh.\n3. Massage nâng cơ.\n4. Mặt nạ chống lão hóa.\n5. Bảo vệ SPF."
+                    Steps =
+                        "1. Làm sạch.\n2. Thoa huyết thanh.\n3. Massage nâng cơ.\n4. Mặt nạ chống lão hóa.\n5. Bảo vệ SPF."
                 },
-             new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Dưỡng Ẩm",
-    Duration = "60",
-    Price = 500_000m,
-    ServiceCategoryId = serviceCategories[0].ServiceCategoryId, // Chia cho ServiceCategory thứ nhất
-    Description = "Cung cấp độ ẩm sâu và làm căng mọng làn da.",
-    Steps = "1. Làm sạch da.\n2. Thoa serum dưỡng ẩm.\n3. Đắp mặt nạ cấp ẩm.\n4. Thoa kem dưỡng."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Làm Sáng Da",
-    Duration = "75",
-    Price = 650_000m,
-    ServiceCategoryId = serviceCategories[1].ServiceCategoryId, // ServiceCategory thứ 2
-    Description = "Giúp làm sáng làn da xỉn màu và không đều màu.",
-    Steps = "1. Làm sạch da.\n2. Tẩy tế bào chết.\n3. Thoa serum vitamin C.\n4. Đắp mặt nạ làm sáng da.\n5. Thoa kem chống nắng."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Trị Mụn",
-    Duration = "90",
-    Price = 700_000m,
-    ServiceCategoryId = serviceCategories[2].ServiceCategoryId, // ServiceCategory thứ 3
-    Description = "Giúp giảm mụn và ngăn ngừa tình trạng nổi mụn.",
-    Steps = "1. Phân tích da.\n2. Làm sạch sâu.\n3. Điều trị điểm mụn.\n4. Đắp mặt nạ làm dịu da.\n5. Thoa kem chống nắng."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Làm Dịu Da",
-    Duration = "60",
-    Price = 550_000m,
-    ServiceCategoryId = serviceCategories[3].ServiceCategoryId, // ServiceCategory thứ 4
-    Description = "Giúp làm dịu và giảm kích ứng cho làn da nhạy cảm.",
-    Steps = "1. Làm sạch nhẹ nhàng.\n2. Đắp mặt nạ chống viêm.\n3. Massage thư giãn.\n4. Thoa kem dưỡng và chống nắng."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Trà Xanh",
-    Duration = "60",
-    Price = 500_000m,
-    ServiceCategoryId = serviceCategories[2].ServiceCategoryId, // ServiceCategory thứ 3
-    Description = "Liệu pháp giàu chất chống oxy hóa giúp làn da tươi trẻ.",
-    Steps = "1. Làm sạch da.\n2. Thoa serum chiết xuất trà xanh.\n3. Đắp mặt nạ chống oxy hóa.\n4. Thoa kem dưỡng và chống nắng."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Tăng Cường Collagen",
-    Duration = "75",
-    Price = 700_000m,
-    ServiceCategoryId = serviceCategories[3].ServiceCategoryId, // ServiceCategory thứ 4
-    Description = "Thúc đẩy sản xuất collagen giúp da săn chắc hơn.",
-    Steps = "1. Làm sạch da.\n2. Thoa serum collagen.\n3. Massage mặt.\n4. Đắp mặt nạ chứa collagen.\n5. Thoa kem chống nắng."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Thải Độc Da",
-    Duration = "60",
-    Price = 600_000m,
-    ServiceCategoryId = serviceCategories[4].ServiceCategoryId, // ServiceCategory thứ 5
-    Description = "Thanh lọc và thải độc tố cho làn da.",
-    Steps = "1. Làm sạch da.\n2. Đắp mặt nạ thải độc.\n3. Thoa serum dưỡng da.\n4. Thoa kem dưỡng và chống nắng."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Dưỡng Ẩm Qua Đêm",
-    Duration = "90",
-    Price = 750_000m,
-    ServiceCategoryId = serviceCategories[4].ServiceCategoryId, // ServiceCategory thứ 5
-    Description = "Cung cấp độ ẩm chuyên sâu giúp da rạng rỡ vào sáng hôm sau.",
-    Steps = "1. Làm sạch da.\n2. Thoa serum dưỡng ẩm qua đêm.\n3. Massage thư giãn.\n4. Đắp mặt nạ dưỡng ẩm ban đêm."
-},
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Dưỡng Ẩm",
+                    Duration = "60",
+                    Price = 500_000m,
+                    ServiceCategoryId = serviceCategories[0].ServiceCategoryId, // Chia cho ServiceCategory thứ nhất
+                    Description = "Cung cấp độ ẩm sâu và làm căng mọng làn da.",
+                    Steps = "1. Làm sạch da.\n2. Thoa serum dưỡng ẩm.\n3. Đắp mặt nạ cấp ẩm.\n4. Thoa kem dưỡng."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Làm Sáng Da",
+                    Duration = "75",
+                    Price = 650_000m,
+                    ServiceCategoryId = serviceCategories[1].ServiceCategoryId, // ServiceCategory thứ 2
+                    Description = "Giúp làm sáng làn da xỉn màu và không đều màu.",
+                    Steps =
+                        "1. Làm sạch da.\n2. Tẩy tế bào chết.\n3. Thoa serum vitamin C.\n4. Đắp mặt nạ làm sáng da.\n5. Thoa kem chống nắng."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Trị Mụn",
+                    Duration = "90",
+                    Price = 700_000m,
+                    ServiceCategoryId = serviceCategories[2].ServiceCategoryId, // ServiceCategory thứ 3
+                    Description = "Giúp giảm mụn và ngăn ngừa tình trạng nổi mụn.",
+                    Steps =
+                        "1. Phân tích da.\n2. Làm sạch sâu.\n3. Điều trị điểm mụn.\n4. Đắp mặt nạ làm dịu da.\n5. Thoa kem chống nắng."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Làm Dịu Da",
+                    Duration = "60",
+                    Price = 550_000m,
+                    ServiceCategoryId = serviceCategories[3].ServiceCategoryId, // ServiceCategory thứ 4
+                    Description = "Giúp làm dịu và giảm kích ứng cho làn da nhạy cảm.",
+                    Steps =
+                        "1. Làm sạch nhẹ nhàng.\n2. Đắp mặt nạ chống viêm.\n3. Massage thư giãn.\n4. Thoa kem dưỡng và chống nắng."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Trà Xanh",
+                    Duration = "60",
+                    Price = 500_000m,
+                    ServiceCategoryId = serviceCategories[2].ServiceCategoryId, // ServiceCategory thứ 3
+                    Description = "Liệu pháp giàu chất chống oxy hóa giúp làn da tươi trẻ.",
+                    Steps =
+                        "1. Làm sạch da.\n2. Thoa serum chiết xuất trà xanh.\n3. Đắp mặt nạ chống oxy hóa.\n4. Thoa kem dưỡng và chống nắng."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Tăng Cường Collagen",
+                    Duration = "75",
+                    Price = 700_000m,
+                    ServiceCategoryId = serviceCategories[3].ServiceCategoryId, // ServiceCategory thứ 4
+                    Description = "Thúc đẩy sản xuất collagen giúp da săn chắc hơn.",
+                    Steps =
+                        "1. Làm sạch da.\n2. Thoa serum collagen.\n3. Massage mặt.\n4. Đắp mặt nạ chứa collagen.\n5. Thoa kem chống nắng."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Thải Độc Da",
+                    Duration = "60",
+                    Price = 600_000m,
+                    ServiceCategoryId = serviceCategories[4].ServiceCategoryId, // ServiceCategory thứ 5
+                    Description = "Thanh lọc và thải độc tố cho làn da.",
+                    Steps =
+                        "1. Làm sạch da.\n2. Đắp mặt nạ thải độc.\n3. Thoa serum dưỡng da.\n4. Thoa kem dưỡng và chống nắng."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Dưỡng Ẩm Qua Đêm",
+                    Duration = "90",
+                    Price = 750_000m,
+                    ServiceCategoryId = serviceCategories[4].ServiceCategoryId, // ServiceCategory thứ 5
+                    Description = "Cung cấp độ ẩm chuyên sâu giúp da rạng rỡ vào sáng hôm sau.",
+                    Steps =
+                        "1. Làm sạch da.\n2. Thoa serum dưỡng ẩm qua đêm.\n3. Massage thư giãn.\n4. Đắp mặt nạ dưỡng ẩm ban đêm."
+                },
 
 
                 // Các dịch vụ mới
-              new Service
-{
-    Status = "Active",
-    Name = "Massage Thụy Điển",
-    Duration = "60",
-    Price = 600_000m,
-    ServiceCategoryId = serviceCategories[5].ServiceCategoryId, // ServiceCategory thứ 6
-    Description = "Liệu pháp massage cổ điển giúp thư giãn và giảm căng thẳng.",
-    Steps = "1. Tư vấn.\n2. Massage Thụy Điển nhẹ nhàng.\n3. Sử dụng tinh dầu thơm để thư giãn."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Tẩy Tế Bào Chết Toàn Thân",
-    Duration = "75",
-    Price = 650_000m,
-    ServiceCategoryId = serviceCategories[6].ServiceCategoryId, // ServiceCategory thứ 7
-    Description = "Loại bỏ tế bào chết và tái tạo làn da.",
-    Steps = "1. Thoa kem tẩy tế bào chết toàn thân.\n2. Tẩy da nhẹ nhàng.\n3. Rửa sạch và thoa kem dưỡng ẩm."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Quấn Dưỡng Ẩm",
-    Duration = "60",
-    Price = 600_000m,
-    ServiceCategoryId = serviceCategories[5].ServiceCategoryId, // ServiceCategory thứ 6
-    Description = "Dưỡng ẩm sâu dành cho làn da khô.",
-    Steps = "1. Tẩy tế bào chết toàn thân.\n2. Thoa lớp quấn dưỡng ẩm.\n3. Rửa sạch và thoa kem dưỡng."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Massage Liệu Pháp Hương Thơm",
-    Duration = "90",
-    Price = 750_000m,
-    ServiceCategoryId = serviceCategories[6].ServiceCategoryId, // ServiceCategory thứ 7
-    Description = "Massage kết hợp tinh dầu giúp thư giãn cơ thể.",
-    Steps = "1. Tư vấn.\n2. Massage hương thơm tập trung vào vùng căng thẳng.\n3. Thoa tinh dầu thư giãn."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Massage Chân",
-    Duration = "45",
-    Price = 400_000m,
-    ServiceCategoryId = serviceCategories[7].ServiceCategoryId, // ServiceCategory thứ 8
-    Description = "Giúp thư giãn và làm dịu đôi chân mệt mỏi.",
-    Steps = "1. Ngâm chân nước ấm.\n2. Massage chân thư giãn.\n3. Thoa kem dưỡng ẩm."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Massage Vùng Bụng",
-    Duration = "30",
-    Price = 500_000m,
-    ServiceCategoryId = serviceCategories[8].ServiceCategoryId, // ServiceCategory thứ 9
-    Description = "Giúp giảm khó chịu ở vùng bụng và cải thiện tiêu hóa.",
-    Steps = "1. Massage vùng bụng nhẹ nhàng.\n2. Sử dụng tinh dầu thư giãn.\n3. Tư vấn chăm sóc cá nhân."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Liệu Pháp Thải Độc Cơ Thể",
-    Duration = "90",
-    Price = 800_000m,
-    ServiceCategoryId = serviceCategories[7].ServiceCategoryId, // ServiceCategory thứ 8
-    Description = "Thải độc và thanh lọc cơ thể.",
-    Steps = "1. Tẩy tế bào chết toàn thân.\n2. Đắp mặt nạ thải độc.\n3. Massage thư giãn.\n4. Thoa kem dưỡng ẩm."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Tắm Bùn",
-    Duration = "75",
-    Price = 700_000m,
-    ServiceCategoryId = serviceCategories[8].ServiceCategoryId, // ServiceCategory thứ 9
-    Description = "Liệu pháp bùn toàn thân giúp thải độc tố.",
-    Steps = "1. Thoa lớp bùn ấm lên cơ thể.\n2. Nghỉ ngơi thư giãn.\n3. Rửa sạch và dưỡng ẩm."
-},
-new Service
-{
-    Status = "Active",
-    Name = "Tẩy Bóng Da",
-    Duration = "60",
-    Price = 600_000m,
-    ServiceCategoryId = serviceCategories[9].ServiceCategoryId, // ServiceCategory thứ 10
-    Description = "Nhẹ nhàng loại bỏ tế bào chết và làm mịn da.",
-    Steps = "1. Thoa kem tẩy bóng da.\n2. Tẩy da chết và làm sạch.\n3. Dưỡng ẩm bằng kem dưỡng da."
-}
-
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Massage Thụy Điển",
+                    Duration = "60",
+                    Price = 600_000m,
+                    ServiceCategoryId = serviceCategories[5].ServiceCategoryId, // ServiceCategory thứ 6
+                    Description = "Liệu pháp massage cổ điển giúp thư giãn và giảm căng thẳng.",
+                    Steps = "1. Tư vấn.\n2. Massage Thụy Điển nhẹ nhàng.\n3. Sử dụng tinh dầu thơm để thư giãn."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Tẩy Tế Bào Chết Toàn Thân",
+                    Duration = "75",
+                    Price = 650_000m,
+                    ServiceCategoryId = serviceCategories[6].ServiceCategoryId, // ServiceCategory thứ 7
+                    Description = "Loại bỏ tế bào chết và tái tạo làn da.",
+                    Steps =
+                        "1. Thoa kem tẩy tế bào chết toàn thân.\n2. Tẩy da nhẹ nhàng.\n3. Rửa sạch và thoa kem dưỡng ẩm."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Quấn Dưỡng Ẩm",
+                    Duration = "60",
+                    Price = 600_000m,
+                    ServiceCategoryId = serviceCategories[5].ServiceCategoryId, // ServiceCategory thứ 6
+                    Description = "Dưỡng ẩm sâu dành cho làn da khô.",
+                    Steps = "1. Tẩy tế bào chết toàn thân.\n2. Thoa lớp quấn dưỡng ẩm.\n3. Rửa sạch và thoa kem dưỡng."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Massage Liệu Pháp Hương Thơm",
+                    Duration = "90",
+                    Price = 750_000m,
+                    ServiceCategoryId = serviceCategories[6].ServiceCategoryId, // ServiceCategory thứ 7
+                    Description = "Massage kết hợp tinh dầu giúp thư giãn cơ thể.",
+                    Steps =
+                        "1. Tư vấn.\n2. Massage hương thơm tập trung vào vùng căng thẳng.\n3. Thoa tinh dầu thư giãn."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Massage Chân",
+                    Duration = "45",
+                    Price = 400_000m,
+                    ServiceCategoryId = serviceCategories[7].ServiceCategoryId, // ServiceCategory thứ 8
+                    Description = "Giúp thư giãn và làm dịu đôi chân mệt mỏi.",
+                    Steps = "1. Ngâm chân nước ấm.\n2. Massage chân thư giãn.\n3. Thoa kem dưỡng ẩm."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Massage Vùng Bụng",
+                    Duration = "30",
+                    Price = 500_000m,
+                    ServiceCategoryId = serviceCategories[8].ServiceCategoryId, // ServiceCategory thứ 9
+                    Description = "Giúp giảm khó chịu ở vùng bụng và cải thiện tiêu hóa.",
+                    Steps =
+                        "1. Massage vùng bụng nhẹ nhàng.\n2. Sử dụng tinh dầu thư giãn.\n3. Tư vấn chăm sóc cá nhân."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Liệu Pháp Thải Độc Cơ Thể",
+                    Duration = "90",
+                    Price = 800_000m,
+                    ServiceCategoryId = serviceCategories[7].ServiceCategoryId, // ServiceCategory thứ 8
+                    Description = "Thải độc và thanh lọc cơ thể.",
+                    Steps =
+                        "1. Tẩy tế bào chết toàn thân.\n2. Đắp mặt nạ thải độc.\n3. Massage thư giãn.\n4. Thoa kem dưỡng ẩm."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Tắm Bùn",
+                    Duration = "75",
+                    Price = 700_000m,
+                    ServiceCategoryId = serviceCategories[8].ServiceCategoryId, // ServiceCategory thứ 9
+                    Description = "Liệu pháp bùn toàn thân giúp thải độc tố.",
+                    Steps = "1. Thoa lớp bùn ấm lên cơ thể.\n2. Nghỉ ngơi thư giãn.\n3. Rửa sạch và dưỡng ẩm."
+                },
+                new Service
+                {
+                    Status = "Active",
+                    Name = "Tẩy Bóng Da",
+                    Duration = "60",
+                    Price = 600_000m,
+                    ServiceCategoryId = serviceCategories[9].ServiceCategoryId, // ServiceCategory thứ 10
+                    Description = "Nhẹ nhàng loại bỏ tế bào chết và làm mịn da.",
+                    Steps = "1. Thoa kem tẩy bóng da.\n2. Tẩy da chết và làm sạch.\n3. Dưỡng ẩm bằng kem dưỡng da."
+                }
             };
 
             // Thêm dịch vụ vào cơ sở dữ liệu
             await _context.Services.AddRangeAsync(services);
             await _context.SaveChangesAsync();
         }
+
         private async Task SeedBranches()
         {
             var branches = new List<Branch>
@@ -3683,7 +3896,7 @@ new Service
                     LatAddress = "10.7769",
                     Status = "Active",
                     ManagerId = 2, // ID của quản lý chi nhánh này
-                    CompanyId = 1,// ID của công ty đã seed trước đó
+                    CompanyId = 1, // ID của công ty đã seed trước đó
                 },
                 new Branch
                 {
@@ -3743,26 +3956,24 @@ new Service
             // Danh sách mẫu tên và mô tả khuyến mãi
             var promotionNames = new[]
             {
-               "Khuyến Mãi Ngày Lễ",
-    "Giảm Giá Black Friday",
-    "Khuyến Mãi Năm Mới",
-    "Ưu Đãi Đặc Biệt Mùa Hè",
-    "Giảm Giá Chớp Nhoáng",
-    "Giảm Giá Xả Kho",
-    "Mua Nhiều Tiết Kiệm Hơn"
-
+                "Khuyến Mãi Ngày Lễ",
+                "Giảm Giá Black Friday",
+                "Khuyến Mãi Năm Mới",
+                "Ưu Đãi Đặc Biệt Mùa Hè",
+                "Giảm Giá Chớp Nhoáng",
+                "Giảm Giá Xả Kho",
+                "Mua Nhiều Tiết Kiệm Hơn"
             };
 
             var promotionDescriptions = new[]
             {
-               "Nhận ưu đãi tuyệt vời trong mùa lễ này!",
-    "Đợt giảm giá lớn nhất trong năm vào Black Friday!",
-    "Chào đón năm mới với những ưu đãi độc quyền!",
-    "Giải nhiệt mùa hè với những khuyến mãi nóng bỏng!",
-    "Ưu đãi có thời hạn – đừng bỏ lỡ!",
-    "Giảm giá xả kho cho các mặt hàng được chọn!",
-    "Mua càng nhiều, tiết kiệm càng lớn với ưu đãi đặc biệt!"
-
+                "Nhận ưu đãi tuyệt vời trong mùa lễ này!",
+                "Đợt giảm giá lớn nhất trong năm vào Black Friday!",
+                "Chào đón năm mới với những ưu đãi độc quyền!",
+                "Giải nhiệt mùa hè với những khuyến mãi nóng bỏng!",
+                "Ưu đãi có thời hạn – đừng bỏ lỡ!",
+                "Giảm giá xả kho cho các mặt hàng được chọn!",
+                "Mua càng nhiều, tiết kiệm càng lớn với ưu đãi đặc biệt!"
             };
 
             // Danh sách URL hình ảnh thật
@@ -3807,7 +4018,6 @@ new Service
             await _context.Promotions.AddRangeAsync(promotions);
             await _context.SaveChangesAsync();
         }
-
 
 
         private async Task SeedBranchProducts()
@@ -3928,7 +4138,6 @@ new Service
             if (staffUsers.Count < 50)
             {
                 throw new Exception("Không đủ người dùng nhân viên trong cơ sở dữ liệu. Vui lòng thêm người dùng.");
-
             }
 
             var branches = await _context.Branchs.ToListAsync();
@@ -3942,8 +4151,8 @@ new Service
 
             if (cashierRole == null || specialistRole == null)
             {
-                throw new Exception("Không tìm thấy vai trò nhân viên. Vui lòng chọn vai trò 'Thu ngân' và 'Chuyên gia' trước.");
-
+                throw new Exception(
+                    "Không tìm thấy vai trò nhân viên. Vui lòng chọn vai trò 'Thu ngân' và 'Chuyên gia' trước.");
             }
 
             var staffList = new List<Staff>();
@@ -3980,6 +4189,40 @@ new Service
         }
 
 
+        private async Task SeedStaffServiceCategory()
+        {
+            var staffs = await _context.Staffs.ToListAsync();
+            var serviceCategories = await _context.ServiceCategory.ToListAsync();
+            
+            if (!staffs.Any() || serviceCategories.Count < 5)
+            {
+                throw new Exception("Không đủ nhân viên hoặc danh mục dịch vụ để gán.");
+            }
+            
+            var staffCategories = new List<Staff_ServiceCategory>();
+            var random = new Random();
+            
+            foreach (var staff in staffs)
+            {
+                var selectedCategories = serviceCategories.OrderBy(x => random.Next()).Take(5).ToList();
+                
+                foreach (var category in selectedCategories)
+                {
+                    staffCategories.Add(new Staff_ServiceCategory
+                    {
+                        StaffId = staff.StaffId,
+                        ServiceCategoryId = category.ServiceCategoryId,
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
+                    });
+                }
+            }
+            
+            await _context.Staff_ServiceCategory.AddRangeAsync(staffCategories);
+            await _context.SaveChangesAsync();
+        }
+
+        
         private async Task SeedProductImages()
         {
             // Lấy danh sách tất cả các sản phẩm hiện có
@@ -4058,7 +4301,7 @@ new Service
                     "https://wildflowerbeautystudio.ca/cdn/shop/products/acnecleansingfoam_300x300.jpg?v=1613861748",
                     "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-slide/eminence-organics-acne-advanced-cleansing-foam-swatch-400x400.jpg?itok=_451iEc7"
                 }),
-                
+
                 // Lemon Grass Cleanser
                 ("Sữa rửa mặt sả chanh", new List<string>
                 {
@@ -4066,7 +4309,7 @@ new Service
                     "https://images.squarespace-cdn.com/content/v1/5ea87ac4bf0b761180ffcfae/1626276341235-D5E9PCNK5OSRIP2RALJN/LemonGrassCleanser.jpg?format=1000w",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcyaLelaqtVcZiyeWTM4QOoJVXWQveYuorDw&s"
                 }),
-                
+
                 // Charcoal Exfoliating Gel Cleanser
                 ("Sữa rửa mặt dạng gel tẩy tế bào chết than hoạt tính", new List<string>
                 {
@@ -4088,7 +4331,7 @@ new Service
                     "https://www.skincupid.co.uk/cdn/shop/files/ISNTREEYamRootVeganMilkCleanser_220ml_5.png?v=1728904708&width=800",
                     "https://koreanskincare.nl/cdn/shop/files/452359592_470675092412851_8771590449487260742_n.jpg?v=1721894307"
                 }),
-                
+
                 // Normaderm Anti-Acne Purifying Gel Cleanser
                 ("Sữa rửa mặt dạng gel trị mụn Normaderm", new List<string>
                 {
@@ -4096,7 +4339,7 @@ new Service
                     "https://sohaticare.com/cdn/shop/files/3337875663076_3_82da998a-a47b-4461-a110-036d702f4886_4000x@3x.progressive.jpg?v=1706877499",
                     "https://bng.com.pk/cdn/shop/files/e3906fe2-cb9a-47d8-8a03-73dc6d7f25ce_0df3ce49-2f5b-4d45-b6f7-7db99714a57e_2400x.jpg?v=1720805633"
                 }),
-                
+
                 // Purete Thermale Fresh Cleansing Gel
                 ("Gel rửa mặt Purete Thermale Fresh", new List<string>
                 {
@@ -4104,7 +4347,7 @@ new Service
                     "https://www.binsina.ae/media/catalog/product/8/1/81414_2.jpg?optimize=medium&bg-color=255,255,255&fit=bounds&height=600&width=600&canvas=600:600",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw-hWi1mf7kCZzWrthwsn-3Opba1kYnJcQmA&s"
                 }),
-                
+
                 // Purete Thermale Cleansing Foaming Cream
                 ("Kem tạo bọt làm sạch Purete Thermale", new List<string>
                 {
@@ -4112,7 +4355,7 @@ new Service
                     "https://images-na.ssl-images-amazon.com/images/I/81fpwzdjEgL.jpg",
                     "https://m.media-amazon.com/images/I/71e3vIZEiBL._AC_UF1000,1000_QL80_.jpg"
                 }),
-                
+
                 // Foaming Cream Cleanser
                 ("Sữa rửa mặt dạng kem tạo bọt", new List<string>
                 {
@@ -4120,7 +4363,7 @@ new Service
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhMF2XnUc1FGnqMiZFBkLTUJJLw8mCOGt05A&s",
                     "https://templeskincare.com.au/wp-content/uploads/2024/10/20231026_027-Edit_5000px-Edit-CreamCleanser-scaled.jpg"
                 }),
-                
+
                 // Exfoliating Cleanser
                 ("Sữa rửa mặt tẩy tế bào chết", new List<string>
                 {
@@ -4128,7 +4371,7 @@ new Service
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRn6R3GviQQlSKoSH8nmK0q8PPuwSwUefS3Sg&s",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNWmj3G1El9VvSp-muGnch-XOIXykwLaZa4w&s"
                 }),
-                
+
                 // Cleansing Gel Face Wash
                 ("Sữa rửa mặt dạng gel", new List<string>
                 {
@@ -4136,7 +4379,7 @@ new Service
                     "https://images.squarespace-cdn.com/content/v1/5badc17c797f743dc830bb95/1720164751711-2KJJ7A6MK6WH95C7JGG9/HydroPeptide+Cleansing+Gel+Perth.png?format=1000w",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9BYzA_QpTeT5wLVuqIQEQ0x6fMYRUEEdbzTqiVagtp3fB2bZ44hGnXnVWD7bfsUBXpGE&usqp=CAU"
                 }),
-                
+
                 // Mangosteen Revitalizing Mist
                 ("Xịt khoáng phục hồi Mangosteen", new List<string>
                 {
@@ -4152,14 +4395,14 @@ new Service
                     "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Pineapple-Refining-Tonique-lifestyle.jpg?v=1711743675&width=1080",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXvTAya614P0QjS3xR5k9bA9QyUs8DLnn72Q&s"
                 }),
-                
+
                 // Hawthorn Tonique
                 ("Nước cân bằng da Hawthorn Tonique", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWgXY3ygvCD1JS1ZJM_UQB0DlglHmITznI7A&s",
                     "https://images.squarespace-cdn.com/content/v1/5ea87ac4bf0b761180ffcfae/1626276012659-MUTJNN1LVDNA49X09L55/Hawthorn+Tonique.jpg?format=1000w",
                 }),
-                
+
                 // Lime Refresh Tonique
                 ("Nước hoa hồng tươi Lime Refresh Tonic", new List<string>
                 {
@@ -4167,14 +4410,14 @@ new Service
                     "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Lime-Refresh-Tonique-Lifestyle.png?v=1711744338&width=1080",
                     "https://eminenceorganics.com/sites/default/files/article-image/eminence-organics-tonique.jpg"
                 }),
-                
+
                 //Soothing Chamomile Tonique
                 ("Nước hoa cúc La Mã làm dịu", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0OK4AjASttojjEQbjJa9vTR7cy-Vf1UcAag&s",
                     "https://blog.skin-beauty.com/wp-content/uploads/2020/08/soothing-chamomile-tonique__64126.1586549554.1280.1280.jpg",
                 }),
-                
+
                 // Multi-Acne Toner 
                 ("Tonner cân bằng da Multi-Acne Toner", new List<string>
                 {
@@ -4182,7 +4425,7 @@ new Service
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOyk2bFufKdc__jGiQJnFZxau1_kg7OmQUpg&s",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK3uQghHwcl19vgzc-ZLG9e4hDV_aFbE4nwwwES3x6LrdmIl2zlBrhTBgg5lGrH6ST_5U&usqp=CAU"
                 }),
-                
+
                 // Antioxidant Hydramist
                 ("Tonner cân bằng da Antioxidant Hydramist", new List<string>
                 {
@@ -4190,7 +4433,7 @@ new Service
                     "https://www.dermalogica.co.uk/cdn/shop/products/Antioxidant-Hydramist-pdp-2.jpg?v=1721383738&width=1946",
                     "https://bellelab.co/wp-content/uploads/2019/12/Dermalogica_Antioxidant_Hydramist_150ml_3.jpg"
                 }),
-                
+
                 // UltraCalming Mist
                 ("Xịt khoáng UltraCalming Mist", new List<string>
                 {
@@ -4198,7 +4441,7 @@ new Service
                     "https://myvienhana.vn/wp-content/uploads/2022/03/xit-khoang-dermalogica-Ultracalming-Mist.jpg",
                     "https://116805005.cdn6.editmysite.com/uploads/1/1/6/8/116805005/s595587978454154049_p56_i2_w1080.jpeg"
                 }),
-                
+
                 // Hyaluronic Ceramide Mist
                 ("Xịt khoáng Hyaluronic Ceramide Mist", new List<string>
                 {
@@ -4206,7 +4449,7 @@ new Service
                     "https://sieuthilamdep.com/images/detailed/19/xit-khoang-cap-am-va-lam-diu-da-dermalogica-hyaluronic-ceramide-mist-2.jpg",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV0eQsaz5GoUd5mI9LsEXP5mb0IEO7zlvz3A&s"
                 }),
-                
+
                 // Remedy Toner 
                 ("Tonner cân bằng da Remedy Toner", new List<string>
                 {
@@ -4214,14 +4457,14 @@ new Service
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-02-1091x1200.png",
                     "https://vn-test-11.slatic.net/p/5fe09d9ffdf46df663e3dfcd64fcf4c5.jpg"
                 }),
-                
+
                 // Essential Toner
                 ("Tonner cân bằng da Essential Toner", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/Essential-Toner_San-pham-1091x1200.png",
                     "https://hadibeauty.com/wp-content/uploads/2023/03/334204861_942692140091925_7678139925329751463_n.webp",
                 }),
-                
+
                 // Active Pureness Toner
                 ("Tonner cân bằng da Active Pureness Toner", new List<string>
                 {
@@ -4242,7 +4485,7 @@ new Service
                     "https://sokoglam.com/cdn/shop/files/SokoGlamPDP_Acwell_Revamped_Licorice_pH_Balancing_Cleansing_Toner-4_860x.png?v=1729736947",
                     "https://www.mikaela-beauty.com/cdn/shop/files/AX6H2549w_1200x1200.jpg?v=1720903305",
                 }),
-            
+
                 // COSRX AHA/BHA Clarifying Treatment Toner
                 ("Nước hoa hồng COSRX AHA/BHA Clarifying Treatment Toner", new List<string>
                 {
@@ -4281,11 +4524,12 @@ new Service
                     "https://ordinaryvietnam.net/wp-content/uploads/2022/03/Nuoc-hoa-hong-Vichy-Aqualia-Thermal-Hydrating-Refreshing-Water-Ordinary-Viet-Nam-3-600x600.jpg",
                 }),
                 // Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion
-                ("Nước cân bằng da Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion", new List<string>
-                {
-                    "https://storage.beautyfulls.com/uploads-1/thanhhuong/2022/vichy/toner/vichy-normaderm-purifying-pore-tightening/nuoc-hoa-hong-vichy.jpg",
-                    "https://escentual.com/cdn/shop/files/vichy_normaderm_purifying_pore-tightening_toning_lotion_200ml_2.png?v=1729191893",
-                }),
+                ("Nước cân bằng da Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion",
+                    new List<string>
+                    {
+                        "https://storage.beautyfulls.com/uploads-1/thanhhuong/2022/vichy/toner/vichy-normaderm-purifying-pore-tightening/nuoc-hoa-hong-vichy.jpg",
+                        "https://escentual.com/cdn/shop/files/vichy_normaderm_purifying_pore-tightening_toning_lotion_200ml_2.png?v=1729191893",
+                    }),
                 // Sublime Skin Intensive Serum
                 ("Tinh chất làm mịn, săn chắc da Sublime Skin Intensive Serum", new List<string>
                 {
@@ -5299,7 +5543,6 @@ new Service
                     "https://www.oribe.com/cdn/shop/products/1200Wx1200H-400298-2_60a552ba-8f61-4315-9260-0da9ab2c01a2.jpg?v=1691604399&width=3840",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSovZKp21hY7eOHYioOmG8ONQ3o4BO6xu5bPw&s",
                 }),
-
             };
 
             // Duyệt qua danh sách các sản phẩm và thêm hình ảnh cho từng sản phẩm
@@ -5339,7 +5582,7 @@ new Service
             var serviceImageData = new List<(string serviceName, List<string> imageUrls)>
             {
                 // Signature Facial
-               ("Chăm sóc da mặt đặc trưng", new List<string>
+                ("Chăm sóc da mặt đặc trưng", new List<string>
                 {
                     "https://i.pinimg.com/736x/27/81/a7/2781a79854d1a98a16fde4f099bcc8a5.jpg",
                     "https://i.pinimg.com/736x/2c/87/b8/2c87b81f2775b10b59767a43fe28e20f.jpg",
@@ -5523,23 +5766,70 @@ new Service
         }
 
 
-
         private async Task SeedBlogs()
         {
             var blogs = new List<Blog>
-    {
-        new Blog { Title = "Làm thế nào để thư giãn tại Spa", Content = "Tìm hiểu những cách tốt nhất để tận hưởng một ngày thư giãn tại spa.", AuthorId = 1, Status = "Accept", Note = "Blog phổ biến" },
-        new Blog { Title = "Lợi ích của việc chăm sóc da mặt", Content = "Khám phá những lợi ích của việc chăm sóc da mặt.", AuthorId = 2, Status = "Published", Note = "Thông tin"},
-        new Blog {Title = "5 phương pháp trị liệu spa hàng đầu giúp giảm căng thẳng", Content = "Hướng dẫn các phương pháp trị liệu spa hiệu quả nhất giúp giảm căng thẳng.", AuthorId = 3, Status = "Draft", Note = "Cần xem xét lại"},
-        new Blog {Title = "Mẹo chăm sóc da cho người mới bắt đầu", Content = "Mẹo chăm sóc da đơn giản và hiệu quả cho người mới bắt đầu.", AuthorId = 4, Status = "Accept", Note = "Tuyệt vời cho người mới bắt đầu"},
-        new Blog {Title = "Nghệ thuật trị liệu bằng hương thơm", Content = "Khám phá những lợi ích và kỹ thuật của liệu pháp hương thơm.", AuthorId = 5, Status = "Pending", Note = "Đang chờ phê duyệt"},
-        new Blog {Title = "Làm thế nào để chọn gói spa phù hợp", Content = "Mẹo lựa chọn gói spa phù hợp nhất với nhu cầu của bạn.", AuthorId = 1, Status = "Accept", Note = "Khách hàng ưa thích"},
-        new Blog {Title = "Tầm quan trọng của việc tự chăm sóc", Content = "Tại sao việc tự chăm sóc lại cần thiết cho sức khỏe tinh thần và thể chất.", AuthorId = 2, Status = "Accept", Note = "Động lực"},
-        new Blog {Title = "Khám phá liệu pháp đá nóng", Content = "Mọi thứ bạn cần biết về liệu pháp đá nóng.", AuthorId = 3, Status = "Rejected", Note = "Cần thêm nội dung"},
-        new Blog {Title = "Mẹo duy trì làn da khỏe mạnh", Content = "Thực hành tốt nhất để giữ cho làn da khỏe mạnh và rạng rỡ.", AuthorId = 4, Status = "Accept", Note = "Đã được nghiên cứu kỹ lưỡng"},
-        new Blog {Title = "Khoa học đằng sau liệu pháp spa", Content = "Hiểu được lợi ích của liệu pháp spa đối với cơ thể và tâm trí của bạn.", AuthorId = 5, Status = "Pending", Note = "Thông tin chi tiết"}
-
-    };
+            {
+                new Blog
+                {
+                    Title = "Làm thế nào để thư giãn tại Spa",
+                    Content = "Tìm hiểu những cách tốt nhất để tận hưởng một ngày thư giãn tại spa.", AuthorId = 1,
+                    Status = "Accept", Note = "Blog phổ biến"
+                },
+                new Blog
+                {
+                    Title = "Lợi ích của việc chăm sóc da mặt",
+                    Content = "Khám phá những lợi ích của việc chăm sóc da mặt.", AuthorId = 2, Status = "Published",
+                    Note = "Thông tin"
+                },
+                new Blog
+                {
+                    Title = "5 phương pháp trị liệu spa hàng đầu giúp giảm căng thẳng",
+                    Content = "Hướng dẫn các phương pháp trị liệu spa hiệu quả nhất giúp giảm căng thẳng.",
+                    AuthorId = 3, Status = "Draft", Note = "Cần xem xét lại"
+                },
+                new Blog
+                {
+                    Title = "Mẹo chăm sóc da cho người mới bắt đầu",
+                    Content = "Mẹo chăm sóc da đơn giản và hiệu quả cho người mới bắt đầu.", AuthorId = 4,
+                    Status = "Accept", Note = "Tuyệt vời cho người mới bắt đầu"
+                },
+                new Blog
+                {
+                    Title = "Nghệ thuật trị liệu bằng hương thơm",
+                    Content = "Khám phá những lợi ích và kỹ thuật của liệu pháp hương thơm.", AuthorId = 5,
+                    Status = "Pending", Note = "Đang chờ phê duyệt"
+                },
+                new Blog
+                {
+                    Title = "Làm thế nào để chọn gói spa phù hợp",
+                    Content = "Mẹo lựa chọn gói spa phù hợp nhất với nhu cầu của bạn.", AuthorId = 1, Status = "Accept",
+                    Note = "Khách hàng ưa thích"
+                },
+                new Blog
+                {
+                    Title = "Tầm quan trọng của việc tự chăm sóc",
+                    Content = "Tại sao việc tự chăm sóc lại cần thiết cho sức khỏe tinh thần và thể chất.",
+                    AuthorId = 2, Status = "Accept", Note = "Động lực"
+                },
+                new Blog
+                {
+                    Title = "Khám phá liệu pháp đá nóng", Content = "Mọi thứ bạn cần biết về liệu pháp đá nóng.",
+                    AuthorId = 3, Status = "Rejected", Note = "Cần thêm nội dung"
+                },
+                new Blog
+                {
+                    Title = "Mẹo duy trì làn da khỏe mạnh",
+                    Content = "Thực hành tốt nhất để giữ cho làn da khỏe mạnh và rạng rỡ.", AuthorId = 4,
+                    Status = "Accept", Note = "Đã được nghiên cứu kỹ lưỡng"
+                },
+                new Blog
+                {
+                    Title = "Khoa học đằng sau liệu pháp spa",
+                    Content = "Hiểu được lợi ích của liệu pháp spa đối với cơ thể và tâm trí của bạn.", AuthorId = 5,
+                    Status = "Pending", Note = "Thông tin chi tiết"
+                }
+            };
 
             await _context.Blogs.AddRangeAsync(blogs);
             await _context.SaveChangesAsync();
@@ -5559,12 +5849,16 @@ new Service
                     Code = "VOUCHER" + random.Next(1000, 9999), // Random code like "VOUCHER1234"
                     Quantity = random.Next(50, 100), // Random quantity between 50 and 100
                     RemainQuantity = random.Next(0, 50), // Random remaining quantity (less than or equal to Quantity)
-                    Status = random.NextDouble() < 0.5 ? "Active" : "Inactive", // Random status (50% chance for active or inactive)
+                    Status = random.NextDouble() < 0.5
+                        ? "Active"
+                        : "Inactive", // Random status (50% chance for active or inactive)
                     Description = "Phiếu giảm giá cho nhiều sản phẩm khác nhau", // Example description
                     DiscountAmount = random.Next(5, 50), // Random discount between 5% and 50%
                     MinOrderAmount = random.Next(5, 500),
-                    ValidFrom = DateTime.Now.AddDays(-random.Next(30, 60)), // Random start date (between 30 and 60 days ago)
-                    ValidTo = DateTime.Now.AddDays(random.Next(30, 60)), // Random expiration date (30 to 60 days from now)
+                    ValidFrom = DateTime.Now.AddDays(-random.Next(30,
+                        60)), // Random start date (between 30 and 60 days ago)
+                    ValidTo = DateTime.Now.AddDays(random.Next(30,
+                        60)), // Random expiration date (30 to 60 days from now)
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 };
@@ -5651,9 +5945,9 @@ new Service
                             UnitPrice = unitPrice, // Random giá từ 10 đến 100
                             SubTotal = quantity * unitPrice,
                             CustomerId = customers[random.Next(customers.Count)].UserId, // Random CustomerId
-                            StaffId = staffList[random.Next(staffList.Count)].StaffId,   // Random StaffId
+                            StaffId = staffList[random.Next(staffList.Count)].StaffId, // Random StaffId
                             ServiceId = services[random.Next(services.Count)].ServiceId, // Random ServiceId
-                            BranchId = branches[random.Next(branches.Count)].BranchId,   // Random BranchId
+                            BranchId = branches[random.Next(branches.Count)].BranchId, // Random BranchId
 
                             // Random thời gian hẹn trong khoảng 30 ngày tới
                             AppointmentsTime = DateTime.Now.AddDays(random.Next(1, 31)).AddHours(random.Next(8, 18)),
@@ -5668,7 +5962,6 @@ new Service
                         appointments.Add(appointment);
                     }
                 }
-
             }
 
             await _context.OrderDetails.AddRangeAsync(orderDetails);
@@ -5679,81 +5972,80 @@ new Service
         public async Task SeedSkincareRoutines()
         {
             var skincareRoutines = new List<SkincareRoutine>
-        {
-             new SkincareRoutine
             {
-                Name = "Da dầu",
-                Description = "Chăm sóc da dầu và giảm bã nhờn dư thừa.",
-                Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
-                Frequency = "Hàng ngày",
-                TargetSkinTypes = "Da dầu"
-            },
-            new SkincareRoutine
-            {
-                Name = "Da khô",
-                Description = "Dưỡng ẩm và nuôi dưỡng làn da khô.",
-                Steps = "Làm sạch, cấp nước, dưỡng ẩm, bảo vệ",
-                Frequency = "Hàng ngày",
-                TargetSkinTypes = "Da khô"
-            },
-            new SkincareRoutine
-            {
-                Name = "Da trung tính",
-                Description = "Duy trì sự cân bằng trung tính cho da.",
-                Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
-                Frequency = "Hàng ngày",
-                TargetSkinTypes = "Da trung tính"
-            },
-            new SkincareRoutine
-            {
-                Name = "Da hỗn hợp",
-                Description = "Chăm sóc cho cả vùng da khô và da dầu.",
-                Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
-                Frequency = "Hàng ngày",
-                TargetSkinTypes = "Da hỗn hợp"
-            },
-            new SkincareRoutine
-            {
-                Name = "Mụn đầu đen",
-                Description = "Giúp làm sạch và ngăn ngừa mụn đầu đen.",
-                Steps = "Làm sạch, Tẩy tế bào chết, Làm săn chắc, Bảo vệ",
-                Frequency = "Hàng tuần",
-                TargetSkinTypes = "Mụn đầu đen"
-            },
-            new SkincareRoutine
-            {
-                Name = "Mụn trứng cá",
-                Description = "Liệu trình chăm sóc da giảm mụn trứng cá.",
-                Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
-                Frequency = "Hàng ngày",
-                TargetSkinTypes = "Mụn trứng cá"
-            },
-            new SkincareRoutine
-            {
-                Name = "Quầng thâm mắt",
-                Description = "Giúp giảm quầng thâm dưới mắt.",
-                Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
-                Frequency = "Hàng ngày",
-                TargetSkinTypes = "Quầng thâm mắt"
-            },
-            new SkincareRoutine
-            {
-                Name = "Mụn có nhân đóng",
-                Description = "Liệu trình kiểm soát mụn có nhân đóng.",
-                Steps = "Làm sạch, Tẩy tế bào chết, Dưỡng ẩm, Bảo vệ",
-                Frequency = "Hàng tuần",
-                TargetSkinTypes = "Mụn có nhân đóng"
-            },
-            new SkincareRoutine
-            {
-                Name = "Nếp nhăn Glabella",
-                Description = "Giúp giảm nếp nhăn vùng giữa hai lông mày.",
-                Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
-                Frequency = "Hằng ngày",
-                TargetSkinTypes = "Nếp nhăn Glabella"
-            }
-
-        };
+                new SkincareRoutine
+                {
+                    Name = "Da dầu",
+                    Description = "Chăm sóc da dầu và giảm bã nhờn dư thừa.",
+                    Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
+                    Frequency = "Hàng ngày",
+                    TargetSkinTypes = "Da dầu"
+                },
+                new SkincareRoutine
+                {
+                    Name = "Da khô",
+                    Description = "Dưỡng ẩm và nuôi dưỡng làn da khô.",
+                    Steps = "Làm sạch, cấp nước, dưỡng ẩm, bảo vệ",
+                    Frequency = "Hàng ngày",
+                    TargetSkinTypes = "Da khô"
+                },
+                new SkincareRoutine
+                {
+                    Name = "Da trung tính",
+                    Description = "Duy trì sự cân bằng trung tính cho da.",
+                    Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
+                    Frequency = "Hàng ngày",
+                    TargetSkinTypes = "Da trung tính"
+                },
+                new SkincareRoutine
+                {
+                    Name = "Da hỗn hợp",
+                    Description = "Chăm sóc cho cả vùng da khô và da dầu.",
+                    Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
+                    Frequency = "Hàng ngày",
+                    TargetSkinTypes = "Da hỗn hợp"
+                },
+                new SkincareRoutine
+                {
+                    Name = "Mụn đầu đen",
+                    Description = "Giúp làm sạch và ngăn ngừa mụn đầu đen.",
+                    Steps = "Làm sạch, Tẩy tế bào chết, Làm săn chắc, Bảo vệ",
+                    Frequency = "Hàng tuần",
+                    TargetSkinTypes = "Mụn đầu đen"
+                },
+                new SkincareRoutine
+                {
+                    Name = "Mụn trứng cá",
+                    Description = "Liệu trình chăm sóc da giảm mụn trứng cá.",
+                    Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
+                    Frequency = "Hàng ngày",
+                    TargetSkinTypes = "Mụn trứng cá"
+                },
+                new SkincareRoutine
+                {
+                    Name = "Quầng thâm mắt",
+                    Description = "Giúp giảm quầng thâm dưới mắt.",
+                    Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
+                    Frequency = "Hàng ngày",
+                    TargetSkinTypes = "Quầng thâm mắt"
+                },
+                new SkincareRoutine
+                {
+                    Name = "Mụn có nhân đóng",
+                    Description = "Liệu trình kiểm soát mụn có nhân đóng.",
+                    Steps = "Làm sạch, Tẩy tế bào chết, Dưỡng ẩm, Bảo vệ",
+                    Frequency = "Hàng tuần",
+                    TargetSkinTypes = "Mụn có nhân đóng"
+                },
+                new SkincareRoutine
+                {
+                    Name = "Nếp nhăn Glabella",
+                    Description = "Giúp giảm nếp nhăn vùng giữa hai lông mày.",
+                    Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
+                    Frequency = "Hằng ngày",
+                    TargetSkinTypes = "Nếp nhăn Glabella"
+                }
+            };
 
             foreach (var routine in skincareRoutines)
             {
@@ -5777,7 +6069,6 @@ new Service
                         "Mụn có nhân đóng" => new[] { 5, 10, 11, 23, 31, 34, 45, 46 },
                         "Nếp nhăn glabella" => new[] { 2, 6, 8, 28, 32, 41, 42, 48 },
                         _ => Array.Empty<int>()
-
                     };
 
                     var routineServices = routine.Name switch
@@ -5792,7 +6083,6 @@ new Service
                         "Mụn có nhân đóng" => new[] { 4, 7 },
                         "Nếp nhăn glabella" => new[] { 2, 3, 8 },
                         _ => Array.Empty<int>()
-
                     };
 
                     // Add ProductRoutine
@@ -5844,15 +6134,16 @@ new Service
 
             foreach (var step in skincareSteps)
             {
-                if (!_context.SkinCareRoutineStep.Any(s => s.SkincareRoutineId == step.SkincareRoutineId && s.Step == step.Step))
+                if (!_context.SkinCareRoutineStep.Any(s =>
+                        s.SkincareRoutineId == step.SkincareRoutineId && s.Step == step.Step))
                 {
                     _context.SkinCareRoutineStep.Add(step);
                 }
             }
+
             await _context.SaveChangesAsync();
         }
     }
-
 
 
     public static class DatabaseInitialiserExtension

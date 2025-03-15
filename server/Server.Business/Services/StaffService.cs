@@ -20,7 +20,6 @@ namespace Server.Business.Services
 {
     public class StaffService
     {
-
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
@@ -33,11 +32,11 @@ namespace Server.Business.Services
         }
 
         public async Task<Pagination<Staff>> GetListAsync(
-    Expression<Func<Staff, bool>> filter = null,
-    Func<IQueryable<Staff>, IOrderedQueryable<Staff>> orderBy = null,
-    int? pageIndex = null,
-    int? pageSize = null,
-    string name = null)
+            Expression<Func<Staff, bool>> filter = null,
+            Func<IQueryable<Staff>, IOrderedQueryable<Staff>> orderBy = null,
+            int? pageIndex = null,
+            int? pageSize = null,
+            string name = null)
         {
             IQueryable<Staff> query = _unitOfWorks.StaffRepository.GetAll()
                 .Include(s => s.StaffInfo)
@@ -90,8 +89,8 @@ namespace Server.Business.Services
 
                 // Kiểm tra Branch tồn tại
                 var branchExists = await _unitOfWorks.BranchRepository
-     .FindByCondition(x => x.BranchId == staffDto.BranchId)
-     .AnyAsync();
+                    .FindByCondition(x => x.BranchId == staffDto.BranchId)
+                    .AnyAsync();
 
                 if (!branchExists)
                     return ApiResponse.Error("Branch not found.");
@@ -234,8 +233,8 @@ namespace Server.Business.Services
             {
                 // Kiểm tra sự tồn tại của Staff
                 var staffExists = await _unitOfWorks.StaffRepository
-    .FindByCondition(x => x.StaffId == staffId)
-    .AnyAsync();
+                    .FindByCondition(x => x.StaffId == staffId)
+                    .AnyAsync();
 
                 if (!staffExists)
                 {
@@ -244,8 +243,8 @@ namespace Server.Business.Services
 
                 // Kiểm tra sự tồn tại của Role
                 var roleExists = await _unitOfWorks.UserRepository
-     .FindByCondition(x => x.UserRole.RoleId == roleId)
-     .AnyAsync();
+                    .FindByCondition(x => x.UserRole.RoleId == roleId)
+                    .AnyAsync();
 
                 if (!roleExists)
                 {
@@ -254,8 +253,8 @@ namespace Server.Business.Services
 
                 // Lấy Staff
                 var staff = await _unitOfWorks.StaffRepository
-     .FindByCondition(x => x.StaffId == staffId)
-     .FirstOrDefaultAsync();
+                    .FindByCondition(x => x.StaffId == staffId)
+                    .FirstOrDefaultAsync();
 
                 if (staff == null)
                 {
@@ -297,7 +296,8 @@ namespace Server.Business.Services
             try
             {
                 // Kiểm tra sự tồn tại của Staff
-                var staffExists = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId).AnyAsync();
+                var staffExists = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId)
+                    .AnyAsync();
                 if (!staffExists)
                 {
                     return ApiResponse.Error("Staff not found");
@@ -305,8 +305,8 @@ namespace Server.Business.Services
 
                 // Kiểm tra sự tồn tại của Branch
                 var branchExists = await _unitOfWorks.BranchRepository
-     .FindByCondition(x => x.BranchId == branchId)
-     .AnyAsync();
+                    .FindByCondition(x => x.BranchId == branchId)
+                    .AnyAsync();
 
                 if (!branchExists)
                 {
@@ -314,7 +314,8 @@ namespace Server.Business.Services
                 }
 
                 // Lấy thông tin Staff cần cập nhật
-                var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId).FirstOrDefaultAsync();
+                var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId)
+                    .FirstOrDefaultAsync();
                 if (staff == null)
                 {
                     return ApiResponse.Error("Staff not found");
@@ -344,7 +345,7 @@ namespace Server.Business.Services
                 // Sử dụng UnitOfWorks để lấy thông tin Staff
                 var staff = await _unitOfWorks.StaffRepository
                     .GetAll() // Lấy tất cả dữ liệu từ repository
-                    .Include(s => s.StaffInfo)  // Bao gồm thông tin người dùng (User)
+                    .Include(s => s.StaffInfo) // Bao gồm thông tin người dùng (User)
                     .Include(s => s.Branch) // Bao gồm thông tin chi nhánh (Branch)
                     .FirstOrDefaultAsync(s => s.StaffId == staffId);
 
@@ -370,10 +371,10 @@ namespace Server.Business.Services
             {
                 // Tìm kiếm Staff dựa trên staffId từ route
                 var existingStaff = await _unitOfWorks.StaffRepository
-     .FindByCondition(s => s.StaffId == staffId)
-     .Include(s => s.StaffInfo) // Bao gồm thông tin từ bảng User
-     .Include(s => s.Branch)    // Bao gồm thông tin từ bảng Branch
-     .FirstOrDefaultAsync();
+                    .FindByCondition(s => s.StaffId == staffId)
+                    .Include(s => s.StaffInfo) // Bao gồm thông tin từ bảng User
+                    .Include(s => s.Branch) // Bao gồm thông tin từ bảng Branch
+                    .FirstOrDefaultAsync();
 
 
                 if (existingStaff == null)
@@ -423,8 +424,8 @@ namespace Server.Business.Services
             {
                 // Tìm Staff trong database
                 var staff = await _unitOfWorks.StaffRepository
-      .FindByCondition(p => p.StaffId == staffId)
-      .FirstOrDefaultAsync();
+                    .FindByCondition(p => p.StaffId == staffId)
+                    .FirstOrDefaultAsync();
 
 
                 // Nếu không tìm thấy Staff
@@ -559,11 +560,10 @@ namespace Server.Business.Services
 
         public async Task<StaffModel> GetStaffById(int staffId)
         {
-
             // Sử dụng UnitOfWorks để lấy thông tin Staff
             var staff = await _unitOfWorks.StaffRepository
                 .GetAll() // Lấy tất cả dữ liệu từ repository
-                .Include(s => s.StaffInfo)  // Bao gồm thông tin người dùng (User)
+                .Include(s => s.StaffInfo) // Bao gồm thông tin người dùng (User)
                 .Include(s => s.Branch) // Bao gồm thông tin chi nhánh (Branch)
                 .FirstOrDefaultAsync(s => s.StaffId == staffId);
 
@@ -575,7 +575,6 @@ namespace Server.Business.Services
 
             // Trả về dữ liệu staff
             return _mapper.Map<StaffModel>(staff);
-
         }
 
         public async Task<List<SpecialistScheduleDto>> GetSpecialistScheduleAsync(int staffId, int year, int month)
@@ -587,7 +586,7 @@ namespace Server.Business.Services
             var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
             if (staff == null || staff.RoleId != 2)
             {
-                return new List<SpecialistScheduleDto>();  // Trả về danh sách rỗng nếu không phải specialist
+                return new List<SpecialistScheduleDto>(); // Trả về danh sách rỗng nếu không phải specialist
             }
 
             var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
@@ -617,7 +616,8 @@ namespace Server.Business.Services
             return new List<SpecialistScheduleDto> { result };
         }
 
-        public async Task<List<CashierScheduleDto>> GetCashierScheduleAsync(int staffId, int year, int? month, int? week)
+        public async Task<List<CashierScheduleDto>> GetCashierScheduleAsync(int staffId, int year, int? month,
+            int? week)
         {
             var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
             if (staff == null || staff.RoleId != 1)
@@ -702,48 +702,131 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<List<StaffModel>> ListStaffFreeInTime(ListStaffFreeInTimeRequest request)
+        public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
         {
-            // Kiểm tra xem service có tồn tại trong branch không
-            var branchService = await _unitOfWorks.Branch_ServiceRepository
-                .FindByCondition(x => x.BranchId == request.BranchId && x.ServiceId == request.ServiceId)
-                .FirstOrDefaultAsync();
+            // Kiểm tra xem tất cả dịch vụ có tồn tại trong branch không
+            var branchServices = await _unitOfWorks.Branch_ServiceRepository
+                .FindByCondition(x => x.BranchId == request.BranchId && request.ServiceIds.Contains(x.ServiceId))
+                .Select(x => x.ServiceId)
+                .ToListAsync();
 
-            if (branchService == null)
-                throw new BadRequestException("Service does not exist in branch");
+            if (branchServices.Count != request.ServiceIds.Length)
+                return new ListStaffFreeInTimeResponse
+                {
+                    Message = "One or more services do not exist in branch", Data = new List<StaffFreeInTimeResponse>()
+                };
 
             // Lấy danh sách tất cả nhân viên thuộc branch
             var listStaff = await _unitOfWorks.StaffRepository
                 .FindByCondition(x => x.BranchId == request.BranchId)
+                .Include(x => x.StaffInfo)
                 .ToListAsync();
 
-            // Lấy thời lượng của service (giả sử đã parse sang số phút)
-            var service = await _unitOfWorks.ServiceRepository.GetByIdAsync(request.ServiceId);
-            if (service == null || !int.TryParse(service.Duration, out int serviceDurationInMinutes))
-                throw new BadRequestException("Invalid service duration");
+            if (!listStaff.Any())
+                return new ListStaffFreeInTimeResponse
+                    { Message = "No staff found in branch", Data = new List<StaffFreeInTimeResponse>() };
 
-            // Tính thời gian kết thúc của yêu cầu đặt lịch
-            var expectedEndTime = request.StartTime.AddMinutes(serviceDurationInMinutes);
+            // Lấy thời lượng của từng service
+            var serviceDurations = _unitOfWorks.ServiceRepository
+                .FindByCondition(s => request.ServiceIds.Contains(s.ServiceId))
+                .AsEnumerable() // Chuyển sang IEnumerable để xử lý LINQ trên bộ nhớ
+                .Select(s => new 
+                { 
+                    s.ServiceId, 
+                    Duration = int.TryParse(s.Duration, out int duration) ? duration : 0 
+                })
+                .ToDictionary(s => s.ServiceId, s => s.Duration);
 
-            // Truy vấn danh sách nhân viên bận trong khoảng thời gian này
-            var busyStaffIds = await _unitOfWorks.AppointmentsRepository
-                .FindByCondition(a =>
-                    a.BranchId == request.BranchId &&
-                    a.ServiceId == request.ServiceId &&
-                    (a.AppointmentsTime <= request.StartTime && a.AppointmentsTime.AddMinutes(serviceDurationInMinutes) > request.StartTime ||
-                     a.AppointmentsTime < expectedEndTime && a.AppointmentsTime.AddMinutes(serviceDurationInMinutes) >= expectedEndTime ||
-                     a.AppointmentsTime >= request.StartTime && a.AppointmentsTime.AddMinutes(serviceDurationInMinutes) <= expectedEndTime)
-                )
-                .Select(a => a.StaffId)
-                .Distinct()
-                .ToListAsync();
+            if (serviceDurations.Values.Any(d => d <= 0))
+                return new ListStaffFreeInTimeResponse
+                    { Message = "Invalid service duration detected", Data = new List<StaffFreeInTimeResponse>() };
 
-            // Lọc danh sách nhân viên rảnh
-            var availableStaff = listStaff.Where(s => !busyStaffIds.Contains(s.StaffId)).ToList();
+            // Danh sách kết quả
+            var responseList = new List<StaffFreeInTimeResponse>();
 
-            return _mapper.Map<List<StaffModel>>(availableStaff);
+            for (int i = 0; i < request.ServiceIds.Length; i++)
+            {
+                int serviceId = request.ServiceIds[i];
+                DateTime startTime = request.StartTimes[i];
+                int serviceDuration = serviceDurations[serviceId];
+
+                var expectedEndTime = startTime.AddMinutes(serviceDuration);
+
+                var busyStaffIds = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(a =>
+                        a.BranchId == request.BranchId &&
+                        (a.AppointmentsTime <= startTime &&
+                         a.AppointmentsTime.AddMinutes(serviceDuration) > startTime ||
+                         a.AppointmentsTime < expectedEndTime &&
+                         a.AppointmentsTime.AddMinutes(serviceDuration) >= expectedEndTime ||
+                         a.AppointmentsTime >= startTime &&
+                         a.AppointmentsTime.AddMinutes(serviceDuration) <= expectedEndTime)
+                    )
+                    .Select(a => a.StaffId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Danh sách nhân viên rảnh cho serviceId & startTime này
+                var availableStaff = listStaff.Where(s => !busyStaffIds.Contains(s.StaffId)).ToList();
+
+                // Thêm vào danh sách response
+                responseList.Add(new StaffFreeInTimeResponse
+                {
+                    ServiceId = serviceId,
+                    StartTime = startTime,
+                    Staffs = _mapper.Map<List<StaffModel>>(availableStaff)
+                });
+            }
+
+            return new ListStaffFreeInTimeResponse
+            {
+                Message = "Success",
+                Data = responseList
+            };
         }
 
 
+        public async Task<GetListStaffByServiceCategoryResponse> GetListStaffByServiceCategory(
+            GetListStaffByServiceCategoryRequest request)
+        {
+            var branch = await _unitOfWorks.BranchRepository
+                .FindByCondition(x => x.BranchId == request.BranchId)
+                .FirstOrDefaultAsync();
+            if (branch == null) throw new BadRequestException("Branch not found!");
+
+            var listStaffResponse = new List<StaffServiceCategoryResponse>();
+
+            foreach (var serviceCategoryId in request.ServiceCategoryIds)
+            {
+                var listStaffServiceCategories = await _unitOfWorks.Staff_ServiceCategoryRepository
+                    .FindByCondition(x => x.ServiceCategoryId == serviceCategoryId)
+                    .Include(x => x.StaffInfo)
+                    .ThenInclude(x => x.StaffInfo)
+                    .ToListAsync();
+
+                var listStaff = new List<Staff>();
+                foreach (var staffServiceCategory in listStaffServiceCategories)
+                {
+                    listStaff.Add(staffServiceCategory.StaffInfo);
+                }
+
+                listStaffResponse.Add(new StaffServiceCategoryResponse()
+                {
+                    ServiceCategoryId = serviceCategoryId,
+                    Staffs = _mapper.Map<List<StaffModel>>(listStaff)
+                });
+            }
+
+            if (listStaffResponse.Any())
+            {
+                return new GetListStaffByServiceCategoryResponse()
+                {
+                    Message = "Get list staff successfully!",
+                    Data = listStaffResponse.ToArray()
+                };
+            }
+
+            return null;
+        }
     }
 }
