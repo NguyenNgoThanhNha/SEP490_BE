@@ -32,6 +32,7 @@ public class Appointments
     
     public DateTime AppointmentsTime { get; set; }
     
+    public DateTime AppointmentEndTime { get; set; }
     public string Status { get; set; } = OrderStatusEnum.Pending.ToString();
     
     public string Notes { get; set; }

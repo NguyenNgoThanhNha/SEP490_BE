@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Server.Data.Entities;
 using Server.Data.Repositories;
 
@@ -7,6 +8,8 @@ namespace Server.Data.UnitOfWorks
     public class UnitOfWorks
     {
         private readonly AppDbContext _dbContext;
+        private IDbContextTransaction _transaction;
+        
         private UserRepository _userRepo;
         private AuthRepository _authRepo;
         private UserRoleRepository _userRoleRepo;
@@ -196,6 +199,36 @@ namespace Server.Data.UnitOfWorks
         public FeedbackServiceRepository FeedbackServiceRepository
         {
             get { return _feedbackServiceRepository ??= new FeedbackServiceRepository(_dbContext); }
+        }
+        
+        public async Task BeginTransactionAsync()
+        {
+            _transaction = await _dbContext.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.CommitAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+
+        public async Task RollbackTransactionAsync()
+        {
+            if (_transaction != null)
+            {
+                await _transaction.RollbackAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _dbContext.SaveChangesAsync();
         }
     }
 }

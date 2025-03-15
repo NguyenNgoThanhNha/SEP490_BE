@@ -77,6 +77,9 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("AppointmentEndTime")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<DateTime>("AppointmentsTime")
                         .HasColumnType("datetime(6)");
 
@@ -266,6 +269,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("District")
+                        .HasColumnType("int");
+
                     b.Property<string>("LatAddress")
                         .HasColumnType("longtext");
 
@@ -280,6 +286,9 @@ namespace Server.Data.Migrations
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("WardCode")
+                        .HasColumnType("int");
 
                     b.HasKey("BranchId");
 
@@ -1522,6 +1531,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("District")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -1579,6 +1591,9 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
+
+                    b.Property<int?>("WardCode")
+                        .HasColumnType("int");
 
                     b.HasKey("UserId");
 
