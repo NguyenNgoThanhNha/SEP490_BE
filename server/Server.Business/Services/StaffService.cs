@@ -802,6 +802,7 @@ namespace Server.Business.Services
                     .FindByCondition(x => x.ServiceCategoryId == serviceCategoryId)
                     .Include(x => x.StaffInfo)
                     .ThenInclude(x => x.StaffInfo)
+                    .Where(x => x.StaffInfo.BranchId == request.BranchId)
                     .ToListAsync();
 
                 var listStaff = new List<Staff>();
