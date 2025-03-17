@@ -13,7 +13,7 @@ public class ApointmentRequest
     [Required(ErrorMessage = "BranchId is required!")]
     public int BranchId { get; set; }
     
-    public DateTime AppointmentsTime { get; set; }
+    public DateTime[] AppointmentsTime { get; set; }
     
     public string? Status { get; set; }
     
