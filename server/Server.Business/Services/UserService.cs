@@ -9,6 +9,7 @@ using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq.Expressions;
+using Server.Data;
 
 namespace Server.Business.Services
 {
@@ -123,6 +124,14 @@ namespace Server.Business.Services
             }*/
 
             return userModel;
+        }
+
+        public async Task<bool> UpdateUserInfo(UserModel userModel)
+        {
+            var user = _mapper.Map<User>(userModel);
+            _unitOfWorks.UserRepository.Update(user);
+            var result = await _unitOfWorks.UserRepository.Commit();
+            return result > 0;
         }
     }
 }

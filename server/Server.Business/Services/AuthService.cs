@@ -9,6 +9,7 @@ using Server.Business.Commons.Response;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Business.Ultils;
+using Server.Data;
 using Server.Data.Entities;
 using Server.Data.Helpers;
 using Server.Data.UnitOfWorks;
