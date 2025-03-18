@@ -15,45 +15,20 @@ using Server.Business.Models;
 using System.Globalization;
 using Server.Business.Commons.Request;
 using Server.Data;
-using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Server.Data.Repositories;
 
 namespace Server.Business.Services
 {
     public class StaffService
     {
-        private readonly AppDbContext _dbContext;
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly AuthService _authService;
-        private readonly ScheduleRepository _scheduleRepository;
 
-
-        // private readonly StaffService _staffService;
-        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService, IHttpContextAccessor httpContextAccessor, AuthService authService, ScheduleRepository scheduleRepository, AppDbContext dbContext)
+        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _mailService = mailService;
-            _httpContextAccessor = httpContextAccessor;
-            _authService = authService;
-            _scheduleRepository = scheduleRepository;
-            _dbContext = dbContext;
-        }
-        public string? GetAuthorizationToken()
-        {
-            if (_httpContextAccessor.HttpContext == null)
-                return null;
-
-            if (!_httpContextAccessor.HttpContext.Request.Headers.TryGetValue("Authorization", out var token))
-                return null;
-
-            return token.ToString();
         }
 
         public async Task<Pagination<Staff>> GetListAsync(
@@ -734,9 +709,9 @@ namespace Server.Business.Services
 
         public async Task<StaffScheduleDto> GetStaffScheduleByMonthAsync(int staffId, int year, int month)
         {
-            var staff = await _dbContext.Staffs
+            var staff = await _unitOfWorks.StaffRepository.FindByCondition(s => s.StaffId == staffId)
                 .Include(s => s.StaffInfo)
-                .FirstOrDefaultAsync(s => s.StaffId == staffId);
+                .FirstOrDefaultAsync();
 
             if (staff == null)
                 return null;
@@ -744,11 +719,11 @@ namespace Server.Business.Services
             var startDate = new DateTime(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            var schedules = await _dbContext.Schedules
-     .Where(s => s.StaffId == staffId &&
+            var schedules = await _unitOfWorks.ScheduleRepository
+            .FindByCondition(s => s.StaffId == staffId &&
                  s.WorkDate.Year == year &&
                  s.WorkDate.Month == month)
-     .ToListAsync();
+            .ToListAsync();
 
 
             var result = new StaffScheduleDto
@@ -774,6 +749,7 @@ namespace Server.Business.Services
 
 
 
+        
         public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
         {
             // Kiểm tra xem tất cả dịch vụ có tồn tại trong branch không
@@ -797,22 +773,43 @@ namespace Server.Business.Services
 
             if (!listStaff.Any())
                 return new ListStaffFreeInTimeResponse
-                { Message = "No staff found in branch", Data = new List<StaffFreeInTimeResponse>() };
+                {
+                    Message = "No staff found in branch",
+                    Data = new List<StaffFreeInTimeResponse>()
+                };
 
             // Lấy thời lượng của từng service
             var serviceDurations = _unitOfWorks.ServiceRepository
                 .FindByCondition(s => request.ServiceIds.Contains(s.ServiceId))
-                .AsEnumerable() // Chuyển sang IEnumerable để xử lý LINQ trên bộ nhớ
+                .AsEnumerable()
                 .Select(s => new
                 {
                     s.ServiceId,
+                    s.ServiceCategoryId, // Lấy ServiceCategoryId của service
                     Duration = int.TryParse(s.Duration, out int duration) ? duration : 0
                 })
-                .ToDictionary(s => s.ServiceId, s => s.Duration);
+                .ToList();
 
-            if (serviceDurations.Values.Any(d => d <= 0))
+            if (serviceDurations.Any(s => s.Duration <= 0))
                 return new ListStaffFreeInTimeResponse
-                { Message = "Invalid service duration detected", Data = new List<StaffFreeInTimeResponse>() };
+                {
+                    Message = "Invalid service duration detected",
+                    Data = new List<StaffFreeInTimeResponse>()
+                };
+
+            // Tạo dictionary map serviceId -> duration và serviceCategoryId
+            var serviceDurationDict = serviceDurations.ToDictionary(s => s.ServiceId, s => s.Duration);
+            var serviceCategoryDict = serviceDurations.ToDictionary(s => s.ServiceId, s => s.ServiceCategoryId);
+
+            // Lấy danh sách nhân viên có thể làm dịch vụ dựa trên ServiceCategory
+            var staffServiceCategories = await _unitOfWorks.Staff_ServiceCategoryRepository
+                .FindByCondition(x => serviceCategoryDict.Values.Contains(x.ServiceCategoryId))
+                .ToListAsync();
+
+            // Dictionary map StaffId -> Danh sách ServiceCategoryId mà họ có thể làm
+            var staffServiceCategoryMap = staffServiceCategories
+                .GroupBy(x => x.StaffId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.ServiceCategoryId).ToHashSet());
 
             // Danh sách kết quả
             var responseList = new List<StaffFreeInTimeResponse>();
@@ -821,26 +818,28 @@ namespace Server.Business.Services
             {
                 int serviceId = request.ServiceIds[i];
                 DateTime startTime = request.StartTimes[i];
-                int serviceDuration = serviceDurations[serviceId];
+                int serviceDuration = serviceDurationDict[serviceId];
+                int serviceCategoryId = serviceCategoryDict[serviceId];
 
                 var expectedEndTime = startTime.AddMinutes(serviceDuration);
 
                 var busyStaffIds = await _unitOfWorks.AppointmentsRepository
                     .FindByCondition(a =>
                         a.BranchId == request.BranchId &&
-                        (a.AppointmentsTime <= startTime &&
-                         a.AppointmentsTime.AddMinutes(serviceDuration) > startTime ||
-                         a.AppointmentsTime < expectedEndTime &&
-                         a.AppointmentsTime.AddMinutes(serviceDuration) >= expectedEndTime ||
-                         a.AppointmentsTime >= startTime &&
-                         a.AppointmentsTime.AddMinutes(serviceDuration) <= expectedEndTime)
+                        (a.AppointmentsTime <= startTime && a.AppointmentsTime.AddMinutes(serviceDuration) > startTime ||
+                         a.AppointmentsTime < expectedEndTime && a.AppointmentsTime.AddMinutes(serviceDuration) >= expectedEndTime ||
+                         a.AppointmentsTime >= startTime && a.AppointmentsTime.AddMinutes(serviceDuration) <= expectedEndTime)
                     )
                     .Select(a => a.StaffId)
                     .Distinct()
                     .ToListAsync();
 
-                // Danh sách nhân viên rảnh cho serviceId & startTime này
-                var availableStaff = listStaff.Where(s => !busyStaffIds.Contains(s.StaffId)).ToList();
+                // Lọc nhân viên rảnh & có thể làm dịch vụ
+                var availableStaff = listStaff
+                    .Where(s => !busyStaffIds.Contains(s.StaffId) &&
+                                staffServiceCategoryMap.ContainsKey(s.StaffId) &&
+                                staffServiceCategoryMap[s.StaffId].Contains(serviceCategoryId))
+                    .ToList();
 
                 // Thêm vào danh sách response
                 responseList.Add(new StaffFreeInTimeResponse

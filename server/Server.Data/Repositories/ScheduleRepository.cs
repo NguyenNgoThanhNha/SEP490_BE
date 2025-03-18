@@ -11,18 +11,9 @@ namespace Server.Data.Repositories
 {
     public class ScheduleRepository : GenericRepository<Schedule, int>
     {
-        private readonly AppDbContext _dbContext;
         public ScheduleRepository(AppDbContext dbContext) : base(dbContext)
         {
-            _dbContext = dbContext;
-        }
-        public async Task<IEnumerable<Schedule>> GetStaffScheduleAsync(int staffId, int year, int month)
-        {
-            return await _dbContext.Schedules
-                .Where(s => s.StaffId == staffId &&
-                            s.WorkDate.Year == year &&
-                            s.WorkDate.Month == month)
-                .ToListAsync();
+
         }
     }
 }
