@@ -9,8 +9,9 @@ namespace Server.Business.Dtos
     public class StaffScheduleDto
     {
         public int StaffId { get; set; }
-        public string FullName { get; set; } // Tên nhân viên
+        //public string FullName { get; set; } // Tên nhân viên
         public List<WorkScheduleDto> Schedules { get; set; } = new List<WorkScheduleDto>();
+        public List<SlotWorkingDto> SlotWorkings { get; set; }
     }
 
 }
