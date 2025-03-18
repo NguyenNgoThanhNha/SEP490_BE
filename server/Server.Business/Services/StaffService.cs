@@ -641,6 +641,12 @@ namespace Server.Business.Services
             return new List<SpecialistScheduleDto> { result };
         }
 
+        public async Task<bool> CheckStaffExists(int staffId)
+        {
+            var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
+            return staff != null;
+        }
+
         public async Task<List<CashierScheduleDto>> GetCashierScheduleAsync(int staffId, int year, int? month,
             int? week)
         {
