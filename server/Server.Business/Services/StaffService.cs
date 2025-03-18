@@ -25,7 +25,7 @@ namespace Server.Business.Services
 {
     public class StaffService
     {
-
+        private readonly AppDbContext _dbContext;
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
@@ -35,7 +35,7 @@ namespace Server.Business.Services
 
 
         // private readonly StaffService _staffService;
-        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService, IHttpContextAccessor httpContextAccessor, AuthService authService, ScheduleRepository scheduleRepository)
+        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService, IHttpContextAccessor httpContextAccessor, AuthService authService, ScheduleRepository scheduleRepository, AppDbContext dbContext)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
@@ -43,7 +43,7 @@ namespace Server.Business.Services
             _httpContextAccessor = httpContextAccessor;
             _authService = authService;
             _scheduleRepository = scheduleRepository;
-
+            _dbContext = dbContext;
         }
         public string? GetAuthorizationToken()
         {
@@ -701,36 +701,77 @@ namespace Server.Business.Services
             return new List<CashierScheduleDto> { result };
         }
 
-        public async Task<StaffScheduleDto> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
-        {
-            var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
-            if (staff == null)
-            {
-                return null; // Không tìm thấy nhân viên
-            }
+        //public async Task<StaffScheduleDto> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
+        //{
+        //    var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
+        //    if (staff == null)
+        //    {
+        //        return null; // Không tìm thấy nhân viên
+        //    }
 
-            var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
-                ws => ws.StaffId == staffId && ws.WorkDate.Date == workDate.Date
-            );
+        //    var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
+        //        ws => ws.StaffId == staffId && ws.WorkDate.Date == workDate.Date
+        //    );
+
+        //    var result = new StaffScheduleDto
+        //    {
+        //        StaffId = staffId,
+        //        //FullName = staff.StaffInfo.FullName,
+        //        Schedules = schedules.Select(s => new WorkScheduleDto
+        //        {
+        //            ScheduleId = s.Id,
+        //            WorkDate = s.WorkDate,
+        //            DayOfWeek = s.DayOfWeek,
+        //            ShiftName = s.Shift.ShiftName,
+        //            StartTime = s.Shift.StartTime,
+        //            EndTime = s.Shift.EndTime,
+        //            Status = s.Status
+        //        }).ToList()
+        //    };
+
+        //    return result;
+        //}
+
+        public async Task<StaffScheduleDto> GetStaffScheduleByMonthAsync(int staffId, int year, int month)
+        {
+            var staff = await _dbContext.Staffs
+                .Include(s => s.StaffInfo)
+                .FirstOrDefaultAsync(s => s.StaffId == staffId);
+
+            if (staff == null)
+                return null;
+
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            var schedules = await _dbContext.Schedules
+     .Where(s => s.StaffId == staffId &&
+                 s.WorkDate.Year == year &&
+                 s.WorkDate.Month == month)
+     .ToListAsync();
+
 
             var result = new StaffScheduleDto
             {
                 StaffId = staffId,
-                //FullName = staff.StaffInfo.FullName,
-                Schedules = schedules.Select(s => new WorkScheduleDto
+                //FullName = staff.StaffInfo?.FullName,
+                SlotWorkings = schedules.Select(s => new SlotWorkingDto
                 {
-                    ScheduleId = s.Id,
+                    ScheduleId = s.ScheduleId,
+                    BranchId = s.BranchId,
+                    ShiftName = s.ShiftName,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
                     WorkDate = s.WorkDate,
-                    DayOfWeek = s.DayOfWeek,
-                    ShiftName = s.Shift.ShiftName,
-                    StartTime = s.Shift.StartTime,
-                    EndTime = s.Shift.EndTime,
-                    Status = s.Status
+                    CreatedDate = s.CreatedDate,
+                    UpdatedDate = s.UpdatedDate
                 }).ToList()
             };
 
             return result;
         }
+
+
 
 
         public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
