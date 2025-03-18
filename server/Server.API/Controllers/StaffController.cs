@@ -413,10 +413,10 @@ namespace Server.API.Controllers
                 data = note
             }));
         }
+        
 
-        [Authorize]
-        [HttpGet("specialist-schedule")]
-        public async Task<IActionResult> GetSpecialistScheduleAsync([FromQuery] int year, [FromQuery] int month)
+        [HttpGet("staff-schedule")]
+        public async Task<IActionResult> GetStaffScheduleAsync([FromQuery] int year, [FromQuery] int month)
         {
             if (!ModelState.IsValid)
             {
@@ -428,7 +428,6 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -437,37 +436,136 @@ namespace Server.API.Controllers
                 }));
             }
 
-            // Chia tách token
             var tokenValue = token.ToString().Split(' ')[1];
-            // Lấy thông tin user từ token
             var currentUser = await _authService.GetUserInToken(tokenValue);
 
             if (currentUser == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "User info not found!"
+                }));
+            }
+
+            // RoleID phải là 4 (Staff)
+            if (currentUser.RoleID != 4)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "You are not authorized to access staff schedule. Only staff role is allowed."
                 }));
             }
 
             var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
 
-            var schedule = await _staffService.GetSpecialistScheduleAsync(staff.StaffId, year, month);
+            if (staff == null)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Staff info not found!"
+                }));
+            }
+
+            var schedule = await _staffService.GetStafflistScheduleAsync(staff.StaffId, year, month);
 
             if (schedule == null || !schedule.Any())
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Specialist schedule not found or the staff is not a specialist."
+                    message = "Schedule not found."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Specialist schedule retrieved successfully.",
+                message = "Schedule retrieved successfully.",
                 data = schedule
             }));
         }
+
+
+    
+
+        [HttpGet("Manager-Admin-getstaff-schedule")]
+        public async Task<IActionResult> ManagerAdminGetStaffScheduleAsync([FromQuery] int year, [FromQuery] int month, [FromQuery] int? staffId)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<List<string>>.Error(errors));
+            }
+
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            var tokenValue = token.ToString().Split(' ')[1];
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "User info not found!"
+                }));
+            }
+
+            int actualStaffId;
+
+            if (currentUser.RoleID == 1 || currentUser.RoleID == 2) // Admin or Manager
+            {
+                if (staffId == null)
+                {
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "StaffId is required for Admin/Manager."
+                    }));
+                }
+
+                actualStaffId = staffId.Value;
+
+                var staffExists = await _staffService.CheckStaffExists(actualStaffId);
+                if (!staffExists)
+                {
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "Specified staff not found."
+                    }));
+                }
+            }
+            else
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "You are not authorized to access this schedule. Only Admin or Manager roles are allowed."
+                }));
+            }
+
+            var schedule = await _staffService.GetStafflistScheduleAsync(actualStaffId, year, month);
+
+            if (schedule == null || !schedule.Any())
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Schedule not found."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Schedule retrieved successfully.",
+                data = schedule
+            }));
+        }
+
 
         //[Authorize]
         [HttpGet("cashier-schedule")]
@@ -491,25 +589,127 @@ namespace Server.API.Controllers
         }
 
         // [Authorize]
-        [HttpGet("staff-schedule/{staffId}/{workDate}")]
-        public async Task<IActionResult> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
+        [HttpGet("slot-working")]
+        public async Task<IActionResult> GetStaffScheduleByMonthAsync([FromQuery] int year, [FromQuery] int month)
         {
-            var schedule = await _staffService.GetStaffScheduleByDayAsync(staffId, workDate);
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
 
-            if (schedule == null || !schedule.Schedules.Any())
+            var tokenValue = token.ToString().Split(' ')[1];
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "User info not found!"
+                }));
+            }
+
+            // Kiểm tra RoleID – chỉ Staff được phép
+            if (currentUser.RoleID != 4)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Access denied. Only staff can view their schedule."
+                }));
+            }
+
+            // Lấy Staff theo UserId
+            var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
+            if (staff == null)
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "No work schedule found for this staff on the given date."
+                    message = "Staff info not found!"
+                }));
+            }
+
+            // Gọi hàm Service để lấy lịch theo tháng
+            var schedule = await _staffService.GetStaffScheduleByMonthAsync(staff.StaffId, year, month);
+
+            if (schedule == null || schedule.SlotWorkings == null || !schedule.SlotWorkings.Any())
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "No slot working found for this staff in the selected month."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Successfully retrieved staff schedule!",
+                message = "Successfully retrieved staff slot working for the month!",
                 data = schedule
             }));
         }
+
+        [HttpGet("Manager-Admin/slot-working")]
+        public async Task<IActionResult> GetStaffSlotWorkingByMonthAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int month)
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            var tokenValue = token.ToString().Split(' ')[1];
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "User info not found!"
+                }));
+            }
+
+            // Chỉ cho phép Admin (1) hoặc Manager (2)
+            if (currentUser.RoleID != 1 && currentUser.RoleID != 2)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Access denied. Only Admin or Manager can view staff slot working."
+                }));
+            }
+
+            // Kiểm tra staffId tồn tại
+            var staff = await _staffService.GetStaffByIdAsync(staffId);
+            if (staff == null)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Staff not found with the provided ID."
+                }));
+            }
+
+            // Lấy lịch làm việc theo tháng
+            var schedule = await _staffService.GetStaffScheduleByMonthAsync(staffId, year, month);
+
+            if (schedule == null || schedule.SlotWorkings == null || !schedule.SlotWorkings.Any())
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "No slot working found for this staff in the selected month."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Successfully retrieved staff slot working for the month!",
+                data = schedule
+            }));
+        }
+
+
 
 
         [HttpPost("staff-free-in-time")]

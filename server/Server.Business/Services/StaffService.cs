@@ -577,16 +577,16 @@ namespace Server.Business.Services
             return _mapper.Map<StaffModel>(staff);
         }
 
-        public async Task<List<SpecialistScheduleDto>> GetSpecialistScheduleAsync(int staffId, int year, int month)
+        public async Task<List<SpecialistScheduleDto>> GetStafflistScheduleAsync(int staffId, int year, int month)
         {
             var startDate = new DateTime(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            // Kiểm tra xem nhân viên có phải là specialist (StaffRoleId = 2)
+            // Kiểm tra nhân viên có RoleId hợp lệ (1 hoặc 2)
             var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
-            if (staff == null || staff.RoleId != 2)
+            if (staff == null || (staff.RoleId != 1 && staff.RoleId != 2))
             {
-                return new List<SpecialistScheduleDto>(); // Trả về danh sách rỗng nếu không phải specialist
+                return new List<SpecialistScheduleDto>();
             }
 
             var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
@@ -614,6 +614,12 @@ namespace Server.Business.Services
             };
 
             return new List<SpecialistScheduleDto> { result };
+        }
+
+        public async Task<bool> CheckStaffExists(int staffId)
+        {
+            var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
+            return staff != null;
         }
 
         public async Task<List<CashierScheduleDto>> GetCashierScheduleAsync(int staffId, int year, int? month,
@@ -670,36 +676,78 @@ namespace Server.Business.Services
             return new List<CashierScheduleDto> { result };
         }
 
-        public async Task<StaffScheduleDto> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
-        {
-            var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
-            if (staff == null)
-            {
-                return null; // Không tìm thấy nhân viên
-            }
+        //public async Task<StaffScheduleDto> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
+        //{
+        //    var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
+        //    if (staff == null)
+        //    {
+        //        return null; // Không tìm thấy nhân viên
+        //    }
 
-            var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
-                ws => ws.StaffId == staffId && ws.WorkDate.Date == workDate.Date
-            );
+        //    var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
+        //        ws => ws.StaffId == staffId && ws.WorkDate.Date == workDate.Date
+        //    );
+
+        //    var result = new StaffScheduleDto
+        //    {
+        //        StaffId = staffId,
+        //        //FullName = staff.StaffInfo.FullName,
+        //        Schedules = schedules.Select(s => new WorkScheduleDto
+        //        {
+        //            ScheduleId = s.Id,
+        //            WorkDate = s.WorkDate,
+        //            DayOfWeek = s.DayOfWeek,
+        //            ShiftName = s.Shift.ShiftName,
+        //            StartTime = s.Shift.StartTime,
+        //            EndTime = s.Shift.EndTime,
+        //            Status = s.Status
+        //        }).ToList()
+        //    };
+
+        //    return result;
+        //}
+
+        public async Task<StaffScheduleDto> GetStaffScheduleByMonthAsync(int staffId, int year, int month)
+        {
+            var staff = await _unitOfWorks.StaffRepository.FindByCondition(s => s.StaffId == staffId)
+                .Include(s => s.StaffInfo)
+                .FirstOrDefaultAsync();
+
+            if (staff == null)
+                return null;
+
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            var schedules = await _unitOfWorks.ScheduleRepository
+            .FindByCondition(s => s.StaffId == staffId &&
+                 s.WorkDate.Year == year &&
+                 s.WorkDate.Month == month)
+            .ToListAsync();
+
 
             var result = new StaffScheduleDto
             {
                 StaffId = staffId,
-                //FullName = staff.StaffInfo.FullName,
-                Schedules = schedules.Select(s => new WorkScheduleDto
+                //FullName = staff.StaffInfo?.FullName,
+                SlotWorkings = schedules.Select(s => new SlotWorkingDto
                 {
-                    ScheduleId = s.Id,
+                    ScheduleId = s.ScheduleId,
+                    BranchId = s.BranchId,
+                    ShiftName = s.ShiftName,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
                     WorkDate = s.WorkDate,
-                    DayOfWeek = s.DayOfWeek,
-                    ShiftName = s.Shift.ShiftName,
-                    StartTime = s.Shift.StartTime,
-                    EndTime = s.Shift.EndTime,
-                    Status = s.Status
+                    CreatedDate = s.CreatedDate,
+                    UpdatedDate = s.UpdatedDate
                 }).ToList()
             };
 
             return result;
         }
+
+
+
 
         
         public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)

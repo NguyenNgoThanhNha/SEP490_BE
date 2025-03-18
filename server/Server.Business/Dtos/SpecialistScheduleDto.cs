@@ -8,8 +8,7 @@ namespace Server.Business.Dtos
 {
     public class SpecialistScheduleDto
     {
-        public int StaffId { get; set; }
-        public string FullName { get; set; }
+        public int StaffId { get; set; }       
         public List<WorkScheduleDto> Schedules { get; set; }
     }
 
