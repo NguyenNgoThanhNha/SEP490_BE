@@ -14,6 +14,7 @@ using Server.Data.UnitOfWorks;
 using System.Text;
 using Microsoft.AspNetCore.Http.Features;
 using Server.Data.MongoDb.Repository;
+using Server.Data.Repositories;
 
 namespace Server.API.Extensions
 {
@@ -113,7 +114,8 @@ namespace Server.API.Extensions
             services.AddScoped<CustomerRepository>();
             services.AddScoped<MessageRepository>();
             services.AddScoped<ChannelsRepository>();
-            
+            services.AddScoped<ScheduleRepository>();
+
             /*Config SignalR*/
             services.AddSignalR();
             
@@ -151,6 +153,7 @@ namespace Server.API.Extensions
             services.AddScoped<StaffLeaveService>();
             services.AddScoped<MongoDbService>();
             services.AddScoped<FeedbackService>();
+            services.AddHttpContextAccessor();
             return services;
         }
     };

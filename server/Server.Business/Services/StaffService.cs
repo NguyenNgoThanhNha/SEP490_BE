@@ -15,20 +15,45 @@ using Server.Business.Models;
 using System.Globalization;
 using Server.Business.Commons.Request;
 using Server.Data;
+using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Server.Data.Repositories;
 
 namespace Server.Business.Services
 {
     public class StaffService
     {
+
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly AuthService _authService;
+        private readonly ScheduleRepository _scheduleRepository;
 
-        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService)
+
+        // private readonly StaffService _staffService;
+        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService, IHttpContextAccessor httpContextAccessor, AuthService authService, ScheduleRepository scheduleRepository)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _mailService = mailService;
+            _httpContextAccessor = httpContextAccessor;
+            _authService = authService;
+            _scheduleRepository = scheduleRepository;
+
+        }
+        public string? GetAuthorizationToken()
+        {
+            if (_httpContextAccessor.HttpContext == null)
+                return null;
+
+            if (!_httpContextAccessor.HttpContext.Request.Headers.TryGetValue("Authorization", out var token))
+                return null;
+
+            return token.ToString();
         }
 
         public async Task<Pagination<Staff>> GetListAsync(
@@ -577,16 +602,16 @@ namespace Server.Business.Services
             return _mapper.Map<StaffModel>(staff);
         }
 
-        public async Task<List<SpecialistScheduleDto>> GetSpecialistScheduleAsync(int staffId, int year, int month)
+        public async Task<List<SpecialistScheduleDto>> GetStafflistScheduleAsync(int staffId, int year, int month)
         {
             var startDate = new DateTime(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            // Kiểm tra xem nhân viên có phải là specialist (StaffRoleId = 2)
+            // Kiểm tra nhân viên có RoleId hợp lệ (1 hoặc 2)
             var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
-            if (staff == null || staff.RoleId != 2)
+            if (staff == null || (staff.RoleId != 1 && staff.RoleId != 2))
             {
-                return new List<SpecialistScheduleDto>(); // Trả về danh sách rỗng nếu không phải specialist
+                return new List<SpecialistScheduleDto>();
             }
 
             var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
@@ -713,7 +738,8 @@ namespace Server.Business.Services
             if (branchServices.Count != request.ServiceIds.Length)
                 return new ListStaffFreeInTimeResponse
                 {
-                    Message = "One or more services do not exist in branch", Data = new List<StaffFreeInTimeResponse>()
+                    Message = "One or more services do not exist in branch",
+                    Data = new List<StaffFreeInTimeResponse>()
                 };
 
             // Lấy danh sách tất cả nhân viên thuộc branch
@@ -724,22 +750,22 @@ namespace Server.Business.Services
 
             if (!listStaff.Any())
                 return new ListStaffFreeInTimeResponse
-                    { Message = "No staff found in branch", Data = new List<StaffFreeInTimeResponse>() };
+                { Message = "No staff found in branch", Data = new List<StaffFreeInTimeResponse>() };
 
             // Lấy thời lượng của từng service
             var serviceDurations = _unitOfWorks.ServiceRepository
                 .FindByCondition(s => request.ServiceIds.Contains(s.ServiceId))
                 .AsEnumerable() // Chuyển sang IEnumerable để xử lý LINQ trên bộ nhớ
-                .Select(s => new 
-                { 
-                    s.ServiceId, 
-                    Duration = int.TryParse(s.Duration, out int duration) ? duration : 0 
+                .Select(s => new
+                {
+                    s.ServiceId,
+                    Duration = int.TryParse(s.Duration, out int duration) ? duration : 0
                 })
                 .ToDictionary(s => s.ServiceId, s => s.Duration);
 
             if (serviceDurations.Values.Any(d => d <= 0))
                 return new ListStaffFreeInTimeResponse
-                    { Message = "Invalid service duration detected", Data = new List<StaffFreeInTimeResponse>() };
+                { Message = "Invalid service duration detected", Data = new List<StaffFreeInTimeResponse>() };
 
             // Danh sách kết quả
             var responseList = new List<StaffFreeInTimeResponse>();

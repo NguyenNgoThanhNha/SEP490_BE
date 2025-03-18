@@ -414,9 +414,10 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
-        [HttpGet("specialist-schedule")]
-        public async Task<IActionResult> GetSpecialistScheduleAsync([FromQuery] int year, [FromQuery] int month)
+
+        [Authorize("Staff")]
+        [HttpGet("staff-schedule")]
+        public async Task<IActionResult> GetStaffScheduleAsync([FromQuery] int year, [FromQuery] int month)
         {
             if (!ModelState.IsValid)
             {
@@ -439,6 +440,7 @@ namespace Server.API.Controllers
 
             // Chia tách token
             var tokenValue = token.ToString().Split(' ')[1];
+
             // Lấy thông tin user từ token
             var currentUser = await _authService.GetUserInToken(tokenValue);
 
@@ -446,25 +448,41 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "User info not found!"
                 }));
             }
 
+           //RoleId của User phải là Staff
+            if (currentUser.RoleID !=4)
+            {
+                return Forbid(); // Hoặc BadRequest nếu bạn muốn trả message chi tiết
+            }
+
+            // Lấy staff theo UserId
             var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
 
-            var schedule = await _staffService.GetSpecialistScheduleAsync(staff.StaffId, year, month);
+            if (staff == null)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Staff info not found!"
+                }));
+            }
+
+            // Lấy lịch làm việc theo StaffId
+            var schedule = await _staffService.GetStafflistScheduleAsync(staff.StaffId, year, month);
 
             if (schedule == null || !schedule.Any())
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Specialist schedule not found or the staff is not a specialist."
+                    message = "Schedule not found."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Specialist schedule retrieved successfully.",
+                message = "Schedule retrieved successfully.",
                 data = schedule
             }));
         }
