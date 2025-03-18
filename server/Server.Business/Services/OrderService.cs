@@ -551,5 +551,41 @@ namespace Server.Business.Services
             await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
             return await _unitOfWorks.OrderDetailRepository.Commit() > 0;
         }
+
+        public async Task<ApiResult<string>> CancelOrderAsync(int orderId)
+        {
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                return ApiResult<string>.Error(null, "Order not found.");
+            }
+
+            // Validate thời gian – chỉ huỷ trong 24h từ lúc tạo đơn
+            if (!CanModifyOrder(order.CreatedDate, 24))
+            {
+                return ApiResult<string>.Error(null, "You can only cancel the order within 24 hours of creation.");
+            }
+
+            // Chỉ huỷ khi đơn chưa thanh toán hoặc chưa xử lý
+            if (order.Status != OrderStatusEnum.Pending.ToString())
+            {
+                return ApiResult<string>.Error(null, "Only pending orders can be canceled.");
+            }
+
+            order.Status = OrderStatusEnum.Cancelled.ToString();
+            order.UpdatedDate = DateTime.UtcNow;
+
+            _unitOfWorks.OrderRepository.Update(order);
+            await _unitOfWorks.OrderRepository.Commit();
+
+            return ApiResult<string>.Succeed("Order canceled successfully.");
+        }
+
+        private bool CanModifyOrder(DateTime createdDate, int allowedHours = 24)
+        {
+            var timeElapsed = DateTime.UtcNow - createdDate;
+            return timeElapsed.TotalHours <= allowedHours;
+        }
+
     }
 }
