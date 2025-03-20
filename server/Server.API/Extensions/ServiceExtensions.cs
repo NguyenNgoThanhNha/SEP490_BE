@@ -155,7 +155,7 @@ namespace Server.API.Extensions
             services.AddScoped<MongoDbService>();
             services.AddScoped<FeedbackService>();
             services.AddHttpContextAccessor();
-            services.AddScoped<CartService>();
+            //services.AddScoped<CartService>();
             return services;
         }
     };
