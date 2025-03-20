@@ -29,26 +29,19 @@ public class AuthService
         _mapper = mapper;
     }
 
-    public async Task<UserModel> FirstStep(UserModel req, string typeAccount)
+    public async Task<UserModel> FirstStep(UserModel req)
     {
         var userEntity = _mapper.Map<User>(req);
         var user = _unitOfWorks.UserRepository.FindByCondition(x => x.Email == req.Email).FirstOrDefault();
 
         if (user != null && user.OTPCode != "0" && user.Status == "InActive")
         {
-            if (typeAccount == "Customer")
-            {
-                user.RoleID = 2;
-            }
-            else if (typeAccount == "Driver")
-            {
-                user.RoleID = 3;
-            }
             user.Status = "InActive";
             user.CreateDate = DateTimeOffset.Now.AddMinutes(2);
             user.BirthDate = DateTime.Now;
             user.Password = SecurityUtil.Hash(req.Password);
             user.OTPCode = new Random().Next(100000, 999999).ToString();
+            user.RoleID = 3;
             user.TypeLogin = "Normal";
 
             user = _unitOfWorks.UserRepository.Update(user);
@@ -62,23 +55,15 @@ public class AuthService
                 return null;
             }
         }
-        if (typeAccount == "Customer")
-        {
-            userEntity.RoleID = 2;
-        }
-        else if (typeAccount == "Driver")
-        {
-            userEntity.RoleID = 3;
-        }
         userEntity.Status = "InActive";
         userEntity.CreateDate = DateTimeOffset.Now.AddMinutes(2);
         userEntity.Password = SecurityUtil.Hash(req.Password!);
         userEntity.BirthDate = DateTime.Now;
         userEntity.TypeLogin = "Normal";
-        var existedUser = _unitOfWorks.UserRepository.FindByCondition(x => x.Email == req.Email).FirstOrDefault();
+        var existedUser = _unitOfWorks.UserRepository.FindByCondition(x => x.Email == req.Email || x.PhoneNumber == req.PhoneNumber).FirstOrDefault();
         if (existedUser != null)
         {
-            throw new BadRequestException("email already exist");
+            throw new BadRequestException("email or phone already exist");
         }
         userEntity = await _unitOfWorks.UserRepository.AddAsync(userEntity);
         int result = await _unitOfWorks.UserRepository.Commit();
@@ -95,9 +80,11 @@ public class AuthService
         }
     }
 
-    public async Task<LoginResult> SignIn(string email, string password)
+    public async Task<LoginResult> SignIn(string identifier, string password)
     {
-        var user = _unitOfWorks.AuthRepository.FindByCondition(u => u.Email.ToLower() == email.ToLower()).FirstOrDefault();
+        var user = _unitOfWorks.AuthRepository
+            .FindByCondition(u => u.Email.ToLower() == identifier.ToLower() || u.PhoneNumber.ToLower() == identifier.ToLower())
+            .FirstOrDefault();
 
 
         if (user is null || user.Status == "InActive")
@@ -460,7 +447,7 @@ public class AuthService
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new(ClaimTypes.Role, userRole.RoleName),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            /*new Claim("IsCustomer", userRole.RoleName == "Customer" ? "Customer" : "Admin")*/
+            new Claim("PhoneNumber", user?.PhoneNumber),
         };
         byte[] key;
 
@@ -549,5 +536,32 @@ public class AuthService
             // Handle any exceptions such as invalid token format, etc.
             throw new BadRequestException($"Failed to refresh token: {ex.Message}");
         }
+    }
+
+    public async Task<UserInfoModel> CreateAccountWithPhone(string phoneNumber, string userName, string? passWord, string? email)
+    {
+        var existedUser = await _unitOfWorks.UserRepository
+            .FindByCondition(x => x.PhoneNumber == phoneNumber || x.UserName == userName).FirstOrDefaultAsync();
+        if(existedUser != null)
+        {
+            throw new BadRequestException("Phone number or username already exist");
+        }
+        var random = new Random();
+        var randomPassword = random.Next(100000, 999999).ToString();
+        var user = new User
+        {
+            PhoneNumber = phoneNumber,
+            UserName = userName,
+            Email = email ?? userName.ToLower() + "@gmail.com",
+            Password = SecurityUtil.Hash(passWord ?? randomPassword),
+            Status = "Active",
+            CreateDate = DateTimeOffset.Now,
+            BirthDate = DateTime.Now,
+            RoleID = 3,
+            TypeLogin = "Normal"
+        };
+        var userEntity = await _unitOfWorks.UserRepository.AddAsync(user);
+        var result = await _unitOfWorks.UserRepository.Commit();
+        return result > 0 ? _mapper.Map<UserInfoModel>(userEntity) : null;
     }
 }

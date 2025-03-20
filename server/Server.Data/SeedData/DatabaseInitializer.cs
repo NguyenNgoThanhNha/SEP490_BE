@@ -5600,7 +5600,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/28/20/90/28209092643b28bd55e12004a5158fb9.jpg"
                 }),
                 // Hydrating Facial
-                ("Dưỡng ẩm cho da mặt", new List<string>
+                ("Liệu Pháp Dưỡng Ẩm", new List<string>
                 {
                     "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
                     "https://i.pinimg.com/736x/52/e2/c8/52e2c875539100b6fd36dfcb81cb334b.jpg",
@@ -5608,7 +5608,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/64/bf/86/64bf86354531fd40bbad0fe5979bbe64.jpg",
                 }),
                 // Brightening Facial
-                ("Làm sáng da mặt", new List<string>
+                ("Liệu Pháp Làm Sáng Da", new List<string>
                 {
                     "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
                     "https://i.pinimg.com/736x/ad/bd/b1/adbdb1e65aac64f3f44cbf7b7a548b30.jpg",
@@ -5617,7 +5617,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/95/24/b1/9524b1129e39e0c4e8336ee825469156.jpg"
                 }),
                 // Acne Treatment Facial
-                ("Điều trị mụn trứng cá", new List<string>
+                ("Liệu Pháp Trị Mụn", new List<string>
                 {
                     "https://i.pinimg.com/736x/fc/c4/6b/fcc46b80915cd02cde8c8f7d8975c01b.jpg",
                     "https://i.pinimg.com/736x/c6/14/6d/c6146dba83a0356ede4f775a46b64a34.jpg",
@@ -5626,7 +5626,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/95/24/b1/9524b1129e39e0c4e8336ee825469156.jpg"
                 }),
                 // Soothing Facial
-                ("Làm dịu da mặt", new List<string>
+                ("Liệu Pháp Làm Dịu Da", new List<string>
                 {
                     "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
                     "https://i.pinimg.com/736x/50/72/37/5072376f6e17d3219b0404e93a8cd89b.jpg",
@@ -5634,7 +5634,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/90/e8/8b/90e88bf68152266da89017591b6cbed6.jpg",
                 }),
                 // Green Tea Facial
-                ("Chăm sóc da mặt bằng trà xanh", new List<string>
+                ("Liệu Pháp Trà Xanh", new List<string>
                 {
                     "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
                     "https://i.pinimg.com/736x/7a/b9/40/7ab940119bbfd56905f68154084c73f6.jpg",
@@ -5642,7 +5642,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/4f/94/81/4f9481757db772237b2f348d3f24d47a.jpg",
                 }),
                 // Collagen Boost Facial
-                ("Chăm sóc da mặt tăng cường collagen", new List<string>
+                ("Liệu Pháp Tăng Cường Collagen", new List<string>
                 {
                     "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
                     "https://i.pinimg.com/736x/ac/ad/30/acad30ac766eb1e68002d8e45d60d7d3.jpg",
@@ -5651,7 +5651,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/3f/a4/30/3fa430040c0aa63d7682ef4457b8251d.jpg"
                 }),
                 // Detox Facial
-                ("Thải độc da mặt", new List<string>
+                ("Liệu Pháp Thải Độc Da", new List<string>
                 {
                     "https://i.pinimg.com/736x/2f/d5/55/2fd555a265af712266ff825946d84c36.jpg",
                     "https://i.pinimg.com/736x/26/7c/46/267c46cac2f68d850351bb84f1a05aac.jpg",
@@ -5660,7 +5660,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/8e/83/a6/8e83a64aac39e18f75acaf0efe8f0df9.jpg"
                 }),
                 // Overnight Hydration Facial
-                ("Dưỡng ẩm da mặt qua đêm", new List<string>
+                ("Liệu Pháp Dưỡng Ẩm Qua Đêm", new List<string>
                 {
                     "https://i.pinimg.com/736x/58/b1/bf/58b1bf4c47a37a4f21b99a7a0bc35a8e.jpg",
                     "https://i.pinimg.com/736x/a1/6a/4b/a16a4b0cb8492406f5712927de9e2c05.jpg",
@@ -5682,13 +5682,13 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/aa/fc/b5/aafcb5c41918eac7a035334e26becc05.jpg",
                 }),
                 // Moisturizing Body Wrap
-                ("Dưỡng ẩm toàn thân", new List<string>
+                ("Liệu Pháp Quấn Dưỡng Ẩm", new List<string>
                 {
                     "https://i.pinimg.com/736x/d9/7a/41/d97a41c66c2b8c27413e5b8386ee6734.jpg",
                     "https://i.pinimg.com/736x/bd/78/87/bd7887c01d97a59665f04f62616f78da.jpg",
                 }),
                 // Aromatherapy Massage
-                ("Massage hương liệu", new List<string>
+                ("Massage Liệu Pháp Hương Thơm", new List<string>
                 {
                     "https://i.pinimg.com/736x/c6/c8/c6/c6c8c65052fb8f59d3c7b495f47aace6.jpg",
                     "https://i0.wp.com/www.absolute-aromas.com/wp-content/uploads/2022/11/aromatherapy_massage_techniques.jpg?fit=1280%2C848&ssl=1",
@@ -5705,7 +5705,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/37/e9/64/37e964a2263041df8131c138f9219d79.jpg"
                 }),
                 // Abdominal Massage
-                ("Massage bụng", new List<string>
+                ("Massage Vùng Bụng", new List<string>
                 {
                     "https://images.squarespace-cdn.com/content/v1/5f2864b6ee63644ee0b157d3/1716227683804-A6SSUR28MIBPHBSSXODP/stomach+massage+for+constipation.jpg",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFO_Je7Wo2NTv7rKUoQNB2LCWShvPvie0FSVRE6zzkQjk92ika0RruE9bJa5YZAXa74pk&usqp=CAU",
@@ -5713,7 +5713,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/4e/f2/9b/4ef29b5b0d121283f8b07cd16ba8f562.jpg",
                 }),
                 // Detox Body Treatment
-                ("Liệu trình thải độc cơ thể", new List<string>
+                ("Liệu Pháp Thải Độc Cơ Thể", new List<string>
                 {
                     "https://i.pinimg.com/736x/c2/e0/42/c2e0422404b022ae69d9ba98cd659748.jpg",
                     "https://i.pinimg.com/736x/62/78/07/627807715ea10ff33f2b633e86fec023.jpg",
@@ -5729,7 +5729,7 @@ namespace Server.Data.SeedData
                     "https://i.pinimg.com/736x/35/8b/6a/358b6a8da772fb59bea486501845148c.jpg",
                 }),
                 // Body Polish
-                ("Sữa dưỡng thể", new List<string>
+                ("Tẩy Bóng Da", new List<string>
                 {
                     "https://www.bodycraft.co.in/wp-content/uploads/side-view-woman-getting-massaged-spa-1.jpg",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLNJVEtH6cN5JTyKFp841LIzCUFEtTwWxT6-7po0PTr1EAcdMlkooFhlseDIFTyWO_WDU&usqp=CAU",
