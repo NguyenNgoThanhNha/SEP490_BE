@@ -7,6 +7,7 @@ using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.SeedData;
 using Service.Business.Services;
+using StackExchange.Redis;
 
 namespace Server.API
 {
@@ -67,8 +68,11 @@ namespace Server.API
                 client.BaseAddress = new Uri("https://api.aimlapi.com/");
                 client.DefaultRequestHeaders.Add("Authorization", $"Bearer {builder.Configuration["AIML:ApiKey"]}");
             });
-            var app = builder.Build();
+            builder.Services.AddHttpContextAccessor();
 
+            builder.Services.AddSingleton<IConnectionMultiplexer>(
+                ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("Redis:ConnectionString")));
+            var app = builder.Build();
             // Hook into application lifetime events and trigger only application fully started 
             app.Lifetime.ApplicationStarted.Register(async () =>
             {
