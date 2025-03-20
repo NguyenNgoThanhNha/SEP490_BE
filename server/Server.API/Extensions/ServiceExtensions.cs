@@ -15,6 +15,7 @@ using System.Text;
 using Microsoft.AspNetCore.Http.Features;
 using Server.Data.MongoDb.Repository;
 using Server.Data.Repositories;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace Server.API.Extensions
 {
@@ -154,6 +155,7 @@ namespace Server.API.Extensions
             services.AddScoped<MongoDbService>();
             services.AddScoped<FeedbackService>();
             services.AddHttpContextAccessor();
+            services.AddScoped<CartService>();
             return services;
         }
     };

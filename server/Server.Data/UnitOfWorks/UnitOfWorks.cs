@@ -43,6 +43,8 @@ namespace Server.Data.UnitOfWorks
         private FeedbackServiceRepository _feedbackServiceRepository;
         private Staff_ServiceCategoryRepository _staffServiceCategoryRepository;
         private ScheduleRepository _scheduleRepository;
+        private CartRepository _cartRepository;
+        private ProductCartRepository _productCartRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -211,7 +213,17 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _staffServiceCategoryRepository ??= new Staff_ServiceCategoryRepository(_dbContext); }
         }
-        
+        public CartRepository CartRepository
+        {
+            get { return _cartRepository ??= new CartRepository(_dbContext); }
+        }
+
+        public ProductCartRepository ProductCartRepository
+        {
+            get { return _productCartRepository ??= new ProductCartRepository(_dbContext); }
+        }
+
+
         public async Task BeginTransactionAsync()
         {
             _transaction = await _dbContext.Database.BeginTransactionAsync();

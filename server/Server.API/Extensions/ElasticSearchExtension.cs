@@ -36,6 +36,12 @@ namespace Server.API.Extensions
 
             // Create ElasticClient and register as a singleton
             var client = new ElasticClient(settings);
+            var pingResponse = client.Ping();
+            if (!pingResponse.IsValid)
+            {
+                Console.WriteLine("Error connect ElasticSearch: ", pingResponse.DebugInformation);
+                return;
+            }
             services.AddSingleton<IElasticClient>(client);
 
             // Create index if needed
