@@ -37,9 +37,10 @@ namespace Server.Business.Models
 
         public string? OTPCode { get; set; }
 
+        [Required(ErrorMessage = "Phone Number is required")]
         [MaxLength(15)]
         [Phone(ErrorMessage = "Invalid Phone Number")]
-        public string? PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; }
         public string? STK { get; set; }
         public string? Bank { get; set; }
         public string? QRCode { get; set; }
