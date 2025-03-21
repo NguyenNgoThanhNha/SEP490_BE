@@ -21,6 +21,7 @@ namespace Server.Business.Services
         private readonly IDatabase _redisDb;
         private readonly string _cartPrefix = "cart";
         private readonly AppDbContext _context;
+        private readonly IConnectionMultiplexer _redis;
 
         public CartService(UnitOfWorks unitOfWorks,
             IMapper mapper,
@@ -31,90 +32,17 @@ namespace Server.Business.Services
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _httpContextAccessor = httpContext;
+            _redis = redis;
             _redisDb = redis.GetDatabase();
             _context = context;
         }
 
         private string GetCartKey(string userId) => $"{_cartPrefix}{userId}";
 
-        //    public async Task<Pagination<CartDTO>> GetListAsync(
-        //Expression<Func<Cart, bool>> filter = null,
-        //Func<IQueryable<Cart>, IOrderedQueryable<Cart>> orderBy = null,
-        //int? pageIndex = 0,
-        //int? pageSize = 10)
-        //    {
-        //        IQueryable<Cart> query = _unitOfWorks.CartRepository.GetAll()
-        //  .Include(c => c.Products) // Bao gồm danh sách sản phẩm
-        //      .ThenInclude(p => p.Cart); // Bao gồm thông tin công ty của sản phẩm
-
-
-        //        if (filter != null)
-        //        {
-        //            query = query.Where(filter);
-        //        }
-
-        //        if (orderBy != null)
-        //        {
-        //            query = orderBy(query);
-        //        }
-
-        //        var totalItemsCount = await query.CountAsync();
-
-        //        if (totalItemsCount == 0)
-        //        {
-        //            return new Pagination<CartDTO>
-        //            {
-        //                TotalItemsCount = 0,
-        //                PageSize = pageSize ?? 10,
-        //                PageIndex = pageIndex ?? 0,
-        //                Data = new List<CartDTO>()
-        //            };
-        //        }
-
-        //        pageIndex = pageIndex.HasValue && pageIndex.Value >= 0 ? pageIndex.Value : 0;
-        //        pageSize = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : 10;
-
-        //        query = query.Skip(pageIndex.Value * pageSize.Value).Take(pageSize.Value);
-
-        //        var categories = await query.ToListAsync();
-
-        //        var categoryDtos = categories.Select(c => new CartDTO
-        //        {
-        //            CartId = c.CartId,
-        //            Name = c.Name,
-        //            Description = c.Description,
-        //            Status = c.Status,
-        //            ImageUrl = c.ImageUrl,
-        //            CreatedDate = c.CreatedDate,
-        //            UpdatedDate = c.UpdatedDate,
-        //            Products = c.Products?.Select(p => new ProductDto
-        //            {
-        //                ProductId = p.ProductId,
-        //                ProductName = p.ProductName,
-        //                ProductDescription = p.ProductDescription,
-        //                Price = p.Price,
-        //                Quantity = p.Quantity,
-        //                Discount = p.Discount,
-        //                Status = p.Status,
-        //                //CartId = p.CartId,
-        //                CompanyId = p.CompanyId,
-        //                CompanyName = p.Company.Name,
-        //                //CartName = p.Cart.Name,
-        //                CreatedDate = p.CreatedDate,
-        //                UpdatedDate = p.UpdatedDate
-        //            }).ToList() ?? new List<ProductDto>()
-        //        }).ToList();
-
-        //        var totalPagesCount = (int)Math.Ceiling(totalItemsCount / (double)pageSize.Value);
-
-        //        return new Pagination<CartDTO>
-        //        {
-        //            TotalItemsCount = totalItemsCount,
-        //            PageSize = pageSize.Value,
-        //            PageIndex = pageIndex.Value,
-        //            Data = categoryDtos
-        //        };
-        //    }
+        private bool IsConnected()
+        {
+            return _redis.IsConnected;
+        }
 
         public async Task<ApiResult<ApiResponse>> GetCart()
         {
@@ -127,15 +55,20 @@ namespace Server.Business.Services
                 });
             }
             string cacheKey = GetCartKey(userId);
-            string cachedCart = await _redisDb.StringGetAsync(cacheKey);
 
-            if (!string.IsNullOrEmpty(cachedCart))
+            if (IsConnected())
             {
-                return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                string cachedCart = await _redisDb.StringGetAsync(cacheKey);
+
+                if (!string.IsNullOrEmpty(cachedCart))
                 {
-                    data = JsonConvert.DeserializeObject<List<CartDTO>>(cachedCart)
-                });
+                    return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                    {
+                        data = JsonConvert.DeserializeObject<List<CartDTO>>(cachedCart)
+                    });
+                }
             }
+
 
             var cart = await _context.ProductCart
                 .Include(c => c.Cart)
@@ -154,7 +87,7 @@ namespace Server.Business.Services
                 })
                 .ToListAsync();
 
-            if (cart != null && cart.Count > 0)
+            if (cart != null && cart.Count > 0 && IsConnected())
             {
                 await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
             }
@@ -257,7 +190,7 @@ namespace Server.Business.Services
 
                 if (result > 0)
                 {
-                    CacheCart(int.Parse(customerId));
+                    await CacheCart(int.Parse(customerId));
                     return ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
                         data = _mapper.Map<CartDTO>(detail)
@@ -320,6 +253,10 @@ namespace Server.Business.Services
 
         private async Task CacheCart(int userId)
         {
+            if (!IsConnected())
+            {
+                return;
+            }
             await _redisDb.KeyDeleteAsync(GetCartKey(userId.ToString()));
 
             var cart = await _context.ProductCart

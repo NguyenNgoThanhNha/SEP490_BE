@@ -81,10 +81,13 @@ services:
       - mongo_data:/data/db
     ports:
       - 27017:27017
-volumes:
-  spa_mysql_data:
-  es_data:
-  mongo_data:
+
+  
+
+  volumes:
+    spa_mysql_data:
+    es_data:
+    mongo_data:
 
     # The commented out section below is an example of how to define a PostgreSQL
     # database that your application can use. `depends_on` tells Docker Compose to
