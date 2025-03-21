@@ -88,6 +88,9 @@ namespace Server.Business.Mappers
 
             CreateMap<CartRequest, ProductCart>();
             CreateMap<ProductCart, CartDTO>();
+            CreateMap<Voucher, VoucherDto>();
+            
+            
         }
     }
 }

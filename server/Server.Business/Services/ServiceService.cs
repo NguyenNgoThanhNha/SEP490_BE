@@ -31,7 +31,8 @@ namespace Server.Business.Services
      Expression<Func<Server.Data.Entities.Service, bool>> filter = null,
      Func<IQueryable<Server.Data.Entities.Service>, IOrderedQueryable<Server.Data.Entities.Service>> orderBy = null,
      int? pageIndex = null,
-     int? pageSize = null)
+     int? pageSize = null,
+     int? serviceCategoryId = null)
         {
             // Truy vấn dữ liệu từ repository với điều kiện ban đầu là `status == "Active"`
             IQueryable<Server.Data.Entities.Service> query = _unitOfWorks.ServiceRepository.GetAll()
@@ -40,6 +41,11 @@ namespace Server.Business.Services
                 .ThenInclude(bs => bs.Branch) // Bao gồm thông tin Branch từ Branch_Services
                 .Where(s => s.Status == "Active"); // Chỉ lấy các Service có trạng thái Active
 
+            // Lọc theo ServiceCategoryId (nếu có)
+            if (serviceCategoryId.HasValue)
+            {
+                query = query.Where(s => s.ServiceCategoryId == serviceCategoryId);
+            }
 
             // Áp dụng bộ lọc (nếu có)
             if (filter != null)
@@ -150,7 +156,7 @@ namespace Server.Business.Services
             return serviceModels;
         }
         
-        public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId)
+        public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId, int serviceCategoryId)
         {
 
             // Lấy danh sách ServiceId thuộc về branchId cụ thể
@@ -162,7 +168,7 @@ namespace Server.Business.Services
             // Lấy danh sách Service dựa trên danh sách ServiceId
             var services = await _unitOfWorks.ServiceRepository.GetAll()
                 .Include(x => x.ServiceCategory)
-                .Where(s => serviceIdsOfBranch.Contains(s.ServiceId))
+                .Where(s => serviceIdsOfBranch.Contains(s.ServiceId) && s.ServiceCategoryId == serviceCategoryId)
                 .OrderByDescending(s => s.ServiceId)
                 .ToListAsync();
             
@@ -450,6 +456,33 @@ namespace Server.Business.Services
                 HasGross = result != null && result.Count > 0
             };
             return gross;
+        }
+        
+        public async Task<List<BranchDTO>> GetBranchesOfService(int serviceId)
+        {
+            var branchServices = await _unitOfWorks.Branch_ServiceRepository.GetAll()
+                .Where(bs => bs.ServiceId == serviceId)
+                .Include(bs => bs.Branch)
+                .Select(bs => bs.Branch)
+                .ToListAsync();
+
+            var branchDtos = _mapper.Map<List<BranchDTO>>(branchServices);
+            return branchDtos;
+        }
+        
+        public async Task<List<ServiceModel>> GetListServiceByBranchId(int branchId, int serviceCategoryId)
+        {
+            var serviceIds = await _unitOfWorks.Branch_ServiceRepository.GetAll()
+                .Where(bs => bs.BranchId == branchId)
+                .Select(bs => bs.ServiceId)
+                .ToListAsync();
+
+            var services = await _unitOfWorks.ServiceRepository.GetAll()
+                .Where(s => serviceIds.Contains(s.ServiceId) && s.ServiceCategoryId == serviceCategoryId)
+                .ToListAsync();
+
+            var serviceModels = _mapper.Map<List<ServiceModel>>(services);
+            return serviceModels;
         }
     }
 }

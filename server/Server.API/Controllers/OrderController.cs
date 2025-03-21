@@ -1,4 +1,5 @@
-using Microsoft.AspNet.SignalR;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -8,6 +9,7 @@ using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Exceptions;
+using Server.Business.Models;
 using Server.Business.Services;
 using Server.Business.Ultils;
 
@@ -27,6 +29,22 @@ namespace Server.API.Controllers
             _orderService = orderService;
             _authService = authService;
             _payOsSetting = payOsSetting.Value;
+        }
+        
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpGet("get-all-order")]
+        public async Task<IActionResult> GetAllOrder([FromQuery] string orderType, int page = 1, int pageSize = 5)
+        {
+            var orders = await _orderService.GetListOrderByOrderTypeAsync(orderType, page, pageSize);
+            if (orders.Data == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Order not found!"
+                }));
+            }
+
+            return Ok(ApiResult<Pagination<OrderModel>>.Succeed(orders));
         }
         
         [HttpPost("confirm-order-appointment")]
@@ -246,5 +264,79 @@ namespace Server.API.Controllers
             }));
         }
 
+        [Authorize]
+        [HttpPatch("update-order-status")]
+        public async Task<IActionResult> UpdateOrderStatus([FromQuery] int orderId, string orderStatus)
+        {
+            var result = await _orderService.UpdateOrderStatus(orderId, orderStatus);
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Update order status failed!"
+                }));
+            }
+            
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Update order status successfully"
+            }));
+        }
+        
+        [Authorize]
+        [HttpPatch("cancel-order/{orderId}")]
+        public async Task<IActionResult> CancelOrder(int orderId, string reason)
+        {
+            var result = await _orderService.CancelOrder(orderId, reason);
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Cancel order failed!"
+                }));
+            }
+            
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Cancel order successfully"
+            }));
+        }
+
+        [Authorize]
+        [HttpGet("get-order-by-staff")]
+        public async Task<IActionResult> GetOrderByStaff([FromQuery] string status, int page = 1, int pageSize = 5)
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Staff info not found!"
+                }));
+            }
+            var orders = await _orderService.GetListAppointmentsByStaff(status, currentUser.UserId, page, pageSize);
+            if (orders.Data == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Order not found!"
+                }));
+            }
+
+            return Ok(ApiResult<Pagination<AppointmentsModel>>.Succeed(orders));
+        }
     }
 }

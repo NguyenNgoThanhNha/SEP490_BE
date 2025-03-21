@@ -46,13 +46,6 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
-            if (req.TypeAccount == null)
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Please select type account"
-                }));
-            }
             var otp = 0;
             var Password = req.Password;
             var email = req.Email;
@@ -114,7 +107,7 @@ namespace Server.API.Controllers
                 City = req.City,
                 PhoneNumber = req.Phone
             };
-            var userModel = await authService.FirstStep(createUserModel, req.TypeAccount);
+            var userModel = await authService.FirstStep(createUserModel);
 
             if (userModel.OTPCode != otp.ToString())
             {
@@ -220,7 +213,7 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            var loginResult = await authService.SignIn(req.email, req.password);
+            var loginResult = await authService.SignIn(req.Identifier, req.Password);
             if (loginResult.Token == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -253,7 +246,7 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            var loginResult = await authService.SignIn(req.email, req.password);
+            var loginResult = await authService.SignIn(req.Identifier, req.Password);
             if (loginResult.Token == null)
             {
                 var result = ApiResponse.Error("Username or password is invalid");
@@ -605,6 +598,25 @@ namespace Server.API.Controllers
             {
                 message = "Get user info success!",
                 data = _mapper.Map<UserDTO>(currentUser)
+            }));
+        }
+
+        [HttpPost("create-account-with-phone")]
+        public async Task<IActionResult> CreateAccountWithPhone([FromBody] CreateAccountWithPhoneRequest request)
+        {
+            var result = await authService.CreateAccountWithPhone(request.PhoneNumber, request.UserName, request?.Password, request?.Email);
+            if (result == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Failed to create account!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Account created successfully!",
+                data = result
             }));
         }
     }

@@ -14,14 +14,13 @@ public class FirstStepResquest
 
     public string? FullName { get; set; }
 
+    [Required(ErrorMessage = "Phone is required")]
     [Phone(ErrorMessage = "Invalid phone")]
-    public string? Phone { get; set; } = null!;
+    public string Phone { get; set; } = null!;
 
     public string? City { get; set; }
 
     public string? Address { get; set; }
 
     public string? Link { get; set; }
-
-    public string TypeAccount { get; set; }
 }

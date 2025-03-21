@@ -551,36 +551,59 @@ namespace Server.Business.Services
             await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
             return await _unitOfWorks.OrderDetailRepository.Commit() > 0;
         }
-
-        public async Task<ApiResult<string>> CancelOrderAsync(int orderId)
+        
+        public async Task<bool> UpdateOrderStatus(int orderId, string orderStatus)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
-            if (order == null)
-            {
-                return ApiResult<string>.Error(null, "Order not found.");
-            }
-
-            // Validate thời gian – chỉ huỷ trong 24h từ lúc tạo đơn
-            if (!CanModifyOrder(order.CreatedDate, 24))
-            {
-                return ApiResult<string>.Error(null, "You can only cancel the order within 24 hours of creation.");
-            }
-
-            // Chỉ huỷ khi đơn chưa thanh toán hoặc chưa xử lý
-            if (order.Status != OrderStatusEnum.Pending.ToString())
-            {
-                return ApiResult<string>.Error(null, "Only pending orders can be canceled.");
-            }
-
-            order.Status = OrderStatusEnum.Cancelled.ToString();
-            order.UpdatedDate = DateTime.UtcNow;
-
+            if (order == null) throw new BadRequestException("Order not found!");
+            order.Status = orderStatus;
+            order.UpdatedDate = DateTime.Now;
             _unitOfWorks.OrderRepository.Update(order);
-            await _unitOfWorks.OrderRepository.Commit();
-
-            return ApiResult<string>.Succeed("Order canceled successfully.");
+            return await _unitOfWorks.OrderRepository.Commit() > 0;
         }
-
+        
+        public async Task<bool> CancelOrder(int orderId, string reasonCancel)
+        {
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
+            if (order == null) throw new BadRequestException("Order not found!");
+            order.Status = OrderStatusEnum.Cancelled.ToString();
+            order.Note = reasonCancel;
+            order.UpdatedDate = DateTime.Now;
+            _unitOfWorks.OrderRepository.Update(order);
+            return await _unitOfWorks.OrderRepository.Commit() > 0;
+        }
+        
+        public async Task<Pagination<OrderModel>> GetListOrderByOrderTypeAsync(string orderType, int pageIndex = 1, int pageSize = 10)
+        {
+            var query = _unitOfWorks.OrderRepository.FindByCondition(x => x.OrderType == orderType);
+            var totalItemsCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItemsCount / (double)pageSize);
+            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new Pagination<OrderModel>
+            {
+                TotalItemsCount = totalItemsCount,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Data = _mapper.Map<List<OrderModel>>(items)
+            };
+        }
+        
+        public async Task<Pagination<AppointmentsModel>> GetListAppointmentsByStaff(string status, int staffId, int pageIndex = 1, int pageSize = 10)
+        {
+            var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.UserId == staffId).FirstOrDefaultAsync();
+            var query = _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.StaffId == staff.StaffId && x.Status == status);
+            var totalItemsCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItemsCount / (double)pageSize);
+            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new Pagination<AppointmentsModel>
+            {
+                TotalItemsCount = totalItemsCount,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Data = _mapper.Map<List<AppointmentsModel>>(items)
+            };
+        }
+        
         private bool CanModifyOrder(DateTime createdDate, int allowedHours = 24)
         {
             var timeElapsed = DateTime.UtcNow - createdDate;
