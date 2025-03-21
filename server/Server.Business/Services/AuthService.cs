@@ -156,6 +156,7 @@ public class AuthService
             Email = req.Email,
             FullName = req.FullName,
             UserName = req.UserName,
+            PhoneNumber = req.Phone,
             Password = SecurityUtil.Hash("123456"),
             Avatar = req.Avatar,
             OTPCode = "0",
