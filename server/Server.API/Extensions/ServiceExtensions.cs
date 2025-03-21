@@ -156,7 +156,7 @@ namespace Server.API.Extensions
             services.AddScoped<FeedbackService>();
             services.AddScoped<VoucherService>();
             services.AddHttpContextAccessor();
-            //services.AddScoped<CartService>();
+            services.AddScoped<CartService>();
             return services;
         }
     };
