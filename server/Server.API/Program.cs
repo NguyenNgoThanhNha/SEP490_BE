@@ -71,7 +71,7 @@ namespace Server.API
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddSingleton<IConnectionMultiplexer>(
-                ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("Redis:ConnectionString")));
+                ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisSetting:ConnectionString")));
             var app = builder.Build();
             // Hook into application lifetime events and trigger only application fully started 
             app.Lifetime.ApplicationStarted.Register(async () =>
