@@ -619,5 +619,24 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+        
+        [HttpGet("get-user-by-phone-email")]
+        public async Task<IActionResult> GetUserByPhoneEmail([FromQuery] GetUserByPhoneEmailRequest request)
+        {
+            var user = await authService.CheckExistAccount(request.Phone, request.Email);
+            if (user == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "User not found!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get user info success!",
+                data = user
+            }));
+        }
     }
 }

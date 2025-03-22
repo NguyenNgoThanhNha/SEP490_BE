@@ -565,4 +565,11 @@ public class AuthService
         var result = await _unitOfWorks.UserRepository.Commit();
         return result > 0 ? _mapper.Map<UserInfoModel>(userEntity) : null;
     }
+    
+    public async Task<UserInfoModel> CheckExistAccount(string? phoneNumber, string? email)
+    {
+        var existedUser = await _unitOfWorks.UserRepository
+            .FindByCondition(x => x.PhoneNumber == phoneNumber || x.Email == email).FirstOrDefaultAsync();
+        return existedUser != null ? _mapper.Map<UserInfoModel>(existedUser) : null;
+    }
 }
