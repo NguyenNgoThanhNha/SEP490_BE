@@ -87,15 +87,15 @@ namespace Server.API.Controllers
             }
         }
 
+       
+
         [HttpGet("get-all-services-for-branch")]
-        public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId, int serviceCategoryId, int page = 1, int pageSize = 6)
+        public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId, [FromQuery] int? serviceCategoryId, int page = 1, int pageSize = 6)
         {
             try
             {
-                // Gọi Service để lấy danh sách dịch vụ
                 var services = await _serviceService.GetAllServiceForBranch(page, pageSize, branchId, serviceCategoryId);
 
-                // Kiểm tra nếu không có dữ liệu
                 if (services.data == null || !services.data.Any())
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
@@ -109,13 +109,13 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi và trả về phản hồi lỗi
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
                     message = $"An error occurred while retrieving services: {ex.Message}"
                 }));
             }
         }
+
 
 
         [HttpGet("get-service-by-id")]
@@ -401,23 +401,7 @@ namespace Server.API.Controllers
             }
         }
 
-        //[HttpGet("get-services-by-branch")]
-        //public async Task<IActionResult> GetServicesByBranch(int branchId, int serviceCategoryId)
-        //{
-        //    try
-        //    {
-        //        var services = await _serviceService.GetListServiceByBranchId(branchId, serviceCategoryId);
-        //        return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-        //        {
-        //            message = "Services retrieved successfully.",
-        //            data = services
-        //        }));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ApiResponse.Error(ex.Message));
-        //    }
-        //}
+        
 
         [HttpGet("get-services-by-branch")]
         public async Task<IActionResult> GetServicesByBranch(int branchId, int? serviceCategoryId)

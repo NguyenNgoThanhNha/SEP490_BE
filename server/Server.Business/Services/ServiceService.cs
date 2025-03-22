@@ -155,47 +155,76 @@ namespace Server.Business.Services
 
             return serviceModels;
         }
-        
-        public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId, int serviceCategoryId)
-        {
 
-            // Lấy danh sách ServiceId thuộc về branchId cụ thể
+      
+
+        public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId, int? serviceCategoryId)
+        {
+            // Lấy danh sách ServiceId thuộc branch
             var serviceIdsOfBranch = await _unitOfWorks.Branch_ServiceRepository.GetAll()
                 .Where(bs => bs.BranchId == branchId)
                 .Select(bs => bs.ServiceId)
                 .ToListAsync();
 
-            // Lấy danh sách Service dựa trên danh sách ServiceId
-            var services = await _unitOfWorks.ServiceRepository.GetAll()
-                .Include(x => x.ServiceCategory)
-                .Where(s => serviceIdsOfBranch.Contains(s.ServiceId) && s.ServiceCategoryId == serviceCategoryId)
-                .OrderByDescending(s => s.ServiceId)
-                .ToListAsync();
-            
-            var serviceModels = _mapper.Map<List<ServiceModel>>(services);
-            // chạy lặp qua services và lấy hình của chúng ra trong service_images
-            foreach (var service in serviceModels)
+            if (!serviceIdsOfBranch.Any())
             {
-                var serviceImages = await _unitOfWorks.ServiceImageRepository.GetAll()
-                    .Where(si => si.ServiceId == service.ServiceId)
-                    .Select(si => si.image)
-                    .ToArrayAsync();
-
-                service.images = serviceImages;
+                return new GetAllServicePaginationResponse
+                {
+                    data = new List<ServiceModel>(),
+                    pagination = new Pagination
+                    {
+                        page = page,
+                        totalPage = 0,
+                        totalCount = 0
+                    }
+                };
             }
-            
-            var totalCount = services.Count;
+
+            // Query lấy dịch vụ (lọc theo serviceCategoryId nếu có)
+            var servicesQuery = _unitOfWorks.ServiceRepository.GetAll()
+                .Include(x => x.ServiceCategory)
+                .Where(s => serviceIdsOfBranch.Contains(s.ServiceId));
+
+            if (serviceCategoryId.HasValue)
+            {
+                servicesQuery = servicesQuery.Where(s => s.ServiceCategoryId == serviceCategoryId.Value);
+            }
+
+            var totalCount = await servicesQuery.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-            var pagedServices = serviceModels
+            var services = await servicesQuery
+              .OrderBy(s => s.ServiceId)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToList();
-            
-            
+                .ToListAsync();
+
+            var serviceModels = _mapper.Map<List<ServiceModel>>(services);
+
+            // Lấy toàn bộ ảnh liên quan đến danh sách service vừa lấy (tối ưu)
+            var serviceIdsPaged = services.Select(s => s.ServiceId).ToList();
+
+            var serviceImagesDict = await _unitOfWorks.ServiceImageRepository.GetAll()
+                .Where(si => serviceIdsPaged.Contains(si.ServiceId))
+                .GroupBy(si => si.ServiceId)
+                .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
+
+            // Gán ảnh vào từng serviceModel
+            foreach (var service in serviceModels)
+            {
+                if (serviceImagesDict.TryGetValue(service.ServiceId, out var images))
+                {
+                    service.images = images;
+                }
+                else
+                {
+                    service.images = Array.Empty<string>();
+                }
+            }
+
             return new GetAllServicePaginationResponse
             {
-                data = pagedServices,
+                data = serviceModels,
                 pagination = new Pagination
                 {
                     page = page,
@@ -204,6 +233,7 @@ namespace Server.Business.Services
                 }
             };
         }
+
 
 
         public async Task<ServiceModel> GetServiceByIdAsync(int id)
@@ -387,35 +417,7 @@ namespace Server.Business.Services
             {
                 throw new Exception($"An error occurred while updating the status of the service: {ex.Message}", ex);
             }
-        }
-
-
-        //public async Task<List<FeaturedServiceDto>> GetTop4FeaturedServicesAsync()
-        //{
-        //    // Lấy danh sách Appointments có trạng thái Confirmed và include Service
-        //    var appointments = await _unitOfWorks.AppointmentsRepository
-        //        .FindByCondition(a => a.Status == "Confirmed") // Chỉ lọc theo điều kiện
-        //        .Include(a => a.Service) // Bao gồm thông tin Service
-        //        .ToListAsync();
-
-        //    // Nhóm theo ServiceId và tính toán các thông tin cần thiết
-        //    var featuredServices = appointments
-        //        .Where(a => a.Service != null) // Bỏ qua những bản ghi không có Service
-        //        .GroupBy(a => a.ServiceId)
-        //        .Select(g => new FeaturedServiceDto
-        //        {
-        //            ServiceId = g.Key,
-        //            ServiceName = g.First().Service.Name,
-        //            Description = g.First().Service.Description,
-        //            Price = g.First().Service.Price,
-        //            TotalQuantity = g.Sum(a => a.Quantity)
-        //        })
-        //        .OrderByDescending(s => s.TotalQuantity) // Sắp xếp giảm dần theo tổng Quantity
-        //        .Take(4) // Lấy 4 dịch vụ nổi bật
-        //        .ToList();
-
-        //    return featuredServices;
-        //}
+        }      
 
         public async Task<List<Server.Data.Entities.Service>> GetTop4FeaturedServicesAsync()
         {
@@ -468,22 +470,8 @@ namespace Server.Business.Services
 
             var branchDtos = _mapper.Map<List<BranchDTO>>(branchServices);
             return branchDtos;
-        }
+        }       
         
-        //public async Task<List<ServiceModel>> GetListServiceByBranchId(int branchId, int serviceCategoryId)
-        //{
-        //    var serviceIds = await _unitOfWorks.Branch_ServiceRepository.GetAll()
-        //        .Where(bs => bs.BranchId == branchId)
-        //        .Select(bs => bs.ServiceId)
-        //        .ToListAsync();
-
-        //    var services = await _unitOfWorks.ServiceRepository.GetAll()
-        //        .Where(s => serviceIds.Contains(s.ServiceId) && s.ServiceCategoryId == serviceCategoryId)
-        //        .ToListAsync();
-
-        //    var serviceModels = _mapper.Map<List<ServiceModel>>(services);
-        //    return serviceModels;
-        //}
 
         public async Task<List<ServiceModel>> GetListServiceByBranchId(int branchId, int? serviceCategoryId)
         {
