@@ -400,9 +400,27 @@ namespace Server.API.Controllers
                 return StatusCode(500, ApiResponse.Error(ex.Message));
             }
         }
-        
+
+        //[HttpGet("get-services-by-branch")]
+        //public async Task<IActionResult> GetServicesByBranch(int branchId, int serviceCategoryId)
+        //{
+        //    try
+        //    {
+        //        var services = await _serviceService.GetListServiceByBranchId(branchId, serviceCategoryId);
+        //        return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+        //        {
+        //            message = "Services retrieved successfully.",
+        //            data = services
+        //        }));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ApiResponse.Error(ex.Message));
+        //    }
+        //}
+
         [HttpGet("get-services-by-branch")]
-        public async Task<IActionResult> GetServicesByBranch(int branchId, int serviceCategoryId)
+        public async Task<IActionResult> GetServicesByBranch(int branchId, int? serviceCategoryId)
         {
             try
             {
@@ -418,5 +436,6 @@ namespace Server.API.Controllers
                 return StatusCode(500, ApiResponse.Error(ex.Message));
             }
         }
+
     }
 }

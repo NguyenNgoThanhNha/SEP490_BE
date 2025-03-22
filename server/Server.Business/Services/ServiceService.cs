@@ -470,19 +470,52 @@ namespace Server.Business.Services
             return branchDtos;
         }
         
-        public async Task<List<ServiceModel>> GetListServiceByBranchId(int branchId, int serviceCategoryId)
+        //public async Task<List<ServiceModel>> GetListServiceByBranchId(int branchId, int serviceCategoryId)
+        //{
+        //    var serviceIds = await _unitOfWorks.Branch_ServiceRepository.GetAll()
+        //        .Where(bs => bs.BranchId == branchId)
+        //        .Select(bs => bs.ServiceId)
+        //        .ToListAsync();
+
+        //    var services = await _unitOfWorks.ServiceRepository.GetAll()
+        //        .Where(s => serviceIds.Contains(s.ServiceId) && s.ServiceCategoryId == serviceCategoryId)
+        //        .ToListAsync();
+
+        //    var serviceModels = _mapper.Map<List<ServiceModel>>(services);
+        //    return serviceModels;
+        //}
+
+        public async Task<List<ServiceModel>> GetListServiceByBranchId(int branchId, int? serviceCategoryId)
         {
+            // Lấy danh sách ServiceId thuộc branchId
             var serviceIds = await _unitOfWorks.Branch_ServiceRepository.GetAll()
                 .Where(bs => bs.BranchId == branchId)
                 .Select(bs => bs.ServiceId)
                 .ToListAsync();
 
-            var services = await _unitOfWorks.ServiceRepository.GetAll()
-                .Where(s => serviceIds.Contains(s.ServiceId) && s.ServiceCategoryId == serviceCategoryId)
-                .ToListAsync();
+            // Nếu không có service nào liên kết với branch này, trả về danh sách rỗng
+            if (!serviceIds.Any())
+            {
+                return new List<ServiceModel>();
+            }
 
+            // Tạo truy vấn service từ danh sách serviceIds
+            var servicesQuery = _unitOfWorks.ServiceRepository.GetAll()
+                .Where(s => serviceIds.Contains(s.ServiceId));
+
+            // Nếu có lọc theo serviceCategoryId thì thêm điều kiện
+            if (serviceCategoryId.HasValue)
+            {
+                servicesQuery = servicesQuery.Where(s => s.ServiceCategoryId == serviceCategoryId.Value);
+            }
+
+            // Thực thi truy vấn
+            var services = await servicesQuery.ToListAsync();
+
+            // Map sang ServiceModel
             var serviceModels = _mapper.Map<List<ServiceModel>>(services);
             return serviceModels;
         }
+
     }
 }
