@@ -16,7 +16,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__MySqlConnection=Server=database_spa;Database=SPA;User ID=root;Password=${MySQLPassword};
-      - RedisSetting__RedisConnection=redis:6379;
+      - ConnectionStrings__RedisConnection=redis:6379;
       - JwtSettings__Key=${JwtKey}
       - JwtSettings__Refresh=${JwtRefreshKey}
       - MailSettings__Server=${MailServer}
