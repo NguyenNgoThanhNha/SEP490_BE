@@ -52,6 +52,10 @@ services:
         condition: service_started
       elasticsearch:
         condition: service_started
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
   database_spa:
     image: mysql:8.0
     container_name: database_spa
