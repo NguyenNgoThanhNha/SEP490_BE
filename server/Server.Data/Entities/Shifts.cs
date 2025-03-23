@@ -22,5 +22,5 @@ public class Shifts
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
-    public ICollection<WorkSchedule> WorkSchedules { get; set; } = new List<WorkSchedule>();
+    /*public ICollection<WorkSchedule> WorkSchedules { get; set; } = new List<WorkSchedule>();*/
 }

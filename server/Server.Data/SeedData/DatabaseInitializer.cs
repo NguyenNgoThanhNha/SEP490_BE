@@ -649,6 +649,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 200m
                 },
@@ -663,7 +664,8 @@ namespace Server.Data.SeedData
                     Quantity = 100,
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 1, // Cleanser
-                    CompanyId = 1, // Comfortzone
+                    CompanyId = 1,
+                    Brand = "xxx",// Comfortzone
                     Dimension = "150ml",
                     Volume = 200m
                 },
@@ -679,6 +681,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 200m
                 },
@@ -694,6 +697,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -709,6 +713,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -725,6 +730,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -740,6 +746,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -755,6 +762,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -770,6 +778,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -785,6 +794,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -800,6 +810,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -815,6 +826,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -830,6 +842,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "220ml",
                     Volume = 220m
                 },
@@ -845,6 +858,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -860,6 +874,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -875,6 +890,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "125ml",
                     Volume = 125m
                 },
@@ -890,6 +906,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m
                 },
@@ -905,6 +922,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -920,6 +938,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -935,6 +954,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "125ml",
                     Volume = 125m
                 },
@@ -950,6 +970,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m
                 },
@@ -965,6 +986,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -980,6 +1002,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m
                 },
@@ -995,6 +1018,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m
                 },
@@ -1010,6 +1034,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -1025,6 +1050,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1040,6 +1066,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "177ml",
                     Volume = 177m,
                 },
@@ -1055,6 +1082,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1070,6 +1098,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1085,6 +1114,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1100,6 +1130,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1115,6 +1146,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1130,6 +1162,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1145,6 +1178,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1160,6 +1194,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1175,6 +1210,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1190,6 +1226,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m,
                 },
@@ -1205,6 +1242,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "60 miếng",
                     Volume = 60m,
                 },
@@ -1220,6 +1258,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1235,6 +1274,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1250,6 +1290,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1265,6 +1306,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "7 x 2ml",
                     Volume = 14m,
                 },
@@ -1280,6 +1322,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "8 x 2ml",
                     Volume = 16m,
                 },
@@ -1295,6 +1338,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1310,6 +1354,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1325,6 +1370,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1341,6 +1387,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "40ml",
                     Volume = 40m,
                 },
@@ -1357,6 +1404,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1373,6 +1421,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1389,6 +1438,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1405,6 +1455,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1421,6 +1472,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1437,6 +1489,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "15ml",
                     Volume = 15m,
                 },
@@ -1453,6 +1506,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1469,6 +1523,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1484,6 +1539,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1499,6 +1555,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1514,6 +1571,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1529,6 +1587,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1544,6 +1603,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1559,6 +1619,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1574,6 +1635,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1588,7 +1650,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Sản phẩm có dung tích 60ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 4, // Kem dưỡng ẩm
-                    CompanyId = 1, // Comfortzone
+                    CompanyId = 1,
+                    Brand = "xxx",// Comfortzone
                     Dimension = "60ml",
                     Volume = 60m, // Tổng dung tích là 60ml
                 },
@@ -1603,7 +1666,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Sản phẩm có dung tích 60ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 4, // Kem dưỡng ẩm
-                    CompanyId = 1, // Comfortzone
+                    CompanyId = 1,
+                    Brand = "xxx",// Comfortzone
                     Dimension = "60ml",
                     Volume = 60m, // Tổng dung tích là 60ml
                 },
@@ -1618,7 +1682,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Sản phẩm có dung tích 30ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 4, // Kem dưỡng ẩm
-                    CompanyId = 1, // Comfortzone
+                    CompanyId = 1,
+                    Brand = "xxx",// Comfortzone
                     Dimension = "30ml",
                     Volume = 30m, // Tổng dung tích là 30ml
                 },
@@ -1634,6 +1699,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -1649,6 +1715,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "35ml",
                     Volume = 35m,
                 },
@@ -1664,6 +1731,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -1679,6 +1747,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "35ml",
                     Volume = 35m,
                 },
@@ -1694,6 +1763,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1709,6 +1779,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1724,6 +1795,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1739,6 +1811,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "100ml",
                     Volume = 100m,
                 },
@@ -1754,6 +1827,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1769,6 +1843,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1784,6 +1859,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1799,6 +1875,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1814,6 +1891,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "80ml",
                     Volume = 80m,
                 },
@@ -1829,6 +1907,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1844,6 +1923,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1859,6 +1939,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "40ml",
                     Volume = 40m,
                 },
@@ -1874,6 +1955,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1889,6 +1971,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1904,6 +1987,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1919,6 +2003,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1934,6 +2019,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1949,6 +2035,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -1964,6 +2051,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "147ml",
                     Volume = 147m,
                 },
@@ -1979,6 +2067,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1994,6 +2083,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "40ml",
                     Volume = 40m,
                 },
@@ -2009,6 +2099,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -2024,6 +2115,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -2039,6 +2131,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "40ml",
                     Volume = 40m,
                 },
@@ -2054,6 +2147,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2070,6 +2164,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2085,6 +2180,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2100,6 +2196,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2115,6 +2212,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2130,6 +2228,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "80ml",
                     Volume = 80m,
                 },
@@ -2145,6 +2244,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2160,6 +2260,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2175,6 +2276,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2190,6 +2292,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2205,6 +2308,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2220,6 +2324,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "75ml",
                     Volume = 75m,
                 },
@@ -2235,6 +2340,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "75ml",
                     Volume = 75m,
                 },
@@ -2250,6 +2356,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "75ml",
                     Volume = 75m,
                 },
@@ -2265,6 +2372,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -2280,6 +2388,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "75ml",
                     Volume = 75m,
                 },
@@ -2295,6 +2404,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "2 miếng",
                     Volume = null,
                 },
@@ -2310,6 +2420,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -2325,6 +2436,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -2340,6 +2452,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2355,6 +2468,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2370,6 +2484,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2385,6 +2500,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "25ml x 5 miếng",
                     Volume = 125m
                 },
@@ -2400,6 +2516,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m
                 },
@@ -2415,6 +2532,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "25ml",
                     Volume = 25m
                 },
@@ -2430,6 +2548,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "25ml",
                     Volume = 25m
                 },
@@ -2445,6 +2564,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "90ml",
                     Volume = 90m
                 },
@@ -2460,6 +2580,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "110ml",
                     Volume = 110m
                 },
@@ -2475,6 +2596,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m
                 },
@@ -2490,6 +2612,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m
                 },
@@ -2505,6 +2628,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "25ml x 30 miếng",
                     Volume = 750m
                 },
@@ -2520,6 +2644,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "74ml",
                     Volume = 74m
                 },
@@ -2535,6 +2660,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2550,6 +2676,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2565,6 +2692,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2580,6 +2708,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2595,6 +2724,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m
                 },
@@ -2610,6 +2740,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m
                 },
@@ -2625,6 +2756,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2640,6 +2772,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2655,6 +2788,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m
                 },
@@ -2670,6 +2804,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "180ml",
                     Volume = 180m
                 },
@@ -2685,6 +2820,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "180ml",
                     Volume = 180m
                 },
@@ -2700,6 +2836,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "180ml",
                     Volume = 180m
                 },
@@ -2715,6 +2852,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "145ml",
                     Volume = 145m
                 },
@@ -2730,6 +2868,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -2745,6 +2884,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -2760,6 +2900,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -2775,6 +2916,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -2790,6 +2932,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "140ml",
                     Volume = 140m
                 },
@@ -2805,6 +2948,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "240ml",
                     Volume = 240m
                 },
@@ -2820,6 +2964,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "220ml",
                     Volume = 220m
                 },
@@ -2835,6 +2980,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -2850,6 +2996,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -2865,6 +3012,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -2880,6 +3028,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -2895,6 +3044,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "295ml",
                     Volume = 295m
                 },
@@ -2910,6 +3060,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "125ml",
                     Volume = 125m
                 },
@@ -2925,6 +3076,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "295ml",
                     Volume = 295m
                 },
@@ -2940,6 +3092,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "100ml",
                     Volume = 100m
                 },
@@ -2955,6 +3108,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -2970,6 +3124,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -2985,6 +3140,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "300ml",
                     Volume = 300m
                 },
@@ -3000,6 +3156,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -3015,6 +3172,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -3030,6 +3188,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -3045,6 +3204,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "1000ml",
                     Volume = 1000m
                 },
@@ -3060,6 +3220,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "1000ml",
                     Volume = 1000m
                 },
@@ -3075,6 +3236,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "1000ml",
                     Volume = 1000m
                 },
@@ -3090,6 +3252,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "1000ml",
                     Volume = 1000m
                 },
@@ -3105,6 +3268,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "500ml",
                     Volume = 500m
                 },
@@ -3120,6 +3284,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "500ml",
                     Volume = 500m
                 },
@@ -3135,6 +3300,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "500ml",
                     Volume = 500m
                 },
@@ -3150,6 +3316,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "650ml",
                     Volume = 650m
                 },
@@ -3165,6 +3332,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "600ml",
                     Volume = 600m
                 },
@@ -3180,6 +3348,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "650ml",
                     Volume = 650m
                 },
@@ -3195,6 +3364,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -3210,6 +3380,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -3225,6 +3396,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                    Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -3240,6 +3412,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
+                        Brand = "xxx",
                     Dimension = "300ml",
                     Volume = 300m
                 },
@@ -3255,7 +3428,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Sản phẩm có dung tích 300ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
-                    CompanyId = 1, // Redken
+                    CompanyId = 1,
+                    Brand = "xxx",// Redken
                     Dimension = "300ml",
                     Volume = 300m // Tổng dung tích là 300ml
                 },
@@ -3270,7 +3444,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Sản phẩm có dung tích 300ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
-                    CompanyId = 1, // Shu uemura (CompanyId mặc định là 5)
+                    CompanyId = 1,
+                    Brand = "xxx",// Shu uemura (CompanyId mặc định là 5)
                     Dimension = "300ml",
                     Volume = 300m, // Tổng dung tích là 300ml
                 },
@@ -3285,7 +3460,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Sản phẩm có dung tích 300ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
-                    CompanyId = 1, // Shu uemura (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Shu uemura (CompanyId mặc định là 1)
                     Dimension = "300ml",
                     Volume = 300m, // Tổng dung tích là 300ml
                 },
@@ -3300,7 +3476,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Sản phẩm có dung tích 250ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
-                    CompanyId = 1, // Wella Professionals (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3315,7 +3492,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Sản phẩm có dung tích 250ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
-                    CompanyId = 1, // Wella Professionals (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3330,7 +3508,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Davines (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Davines (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3345,7 +3524,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Davines (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Davines (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3360,7 +3540,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Davines (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Davines (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3375,7 +3556,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Davines (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Davines (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3390,7 +3572,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 200ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Kerastase (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Kerastase (CompanyId mặc định là 1)
                     Dimension = "200ml",
                     Volume = 200m, // Tổng dung tích là 200ml
                 },
@@ -3405,7 +3588,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 200ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Kerastase (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Kerastase (CompanyId mặc định là 1)
                     Dimension = "200ml",
                     Volume = 200m, // Tổng dung tích là 200ml
                 },
@@ -3420,7 +3604,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 200ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Kerastase (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Kerastase (CompanyId mặc định là 1)
                     Dimension = "200ml",
                     Volume = 200m, // Tổng dung tích là 200ml
                 },
@@ -3435,7 +3620,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 200ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Kerastase (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Kerastase (CompanyId mặc định là 1)
                     Dimension = "200ml",
                     Volume = 200m, // Tổng dung tích là 200ml
                 },
@@ -3450,7 +3636,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 300ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Redken (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Redken (CompanyId mặc định là 1)
                     Dimension = "300ml",
                     Volume = 300m, // Tổng dung tích là 300ml
                 },
@@ -3464,7 +3651,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 300ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Redken (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Redken (CompanyId mặc định là 1)
                     Dimension = "300ml",
                     Volume = 300m, // Tổng dung tích là 300ml
                 },
@@ -3479,7 +3667,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 355ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // L'Oreal (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// L'Oreal (CompanyId mặc định là 1)
                     Dimension = "355ml",
                     Volume = 355m, // Tổng dung tích là 355ml
                 },
@@ -3494,7 +3683,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 250ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // L'Oreal (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// L'Oreal (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3509,7 +3699,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 250ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // L'Oreal (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// L'Oreal (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3524,7 +3715,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Wella Professionals (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3539,7 +3731,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Wella Professionals (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3554,7 +3747,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Shu uemura (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Shu uemura (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3569,7 +3763,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Shu uemura (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Shu uemura (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3584,7 +3779,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 250ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Opalex (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Opalex (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3599,7 +3795,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 250ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Oribe (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Oribe (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3614,7 +3811,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 160ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Oribe (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Oribe (CompanyId mặc định là 1)
                     Dimension = "160ml",
                     Volume = 160m, // Tổng dung tích là 160ml
                 },
@@ -3629,7 +3827,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Shu Uemura (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Shu Uemura (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3644,7 +3843,8 @@ namespace Server.Data.SeedData
                     Quantity = 1, // Dung tích là 1000ml
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
-                    CompanyId = 1, // Wella Professionals (CompanyId mặc định là 1)
+                    CompanyId = 1,
+                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },

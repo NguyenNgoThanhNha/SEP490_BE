@@ -18,13 +18,16 @@ namespace Server.API.Controllers
         private readonly UserService _userService;
         private readonly StaffLeaveService _staffLeaveService;
         private readonly AuthService _authService;
+        private readonly WorkScheduleService _workScheduleService;
 
-        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService, AuthService authService)
+        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService, 
+            AuthService authService, WorkScheduleService workScheduleService)
         {
             _staffService = staffService;
             _userService = userService;
             _staffLeaveService = staffLeaveService;
             _authService = authService;
+            _workScheduleService = workScheduleService;
         }
 
         [HttpGet("get-list")]
@@ -726,6 +729,76 @@ namespace Server.API.Controllers
         {
             var result = await _staffService.GetListStaffByServiceCategory(request);
             return Ok(ApiResult<GetListStaffByServiceCategoryResponse>.Succeed(result));
+        }
+        
+        [Authorize]
+        [HttpGet("work-schedules")]
+        public async Task<IActionResult> GetWorkSchedulesByMonthYear([FromQuery] int month, [FromQuery] int year)
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "User info not found!"
+                }));
+            }
+
+            var staff = await _staffService.GetStaffByCustomerId(currentUser.UserId);
+            
+            var result = await _workScheduleService.GetWorkSchedulesByMonthYearAsync(staff.StaffId, month, year);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get work schedules successfully",
+                data = result
+            }));
+        }
+
+        [Authorize]
+        [HttpGet("shifts")]
+        public async Task<IActionResult> GetShiftSlotsByMonthYear([FromQuery] int month, [FromQuery] int year)
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // accessUser
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "User info not found!"
+                }));
+            }
+
+            var staff = await _staffService.GetStaffByCustomerId(currentUser.UserId);
+            
+            var result = await _workScheduleService.GetShiftSlotsByMonthYearAsync(staff.StaffId, month, year);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get shift slots successfully",
+                data = result
+            }));
         }
     }
 }

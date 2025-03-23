@@ -901,5 +901,12 @@ namespace Server.Business.Services
 
             return null;
         }
+
+        public async Task<StaffModel> GetStaffByCustomerId(int customerId)
+        {
+            var result = await _unitOfWorks.StaffRepository
+                .FirstOrDefaultAsync(x => x.UserId == customerId);
+            return _mapper.Map<StaffModel>(result);
+        }
     }
 }
