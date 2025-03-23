@@ -16,6 +16,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__MySqlConnection=Server=database_spa;Database=SPA;User ID=root;Password=${MySQLPassword};
+      - RedisSetting__RedisConnection=redis:6379;
       - JwtSettings__Key=${JwtKey}
       - JwtSettings__Refresh=${JwtRefreshKey}
       - MailSettings__Server=${MailServer}
@@ -87,7 +88,7 @@ services:
     image: redis:7.0
     container_name: redis
     restart: always
-    command: [ "redis-server", "--appendonly", "yes" ]
+    command: [ "redis-server", "--appendonly", "yes", "--bind", "0.0.0.0", "--protected-mode", "no" ]
     volumes:
       - redis_data:/data
     ports:
