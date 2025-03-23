@@ -70,8 +70,18 @@ namespace Server.API
             });
             builder.Services.AddHttpContextAccessor();
 
-            builder.Services.AddSingleton<IConnectionMultiplexer>(
-                ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisSetting:ConnectionString")));
+            var redisConnectionString = builder.Configuration.GetSection("RedisSetting:RedisConnection").Value;
+            Console.WriteLine($"RedisDbConnection Program: {redisConnectionString}");
+
+            builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                if (string.IsNullOrEmpty(redisConnectionString))
+                {
+                    throw new Exception("Redis connection string is missing!");
+                }
+                return ConnectionMultiplexer.Connect(redisConnectionString);
+            });
+            
             var app = builder.Build();
             // Hook into application lifetime events and trigger only application fully started 
             app.Lifetime.ApplicationStarted.Register(async () =>
