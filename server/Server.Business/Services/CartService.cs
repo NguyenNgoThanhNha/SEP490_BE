@@ -81,9 +81,7 @@ namespace Server.Business.Services
                     ProductId = c.ProductId,
                     ProductName = c.Product.ProductName,
                     Price = c.Product.Price,
-                    Quantity = c.Quantity,
-                    Note = c.Note,
-                    Status = c.Status
+                    Quantity = c.Quantity
                 })
                 .ToListAsync();
 
@@ -270,9 +268,7 @@ namespace Server.Business.Services
                     ProductId = c.ProductId,
                     ProductName = c.Product.ProductName,
                     Price = c.Product.Price,
-                    Quantity = c.Quantity,
-                    Note = c.Note,
-                    Status = c.Status
+                    Quantity = c.Quantity
                 })
                 .ToListAsync();
 

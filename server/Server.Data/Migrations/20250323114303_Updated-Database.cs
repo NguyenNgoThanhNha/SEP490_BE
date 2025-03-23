@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Updated_Database : Migration
+    public partial class UpdatedDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -219,6 +219,7 @@ namespace Server.Data.Migrations
                     Volume = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: true),
+                    Brand = table.Column<string>(type: "longtext", nullable: true),
                     SkinTypeSuitable = table.Column<string>(type: "longtext", nullable: true),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
@@ -957,8 +958,6 @@ namespace Server.Data.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     CartId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    Note = table.Column<string>(type: "longtext", nullable: true),
-                    Status = table.Column<string>(type: "longtext", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },

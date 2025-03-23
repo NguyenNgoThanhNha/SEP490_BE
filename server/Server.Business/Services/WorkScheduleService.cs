@@ -127,4 +127,30 @@ public class WorkScheduleService
         return await _unitOfWork.WorkScheduleRepository.Commit() > 0;
     }
  
+    public async Task<IEnumerable<WorkScheduleModel>> GetWorkSchedulesByMonthYearAsync(int staffId, int month, int year)
+    {
+        var workSchedules = await _unitOfWork.WorkScheduleRepository
+            .FindByCondition(ws => ws.StaffId == staffId 
+                                   && ws.WorkDate.Month == month 
+                                   && ws.WorkDate.Year == year)
+            .Include(ws => ws.Shift) // Nạp thông tin ca làm việc
+            .ToListAsync();
+    
+        return _mapper.Map<List<WorkScheduleModel>>(workSchedules);
+    }
+
+    public async Task<IEnumerable<ShiftModel>> GetShiftSlotsByMonthYearAsync(int staffId, int month, int year)
+    {
+        var shifts = await _unitOfWork.WorkScheduleRepository
+            .FindByCondition(ws => ws.StaffId == staffId 
+                                   && ws.WorkDate.Month == month 
+                                   && ws.WorkDate.Year == year)
+            .Include(ws => ws.Shift) // Nạp thông tin ca làm việc
+            .Select(ws => ws.Shift)
+            .Distinct()
+            .ToListAsync();
+    
+        return _mapper.Map<List<ShiftModel>>(shifts);
+    }
+
 }
