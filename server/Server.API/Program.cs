@@ -1,9 +1,7 @@
-using MailKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
 using Server.Business.Middlewares;
-using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.SeedData;
 using Service.Business.Services;
@@ -70,16 +68,36 @@ namespace Server.API
             });
             builder.Services.AddHttpContextAccessor();
 
-            var redisConnectionString = builder.Configuration.GetSection("RedisSetting:RedisConnection").Value;
+            /*var redisConnectionString = builder.Configuration.GetSection("RedisSetting:RedisConnection").Value; */           
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
             Console.WriteLine($"RedisDbConnection Program: {redisConnectionString}");
 
+            builder.Services.AddStackExchangeRedisCache(option =>
+            {
+                option.InstanceName = "RedisCache_";
+                option.Configuration = redisConnectionString;
+            });
+            
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 if (string.IsNullOrEmpty(redisConnectionString))
                 {
-                    throw new Exception("Redis connection string is missing!");
+                    throw new Exception("❌ Redis connection string is missing!");
                 }
-                return ConnectionMultiplexer.Connect(redisConnectionString);
+
+                var configOptions = new ConfigurationOptions
+                {
+                    EndPoints = { "redis", "6379" },
+                    ConnectRetry = 5, // Thử kết nối lại 5 lần nếu thất bại
+                    ReconnectRetryPolicy = new LinearRetry(1500), // Thử kết nối lại sau 1.5s nếu bị ngắt kết nối
+                    Ssl = false, // Nếu Redis không yêu cầu SSL thì đặt là false
+                    AbortOnConnectFail = false, // Không ngắt ứng dụng nếu Redis chưa sẵn sàng
+                    ConnectTimeout = 5000, // Timeout kết nối Redis là 5 giây
+                    SyncTimeout = 5000, // Timeout khi thao tác với Redis là 5 giây
+                    DefaultDatabase = 0
+                };
+
+                return ConnectionMultiplexer.Connect(configOptions);
             });
             
             var app = builder.Build();
