@@ -638,5 +638,25 @@ namespace Server.API.Controllers
                 data = user
             }));
         }
+        
+        [Authorize]
+        [HttpPost("update-user-info")]
+        public async Task<IActionResult> UpdateUserInfo([FromForm] UserInfoUpdateRequest request)
+        {
+            var result = await authService.UpdateUserInfoModel(request);
+            if (result == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Failed to update user info!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Update user info successfully!",
+                data = result
+            }));
+        }
     }
 }

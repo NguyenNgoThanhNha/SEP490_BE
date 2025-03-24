@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
-namespace Server.Business.Models;
+namespace Server.Business.Commons.Request;
 
-public class UserInfoModel
+public class UserInfoUpdateRequest
 {
     public int UserId { get; set; }
 
@@ -18,7 +19,7 @@ public class UserInfoModel
     [EmailAddress(ErrorMessage = "Invalid Email Address")]
     public string Email { get; set; }
 
-    public string? Avatar { get; set; }
+    public IFormFile? Avatar { get; set; }
 
     [MaxLength(100)]
     public string? Gender { get; set; }
@@ -42,17 +43,4 @@ public class UserInfoModel
     public int? District { get; set; }
     
     public int? WardCode { get; set; }
-
-    public string? CreateBy { get; set; }
-
-    public DateTimeOffset? CreateDate { get; set; }
-
-    public string? ModifyBy { get; set; }
-
-    public DateTimeOffset? ModifyDate { get; set; }
-
-    public string? Status { get; set; }
-    
-    public DateTime CreatedDate { get; set; } = DateTime.Now;
-    public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }
