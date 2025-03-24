@@ -21,12 +21,14 @@ public class AuthService
     private readonly UnitOfWorks _unitOfWorks;
     private readonly JwtSettings _jwtSettings;
     private readonly IMapper _mapper;
+    private readonly CloudianryService _cloudianryService;
 
-    public AuthService(UnitOfWorks unitOfWorks, JwtSettings jwtSettings, IMapper mapper)
+    public AuthService(UnitOfWorks unitOfWorks, JwtSettings jwtSettings, IMapper mapper, CloudianryService cloudianryService)
     {
         _unitOfWorks = unitOfWorks;
         _jwtSettings = jwtSettings;
         _mapper = mapper;
+        _cloudianryService = cloudianryService;
     }
 
     public async Task<UserModel> FirstStep(UserModel req)
@@ -572,4 +574,44 @@ public class AuthService
             .FindByCondition(x => x.PhoneNumber == phoneNumber || x.Email == email).FirstOrDefaultAsync();
         return existedUser != null ? _mapper.Map<UserInfoModel>(existedUser) : null;
     }
+
+    public async Task<UserInfoModel> UpdateUserInfoModel(UserInfoUpdateRequest userInfoModel)
+    {
+        var user = await _unitOfWorks.UserRepository.GetByIdAsync(userInfoModel.UserId);
+        if (user == null)
+        {
+            throw new BadRequestException("User not found");
+        }
+
+        // Cập nhật thông tin người dùng
+        user.UserName = userInfoModel.UserName ?? user.UserName;
+        user.FullName = userInfoModel.FullName ?? user.FullName;
+        user.Email = userInfoModel.Email ?? user.Email;
+        if(userInfoModel.Avatar != null)
+        {
+            var avatar = await _cloudianryService.UploadImageAsync(userInfoModel.Avatar);
+            user.Avatar = avatar.SecureUrl.ToString();
+        }
+        user.Gender = userInfoModel.Gender ?? user.Gender;
+        user.City = userInfoModel.City ?? user.City;
+        user.Address = userInfoModel.Address ?? user.Address;
+        user.BirthDate = userInfoModel.BirthDate ?? user.BirthDate;
+        user.PhoneNumber = userInfoModel.PhoneNumber ?? user.PhoneNumber;
+        user.STK = userInfoModel.STK ?? user.STK;
+        user.Bank = userInfoModel.Bank ?? user.Bank;
+        user.QRCode = userInfoModel.QRCode ?? user.QRCode;
+        user.District = userInfoModel.District ?? user.District;
+        user.WardCode = userInfoModel.WardCode ?? user.WardCode;
+
+        user.UpdatedDate = DateTime.Now;
+        user.ModifyDate = DateTimeOffset.Now;
+        user.ModifyBy = user.FullName;
+
+        // Lưu thay đổi vào DB
+        var result = _unitOfWorks.UserRepository.Update(user);
+        await _unitOfWorks.UserRepository.Commit();
+
+        return _mapper.Map<UserInfoModel>(result);
+    }
+
 }
