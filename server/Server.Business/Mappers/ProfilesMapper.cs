@@ -40,6 +40,7 @@ namespace Server.Business.Mappers
             CreateMap<Product, ProductModel>().ReverseMap();
             CreateMap<ProductModel, ProductDto>().ReverseMap();
             CreateMap<Product, ProductDto>().ReverseMap();
+            CreateMap<Product, ProductDetailDto>().ReverseMap();
             
             CreateMap<Category, CategoryModel>().ReverseMap();
             CreateMap<Category, CategoryDetailDto>().ReverseMap();
