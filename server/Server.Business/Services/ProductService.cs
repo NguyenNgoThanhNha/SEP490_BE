@@ -717,6 +717,26 @@ namespace Server.Business.Services
 
             return productModels;
         }
+        
+        public async Task<List<ProductModel>> GetListImagesOfProductIds(List<int> productIds)
+        {
+            var listProducts = await _unitOfWorks.ProductRepository
+                .FindByCondition(x => productIds.Contains(x.ProductId))
+                .ToListAsync();
+            var productModels = _mapper.Map<List<ProductModel>>(listProducts);
+            // chạy lặp qua products và lấy hình của chúng ra trong product_images
+            foreach (var product in productModels)
+            {
+                var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
+                    .Where(si => si.ProductId == product.ProductId)
+                    .Select(si => si.image)
+                    .ToArrayAsync();
+
+                product.images = productImages;
+            }
+
+            return productModels;
+        }
 
 
     }

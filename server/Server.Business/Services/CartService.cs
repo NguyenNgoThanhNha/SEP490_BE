@@ -23,6 +23,7 @@ namespace Server.Business.Services
         private readonly IDatabase _redisDb;
         private readonly string _cartPrefix = "cart";
         private readonly AppDbContext _context;
+        private readonly ProductService _productService;
         private readonly RedisSetting _redisSetting;
         private readonly IConnectionMultiplexer _redis;
 
@@ -31,7 +32,8 @@ namespace Server.Business.Services
             IHttpContextAccessor httpContext,
             IConnectionMultiplexer redis,
             AppDbContext context,
-            IOptions<RedisSetting> redisSetting)
+            IOptions<RedisSetting> redisSetting,
+            ProductService productService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
@@ -40,6 +42,7 @@ namespace Server.Business.Services
             _redis = redis;
             _redisDb = redis.GetDatabase();
             _context = context;
+            _productService = productService;
         }
 
         private string GetCartKey(int userId) => $"{_cartPrefix}{userId}";
@@ -202,12 +205,13 @@ namespace Server.Business.Services
 
         private async Task<List<CartDTO>> GetCartFromDatabase(int userId)
         {
-            return await _context.ProductCart
+            var cartItems = await _context.ProductCart
                 .Include(c => c.Cart)
                 .Include(c => c.Product)
                 .ThenInclude(p => p.Branch_Products)
-                .Include(p => p.Product)
+                .Include(c => c.Product)
                 .ThenInclude(p => p.Category)
+                .Include(c => c.Product)
                 .Where(c => c.Cart.CustomerId == userId)
                 .Select(c => new CartDTO
                 {
@@ -221,6 +225,25 @@ namespace Server.Business.Services
                     Product = _mapper.Map<ProductDetailDto>(c.Product)
                 })
                 .ToListAsync();
+
+            // Lấy danh sách productId từ giỏ hàng
+            var productIds = cartItems.Select(x => x.ProductId).ToList();
+
+            // Gọi service để lấy danh sách hình ảnh sản phẩm
+            var listProductModel = await _productService.GetListImagesOfProductIds(productIds);
+
+            // Gán hình ảnh vào sản phẩm trong giỏ hàng
+            foreach (var cartItem in cartItems)
+            {
+                var productWithImages = listProductModel.FirstOrDefault(p => p.ProductId == cartItem.ProductId);
+                if (productWithImages != null)
+                {
+                    cartItem.Product.images = productWithImages.images;
+                }
+            }
+
+            return cartItems;
         }
+
     }
 }
