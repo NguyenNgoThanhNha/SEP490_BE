@@ -83,9 +83,13 @@ public class AppointmentsService
         {
             var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == userId);
             var branch = await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId);
-            var voucher = await _unitOfWorks.VoucherRepository
-                .FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
-                ?? throw new BadRequestException("Voucher not found!");
+            Voucher voucher = null;
+            if (request.VoucherId != null && request.VoucherId > 0)
+            {
+                voucher = await _unitOfWorks.VoucherRepository
+                                  .FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
+                              ?? throw new BadRequestException("Voucher not found!");
+            }
 
             if (customer == null) throw new BadRequestException("Customer not found!");
             if (branch == null) throw new BadRequestException("Branch not found!");
@@ -102,7 +106,7 @@ public class AppointmentsService
                 TotalAmount = 0,
                 OrderType = "Appointment",
                 VoucherId = request.VoucherId > 0 ? request.VoucherId : null,
-                DiscountAmount = voucher?.DiscountAmount,
+                DiscountAmount = voucher?.DiscountAmount ?? 0,
                 Status = OrderStatusEnum.Pending.ToString(),
                 Note = request.Notes,
                 CreatedDate = DateTime.UtcNow,
@@ -111,14 +115,17 @@ public class AppointmentsService
 
             var createdOrder = await _unitOfWorks.OrderRepository.AddAsync(order);
             await _unitOfWorks.OrderRepository.Commit();
-            
-            voucher.RemainQuantity -= 1;
-            if (voucher.RemainQuantity < 0)
+
+            if (voucher != null)
             {
-                throw new BadRequestException("Voucher is out of stock!");
+                voucher.RemainQuantity -= 1;
+                if (voucher.RemainQuantity < 0)
+                {
+                    throw new BadRequestException("Voucher is out of stock!");
+                }
+                _unitOfWorks.VoucherRepository.Update(voucher);
+                await _unitOfWorks.VoucherRepository.Commit();
             }
-            _unitOfWorks.VoucherRepository.Update(voucher);
-            await _unitOfWorks.VoucherRepository.Commit();
 
             var appointments = new List<AppointmentsModel>();
             var staffAppointments = new Dictionary<int, DateTime>(); // Lưu lịch làm việc của nhân viên trong request

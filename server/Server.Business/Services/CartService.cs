@@ -205,6 +205,8 @@ namespace Server.Business.Services
             return await _context.ProductCart
                 .Include(c => c.Cart)
                 .Include(c => c.Product)
+                .ThenInclude(p => p.Branch_Products)
+                .Include(p => p.Product)
                 .ThenInclude(p => p.Category)
                 .Where(c => c.Cart.CustomerId == userId)
                 .Select(c => new CartDTO
@@ -215,6 +217,7 @@ namespace Server.Business.Services
                     ProductName = c.Product.ProductName,
                     Price = c.Product.Price,
                     Quantity = c.Quantity,
+                    StockQuantity = c.Product.Branch_Products.Sum(bp => bp.StockQuantity),
                     Product = _mapper.Map<ProductDetailDto>(c.Product)
                 })
                 .ToListAsync();

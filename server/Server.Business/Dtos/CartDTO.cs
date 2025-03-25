@@ -9,6 +9,7 @@
         public int CartId { get; set; }
 
         public int Quantity { get; set; }
+        public int StockQuantity { get; set; }
         public string? Note { get; set; }
         public string Status { get; set; }
         
