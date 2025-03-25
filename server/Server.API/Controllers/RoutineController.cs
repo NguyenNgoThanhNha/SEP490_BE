@@ -17,6 +17,17 @@ namespace Server.API.Controllers
             _routineService = routineService;
         }
         
+        [HttpGet("get-list-skincare-routines")]
+        public async Task<IActionResult> GetListSkincareRoutines()
+        {
+            var routines = await _routineService.GetListSkincareRoutine();
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Routines fetched successfully",
+                data = routines
+            }));
+        }
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSkincareRoutineDetails(int id)
         {

@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250323114303_Updated-Database")]
+    [Migration("20250325134207_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -1782,6 +1782,41 @@ namespace Server.Data.Migrations
                     b.ToTable("UserRoutineStep");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.UserVoucher", b =>
+                {
+                    b.Property<int>("UserVoucherId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VoucherId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserVoucherId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.HasIndex("UserId", "VoucherId")
+                        .IsUnique();
+
+                    b.ToTable("UserVoucher", (string)null);
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Voucher", b =>
                 {
                     b.Property<int>("VoucherId")
@@ -2458,10 +2493,31 @@ namespace Server.Data.Migrations
                     b.Navigation("UserRoutine");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.UserVoucher", b =>
+                {
+                    b.HasOne("Server.Data.Entities.User", "User")
+                        .WithMany("UserVoucher")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_User_Voucher_User");
+
+                    b.HasOne("Server.Data.Entities.Voucher", "Voucher")
+                        .WithMany("UserVoucher")
+                        .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_User_Voucher_Voucher");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Voucher");
+                });
+
             modelBuilder.Entity("WorkSchedule", b =>
                 {
                     b.HasOne("Server.Data.Entities.Shifts", "Shift")
-                        .WithMany("WorkSchedules")
+                        .WithMany()
                         .HasForeignKey("ShiftId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2540,11 +2596,6 @@ namespace Server.Data.Migrations
                     b.Navigation("Services");
                 });
 
-            modelBuilder.Entity("Server.Data.Entities.Shifts", b =>
-                {
-                    b.Navigation("WorkSchedules");
-                });
-
             modelBuilder.Entity("Server.Data.Entities.SkincareRoutine", b =>
                 {
                     b.Navigation("ProductRoutines");
@@ -2570,6 +2621,13 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("UserRoutines");
+
+                    b.Navigation("UserVoucher");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.Voucher", b =>
+                {
+                    b.Navigation("UserVoucher");
                 });
 #pragma warning restore 612, 618
         }

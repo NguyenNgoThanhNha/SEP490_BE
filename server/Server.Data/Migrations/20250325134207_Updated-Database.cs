@@ -756,6 +756,37 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "UserVoucher",
+                columns: table => new
+                {
+                    UserVoucherId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "longtext", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserVoucher", x => x.UserVoucherId);
+                    table.ForeignKey(
+                        name: "FK_User_Voucher_User",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User_Voucher_Voucher",
+                        column: x => x.VoucherId,
+                        principalTable: "Voucher",
+                        principalColumn: "VoucherId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "BlogComment",
                 columns: table => new
                 {
@@ -1679,6 +1710,17 @@ namespace Server.Data.Migrations
                 column: "UserRoutineId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserVoucher_UserId_VoucherId",
+                table: "UserVoucher",
+                columns: new[] { "UserId", "VoucherId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserVoucher_VoucherId",
+                table: "UserVoucher",
+                column: "VoucherId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Work_Schedule_ShiftId",
                 table: "Work_Schedule",
                 column: "ShiftId");
@@ -1760,6 +1802,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserRoutineLogger");
+
+            migrationBuilder.DropTable(
+                name: "UserVoucher");
 
             migrationBuilder.DropTable(
                 name: "Work_Schedule");

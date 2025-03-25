@@ -44,10 +44,9 @@ namespace Server.Business.Services
             return _redis.IsConnected;
         }
 
-        public async Task<ApiResult<ApiResponse>> GetCart()
+        public async Task<ApiResult<ApiResponse>> GetCart(int userId)
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId.ToString()))
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
@@ -55,7 +54,7 @@ namespace Server.Business.Services
                 });
             }
 
-            string cacheKey = GetCartKey(userId);
+            string cacheKey = GetCartKey(userId.ToString());
 
             if (IsConnected())
             {
@@ -71,7 +70,7 @@ namespace Server.Business.Services
             }
 
             // Lấy danh sách sản phẩm trong giỏ hàng
-            var cart = await GetCartFromDatabase(int.Parse(userId));
+            var cart = await GetCartFromDatabase(userId);
 
             if (cart.Any())
             {

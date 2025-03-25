@@ -25,6 +25,7 @@ public class RoutineService
     public async Task<SkincareRoutineModel> GetSkincareRoutineDetails(int id)
     {
         var routine =  await _unitOfWorks.SkincareRoutineRepository.FindByCondition(x => x.SkincareRoutineId == id)
+            .Include(x => x.UserRoutines)
             .Include(x => x.ProductRoutines)
             .ThenInclude(x => x.Products)
             .ThenInclude(x => x.Category)
@@ -81,5 +82,12 @@ public class RoutineService
         }
         
         return routineModel;
+    }
+    
+    public async Task<List<SkincareRoutineModel>> GetListSkincareRoutine()
+    {
+        var routines = _unitOfWorks.SkincareRoutineRepository.GetAll();
+        var routineModels = _mapper.Map<List<SkincareRoutineModel>>(routines);
+        return routineModels;
     }
 }
