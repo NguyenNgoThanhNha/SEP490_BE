@@ -149,6 +149,7 @@ namespace Server.API.Extensions
             services.AddScoped<BotchatService>();
             services.AddScoped<SkinAnalyzeService>();
             services.AddScoped<AppointmentReminderWorker>();
+            services.AddScoped<RedisKeepAliveService>();
             services.AddScoped<BlogCommentService>();
             services.AddScoped<ServiceCategoryService>();
             services.AddScoped<RoutineService>();

@@ -14,11 +14,11 @@ public class UserRoutineStep
     public int UserRoutineId { get; set; }
     public virtual UserRoutine UserRoutine { get; set; }
     
-    public string StepName { get; set; } // Tên bước (VD: Rửa mặt, Dưỡng ẩm)
-    
-    public string Description { get; set; } // Mô tả chi tiết bước này
-    
-    public int Step { get; set; } // Thứ tự thực hiện bước
+    [ForeignKey("SkinCareRoutineStep")]
+    public int SkinCareRoutineStepId { get; set; } // Liên kết với bước gốc trong liệu trình
+    public SkinCareRoutineStep SkinCareRoutineStep { get; set; }
+
+    public string StepStatus { get; set; } = "Pending"; 
     
     public DateTime StartDate { get; set; } // Ngày bắt đầu thực hiện bước
     public DateTime EndDate { get; set; } // Ngày kết thúc thực hiện bước
