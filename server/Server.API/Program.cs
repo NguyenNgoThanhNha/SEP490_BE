@@ -93,13 +93,14 @@ namespace Server.API
                 var configOptions = new ConfigurationOptions
                 {
                     EndPoints = { firstPart, secondPart },
-                    ConnectRetry = 5, // Thử kết nối lại 5 lần nếu thất bại
-                    ReconnectRetryPolicy = new LinearRetry(1500), // Thử kết nối lại sau 1.5s nếu bị ngắt kết nối
-                    Ssl = false, // Nếu Redis không yêu cầu SSL thì đặt là false
-                    AbortOnConnectFail = false, // Không ngắt ứng dụng nếu Redis chưa sẵn sàng
-                    ConnectTimeout = 5000, // Timeout kết nối Redis là 5 giây
-                    SyncTimeout = 5000, // Timeout khi thao tác với Redis là 5 giây
-                    DefaultDatabase = 0
+                    ConnectRetry = 5, 
+                    ReconnectRetryPolicy = new ExponentialRetry(5000),
+                    Ssl = false,
+                    AbortOnConnectFail = false,
+                    ConnectTimeout = 5000,
+                    SyncTimeout = 5000,
+                    DefaultDatabase = 0,
+                    KeepAlive = 500
                 };
 
                 return ConnectionMultiplexer.Connect(configOptions);

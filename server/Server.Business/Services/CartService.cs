@@ -84,10 +84,18 @@ namespace Server.Business.Services
             }
         }
 
+        private async Task EnsureConnected()
+        {
+            if (!_redis.IsConnected)
+            {
+                await ReconnectRedis();
+            }
+        }
 
 
         public async Task<ApiResult<ApiResponse>> GetCart(int userId)
         {
+            await EnsureConnected();
             if (string.IsNullOrEmpty(userId.ToString()))
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
@@ -149,6 +157,7 @@ namespace Server.Business.Services
 
         public async Task<ApiResult<ApiResponse>> AddToCart(AddToCartRequest request)
         {
+            await EnsureConnected();
             var customerId = request.UserId.ToString();
             if (string.IsNullOrEmpty(customerId))
             {
@@ -246,6 +255,7 @@ namespace Server.Business.Services
 
         public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productId, int userId)
         {
+            await EnsureConnected();
             var customerId = userId.ToString();
             if (string.IsNullOrEmpty(customerId))
             {
