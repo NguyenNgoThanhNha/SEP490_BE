@@ -105,9 +105,9 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<ApiResponse>> AddToCart(CartRequest request)
+        public async Task<ApiResult<ApiResponse>> AddToCart(AddToCartRequest request)
         {
-            var customerId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var customerId = request.UserId.ToString();
             if (string.IsNullOrEmpty(customerId))
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
@@ -202,9 +202,9 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productId)
+        public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productId, int userId)
         {
-            var customerId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var customerId = userId.ToString();
             if (string.IsNullOrEmpty(customerId))
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse

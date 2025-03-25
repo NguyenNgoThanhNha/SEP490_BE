@@ -45,6 +45,7 @@ namespace Server.Data.UnitOfWorks
         private ScheduleRepository _scheduleRepository;
         private CartRepository _cartRepository;
         private ProductCartRepository _productCartRepository;
+        private UserVoucherRepository _userVoucherRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -221,6 +222,11 @@ namespace Server.Data.UnitOfWorks
         public ProductCartRepository ProductCartRepository
         {
             get { return _productCartRepository ??= new ProductCartRepository(_dbContext); }
+        }
+        
+        public UserVoucherRepository UserVoucherRepository
+        {
+            get { return _userVoucherRepository ??= new UserVoucherRepository(_dbContext); }
         }
 
 

@@ -22,8 +22,8 @@ namespace Server.API.Controllers
             return Ok(await _cartService.GetCart(id));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddToCart([FromBody] CartRequest request)
+        [HttpPost("add-cart")]
+        public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
         {
             var response = await _cartService.AddToCart(request);
             if (response.Success)
@@ -33,10 +33,10 @@ namespace Server.API.Controllers
             return BadRequest(response);
         }
 
-        [HttpDelete("{idProduct}")]
-        public async Task<IActionResult> RemoveProductFromCart(int idProduct)
+        [HttpDelete("{userId}/{idProduct}")]
+        public async Task<IActionResult> RemoveProductFromCart(int userId,int idProduct)
         {
-            var response = await _cartService.DeleteProductFromCart(idProduct);
+            var response = await _cartService.DeleteProductFromCart(idProduct, userId);
             if (response.Success)
             {
                 return Ok(response);
