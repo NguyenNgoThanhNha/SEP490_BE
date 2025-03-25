@@ -16,8 +16,6 @@ public class VoucherDto
     
     public decimal DiscountAmount { get; set; }
     
-    public decimal MinOrderAmount { get; set; } // giá trị đơn hàng tối thiểu để sử dụng voucher
-    
     public DateTime ValidFrom { get; set; }
     
     public DateTime ValidTo { get; set; }

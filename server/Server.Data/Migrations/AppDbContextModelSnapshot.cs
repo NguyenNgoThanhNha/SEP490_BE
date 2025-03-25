@@ -1834,13 +1834,16 @@ namespace Server.Data.Migrations
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("MinOrderAmount")
+                    b.Property<decimal?>("MinOrderAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<int>("RemainQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequirePoint")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")

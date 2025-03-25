@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250325134207_Updated-Database")]
+    [Migration("20250325143239_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -1837,13 +1837,16 @@ namespace Server.Data.Migrations
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("MinOrderAmount")
+                    b.Property<decimal?>("MinOrderAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<int>("RemainQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequirePoint")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")

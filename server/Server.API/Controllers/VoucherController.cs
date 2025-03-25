@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices.JavaScript;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
 using Server.Business.Commons.Request;
@@ -55,6 +56,38 @@ namespace Server.API.Controllers
             {
                 message = "Get voucher by date successfully",
                 data = vouchers
+            }));
+        }
+
+        [Authorize]
+        [HttpPost("exchange-point-to-voucher")]
+        public async Task<IActionResult> ExchangePointToVoucher(ExchangePointToVoucherRequest request)
+        {
+            var result =
+                await _voucherService.ExchangePointToVoucher(request.UserPoint, request.VoucherId, request.UserId);
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Error in exchange point!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Exchange point successfully!"
+            }));
+        }
+
+        [Authorize]
+        [HttpGet("get-user-vouchers/{userId}")]
+        public async Task<IActionResult> GetVoucherByUserId(int userId)
+        {
+            var result = await _voucherService.GetListVoucherOfUser(userId);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get list voucher successfully!",
+                data = result
             }));
         }
     }

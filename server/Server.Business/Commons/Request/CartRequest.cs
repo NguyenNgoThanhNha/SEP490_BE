@@ -13,4 +13,13 @@ namespace Server.Business.Commons.Request
         public OrderStatusEnum Status { get; set; }
         public OperationTypeEnum Operation { get; set; }
     }
+
+    public class AddToCartRequest
+    {
+        public int ProductId { get; set; }
+        public int Quantity { get; set; } = 1;
+        public int UserId { get; set; }
+        
+        public OperationTypeEnum Operation { get; set; }
+    }
 }
