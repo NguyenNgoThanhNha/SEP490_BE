@@ -10,6 +10,8 @@ using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using StackExchange.Redis;
 using System.Security.Claims;
+using Microsoft.Extensions.Options;
+using Server.Business.Ultils;
 
 namespace Server.Business.Services
 {
@@ -18,21 +20,30 @@ namespace Server.Business.Services
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IDatabase _redisDb;
+        private IDatabase _redisDb;
         private readonly string _cartPrefix = "cart";
         private readonly AppDbContext _context;
-        private readonly IConnectionMultiplexer _redis;
+        private readonly RedisSetting _redisSetting;
+        private IConnectionMultiplexer _redis;
 
         public CartService(UnitOfWorks unitOfWorks,
             IMapper mapper,
             IHttpContextAccessor httpContext,
             IConnectionMultiplexer redis,
-            AppDbContext context)
+            AppDbContext context,
+            IOptions<RedisSetting> redisSetting)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _httpContextAccessor = httpContext;
-            _redis = redis;
+            _redisSetting = redisSetting.Value;
+            _redis = ConnectionMultiplexer.Connect(new ConfigurationOptions
+            {
+                EndPoints = { $"{_redisSetting.RedisConnection.Split(":")[0]}:{_redisSetting.RedisConnection.Split(":")[1]}" }, // Thay bằng Redis server của bạn
+                AbortOnConnectFail = false,  // Không hủy kết nối nếu thất bại
+                ConnectRetry = 5,  // Số lần thử kết nối lại
+                ReconnectRetryPolicy = new ExponentialRetry(5000) // Chính sách thử lại theo cấp số nhân
+            });;
             _redisDb = redis.GetDatabase();
             _context = context;
         }
@@ -41,8 +52,39 @@ namespace Server.Business.Services
 
         private bool IsConnected()
         {
-            return _redis.IsConnected;
+            if (!_redis.IsConnected)
+            {
+                try
+                {
+                    _redis.GetDatabase(); // Thử lấy database để kiểm tra kết nối
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return true;
         }
+        
+        private async Task ReconnectRedis()
+        {
+            if (!_redis.IsConnected)
+            {
+                try
+                {
+                    _redis.Dispose();
+                    _redis = await ConnectionMultiplexer.ConnectAsync("localhost:6379"); // Thay bằng thông tin của Redis
+                    _redisDb = _redis.GetDatabase();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Lỗi kết nối Redis: {ex.Message}");
+                }
+            }
+        }
+
+
 
         public async Task<ApiResult<ApiResponse>> GetCart(int userId)
         {
@@ -256,7 +298,7 @@ namespace Server.Business.Services
         {
             if (!IsConnected())
             {
-                return;
+                await ReconnectRedis();
             }
 
             await _redisDb.KeyDeleteAsync(GetCartKey(userId.ToString()));
