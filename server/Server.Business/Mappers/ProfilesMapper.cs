@@ -43,6 +43,7 @@ namespace Server.Business.Mappers
             
             CreateMap<Category, CategoryModel>().ReverseMap();
             CreateMap<Category, CategoryDetailDto>().ReverseMap();
+            CreateMap<Category, CategoryDto>().ReverseMap();
             CreateMap<CategoryModel, CategoryDetailDto>().ReverseMap();
             
             CreateMap<CUOrderDto, Order>();
