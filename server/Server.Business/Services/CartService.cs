@@ -20,11 +20,11 @@ namespace Server.Business.Services
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private IDatabase _redisDb;
+        private readonly IDatabase _redisDb;
         private readonly string _cartPrefix = "cart";
         private readonly AppDbContext _context;
         private readonly RedisSetting _redisSetting;
-        private IConnectionMultiplexer _redis;
+        private readonly IConnectionMultiplexer _redis;
 
         public CartService(UnitOfWorks unitOfWorks,
             IMapper mapper,
@@ -37,158 +37,67 @@ namespace Server.Business.Services
             _mapper = mapper;
             _httpContextAccessor = httpContext;
             _redisSetting = redisSetting.Value;
-            _redis = ConnectionMultiplexer.Connect(new ConfigurationOptions
-            {
-                EndPoints = { "redis", "6379" }, // Thay bằng Redis server của bạn
-                AbortOnConnectFail = false,  // Không hủy kết nối nếu thất bại
-                ConnectRetry = 5,  // Số lần thử kết nối lại
-                ReconnectRetryPolicy = new ExponentialRetry(5000) // Chính sách thử lại theo cấp số nhân
-            });;
+            _redis = redis;
             _redisDb = redis.GetDatabase();
             _context = context;
         }
 
-        private string GetCartKey(string userId) => $"{_cartPrefix}{userId}";
-
-        private bool IsConnected()
-        {
-            if (!_redis.IsConnected)
-            {
-                try
-                {
-                    _redis.GetDatabase(); // Thử lấy database để kiểm tra kết nối
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        
-        private async Task ReconnectRedis()
-        {
-            if (!_redis.IsConnected)
-            {
-                try
-                {
-                    _redis.Dispose();
-                    _redis = await ConnectionMultiplexer.ConnectAsync("redis:6379"); // Thay bằng thông tin của Redis
-                    _redisDb = _redis.GetDatabase();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Lỗi kết nối Redis: {ex.Message}");
-                }
-            }
-        }
+        private string GetCartKey(int userId) => $"{_cartPrefix}{userId}";
 
         private async Task EnsureConnected()
         {
             if (!_redis.IsConnected)
             {
-                await ReconnectRedis();
+                try
+                {
+                    await _redis.GetDatabase().PingAsync();
+                }
+                catch
+                {
+                    throw new Exception("Cannot connect to Redis");
+                }
             }
         }
-
 
         public async Task<ApiResult<ApiResponse>> GetCart(int userId)
         {
             await EnsureConnected();
-            if (string.IsNullOrEmpty(userId.ToString()))
+            if (userId <= 0)
+                return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Vui lòng đăng nhập vào hệ thống" });
+
+            string cacheKey = GetCartKey(userId);
+            string cachedCart = await _redisDb.StringGetAsync(cacheKey);
+            if (!string.IsNullOrEmpty(cachedCart))
             {
-                return ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = "Vui lòng đăng nhập vào hệ thống"
-                });
+                return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                    { data = JsonConvert.DeserializeObject<List<CartDTO>>(cachedCart) });
             }
 
-            string cacheKey = GetCartKey(userId.ToString());
-
-            if (IsConnected())
-            {
-                string cachedCart = await _redisDb.StringGetAsync(cacheKey);
-
-                if (!string.IsNullOrEmpty(cachedCart))
-                {
-                    return ApiResult<ApiResponse>.Succeed(new ApiResponse
-                    {
-                        data = JsonConvert.DeserializeObject<List<CartDTO>>(cachedCart)
-                    });
-                }
-            }
-
-            // Lấy danh sách sản phẩm trong giỏ hàng
             var cart = await GetCartFromDatabase(userId);
-
             if (cart.Any())
             {
-                // Lấy danh sách ProductId từ giỏ hàng
-                var productIds = cart.Select(c => c.ProductId).ToList();
-
-                // Lấy hình ảnh của các sản phẩm trong giỏ hàng
-                var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
-                    .Where(si => productIds.Contains(si.ProductId))
-                    .GroupBy(si => si.ProductId)
-                    .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
-
-                // Gán danh sách hình ảnh vào sản phẩm trong giỏ hàng
-                foreach (var item in cart)
-                {
-                    item.Product.images = productImages.ContainsKey(item.ProductId)
-                        ? productImages[item.ProductId]
-                        : Array.Empty<string>(); // Nếu không có hình ảnh, gán mảng rỗng
-                }
-
-                if (IsConnected())
-                {
-                    await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart),
-                        TimeSpan.FromMinutes(60));
-                }
+                await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
             }
 
-            return ApiResult<ApiResponse>.Succeed(new ApiResponse
-            {
-                data = cart
-            });
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse { data = cart });
         }
-
 
         public async Task<ApiResult<ApiResponse>> AddToCart(AddToCartRequest request)
         {
             await EnsureConnected();
-            var customerId = request.UserId.ToString();
-            if (string.IsNullOrEmpty(customerId))
-            {
-                return ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = "Vui lòng đăng nhập vào hệ thống"
-                });
-            }
-
-            int customerIdInt = int.Parse(customerId);
+            if (request.UserId <= 0)
+                return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Vui lòng đăng nhập vào hệ thống" });
 
             if (await _unitOfWorks.ProductRepository.GetByIdAsync(request.ProductId) == null)
-            {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = "Sản phẩm không tồn tại trong hệ thống."
-                });
-            }
+                    { message = "Sản phẩm không tồn tại trong hệ thống." });
 
-            var existingCart = await _unitOfWorks.CartRepository
-                .FindByCondition(c => c.CustomerId == customerIdInt)
+            var existingCart = await _unitOfWorks.CartRepository.FindByCondition(c => c.CustomerId == request.UserId)
                 .FirstOrDefaultAsync();
-
             if (existingCart == null)
             {
                 existingCart = new Cart
-                {
-                    CustomerId = customerIdInt,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                };
+                    { CustomerId = request.UserId, CreatedDate = DateTime.Now, UpdatedDate = DateTime.Now };
                 await _unitOfWorks.CartRepository.AddAsync(existingCart);
                 await _unitOfWorks.CartRepository.Commit();
             }
@@ -196,63 +105,47 @@ namespace Server.Business.Services
             var detail = await _unitOfWorks.ProductCartRepository
                 .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductId == request.ProductId)
                 .FirstOrDefaultAsync();
-
             if (detail == null)
             {
                 if (request.Operation != Data.OperationTypeEnum.Add)
-                {
                     return ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Sản phẩm chưa tồn tại trong giỏ hàng!"
-                    });
-                }
+                        { message = "Sản phẩm chưa tồn tại trong giỏ hàng!" });
 
-                var productCart = new ProductCart
-                {
-                    CartId = existingCart.CartId,
-                    ProductId = request.ProductId,
-                    Quantity = 1
-                };
-
-                await _unitOfWorks.ProductCartRepository.AddAsync(productCart);
+                await _unitOfWorks.ProductCartRepository.AddAsync(new ProductCart
+                    { CartId = existingCart.CartId, ProductId = request.ProductId, Quantity = 1 });
             }
             else
             {
-                if (request.Operation == Data.OperationTypeEnum.Add)
+                detail.Quantity = request.Operation switch
                 {
-                    detail.Quantity += request.Quantity;
-                }
-                else if (request.Operation == Data.OperationTypeEnum.Subtract)
-                {
-                    detail.Quantity = Math.Max(1, detail.Quantity - request.Quantity);
-                }
-                else if (request.Operation == Data.OperationTypeEnum.Replace)
-                {
-                    detail.Quantity = Math.Max(1, request.Quantity);
-                }
-
+                    Data.OperationTypeEnum.Add => detail.Quantity + request.Quantity,
+                    Data.OperationTypeEnum.Subtract => Math.Max(1, detail.Quantity - request.Quantity),
+                    Data.OperationTypeEnum.Replace => Math.Max(1, request.Quantity),
+                    _ => detail.Quantity
+                };
                 _unitOfWorks.ProductCartRepository.Update(detail);
             }
 
-            var result = await _unitOfWorks.ProductCartRepository.Commit();
-            if (result > 0)
+            if (await _unitOfWorks.ProductCartRepository.Commit() > 0)
             {
-                var cart = await GetCartFromDatabase(customerIdInt); // Lấy dữ liệu giỏ hàng từ DB
-                await UpdateCartCache(customerIdInt, cart); // Cập nhật Redis với đúng format
-
-                return ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    data = cart
-                });
+                var cart = await GetCartFromDatabase(request.UserId);
+                await UpdateCartCache(request.UserId, cart);
+                return ApiResult<ApiResponse>.Succeed(new ApiResponse { data = cart });
             }
 
-            return ApiResult<ApiResponse>.Error(new ApiResponse
-            {
-                message = "Lỗi cập nhật vào hệ thống"
-            });
+            return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Lỗi cập nhật vào hệ thống" });
         }
 
-
+        private async Task UpdateCartCache(int userId, List<CartDTO> cart)
+        {
+            await _redisDb.KeyDeleteAsync(GetCartKey(userId));
+            if (cart.Any())
+            {
+                await _redisDb.StringSetAsync(GetCartKey(userId), JsonConvert.SerializeObject(cart),
+                    TimeSpan.FromMinutes(60));
+            }
+        }
+        
         public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productId, int userId)
         {
             await EnsureConnected();
@@ -296,27 +189,20 @@ namespace Server.Business.Services
                     message = "Lỗi xóa sản phẩm trong giỏ hàng"
                 });
             }
-
-            await CacheCart(int.Parse(customerId));
+            var cart = await GetCartFromDatabase(userId);
+            await UpdateCartCache(int.Parse(customerId), cart);
             return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 data = true
             });
         }
 
-        private async Task CacheCart(int userId)
+        private async Task<List<CartDTO>> GetCartFromDatabase(int userId)
         {
-            if (!IsConnected())
-            {
-                await ReconnectRedis();
-            }
-
-            await _redisDb.KeyDeleteAsync(GetCartKey(userId.ToString()));
-
-            var cart = await _context.ProductCart
+            return await _context.ProductCart
                 .Include(c => c.Cart)
                 .Include(c => c.Product)
-                .ThenInclude(x => x.Category)
+                .ThenInclude(p => p.Category)
                 .Where(c => c.Cart.CustomerId == userId)
                 .Select(c => new CartDTO
                 {
@@ -326,65 +212,9 @@ namespace Server.Business.Services
                     ProductName = c.Product.ProductName,
                     Price = c.Product.Price,
                     Quantity = c.Quantity,
-                    Product = _mapper.Map<ProductDetailDto>(c.Product),
+                    Product = _mapper.Map<ProductDetailDto>(c.Product)
                 })
                 .ToListAsync();
-
-            if (cart != null && cart.Count > 0)
-            {
-                await _redisDb.StringSetAsync(GetCartKey(userId.ToString()), JsonConvert.SerializeObject(cart),
-                    TimeSpan.FromMinutes(60));
-            }
-        }
-
-        private async Task<List<CartDTO>> GetCartFromDatabase(int customerId)
-        {
-            var cart = await _context.ProductCart
-                .Include(c => c.Cart)
-                .Include(c => c.Product)
-                .ThenInclude(x => x.Category)
-                .Where(c => c.Cart.CustomerId == customerId)
-                .Select(c => new CartDTO
-                {
-                    CartId = c.CartId,
-                    ProductCartId = c.ProductCartId,
-                    ProductId = c.ProductId,
-                    ProductName = c.Product.ProductName,
-                    Price = c.Product.Price,
-                    Quantity = c.Quantity,
-                    Product = _mapper.Map<ProductDetailDto>(c.Product),
-                })
-                .ToListAsync();
-
-            if (cart.Any())
-            {
-                var productIds = cart.Select(c => c.ProductId).ToList();
-
-                var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
-                    .Where(si => productIds.Contains(si.ProductId))
-                    .GroupBy(si => si.ProductId)
-                    .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
-
-                foreach (var item in cart)
-                {
-                    item.Product.images = productImages.ContainsKey(item.ProductId)
-                        ? productImages[item.ProductId]
-                        : Array.Empty<string>();
-                }
-            }
-
-            return cart;
-        }
-
-
-        private async Task UpdateCartCache(int customerId, List<CartDTO> cart)
-        {
-            string cacheKey = GetCartKey(customerId.ToString());
-
-            if (IsConnected() && cart.Any())
-            {
-                await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
-            }
         }
     }
 }
