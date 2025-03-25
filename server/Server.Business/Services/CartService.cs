@@ -74,7 +74,7 @@ namespace Server.Business.Services
                 try
                 {
                     _redis.Dispose();
-                    _redis = await ConnectionMultiplexer.ConnectAsync("localhost:6379"); // Thay bằng thông tin của Redis
+                    _redis = await ConnectionMultiplexer.ConnectAsync("redis:6379"); // Thay bằng thông tin của Redis
                     _redisDb = _redis.GetDatabase();
                 }
                 catch (Exception ex)
