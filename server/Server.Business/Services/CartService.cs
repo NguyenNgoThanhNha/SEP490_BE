@@ -39,7 +39,7 @@ namespace Server.Business.Services
             _redisSetting = redisSetting.Value;
             _redis = ConnectionMultiplexer.Connect(new ConfigurationOptions
             {
-                EndPoints = { $"{_redisSetting.ConnectionString.Split(":")[0]}:{_redisSetting.ConnectionString.Split(":")[1]}" }, // Thay bằng Redis server của bạn
+                EndPoints = { "redis", "6379" }, // Thay bằng Redis server của bạn
                 AbortOnConnectFail = false,  // Không hủy kết nối nếu thất bại
                 ConnectRetry = 5,  // Số lần thử kết nối lại
                 ReconnectRetryPolicy = new ExponentialRetry(5000) // Chính sách thử lại theo cấp số nhân
