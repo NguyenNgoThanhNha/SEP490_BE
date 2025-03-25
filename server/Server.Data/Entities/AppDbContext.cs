@@ -59,6 +59,7 @@ namespace Server.Data.Entities
         public DbSet<WorkSchedule> WorkSchedule { get; set; }
         public DbSet<SkinHealthImage> SkinHealthImage { get; set; }
         public DbSet<Staff_ServiceCategory> Staff_ServiceCategory { get; set; }
+        public DbSet<UserVoucher> UserVouchers { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -188,6 +189,24 @@ namespace Server.Data.Entities
                     .WithMany(e => e.ProductCarts)
                     .HasForeignKey(e => e.CartId)
                     .HasConstraintName("FK_Product_Cart_Cart");
+            });
+            
+            // UserVoucher
+            modelBuilder.Entity<UserVoucher>(e =>
+            {
+                e.ToTable("UserVoucher");
+                e.HasKey(e => e.UserVoucherId);
+                e.HasIndex(e => new { e.UserId, e.VoucherId }).IsUnique();
+
+                e.HasOne(e => e.User)
+                    .WithMany(e => e.UserVoucher)
+                    .HasForeignKey(e => e.UserId)
+                    .HasConstraintName("FK_User_Voucher_User");
+
+                e.HasOne(e => e.Voucher)
+                    .WithMany(e => e.UserVoucher)
+                    .HasForeignKey(e => e.VoucherId)
+                    .HasConstraintName("FK_User_Voucher_Voucher");
             });
         }
     }
