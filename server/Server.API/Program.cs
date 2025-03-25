@@ -77,6 +77,11 @@ namespace Server.API
                 option.InstanceName = "RedisCache_";
                 option.Configuration = redisConnectionString;
             });
+
+            var parts = redisConnectionString.Split(':', 2);
+            var firstPart = parts[0];
+            var secondPart = parts.Length > 1 ? parts[1] : "";
+
             
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
@@ -87,7 +92,7 @@ namespace Server.API
 
                 var configOptions = new ConfigurationOptions
                 {
-                    EndPoints = { "redis", "6379" },
+                    EndPoints = { firstPart, secondPart },
                     ConnectRetry = 5, // Thử kết nối lại 5 lần nếu thất bại
                     ReconnectRetryPolicy = new LinearRetry(1500), // Thử kết nối lại sau 1.5s nếu bị ngắt kết nối
                     Ssl = false, // Nếu Redis không yêu cầu SSL thì đặt là false

@@ -71,22 +71,7 @@ namespace Server.Business.Services
             }
 
             // Lấy danh sách sản phẩm trong giỏ hàng
-            var cart = await _context.ProductCart
-                .Include(c => c.Cart)
-                .Include(c => c.Product)
-                .ThenInclude(x => x.Category)
-                .Where(c => c.Cart.CustomerId == int.Parse(userId))
-                .Select(c => new CartDTO
-                {
-                    CartId = c.CartId,
-                    ProductCartId = c.ProductCartId,
-                    ProductId = c.ProductId,
-                    ProductName = c.Product.ProductName,
-                    Price = c.Product.Price,
-                    Quantity = c.Quantity,
-                    Product = _mapper.Map<ProductDetailDto>(c.Product),
-                })
-                .ToListAsync();
+            var cart = await GetCartFromDatabase(int.Parse(userId));
 
             if (cart.Any())
             {
@@ -132,6 +117,8 @@ namespace Server.Business.Services
                 });
             }
 
+            int customerIdInt = int.Parse(customerId);
+
             if (await _unitOfWorks.ProductRepository.GetByIdAsync(request.ProductId) == null)
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
@@ -141,15 +128,14 @@ namespace Server.Business.Services
             }
 
             var existingCart = await _unitOfWorks.CartRepository
-                .FindByCondition(c => c.CustomerId == int.Parse(customerId))
+                .FindByCondition(c => c.CustomerId == customerIdInt)
                 .FirstOrDefaultAsync();
 
             if (existingCart == null)
             {
                 existingCart = new Cart
                 {
-                    CustomerId = int.Parse(customerId),
-                    //PaymentMethod = "Buying",
+                    CustomerId = customerIdInt,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 };
@@ -160,10 +146,9 @@ namespace Server.Business.Services
             var detail = await _unitOfWorks.ProductCartRepository
                 .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductId == request.ProductId)
                 .FirstOrDefaultAsync();
+
             if (detail == null)
             {
-                request.CartId = existingCart.CartId;
-                request.Quantity = 1;
                 if (request.Operation != Data.OperationTypeEnum.Add)
                 {
                     return ApiResult<ApiResponse>.Error(new ApiResponse
@@ -172,18 +157,14 @@ namespace Server.Business.Services
                     });
                 }
 
-                var productCart = _mapper.Map<ProductCart>(request);
-                await _unitOfWorks.ProductCartRepository.AddAsync(productCart);
-                var result = await _unitOfWorks.ProductCartRepository.Commit();
-
-                if (result > 0)
+                var productCart = new ProductCart
                 {
-                    await CacheCart(int.Parse(customerId));
-                    return ApiResult<ApiResponse>.Succeed(new ApiResponse
-                    {
-                        data = productCart
-                    });
-                }
+                    CartId = existingCart.CartId,
+                    ProductId = request.ProductId,
+                    Quantity = 1
+                };
+
+                await _unitOfWorks.ProductCartRepository.AddAsync(productCart);
             }
             else
             {
@@ -193,35 +174,26 @@ namespace Server.Business.Services
                 }
                 else if (request.Operation == Data.OperationTypeEnum.Subtract)
                 {
-                    int quantity = detail.Quantity - request.Quantity;
-                    if (quantity < 1)
-                    {
-                        quantity = 1;
-                    }
-
-                    detail.Quantity = quantity;
+                    detail.Quantity = Math.Max(1, detail.Quantity - request.Quantity);
                 }
                 else if (request.Operation == Data.OperationTypeEnum.Replace)
                 {
-                    if (request.Quantity < 1)
-                    {
-                        request.Quantity = 1;
-                    }
-
-                    detail.Quantity = request.Quantity;
+                    detail.Quantity = Math.Max(1, request.Quantity);
                 }
 
                 _unitOfWorks.ProductCartRepository.Update(detail);
-                var result = await _unitOfWorks.ProductCartRepository.Commit();
+            }
 
-                if (result > 0)
+            var result = await _unitOfWorks.ProductCartRepository.Commit();
+            if (result > 0)
+            {
+                var cart = await GetCartFromDatabase(customerIdInt); // Lấy dữ liệu giỏ hàng từ DB
+                await UpdateCartCache(customerIdInt, cart); // Cập nhật Redis với đúng format
+
+                return ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    await CacheCart(int.Parse(customerId));
-                    return ApiResult<ApiResponse>.Succeed(new ApiResponse
-                    {
-                        data = _mapper.Map<CartDTO>(detail)
-                    });
-                }
+                    data = cart
+                });
             }
 
             return ApiResult<ApiResponse>.Error(new ApiResponse
@@ -229,6 +201,7 @@ namespace Server.Business.Services
                 message = "Lỗi cập nhật vào hệ thống"
             });
         }
+
 
         public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productId)
         {
@@ -292,6 +265,7 @@ namespace Server.Business.Services
             var cart = await _context.ProductCart
                 .Include(c => c.Cart)
                 .Include(c => c.Product)
+                .ThenInclude(x => x.Category)
                 .Where(c => c.Cart.CustomerId == userId)
                 .Select(c => new CartDTO
                 {
@@ -300,7 +274,8 @@ namespace Server.Business.Services
                     ProductId = c.ProductId,
                     ProductName = c.Product.ProductName,
                     Price = c.Product.Price,
-                    Quantity = c.Quantity
+                    Quantity = c.Quantity,
+                    Product = _mapper.Map<ProductDetailDto>(c.Product),
                 })
                 .ToListAsync();
 
@@ -308,6 +283,56 @@ namespace Server.Business.Services
             {
                 await _redisDb.StringSetAsync(GetCartKey(userId.ToString()), JsonConvert.SerializeObject(cart),
                     TimeSpan.FromMinutes(60));
+            }
+        }
+
+        private async Task<List<CartDTO>> GetCartFromDatabase(int customerId)
+        {
+            var cart = await _context.ProductCart
+                .Include(c => c.Cart)
+                .Include(c => c.Product)
+                .ThenInclude(x => x.Category)
+                .Where(c => c.Cart.CustomerId == customerId)
+                .Select(c => new CartDTO
+                {
+                    CartId = c.CartId,
+                    ProductCartId = c.ProductCartId,
+                    ProductId = c.ProductId,
+                    ProductName = c.Product.ProductName,
+                    Price = c.Product.Price,
+                    Quantity = c.Quantity,
+                    Product = _mapper.Map<ProductDetailDto>(c.Product),
+                })
+                .ToListAsync();
+
+            if (cart.Any())
+            {
+                var productIds = cart.Select(c => c.ProductId).ToList();
+
+                var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
+                    .Where(si => productIds.Contains(si.ProductId))
+                    .GroupBy(si => si.ProductId)
+                    .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
+
+                foreach (var item in cart)
+                {
+                    item.Product.images = productImages.ContainsKey(item.ProductId)
+                        ? productImages[item.ProductId]
+                        : Array.Empty<string>();
+                }
+            }
+
+            return cart;
+        }
+
+
+        private async Task UpdateCartCache(int customerId, List<CartDTO> cart)
+        {
+            string cacheKey = GetCartKey(customerId.ToString());
+
+            if (IsConnected() && cart.Any())
+            {
+                await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
             }
         }
     }
