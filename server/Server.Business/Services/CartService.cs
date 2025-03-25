@@ -88,7 +88,10 @@ namespace Server.Business.Services
             if (request.UserId <= 0)
                 return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Vui lòng đăng nhập vào hệ thống" });
 
-            if (await _unitOfWorks.ProductRepository.GetByIdAsync(request.ProductId) == null)
+            var productBranch = await _unitOfWorks.Brand_ProductRepository
+                .FirstOrDefaultAsync(x => x.Id == request.ProductBranchId);
+            
+            if (await _unitOfWorks.ProductRepository.GetByIdAsync(productBranch.ProductId) == null)
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                     { message = "Sản phẩm không tồn tại trong hệ thống." });
 
@@ -103,7 +106,7 @@ namespace Server.Business.Services
             }
 
             var detail = await _unitOfWorks.ProductCartRepository
-                .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductId == request.ProductId)
+                .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductId == productBranch.ProductId)
                 .FirstOrDefaultAsync();
             if (detail == null)
             {
@@ -112,7 +115,7 @@ namespace Server.Business.Services
                         { message = "Sản phẩm chưa tồn tại trong giỏ hàng!" });
 
                 await _unitOfWorks.ProductCartRepository.AddAsync(new ProductCart
-                    { CartId = existingCart.CartId, ProductId = request.ProductId, Quantity = 1 });
+                    { CartId = existingCart.CartId, ProductId = productBranch.ProductId, Quantity = 1 });
             }
             else
             {

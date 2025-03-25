@@ -16,7 +16,7 @@ namespace Server.Business.Commons.Request
 
     public class AddToCartRequest
     {
-        public int ProductId { get; set; }
+        public int ProductBranchId { get; set; }
         public int Quantity { get; set; } = 1;
         public int UserId { get; set; }
         
