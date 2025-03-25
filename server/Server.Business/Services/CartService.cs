@@ -74,7 +74,7 @@ namespace Server.Business.Services
             var cart = await _context.ProductCart
                 .Include(c => c.Cart)
                 .Include(c => c.Product)
-                .Include(c => c.Product.Category)
+                .ThenInclude(x => x.Category)
                 .Where(c => c.Cart.CustomerId == int.Parse(userId))
                 .Select(c => new CartDTO
                 {
@@ -84,7 +84,7 @@ namespace Server.Business.Services
                     ProductName = c.Product.ProductName,
                     Price = c.Product.Price,
                     Quantity = c.Quantity,
-                    Product = _mapper.Map<ProductDto>(c.Product),
+                    Product = _mapper.Map<ProductDetailDto>(c.Product),
                 })
                 .ToListAsync();
 
