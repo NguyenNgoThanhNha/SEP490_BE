@@ -11,5 +11,8 @@
         public int Quantity { get; set; }
         public string? Note { get; set; }
         public string Status { get; set; }
+        
+        public ProductDto Product { get; set; }
+        public CategoryDto Category { get; set; }
     }
 }

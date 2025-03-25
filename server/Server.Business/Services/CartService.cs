@@ -54,6 +54,7 @@ namespace Server.Business.Services
                     message = "Vui lòng đăng nhập vào hệ thống"
                 });
             }
+
             string cacheKey = GetCartKey(userId);
 
             if (IsConnected())
@@ -69,10 +70,11 @@ namespace Server.Business.Services
                 }
             }
 
-
+            // Lấy danh sách sản phẩm trong giỏ hàng
             var cart = await _context.ProductCart
                 .Include(c => c.Cart)
                 .Include(c => c.Product)
+                .Include(c => c.Product.Category)
                 .Where(c => c.Cart.CustomerId == int.Parse(userId))
                 .Select(c => new CartDTO
                 {
@@ -81,13 +83,35 @@ namespace Server.Business.Services
                     ProductId = c.ProductId,
                     ProductName = c.Product.ProductName,
                     Price = c.Product.Price,
-                    Quantity = c.Quantity
+                    Quantity = c.Quantity,
+                    Product = _mapper.Map<ProductDto>(c.Product),
                 })
                 .ToListAsync();
 
-            if (cart != null && cart.Count > 0 && IsConnected())
+            if (cart.Any())
             {
-                await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
+                // Lấy danh sách ProductId từ giỏ hàng
+                var productIds = cart.Select(c => c.ProductId).ToList();
+
+                // Lấy hình ảnh của các sản phẩm trong giỏ hàng
+                var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
+                    .Where(si => productIds.Contains(si.ProductId))
+                    .GroupBy(si => si.ProductId)
+                    .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
+
+                // Gán danh sách hình ảnh vào sản phẩm trong giỏ hàng
+                foreach (var item in cart)
+                {
+                    item.Product.images = productImages.ContainsKey(item.ProductId)
+                        ? productImages[item.ProductId]
+                        : Array.Empty<string>(); // Nếu không có hình ảnh, gán mảng rỗng
+                }
+
+                if (IsConnected())
+                {
+                    await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart),
+                        TimeSpan.FromMinutes(60));
+                }
             }
 
             return ApiResult<ApiResponse>.Succeed(new ApiResponse
@@ -95,6 +119,7 @@ namespace Server.Business.Services
                 data = cart
             });
         }
+
 
         public async Task<ApiResult<ApiResponse>> AddToCart(CartRequest request)
         {
@@ -114,6 +139,7 @@ namespace Server.Business.Services
                     message = "Sản phẩm không tồn tại trong hệ thống."
                 });
             }
+
             var existingCart = await _unitOfWorks.CartRepository
                 .FindByCondition(c => c.CustomerId == int.Parse(customerId))
                 .FirstOrDefaultAsync();
@@ -145,13 +171,13 @@ namespace Server.Business.Services
                         message = "Sản phẩm chưa tồn tại trong giỏ hàng!"
                     });
                 }
+
                 var productCart = _mapper.Map<ProductCart>(request);
                 await _unitOfWorks.ProductCartRepository.AddAsync(productCart);
                 var result = await _unitOfWorks.ProductCartRepository.Commit();
 
                 if (result > 0)
                 {
-
                     await CacheCart(int.Parse(customerId));
                     return ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
@@ -172,6 +198,7 @@ namespace Server.Business.Services
                     {
                         quantity = 1;
                     }
+
                     detail.Quantity = quantity;
                 }
                 else if (request.Operation == Data.OperationTypeEnum.Replace)
@@ -180,6 +207,7 @@ namespace Server.Business.Services
                     {
                         request.Quantity = 1;
                     }
+
                     detail.Quantity = request.Quantity;
                 }
 
@@ -223,6 +251,7 @@ namespace Server.Business.Services
                     message = "Giỏ hàng không có sản phẩm"
                 });
             }
+
             var detail = await _unitOfWorks.ProductCartRepository
                 .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductId == productId)
                 .FirstOrDefaultAsync();
@@ -233,6 +262,7 @@ namespace Server.Business.Services
                     message = "Sản phẩm không tồn tại trong giỏ hàng"
                 });
             }
+
             _unitOfWorks.ProductCartRepository.Remove(detail.ProductCartId);
             int result = await _unitOfWorks.ProductCartRepository.Commit();
             if (result == 0)
@@ -242,6 +272,7 @@ namespace Server.Business.Services
                     message = "Lỗi xóa sản phẩm trong giỏ hàng"
                 });
             }
+
             await CacheCart(int.Parse(customerId));
             return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
@@ -255,6 +286,7 @@ namespace Server.Business.Services
             {
                 return;
             }
+
             await _redisDb.KeyDeleteAsync(GetCartKey(userId.ToString()));
 
             var cart = await _context.ProductCart
@@ -274,7 +306,8 @@ namespace Server.Business.Services
 
             if (cart != null && cart.Count > 0)
             {
-                await _redisDb.StringSetAsync(GetCartKey(userId.ToString()), JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
+                await _redisDb.StringSetAsync(GetCartKey(userId.ToString()), JsonConvert.SerializeObject(cart),
+                    TimeSpan.FromMinutes(60));
             }
         }
     }

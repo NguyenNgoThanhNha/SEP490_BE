@@ -92,8 +92,8 @@ namespace Server.API
                     ReconnectRetryPolicy = new LinearRetry(1500), // Thử kết nối lại sau 1.5s nếu bị ngắt kết nối
                     Ssl = false, // Nếu Redis không yêu cầu SSL thì đặt là false
                     AbortOnConnectFail = false, // Không ngắt ứng dụng nếu Redis chưa sẵn sàng
-                    ConnectTimeout = 5000, // Timeout kết nối Redis là 5 giây
-                    SyncTimeout = 5000, // Timeout khi thao tác với Redis là 5 giây
+                    ConnectTimeout = 3000, // Timeout kết nối Redis là 5 giây
+                    SyncTimeout = 3000, // Timeout khi thao tác với Redis là 5 giây
                     DefaultDatabase = 0
                 };
 
