@@ -646,7 +646,7 @@ namespace Server.Business.Services
                 int orderCode;
                 do
                 {
-                    orderCode = new Random().Next(1000, 10000); // từ 1000 đến 9999
+                    orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
                 }
                 while (await _unitOfWorks.OrderRepository
                     .FindByCondition(x => x.OrderCode == orderCode)

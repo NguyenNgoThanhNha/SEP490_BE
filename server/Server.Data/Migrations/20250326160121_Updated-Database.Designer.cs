@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250326095414_Updated-Database")]
+    [Migration("20250326160121_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -1211,50 +1211,47 @@ namespace Server.Data.Migrations
                     b.ToTable("Shifts");
                 });
 
-            modelBuilder.Entity("Server.Data.Entities.Shipping", b =>
+            modelBuilder.Entity("Server.Data.Entities.Shipment", b =>
                 {
-                    b.Property<int>("ShippingId")
+                    b.Property<int>("ShipmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime?>("DeliveryDate")
+                    b.Property<DateTime?>("EstimatedDeliveryDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("OrderId")
+                    b.Property<int>("OrderDetailId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ShippingAddress")
+                    b.Property<DateTime?>("ShippedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ShippingCarrier")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<decimal>("ShippingCost")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("ShippingDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ShippingMethod")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Status")
+                    b.Property<string>("ShippingStatus")
                         .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("TrackingNumber")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.HasKey("ShippingId");
+                    b.HasKey("ShipmentId");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("OrderDetailId");
 
-                    b.ToTable("Shipping");
+                    b.ToTable("Shipment");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.SkinCareRoutineStep", b =>
@@ -2273,7 +2270,7 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.ProductImages", b =>
                 {
                     b.HasOne("Server.Data.Entities.Product", "Product")
-                        .WithMany()
+                        .WithMany("ProductImages")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2419,15 +2416,15 @@ namespace Server.Data.Migrations
                     b.Navigation("Step");
                 });
 
-            modelBuilder.Entity("Server.Data.Entities.Shipping", b =>
+            modelBuilder.Entity("Server.Data.Entities.Shipment", b =>
                 {
-                    b.HasOne("Server.Data.Entities.Order", "Order")
+                    b.HasOne("Server.Data.Entities.OrderDetail", "OrderDetail")
                         .WithMany()
-                        .HasForeignKey("OrderId")
+                        .HasForeignKey("OrderDetailId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Order");
+                    b.Navigation("OrderDetail");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.SkinCareRoutineStep", b =>
@@ -2674,6 +2671,8 @@ namespace Server.Data.Migrations
                     b.Navigation("Branch_Products");
 
                     b.Navigation("ProductCarts");
+
+                    b.Navigation("ProductImages");
 
                     b.Navigation("ProductRoutines");
                 });
