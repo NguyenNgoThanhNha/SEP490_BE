@@ -5,6 +5,7 @@ using Server.Data.MongoDb.Models;
 using Server.Data.MongoDb.Repository;
 using Server.Data.UnitOfWorks;
 using System.IO;
+using Server.Business.Exceptions;
 
 namespace Server.Business.Services;
 
@@ -27,6 +28,11 @@ public class MongoDbService
     // create customer from MySQL to MongoDB
     public async Task<Customers> CreateCustomerAsync(int userId)
     {
+        var existedCustomer = await _customerRepository.GetByIdAsync(userId);
+        if (existedCustomer != null)
+        {
+            throw new BadRequestException("Customer already existed.");
+        }
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == userId);
         var newCustomer = new Customers
         {

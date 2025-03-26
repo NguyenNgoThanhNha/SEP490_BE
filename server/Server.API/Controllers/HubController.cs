@@ -128,5 +128,17 @@ namespace Server.API.Controllers
                 data = filePath
             }));
         }
+        
+        [HttpGet("get-customer-info/{customerId}")]
+        public async Task<IActionResult> GetCustomerInfoAsync(int customerId)
+        {
+            var customer = await _mongoDbService.GetCustomerByIdAsync(customerId);
+            if (customer == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+            {
+                message = "Customer not found",
+            }));
+
+            return Ok(ApiResult<Customers>.Succeed(customer));
+        }
     }
 }
