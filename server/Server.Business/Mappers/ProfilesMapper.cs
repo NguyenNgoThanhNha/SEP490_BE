@@ -92,6 +92,10 @@ namespace Server.Business.Mappers
             CreateMap<ProductCart, CartDTO>();
             CreateMap<Voucher, VoucherDto>();
             
+            CreateMap<SkinCareRoutineStep, SkinCareRoutineStepModel>();
+            CreateMap<ServiceRoutineStep, ServiceRoutineStepModel>();
+            CreateMap<ProductRoutineStep, ProductRoutineStepModel>();
+            
             
         }
     }

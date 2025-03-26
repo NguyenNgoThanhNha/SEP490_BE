@@ -42,5 +42,16 @@ namespace Server.API.Controllers
                 data = routine
             }));
         }
+        
+        [HttpGet("get-list-skincare-routines-step/{routineId}")]
+        public async Task<IActionResult> GetListSkincareRoutineSteps(int routineId)
+        {
+            var steps = await _routineService.GetListSkincareRoutineStepByRoutineId(routineId);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Routine steps fetched successfully",
+                data = steps
+            }));
+        }
     }
 }

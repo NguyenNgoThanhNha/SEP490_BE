@@ -61,6 +61,9 @@ namespace Server.Data.Entities
         public DbSet<Staff_ServiceCategory> Staff_ServiceCategory { get; set; }
         public DbSet<UserVoucher> UserVouchers { get; set; }
         
+        public DbSet<ServiceRoutineStep> ServiceRoutineSteps { get; set; }
+        public DbSet<ProductRoutineStep> ProductRoutineSteps { get; set; }
+        
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

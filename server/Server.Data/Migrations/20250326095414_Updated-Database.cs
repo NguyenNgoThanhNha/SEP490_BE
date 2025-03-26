@@ -450,6 +450,64 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ProductRoutineStep",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    StepId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductRoutineStep", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductRoutineStep_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "ProductId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductRoutineStep_SkinCareRoutineStep_StepId",
+                        column: x => x.StepId,
+                        principalTable: "SkinCareRoutineStep",
+                        principalColumn: "SkinCareRoutineStepId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ServiceRoutineStep",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    StepId = table.Column<int>(type: "int", nullable: false),
+                    ServiceId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceRoutineStep", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ServiceRoutineStep_Service_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "Service",
+                        principalColumn: "ServiceId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ServiceRoutineStep_SkinCareRoutineStep_StepId",
+                        column: x => x.StepId,
+                        principalTable: "SkinCareRoutineStep",
+                        principalColumn: "SkinCareRoutineStepId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Blog",
                 columns: table => new
                 {
@@ -1116,9 +1174,8 @@ namespace Server.Data.Migrations
                     UserRoutineStepId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     UserRoutineId = table.Column<int>(type: "int", nullable: false),
-                    StepName = table.Column<string>(type: "longtext", nullable: false),
-                    Description = table.Column<string>(type: "longtext", nullable: false),
-                    Step = table.Column<int>(type: "int", nullable: false),
+                    SkinCareRoutineStepId = table.Column<int>(type: "int", nullable: false),
+                    StepStatus = table.Column<string>(type: "longtext", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -1127,6 +1184,12 @@ namespace Server.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserRoutineStep", x => x.UserRoutineStepId);
+                    table.ForeignKey(
+                        name: "FK_UserRoutineStep_SkinCareRoutineStep_SkinCareRoutineStepId",
+                        column: x => x.SkinCareRoutineStepId,
+                        principalTable: "SkinCareRoutineStep",
+                        principalColumn: "SkinCareRoutineStepId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserRoutineStep_UserRoutine_UserRoutineId",
                         column: x => x.UserRoutineId,
@@ -1583,6 +1646,16 @@ namespace Server.Data.Migrations
                 column: "RoutineId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductRoutineStep_ProductId",
+                table: "ProductRoutineStep",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductRoutineStep_StepId",
+                table: "ProductRoutineStep",
+                column: "StepId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Schedule_BranchId",
                 table: "Schedule",
                 column: "BranchId");
@@ -1622,6 +1695,16 @@ namespace Server.Data.Migrations
                 table: "ServiceRoutine",
                 columns: new[] { "ServiceId", "RoutineId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceRoutineStep_ServiceId",
+                table: "ServiceRoutineStep",
+                column: "ServiceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ServiceRoutineStep_StepId",
+                table: "ServiceRoutineStep",
+                column: "StepId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Shipping_OrderId",
@@ -1706,6 +1789,11 @@ namespace Server.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserRoutineStep_SkinCareRoutineStepId",
+                table: "UserRoutineStep",
+                column: "SkinCareRoutineStepId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserRoutineStep_UserRoutineId",
                 table: "UserRoutineStep",
                 column: "UserRoutineId");
@@ -1775,6 +1863,9 @@ namespace Server.Data.Migrations
                 name: "ProductRoutine");
 
             migrationBuilder.DropTable(
+                name: "ProductRoutineStep");
+
+            migrationBuilder.DropTable(
                 name: "Schedule");
 
             migrationBuilder.DropTable(
@@ -1787,10 +1878,10 @@ namespace Server.Data.Migrations
                 name: "ServiceRoutine");
 
             migrationBuilder.DropTable(
-                name: "Shipping");
+                name: "ServiceRoutineStep");
 
             migrationBuilder.DropTable(
-                name: "SkinCareRoutineStep");
+                name: "Shipping");
 
             migrationBuilder.DropTable(
                 name: "SkinHealthImage");
@@ -1845,6 +1936,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Category");
+
+            migrationBuilder.DropTable(
+                name: "SkinCareRoutineStep");
 
             migrationBuilder.DropTable(
                 name: "UserRoutine");

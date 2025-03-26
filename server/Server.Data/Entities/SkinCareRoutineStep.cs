@@ -22,6 +22,9 @@ public class SkinCareRoutineStep
     
     public TimeSpan? IntervalBeforeNextStep { get; set; } // Khoảng thời gian chờ trước bước tiếp theo
     
+    public ICollection<ServiceRoutineStep> ServiceRoutineSteps { get; set; } = new List<ServiceRoutineStep>();
+    public ICollection<ProductRoutineStep> ProductRoutineSteps { get; set; } = new List<ProductRoutineStep>();
+    
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }
