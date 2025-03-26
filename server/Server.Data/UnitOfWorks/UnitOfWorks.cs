@@ -9,7 +9,7 @@ namespace Server.Data.UnitOfWorks
     {
         private readonly AppDbContext _dbContext;
         private IDbContextTransaction _transaction;
-        
+
         private UserRepository _userRepo;
         private AuthRepository _authRepo;
         private UserRoleRepository _userRoleRepo;
@@ -49,6 +49,7 @@ namespace Server.Data.UnitOfWorks
         private ProductRoutineStepRepository _productRoutineStepRepository;
         private ServiceRoutineStepRepository _serviceRoutineStepRepository;
         private SkinCareRoutineStepRepository _skinCareRoutineStepRepository;
+
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -58,6 +59,7 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _scheduleRepository ??= new ScheduleRepository(_dbContext); }
         }
+
         public UserRepository UserRepository
         {
             get { return _userRepo ??= new UserRepository(_dbContext); }
@@ -102,12 +104,12 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _branchRepo ??= new BranchRepository(_dbContext); }
         }
-        
+
         public AppointmentsRepository AppointmentsRepository
         {
             get { return _apointmentRepo ??= new AppointmentsRepository(_dbContext); }
         }
-        
+
         public StaffRepository StaffRepository
         {
             get { return _staffRepo ??= new StaffRepository(_dbContext); }
@@ -115,8 +117,9 @@ namespace Server.Data.UnitOfWorks
 
         public BlogRepository BlogRepository
         {
-            get { return _blogRepo ??= new BlogRepository(_dbContext);}
+            get { return _blogRepo ??= new BlogRepository(_dbContext); }
         }
+
         public Brand_ProductRepository Brand_ProductRepository
         {
             get { return _branchProductRepository ??= new Brand_ProductRepository(_dbContext); }
@@ -146,12 +149,12 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _branchServiceRepository ??= new Branch_ServiceRepository(_dbContext); }
         }
-        
+
         public LoggerRepository LoggerRepository
         {
             get { return _loggerRepository ??= new LoggerRepository(_dbContext); }
         }
-        
+
         public ServiceImageRepository ServiceImageRepository
         {
             get { return _serviceImageRepository ??= new ServiceImageRepository(_dbContext); }
@@ -162,61 +165,62 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _productImageRepository ??= new ProductImageRepository(_dbContext); }
         }
-        
+
         public SkincareRoutineRepository SkincareRoutineRepository
         {
             get { return _skincareRoutineRepository ??= new SkincareRoutineRepository(_dbContext); }
         }
-        
+
         public SkinHealthRepository SkinHealthRepository
         {
             get { return _skinHealthRepository ??= new SkinHealthRepository(_dbContext); }
         }
-        
+
         public ServiceCategoryRepository ServiceCategoryRepository
         {
             get { return _serviceCategoryRepository ??= new ServiceCategoryRepository(_dbContext); }
         }
-        
+
         public UserRoutineRepository UserRoutineRepository
         {
             get { return _userRoutineRepository ??= new UserRoutineRepository(_dbContext); }
         }
-        
+
         public SkinHealthImageRepository SkinHealthImageRepository
         {
             get { return _skinHealthImageRepository ??= new SkinHealthImageRepository(_dbContext); }
         }
-        
+
         public WorkScheduleRepository WorkScheduleRepository
         {
             get { return _workScheduleRepository ??= new WorkScheduleRepository(_dbContext); }
         }
-        
+
         public ShiftRepository ShiftRepository
         {
             get { return _shiftRepository ??= new ShiftRepository(_dbContext); }
         }
-        
+
         public StaffLeaveRepository StaffLeaveRepository
         {
             get { return _staffLeaveRepository ??= new StaffLeaveRepository(_dbContext); }
         }
-        
+
         public FeedbackAppointmentRepository FeedbackAppointmentRepository
         {
             get { return _feedbackAppointmentRepository ??= new FeedbackAppointmentRepository(_dbContext); }
         }
-        
+
         public FeedbackServiceRepository FeedbackServiceRepository
         {
             get { return _feedbackServiceRepository ??= new FeedbackServiceRepository(_dbContext); }
         }
-        
+
         public Staff_ServiceCategoryRepository Staff_ServiceCategoryRepository
         {
             get { return _staffServiceCategoryRepository ??= new Staff_ServiceCategoryRepository(_dbContext); }
         }
+
         public CartRepository CartRepository
         {
             get { return _cartRepository ??= new CartRepository(_dbContext); }
@@ -226,19 +230,33 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _productCartRepository ??= new ProductCartRepository(_dbContext); }
         }
-        
+
         public UserVoucherRepository UserVoucherRepository
         {
             get { return _userVoucherRepository ??= new UserVoucherRepository(_dbContext); }
         }
-      
-      
- public async Task<IDbContextTransaction> BeginTransactionAsync()
- {
-     _transaction = await _dbContext.Database.BeginTransactionAsync();
-     return _transaction;
- }
 
+        public ProductRoutineStepRepository ProductRoutineStepRepository
+        {
+            get { return _productRoutineStepRepository ??= new ProductRoutineStepRepository(_dbContext); }
+        }
+
+        public ServiceRoutineStepRepository ServiceRoutineStepRepository
+        {
+            get { return _serviceRoutineStepRepository ??= new ServiceRoutineStepRepository(_dbContext); }
+        }
+
+        public SkinCareRoutineStepRepository SkinCareRoutineStepRepository
+        {
+            get { return _skinCareRoutineStepRepository ??= new SkinCareRoutineStepRepository(_dbContext); }
+        }
+
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            _transaction = await _dbContext.Database.BeginTransactionAsync();
+            return _transaction;
+        }
 
 
         public async Task CommitTransactionAsync()
@@ -265,7 +283,5 @@ namespace Server.Data.UnitOfWorks
         {
             return await _dbContext.SaveChangesAsync();
         }
-
-
     }
 }

@@ -26,7 +26,6 @@ namespace Server.Data.Entities
         public DbSet<Appointments> Appointments { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
-        public DbSet<Shipping> Shippings { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<BlogComment> BlogComments { get; set; }
         public DbSet<BlogRating> BlogRatings { get; set; }
@@ -63,6 +62,8 @@ namespace Server.Data.Entities
         
         public DbSet<ServiceRoutineStep> ServiceRoutineSteps { get; set; }
         public DbSet<ProductRoutineStep> ProductRoutineSteps { get; set; }
+        
+        public DbSet<Shipment> Shipments { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
