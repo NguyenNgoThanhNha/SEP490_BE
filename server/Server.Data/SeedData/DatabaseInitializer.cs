@@ -192,7 +192,7 @@ namespace Server.Data.SeedData
                 {
                     await SeedWorkSchedules();
                 }
-                
+
                 if (!_context.Staff_ServiceCategory.Any())
                 {
                     await SeedStaffServiceCategory();
@@ -649,7 +649,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 200m
                 },
@@ -665,7 +665,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 1, // Cleanser
                     CompanyId = 1,
-                    Brand = "xxx",// Comfortzone
+                    Brand = "xxx", // Comfortzone
                     Dimension = "150ml",
                     Volume = 200m
                 },
@@ -697,7 +697,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -730,7 +730,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -762,7 +762,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -794,7 +794,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -826,7 +826,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -858,7 +858,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -890,7 +890,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "125ml",
                     Volume = 125m
                 },
@@ -922,7 +922,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 1,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -954,7 +954,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "125ml",
                     Volume = 125m
                 },
@@ -986,7 +986,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -1018,7 +1018,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m
                 },
@@ -1050,7 +1050,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1082,7 +1082,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1114,7 +1114,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1146,7 +1146,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1178,7 +1178,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m,
                 },
@@ -1210,7 +1210,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1242,7 +1242,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "60 miếng",
                     Volume = 60m,
                 },
@@ -1274,7 +1274,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 2,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m,
                 },
@@ -1306,7 +1306,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "7 x 2ml",
                     Volume = 14m,
                 },
@@ -1338,7 +1338,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1370,7 +1370,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1404,7 +1404,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1438,7 +1438,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1472,7 +1472,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1506,7 +1506,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1539,7 +1539,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1571,7 +1571,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 3,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1603,7 +1603,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1635,7 +1635,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1651,7 +1651,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 4, // Kem dưỡng ẩm
                     CompanyId = 1,
-                    Brand = "xxx",// Comfortzone
+                    Brand = "xxx", // Comfortzone
                     Dimension = "60ml",
                     Volume = 60m, // Tổng dung tích là 60ml
                 },
@@ -1667,7 +1667,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 4, // Kem dưỡng ẩm
                     CompanyId = 1,
-                    Brand = "xxx",// Comfortzone
+                    Brand = "xxx", // Comfortzone
                     Dimension = "60ml",
                     Volume = 60m, // Tổng dung tích là 60ml
                 },
@@ -1683,7 +1683,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 4, // Kem dưỡng ẩm
                     CompanyId = 1,
-                    Brand = "xxx",// Comfortzone
+                    Brand = "xxx", // Comfortzone
                     Dimension = "30ml",
                     Volume = 30m, // Tổng dung tích là 30ml
                 },
@@ -1715,7 +1715,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "35ml",
                     Volume = 35m,
                 },
@@ -1747,7 +1747,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "35ml",
                     Volume = 35m,
                 },
@@ -1779,7 +1779,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -1811,7 +1811,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "100ml",
                     Volume = 100m,
                 },
@@ -1843,7 +1843,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1875,7 +1875,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1907,7 +1907,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 4,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -1939,7 +1939,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "40ml",
                     Volume = 40m,
                 },
@@ -1971,7 +1971,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -2003,7 +2003,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2035,7 +2035,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2067,7 +2067,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2099,7 +2099,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -2131,7 +2131,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "40ml",
                     Volume = 40m,
                 },
@@ -2164,7 +2164,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2196,7 +2196,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2228,7 +2228,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 5,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "80ml",
                     Volume = 80m,
                 },
@@ -2260,7 +2260,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2292,7 +2292,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m,
                 },
@@ -2324,7 +2324,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "75ml",
                     Volume = 75m,
                 },
@@ -2356,7 +2356,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "75ml",
                     Volume = 75m,
                 },
@@ -2388,7 +2388,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "75ml",
                     Volume = 75m,
                 },
@@ -2420,7 +2420,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "30ml",
                     Volume = 30m,
                 },
@@ -2452,7 +2452,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m,
                 },
@@ -2484,7 +2484,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2516,7 +2516,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m
                 },
@@ -2548,7 +2548,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 6,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "25ml",
                     Volume = 25m
                 },
@@ -2580,7 +2580,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "110ml",
                     Volume = 110m
                 },
@@ -2612,7 +2612,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "120ml",
                     Volume = 120m
                 },
@@ -2644,7 +2644,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "74ml",
                     Volume = 74m
                 },
@@ -2676,7 +2676,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2708,7 +2708,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2740,7 +2740,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "60ml",
                     Volume = 60m
                 },
@@ -2772,7 +2772,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "50ml",
                     Volume = 50m
                 },
@@ -2804,7 +2804,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "180ml",
                     Volume = 180m
                 },
@@ -2836,7 +2836,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "180ml",
                     Volume = 180m
                 },
@@ -2868,7 +2868,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 7,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -2900,7 +2900,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -2932,7 +2932,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "140ml",
                     Volume = 140m
                 },
@@ -2964,7 +2964,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "220ml",
                     Volume = 220m
                 },
@@ -2996,7 +2996,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -3028,7 +3028,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -3060,7 +3060,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "125ml",
                     Volume = 125m
                 },
@@ -3092,7 +3092,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "100ml",
                     Volume = 100m
                 },
@@ -3124,7 +3124,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -3156,7 +3156,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "150ml",
                     Volume = 150m
                 },
@@ -3188,7 +3188,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 8,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "200ml",
                     Volume = 200m
                 },
@@ -3220,7 +3220,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "1000ml",
                     Volume = 1000m
                 },
@@ -3252,7 +3252,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "1000ml",
                     Volume = 1000m
                 },
@@ -3284,7 +3284,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "500ml",
                     Volume = 500m
                 },
@@ -3316,7 +3316,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "650ml",
                     Volume = 650m
                 },
@@ -3348,7 +3348,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "650ml",
                     Volume = 650m
                 },
@@ -3380,7 +3380,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "250ml",
                     Volume = 250m
                 },
@@ -3412,7 +3412,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m,
                     CategoryId = 9,
                     CompanyId = 1,
-                        Brand = "xxx",
+                    Brand = "xxx",
                     Dimension = "300ml",
                     Volume = 300m
                 },
@@ -3429,7 +3429,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
                     CompanyId = 1,
-                    Brand = "xxx",// Redken
+                    Brand = "xxx", // Redken
                     Dimension = "300ml",
                     Volume = 300m // Tổng dung tích là 300ml
                 },
@@ -3445,7 +3445,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
                     CompanyId = 1,
-                    Brand = "xxx",// Shu uemura (CompanyId mặc định là 5)
+                    Brand = "xxx", // Shu uemura (CompanyId mặc định là 5)
                     Dimension = "300ml",
                     Volume = 300m, // Tổng dung tích là 300ml
                 },
@@ -3461,7 +3461,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
                     CompanyId = 1,
-                    Brand = "xxx",// Shu uemura (CompanyId mặc định là 1)
+                    Brand = "xxx", // Shu uemura (CompanyId mặc định là 1)
                     Dimension = "300ml",
                     Volume = 300m, // Tổng dung tích là 300ml
                 },
@@ -3477,7 +3477,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
                     CompanyId = 1,
-                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
+                    Brand = "xxx", // Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3493,7 +3493,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 9, // Shampoo
                     CompanyId = 1,
-                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
+                    Brand = "xxx", // Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3509,7 +3509,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Davines (CompanyId mặc định là 1)
+                    Brand = "xxx", // Davines (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3525,7 +3525,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Davines (CompanyId mặc định là 1)
+                    Brand = "xxx", // Davines (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3541,7 +3541,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Davines (CompanyId mặc định là 1)
+                    Brand = "xxx", // Davines (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3557,7 +3557,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Davines (CompanyId mặc định là 1)
+                    Brand = "xxx", // Davines (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3573,7 +3573,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Kerastase (CompanyId mặc định là 1)
+                    Brand = "xxx", // Kerastase (CompanyId mặc định là 1)
                     Dimension = "200ml",
                     Volume = 200m, // Tổng dung tích là 200ml
                 },
@@ -3589,7 +3589,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Kerastase (CompanyId mặc định là 1)
+                    Brand = "xxx", // Kerastase (CompanyId mặc định là 1)
                     Dimension = "200ml",
                     Volume = 200m, // Tổng dung tích là 200ml
                 },
@@ -3605,7 +3605,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Kerastase (CompanyId mặc định là 1)
+                    Brand = "xxx", // Kerastase (CompanyId mặc định là 1)
                     Dimension = "200ml",
                     Volume = 200m, // Tổng dung tích là 200ml
                 },
@@ -3621,7 +3621,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Kerastase (CompanyId mặc định là 1)
+                    Brand = "xxx", // Kerastase (CompanyId mặc định là 1)
                     Dimension = "200ml",
                     Volume = 200m, // Tổng dung tích là 200ml
                 },
@@ -3637,7 +3637,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Redken (CompanyId mặc định là 1)
+                    Brand = "xxx", // Redken (CompanyId mặc định là 1)
                     Dimension = "300ml",
                     Volume = 300m, // Tổng dung tích là 300ml
                 },
@@ -3652,7 +3652,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Redken (CompanyId mặc định là 1)
+                    Brand = "xxx", // Redken (CompanyId mặc định là 1)
                     Dimension = "300ml",
                     Volume = 300m, // Tổng dung tích là 300ml
                 },
@@ -3668,7 +3668,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// L'Oreal (CompanyId mặc định là 1)
+                    Brand = "xxx", // L'Oreal (CompanyId mặc định là 1)
                     Dimension = "355ml",
                     Volume = 355m, // Tổng dung tích là 355ml
                 },
@@ -3684,7 +3684,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// L'Oreal (CompanyId mặc định là 1)
+                    Brand = "xxx", // L'Oreal (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3700,7 +3700,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// L'Oreal (CompanyId mặc định là 1)
+                    Brand = "xxx", // L'Oreal (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3716,7 +3716,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
+                    Brand = "xxx", // Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3732,7 +3732,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
+                    Brand = "xxx", // Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3748,7 +3748,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Shu uemura (CompanyId mặc định là 1)
+                    Brand = "xxx", // Shu uemura (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3764,7 +3764,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Shu uemura (CompanyId mặc định là 1)
+                    Brand = "xxx", // Shu uemura (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3780,7 +3780,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Opalex (CompanyId mặc định là 1)
+                    Brand = "xxx", // Opalex (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3796,7 +3796,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Oribe (CompanyId mặc định là 1)
+                    Brand = "xxx", // Oribe (CompanyId mặc định là 1)
                     Dimension = "250ml",
                     Volume = 250m, // Tổng dung tích là 250ml
                 },
@@ -3812,7 +3812,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Oribe (CompanyId mặc định là 1)
+                    Brand = "xxx", // Oribe (CompanyId mặc định là 1)
                     Dimension = "160ml",
                     Volume = 160m, // Tổng dung tích là 160ml
                 },
@@ -3828,7 +3828,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Shu Uemura (CompanyId mặc định là 1)
+                    Brand = "xxx", // Shu Uemura (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -3844,7 +3844,7 @@ namespace Server.Data.SeedData
                     Discount = 0.0m, // Không có chiết khấu
                     CategoryId = 10, // Conditioner
                     CompanyId = 1,
-                    Brand = "xxx",// Wella Professionals (CompanyId mặc định là 1)
+                    Brand = "xxx", // Wella Professionals (CompanyId mặc định là 1)
                     Dimension = "1000ml",
                     Volume = 1000m, // Tổng dung tích là 1000ml
                 },
@@ -4393,19 +4393,19 @@ namespace Server.Data.SeedData
         {
             var staffs = await _context.Staffs.ToListAsync();
             var serviceCategories = await _context.ServiceCategory.ToListAsync();
-            
+
             if (!staffs.Any() || serviceCategories.Count < 5)
             {
                 throw new Exception("Không đủ nhân viên hoặc danh mục dịch vụ để gán.");
             }
-            
+
             var staffCategories = new List<Staff_ServiceCategory>();
             var random = new Random();
-            
+
             foreach (var staff in staffs)
             {
                 var selectedCategories = serviceCategories.OrderBy(x => random.Next()).Take(5).ToList();
-                
+
                 foreach (var category in selectedCategories)
                 {
                     staffCategories.Add(new Staff_ServiceCategory
@@ -4417,12 +4417,12 @@ namespace Server.Data.SeedData
                     });
                 }
             }
-            
+
             await _context.Staff_ServiceCategory.AddRangeAsync(staffCategories);
             await _context.SaveChangesAsync();
         }
 
-        
+
         private async Task SeedProductImages()
         {
             // Lấy danh sách tất cả các sản phẩm hiện có
@@ -4432,7 +4432,7 @@ namespace Server.Data.SeedData
             var productImageData = new List<(string productName, List<string> imageUrls)>
             {
                 // Remedy Cream To Oil Cleanser
-                ("Kem Trị Mụn Thâm Cho Da Dầu", new List<string>
+                ("Kem Dầu Tẩy Trang Remedy", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-01-1-1091x1200.png",
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/f9a79b2aadeddf3f7b904fe2fdd2bd390b786956_2000x-1091x1200.jpg",
@@ -4440,14 +4440,14 @@ namespace Server.Data.SeedData
                 }),
 
                 // Essential Face Wash
-                ("Sữa rửa mặt dạng bọt mịn", new List<string>
+                ("Essential Face Wash", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/12100-essential-face-wash-150ml_inner-1091x1200.png",
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/9ff738e7c2d747062d121d0fc4b563eff31ef198_2000x-1091x1200.jpg"
                 }),
 
                 // Active Pureness Cleasing Gel
-                ("Gel rửa mặt làm sạch sâu", new List<string>
+                ("Sữa Rửa Mặt Cơ Bản", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/Active-Pureness-Gel_San-pham-1091x1200.png",
                     "https://icgroup.dk/resources/product/119/43/activec-pureness---gel.png?width=800&height=600",
@@ -4455,7 +4455,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Clearing Skin Wash
-                ("Sữa rửa mặt làm sạch da", new List<string>
+                ("Gel Rửa Mặt Làm Sạch Sâu", new List<string>
                 {
                     "https://www.dermalogica.com/cdn/shop/files/clearing-skin-wash_8.4oz_front.jpg?v=1710455212&width=1946",
                     "https://vn-test-11.slatic.net/p/1c096bc4b5b03330c62465154db802d2.jpg",
@@ -4463,7 +4463,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Oil To Foam Cleanser
-                ("Sữa rữa mặt tạo bọt", new List<string>
+                ("Sữa Rửa Mặt Làm Sạch Mụn", new List<string>
                 {
                     "https://sieuthilamdep.com/images/detailed/20/sua-rua-mat-tay-trang-2-trong-1-dermalogica-oil-to-foam-total-cleanser.jpg",
                     "https://www.thedermacompany.co.uk/wp-content/uploads/2023/06/Dermalogica-Oil-To-Foam-Cleanser-Lifestyle.jpg",
@@ -4471,7 +4471,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Micellar Prebiotic PreCleanse
-                ("Sữa tẩy trang", new List<string>
+                ("Dầu Tẩy Trang Prebiotic Micellar", new List<string>
                 {
                     "https://dermalogica.com.vn/cdn/shop/products/dermalogica-vietnam-cleansers-150ml-coming-soon-micellar-precleanse-s-a-t-y-trang-ch-a-prebiotic-danh-cho-m-i-lo-i-da-31640176623821.png?v=1717214352&width=1946",
                     "https://edbeauty.vn/wp-content/uploads/2024/08/image_2024_08_02T10_27_06_857Z.png",
@@ -4479,7 +4479,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Kmobucha Microbiome Foaming Cleaser
-                ("Sữa rửa mặt tạo bọt Kombucha Microbiome", new List<string>
+                ("Sữa Rửa Mặt Kombucha", new List<string>
                 {
                     "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-kombucha-microbiome-foaming-cleanser-pdp.jpg?itok=XFjrWeJc",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAs0nEmyqyQbx0hl4vz1MUoLloMBlBJTO4QQ&s",
@@ -4487,7 +4487,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Monoi Age Corrective Exfoliating Cleanser
-                ("Sữa rửa mặt tẩy tế bào chết Monoi Age Corrective", new List<string>
+                ("Sữa Rửa Mặt Tẩy Tế Bào Chết Monoi", new List<string>
                 {
                     "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-monoi-age-corrective-exfoliating-cleanser-pdp-compressed.jpg?itok=pRBEP6CO",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7vbzeB98PqQkVa4vQKztlvJZTh1-H0DWPF62hO-Uo3_PGI5iz4E1jFv_p2VAD2LrgA-c&usqp=CAU",
@@ -4495,7 +4495,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Acne Advanced Cleansing Foam
-                ("Sữa rửa mặt Acne Advanced Cleansing Foam", new List<string>
+                ("Sữa Rửa Mặt Ngừa Mụn", new List<string>
                 {
                     "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-acne-advanced-cleansing-foam-v2-400pix-compressor.jpg?itok=7eKH7RYv",
                     "https://wildflowerbeautystudio.ca/cdn/shop/products/acnecleansingfoam_300x300.jpg?v=1613861748",
@@ -4503,7 +4503,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Lemon Grass Cleanser
-                ("Sữa rửa mặt sả chanh", new List<string>
+                ("Sữa Rửa Mặt Cỏ Chanh", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQg8RxjJM_IxA0iIIBfpofAqmoH7QLa7zIy2Q&s",
                     "https://images.squarespace-cdn.com/content/v1/5ea87ac4bf0b761180ffcfae/1626276341235-D5E9PCNK5OSRIP2RALJN/LemonGrassCleanser.jpg?format=1000w",
@@ -4511,21 +4511,21 @@ namespace Server.Data.SeedData
                 }),
 
                 // Charcoal Exfoliating Gel Cleanser
-                ("Sữa rửa mặt dạng gel tẩy tế bào chết than hoạt tính", new List<string>
+                ("Sữa Rửa Mặt Tẩy Tế Bào Chết Than Hoạt Tính", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcNxhG4XNakMZOCjxT2ulB1i2cnWkTVq1qxw&s",
                     "https://naturalbeautygroup.com/cdn/shop/files/Eminence-Organics-Charcoal-Exfoliating-Gel-Cleanser-Lifestyle.jpg?v=1711740188&width=1080",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbNf8GcQLHfBysKN1piBJLl5kX-ovUWTfWhw&s"
                 }),
                 // Beplain Mung Bean pH-Balanced Cleansing Foam
-                ("Sữa rửa mặt cân bằng độ pH đậu xanh Beplain", new List<string>
+                ("Sữa Rửa Mặt Beplain Mung Bean pH-Balanced", new List<string>
                 {
                     "https://product.hstatic.net/200000773671/product/907d907dd544731a2a55_97fc43aed51040a58f76b2512b39f457_master.jpg",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1ZAGpmlp5k_1VB64FLzA6HfAkRMDHXybYEw&s",
                     "https://product.hstatic.net/200000773671/product/ece36b53526af434ad7b_7e25a0c0d2f641e9a0fcfe8371587fca_master.jpg"
                 }),
                 // ISNTREE Yam Root Vegan Milk Cleanser
-                ("Sữa rửa mặt thuần chay ISNTREE Yam Root", new List<string>
+                ("Sữa Rửa Mặt ISNTREE Yam Root Vegan Milk", new List<string>
                 {
                     "https://www.kanvasbeauty.com.au/cdn/shop/files/7_5a516b9f-1e89-47af-a0f3-c9e419cbee24_1200x.jpg?v=1711882846",
                     "https://www.skincupid.co.uk/cdn/shop/files/ISNTREEYamRootVeganMilkCleanser_220ml_5.png?v=1728904708&width=800",
@@ -4533,7 +4533,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Normaderm Anti-Acne Purifying Gel Cleanser
-                ("Sữa rửa mặt dạng gel trị mụn Normaderm", new List<string>
+                ("Gel Rửa Mặt Trị Mụn Normaderm", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAztQlHO_gcl1kdZRAKV5QSYVFcAVKnen6yg&s",
                     "https://sohaticare.com/cdn/shop/files/3337875663076_3_82da998a-a47b-4461-a110-036d702f4886_4000x@3x.progressive.jpg?v=1706877499",
@@ -4541,7 +4541,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Purete Thermale Fresh Cleansing Gel
-                ("Gel rửa mặt Purete Thermale Fresh", new List<string>
+                ("Gel Rửa Mặt Tươi Mát Purete Thermale", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBGIU-XNebd-dJK6_u0DMg5l1MKiD1l4zCJg&s",
                     "https://www.binsina.ae/media/catalog/product/8/1/81414_2.jpg?optimize=medium&bg-color=255,255,255&fit=bounds&height=600&width=600&canvas=600:600",
@@ -4549,7 +4549,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Purete Thermale Cleansing Foaming Cream
-                ("Kem tạo bọt làm sạch Purete Thermale", new List<string>
+                ("Kem Rửa Mặt Tạo Bọt Purete Thermale", new List<string>
                 {
                     "https://www.vichy.com.vn/-/media/project/loreal/brand-sites/vchy/apac/vn-vichy/products/other-products/purete-thermale---hydrating-and-cleansing-foaming-cream/hydrating-cleansing-foaming-cream-pack2.jpeg?rev=8a1f1df622f24bfe963a86befb0031b4&sc_lang=vi-vn&cx=0.47&cy=0.43&cw=525&ch=596&hash=D4ABC102BDEC8E803268FC703A80B685",
                     "https://images-na.ssl-images-amazon.com/images/I/81fpwzdjEgL.jpg",
@@ -4557,7 +4557,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Foaming Cream Cleanser
-                ("Sữa rửa mặt dạng kem tạo bọt", new List<string>
+                ("Sữa Rửa Mặt Tạo Bọt", new List<string>
                 {
                     "https://hydropeptide.com/cdn/shop/files/021924_FoamingCleanser_Carousel-Hero_1024x1024.jpg?v=1709334047",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhMF2XnUc1FGnqMiZFBkLTUJJLw8mCOGt05A&s",
@@ -4565,7 +4565,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Exfoliating Cleanser
-                ("Sữa rửa mặt tẩy tế bào chết", new List<string>
+                ("Sữa Rửa Mặt Tẩy Tế Bào Chết", new List<string>
                 {
                     "https://hydropeptide.com/cdn/shop/files/010924_Retail_ExfoliatingCleanser_PDP_1024x1024.jpg?v=1713463787",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRn6R3GviQQlSKoSH8nmK0q8PPuwSwUefS3Sg&s",
@@ -4573,7 +4573,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Cleansing Gel Face Wash
-                ("Sữa rửa mặt dạng gel", new List<string>
+                ("Gel Rửa Mặt Làm Sạch", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkaX2LqQ8a7zqysEzX98U1KhUdN6kjc6i22Q&s",
                     "https://images.squarespace-cdn.com/content/v1/5badc17c797f743dc830bb95/1720164751711-2KJJ7A6MK6WH95C7JGG9/HydroPeptide+Cleansing+Gel+Perth.png?format=1000w",
@@ -4581,7 +4581,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Mangosteen Revitalizing Mist
-                ("Xịt khoáng phục hồi Mangosteen", new List<string>
+                ("Xịt Khoáng Măng Cụt", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhqpsm4vwoEDeWoXmYThy0w7GBLITExzxFkg&s",
                     "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-slide/eminence-organics-mangosteen-revitalizing_mist_swatch-400x400px-compressed.png?itok=9ia6NZD4",
@@ -4589,7 +4589,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Pineapple Refining Tonique
-                ("Nước hoa hồng tinh chế dứa", new List<string>
+                ("Nước Hoa Hồng Tinh Chất Dứa", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSipnwI-Quyzdj8X2z555QL6Nv8dXGypcpFUw&s",
                     "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Pineapple-Refining-Tonique-lifestyle.jpg?v=1711743675&width=1080",
@@ -4597,14 +4597,14 @@ namespace Server.Data.SeedData
                 }),
 
                 // Hawthorn Tonique
-                ("Nước cân bằng da Hawthorn Tonique", new List<string>
+                ("Nước Hoa Hồng Táo Gai", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWgXY3ygvCD1JS1ZJM_UQB0DlglHmITznI7A&s",
                     "https://images.squarespace-cdn.com/content/v1/5ea87ac4bf0b761180ffcfae/1626276012659-MUTJNN1LVDNA49X09L55/Hawthorn+Tonique.jpg?format=1000w",
                 }),
 
                 // Lime Refresh Tonique
-                ("Nước hoa hồng tươi Lime Refresh Tonic", new List<string>
+                ("Nước Hoa Hồng Tinh Chất Chanh", new List<string>
                 {
                     "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-lime-refresh-tonique-400x400px.png?itok=75tgznFH",
                     "https://buynaturalskincare.com/cdn/shop/files/Eminence-Organics-Lime-Refresh-Tonique-Lifestyle.png?v=1711744338&width=1080",
@@ -4612,14 +4612,14 @@ namespace Server.Data.SeedData
                 }),
 
                 //Soothing Chamomile Tonique
-                ("Nước hoa cúc La Mã làm dịu", new List<string>
+                ("Nước Hoa Hồng Hoa Cúc Làm Dịu Da", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0OK4AjASttojjEQbjJa9vTR7cy-Vf1UcAag&s",
                     "https://blog.skin-beauty.com/wp-content/uploads/2020/08/soothing-chamomile-tonique__64126.1586549554.1280.1280.jpg",
                 }),
 
                 // Multi-Acne Toner 
-                ("Tonner cân bằng da Multi-Acne Toner", new List<string>
+                ("Nước Hoa Hồng Đặc Trị Mụn", new List<string>
                 {
                     "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/2-3.jpg",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOyk2bFufKdc__jGiQJnFZxau1_kg7OmQUpg&s",
@@ -4627,7 +4627,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Antioxidant Hydramist
-                ("Tonner cân bằng da Antioxidant Hydramist", new List<string>
+                ("Xịt Khoáng Chống Oxy Hóa", new List<string>
                 {
                     "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/2-117.jpg",
                     "https://www.dermalogica.co.uk/cdn/shop/products/Antioxidant-Hydramist-pdp-2.jpg?v=1721383738&width=1946",
@@ -4635,7 +4635,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // UltraCalming Mist
-                ("Xịt khoáng UltraCalming Mist", new List<string>
+                ("Xịt Dưỡng Ẩm UltraCalming", new List<string>
                 {
                     "https://dermalogica-vietnam.com/wp-content/uploads/2020/05/2.jpg",
                     "https://myvienhana.vn/wp-content/uploads/2022/03/xit-khoang-dermalogica-Ultracalming-Mist.jpg",
@@ -4643,7 +4643,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Hyaluronic Ceramide Mist
-                ("Xịt khoáng Hyaluronic Ceramide Mist", new List<string>
+                ("Xịt Dưỡng Ẩm Hyaluronic Ceramide", new List<string>
                 {
                     "https://www.dermalogica.com/cdn/shop/files/hyaluronic-ceramide-mist_front.jpg?v=1698103421&width=1946",
                     "https://sieuthilamdep.com/images/detailed/19/xit-khoang-cap-am-va-lam-diu-da-dermalogica-hyaluronic-ceramide-mist-2.jpg",
@@ -4651,7 +4651,7 @@ namespace Server.Data.SeedData
                 }),
 
                 // Remedy Toner 
-                ("Tonner cân bằng da Remedy Toner", new List<string>
+                ("Nước Hoa Hồng Làm Dịu Da", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR5fMbd6K1rQjSbxMXbFo36ZZHjthpqr4lpDQ&s",
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/Remedy-1-02-1091x1200.png",
@@ -4659,136 +4659,136 @@ namespace Server.Data.SeedData
                 }),
 
                 // Essential Toner
-                ("Tonner cân bằng da Essential Toner", new List<string>
+                ("Nước Hoa Hồng Cân Bằng Da", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/Essential-Toner_San-pham-1091x1200.png",
                     "https://hadibeauty.com/wp-content/uploads/2023/03/334204861_942692140091925_7678139925329751463_n.webp",
                 }),
 
                 // Active Pureness Toner
-                ("Tonner cân bằng da Active Pureness Toner", new List<string>
+                ("Nước Hoa Hồng Làm Sạch Sâu", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/Active-Pureness-Toner_San-pham-1091x1200.png",
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/cdd49c856665c35cd1ca025ee14c26d5429d3d2c_2000x-1091x1200.jpg",
                 }),
 
                 // Revitalizing Tonic
-                ("Nước dưỡng cấp ẩm Revitalizing Tonic", new List<string>
+                ("Nước Hoa Hồng Tái Tạo Da", new List<string>
                 {
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkXA3c63LygDEehGwwAJm2Y_SxgWwEt1vz8w&s",
                     "https://comfortzone.com.vn/wp-content/uploads/2023/01/8004608516330_4-1200x1200.jpg",
                     "https://cf.shopee.vn/file/vn-11134201-23030-p5amrfvba8nv3a"
                 }),
                 // Acwell Licorice pH Balancing Cleansing Toner
-                ("Nước hoa hồng Acwell Licorice pH Balancing Cleansing Toner", new List<string>
+                ("Nước Hoa Hồng Cân Bằng pH Acwell Licorice", new List<string>
                 {
                     "https://sokoglam.com/cdn/shop/files/SokoGlamPDP_Acwell_Revamped_Licorice_pH_Balancing_Cleansing_Toner-4_860x.png?v=1729736947",
                     "https://www.mikaela-beauty.com/cdn/shop/files/AX6H2549w_1200x1200.jpg?v=1720903305",
                 }),
 
                 // COSRX AHA/BHA Clarifying Treatment Toner
-                ("Nước hoa hồng COSRX AHA/BHA Clarifying Treatment Toner", new List<string>
+                ("Nước Hoa Hồng COSRX AHA/BHA", new List<string>
                 {
                     "https://product.hstatic.net/1000006063/product/cosrx_ahabha_clarifying_treatment_toner_150ml_625a49f8074c41c59c9d185e582f0580_1024x1024.jpg",
                     "https://assets.aemi.vn/webp/CRX_TNR_150ml_001_img2.webp",
                 }),
                 // Sulwhasoo Concentrated Ginseng Renewing Water
-                ("Tonner cân bằng da Sulwhasoo Concentrated Ginseng Renewing Water", new List<string>
+                ("Nước Cân Bằng Nhân Sâm Sulwhasoo", new List<string>
                 {
                     "https://cdn.shopify.com/s/files/1/0667/9416/0378/files/concentrated_ginseng_rejuvenating_water_kv_pc_vn_240819.jpg?v=1724121219",
                     "https://th.sulwhasoo.com/cdn/shop/files/TN-CGR-Water-1.jpg?v=1734325148",
                 }),
                 // Pre-Treatment Toner
-                ("Tonner cân bằng da Pre-Treatment Toner", new List<string>
+                ("Toner Dưỡng Da Trước Điều Trị", new List<string>
                 {
                     "https://hydropeptide.com/cdn/shop/files/011024_Pre-TreatmentToner_PDP_1024x1024.jpg?v=1711563597",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0ITo2GuTRZWHrbdTatJFRzQcwsN5jDNfHOw&s",
                     "https://134449990.cdn6.editmysite.com/uploads/1/3/4/4/134449990/s148490656276618525_p144_i1_w550.jpeg"
                 }),
                 // Hydraflora
-                ("Nước hoa hồng Hydraflora", new List<string>
+                ("Nước Cân Bằng Hydraflora", new List<string>
                 {
                     "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_HydraFlora_PDP_eea6942c-bdcc-47a2-adf3-c2632906ffc3_grande.jpg?v=1730921087",
                     "https://hydropeptide.com/cdn/shop/files/020724_Swatch_Hydraflora_PDP_0f209cc8-b2dd-42ca-bd9d-06a83eb0d376_1024x1024.jpg?v=1730921090",
                 }),
                 // Clarifying Toner Pads
-                ("Toner cấp ẩm Clarifying Toner Pads", new List<string>
+                ("Miếng Lót Toner Làm Sạch", new List<string>
                 {
                     "https://hydropeptide.com/cdn/shop/files/012224_New_Retail_Packaging_ClarifyingToner_PDP_grande.jpg?v=1715974145",
                     "https://metafields-manager-by-hulkapps.s3-accelerate.amazonaws.com/uploads/hydropeptide-canada.myshopify.com/1718388492-022624_ClarifyingToner_BENEFITS.jpg",
                 }),
                 // Toner Vichy Aqualia Thermal Hydrating Refreshing Water
-                ("Nước hoa hồng Toner Vichy Aqualia Thermal Hydrating Refreshing Water", new List<string>
+                ("Toner Vichy Aqualia Thermal Dưỡng Ẩm Tươi Mát", new List<string>
                 {
                     "https://trungsoncare.com/images/detailed/10/1_n7ix-l0.png",
                     "https://ordinaryvietnam.net/wp-content/uploads/2022/03/Nuoc-hoa-hong-Vichy-Aqualia-Thermal-Hydrating-Refreshing-Water-Ordinary-Viet-Nam-3-600x600.jpg",
                 }),
                 // Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion
-                ("Nước cân bằng da Toner Vichy Normaderm acne-prone skin purifying pore-tightening lotion",
+                ("Toner Vichy Normaderm Se Khít Lỗ Chân Lông",
                     new List<string>
                     {
                         "https://storage.beautyfulls.com/uploads-1/thanhhuong/2022/vichy/toner/vichy-normaderm-purifying-pore-tightening/nuoc-hoa-hong-vichy.jpg",
                         "https://escentual.com/cdn/shop/files/vichy_normaderm_purifying_pore-tightening_toning_lotion_200ml_2.png?v=1729191893",
                     }),
                 // Sublime Skin Intensive Serum
-                ("Tinh chất làm mịn, săn chắc da Sublime Skin Intensive Serum", new List<string>
+                ("Serum Chăm Sóc Da Chuyên Sâu Sublime Skin", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2023/05/sublime-skin-07-1-1091x1200.png",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5pQrlNdExrdzyuV56Zv4vX2yGLGl1VR6juQ&s",
                 }),
                 // Hydramemory Hydra & Glow Ampoules
-                ("Tinh chất dưỡng ẩm, sáng da Hydramemory Hydra & Glow Ampoules", new List<string>
+                ("Tinh Chất Dưỡng Ẩm & Làm Sáng Hydramemory", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2023/04/8004608510871%E2%80%8B_2-1091x1200.jpg",
                     "https://vonpreen.com/wp-content/uploads/2023/02/duong-da-Comfort-Zone-Hyramemory-Hydra-Glow-Ampoule-7-ong-x-2ml.jpg",
                 }),
                 // Subline Skin Lift & Firm Ampoule
-                ("Tinh chắc săn chắc da Subline Skin Lift & Firm Ampoule", new List<string>
+                ("Tinh Chất Nâng Cơ & Căng Da Sublime Skin", new List<string>
                 {
                     "https://comfortzone.com.vn/wp-content/uploads/2022/10/ampollesublime_2000x-1091x1200.jpg",
                     "https://livelovespa.com/cdn/shop/products/Untitleddesign_33_626c334a-5cfe-4a98-9fd6-f1c4faf46476.png?v=1650075373&width=2048",
                 }),
                 // Biolumin-C Serum
-                ("Tinh chất sáng da Biolumin-C Serum", new List<string>
+                ("Serum Vitamin C Biolumin-C", new List<string>
                 {
                     "https://dermalogica-vietnam.com/wp-content/uploads/2020/05/2-1.jpg",
                     "https://stralabeauty.com/wp-content/uploads/2022/05/111341-dermalogica-biolumin-c-serum-open.jpg",
                 }),
                 // Age Bright Clearing Serum
-                ("Tinh chất làm sạch chống lão hóa Age Bright Clearing Serum", new List<string>
+                ("Serum Giảm Mụn & Lão Hóa Age Bright", new List<string>
                 {
                     "https://www.facethefuture.co.uk/cdn/shop/files/111342-lifestyle-1_1750x1750_7f55ce82-2824-4c25-aa9b-e14e9f84f1d2.jpg?v=1695286223&width=600",
                     "https://dermalogica.com.vn/cdn/shop/products/facial-oils-and-serums-facial-oils-and-serums-30ml-age-bright-clearing-serum-30198061039821.png?v=1718765966&width=1445",
                     "https://veevee.store/wp-content/uploads/2023/10/dermalogica-age-bright-clearing-serum-2.webp"
                 }),
                 // Powerbright Dark Spot Serum
-                ("Dưỡng sáng da Powerbright Dark Spot Serum", new List<string>
+                ("Serum Làm Mờ Đốm Nâu Powerbright", new List<string>
                 {
                     "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/dermalogica-vietnam-powerbright-dark-spot-serum-29677731414221_707x707.jpg",
                     "https://edbeauty.vn/wp-content/uploads/2023/08/Tinh-chat-duong-sang-da-Dermalogica-Powerbright-Dark-Spot-Serum-2.jpg",
                     "https://dermalogica-vietnam.com/wp-content/uploads/2019/05/power-serum-2.jpg"
                 }),
                 // UltraCalming Serum Concentrate
-                ("Làm dịu, phục hồi da UltraCalming Serum Concentrate", new List<string>
+                ("Serum Tinh Chất Làm Dịu Da UltraCalming", new List<string>
                 {
                     "https://cdn.dangcapphaidep.vn/wp-content/uploads/2018/06/Dermalogica-Ultracalming%E2%84%A2-Serum-Concentrate-1.jpg",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk6cqAfkxjQz5Mbmi6kkvBSj-ktU8a-Ufmng&s",
                 }),
                 // Circular Hydration Serum With Hyaluronic Acid
-                ("Dưỡng ẩm Circular Hydration Serum With Hyaluronic Acid", new List<string>
+                ("Serum Cấp Ẩm Hyaluronic Circular", new List<string>
                 {
                     "https://dermalogica-vietnam.com/wp-content/uploads/2024/03/Huyet-Thanh-Cap-Am-Chuyen-Sau-Circular-Hydration-Serum-30ml.jpg",
                     "https://www.depmoingay.net.vn/wp-content/uploads/2023/08/Tinh-chat-cap-am-chuyen-sau-Dermalogica-Circular-Hydration-Serum.jpg",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNmRYaTc9DUWC6Db28yQs8xl-cPbyLqsHfUQ&s"
                 }),
                 // Strawberry Rhubarb Hyaluronic Serum
-                ("Dưỡng ẩm Strawberry Rhubarb Hyaluronic Serum", new List<string>
+                ("Serum Dưỡng Ẩm Dâu & Đại Hoàng", new List<string>
                 {
                     "https://beautyritual.ca/cdn/shop/products/eminence-organics-strawberry-rhubarb-hyaluronic-serum-swatch_6209ac7f-cf39-4122-b2a3-98a2d6c150ae.jpg?v=1722965085&width=480",
                     "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-strawberry-rhubarb-hyaluronic-serum.jpg?itok=MnXS_0td",
                 }),
                 // Citrus & Kale Potent C+E Serum
-                ("Sáng da Citrus & Kale Potent C+E Serum", new List<string>
+                ("Serum C+E Chống Oxy Hóa Citrus & Kale", new List<string>
                 {
                     "https://eminenceorganics.com/sites/default/files/styles/product_medium/public/product-image/eminence-organics-citrus-kale-potent-ce-serum-400x400px_0.png?itok=2SnWNB_z",
                     "https://store-cdn-media.dermpro.com/catalog/product/cache/10f519365b01716ddb90abc57de5a837/e/m/eminence_citrus_kale_potent_c_e_serum_2.jpg",
@@ -6312,7 +6312,7 @@ namespace Server.Data.SeedData
             }
         }
 
-        public async Task SeedSkincareRoutineSteps()
+        /*public async Task SeedSkincareRoutineSteps()
         {
             var skincareRoutines = _context.SkincareRoutines.ToList();
             var skincareSteps = new List<SkinCareRoutineStep>();
@@ -6339,6 +6339,114 @@ namespace Server.Data.SeedData
                 {
                     _context.SkinCareRoutineStep.Add(step);
                 }
+            }
+
+            await _context.SaveChangesAsync();
+        }*/
+
+        public async Task SeedSkincareRoutineSteps()
+        {
+            var skincareRoutines = _context.SkincareRoutines.ToList();
+            var skincareSteps = new List<SkinCareRoutineStep>();
+            var productRoutineSteps = new List<ProductRoutineStep>();
+            var serviceRoutineSteps = new List<ServiceRoutineStep>();
+            var random = new Random();
+
+            foreach (var routine in skincareRoutines)
+            {
+                var steps = routine.Steps.Split(", "); // Tách các bước từ chuỗi Steps
+                var totalSteps = steps.Length;
+
+                // **Lấy danh sách sản phẩm từ ProductRoutine**
+                var routineProducts = _context.ProductRoutines
+                    .Where(p => p.RoutineId == routine.SkincareRoutineId)
+                    .Select(p => p.ProductId)
+                    .ToList();
+
+                // **Lấy danh sách dịch vụ từ ServiceRoutine**
+                var routineServices = _context.ServiceRoutine
+                    .Where(s => s.RoutineId == routine.SkincareRoutineId)
+                    .Select(s => s.ServiceId)
+                    .ToList();
+
+                for (int i = 0; i < totalSteps; i++)
+                {
+                    var stepEntity = new SkinCareRoutineStep
+                    {
+                        SkincareRoutineId = routine.SkincareRoutineId,
+                        Name = steps[i],
+                        Step = i + 1,
+                        IntervalBeforeNextStep = i < totalSteps - 1 ? TimeSpan.FromDays(2) : null
+                    };
+
+                    var existingStep = _context.SkinCareRoutineStep
+                        .FirstOrDefault(s =>
+                            s.SkincareRoutineId == stepEntity.SkincareRoutineId && s.Step == stepEntity.Step);
+
+                    if (existingStep == null)
+                    {
+                        _context.SkinCareRoutineStep.Add(stepEntity);
+                        await _context.SaveChangesAsync(); // Lưu ngay để lấy `StepId`
+                    }
+                    else
+                    {
+                        stepEntity = existingStep;
+                    }
+
+                    // **Chia đều hoặc chọn ngẫu nhiên sản phẩm & dịch vụ**
+                    var selectedProducts = routineProducts
+                        .OrderBy(x => random.Next()) // Xáo trộn danh sách
+                        .Take(Math.Max(2, routineProducts.Count / totalSteps)) // Chia đều hoặc chọn ít nhất 1
+                        .ToList();
+
+                    var selectedServices = routineServices
+                        .OrderBy(x => random.Next()) // Xáo trộn danh sách
+                        .Take(Math.Max(1, routineServices.Count / totalSteps)) // Chia đều hoặc chọn ít nhất 1
+                        .ToList();
+
+                    // **Thêm vào bảng ProductRoutineStep**
+                    foreach (var productId in selectedProducts)
+                    {
+                        if (!_context.ProductRoutineSteps.Any(s =>
+                                s.StepId == stepEntity.SkinCareRoutineStepId && s.ProductId == productId))
+                        {
+                            productRoutineSteps.Add(new ProductRoutineStep
+                            {
+                                StepId = stepEntity.SkinCareRoutineStepId,
+                                ProductId = productId,
+                                CreatedDate = DateTime.Now,
+                                UpdatedDate = DateTime.Now
+                            });
+                        }
+                    }
+
+                    // **Thêm vào bảng ServiceRoutineStep**
+                    foreach (var serviceId in selectedServices)
+                    {
+                        if (!_context.ServiceRoutineSteps.Any(s =>
+                                s.StepId == stepEntity.SkinCareRoutineStepId && s.ServiceId == serviceId))
+                        {
+                            serviceRoutineSteps.Add(new ServiceRoutineStep
+                            {
+                                StepId = stepEntity.SkinCareRoutineStepId,
+                                ServiceId = serviceId,
+                                CreatedDate = DateTime.Now,
+                                UpdatedDate = DateTime.Now
+                            });
+                        }
+                    }
+                }
+            }
+
+            // **Lưu dữ liệu vào DB**
+            if (productRoutineSteps.Any())
+            {
+                _context.ProductRoutineSteps.AddRange(productRoutineSteps);
+            }
+
+            if (serviceRoutineSteps.Any())
+            {
+                _context.ServiceRoutineSteps.AddRange(serviceRoutineSteps);
             }
 
             await _context.SaveChangesAsync();
