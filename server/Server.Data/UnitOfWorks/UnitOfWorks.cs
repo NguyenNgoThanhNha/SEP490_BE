@@ -230,10 +230,12 @@ namespace Server.Data.UnitOfWorks
         }
 
 
-        public async Task BeginTransactionAsync()
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             _transaction = await _dbContext.Database.BeginTransactionAsync();
+            return _transaction;
         }
+
 
         public async Task CommitTransactionAsync()
         {
@@ -259,5 +261,7 @@ namespace Server.Data.UnitOfWorks
         {
             return await _dbContext.SaveChangesAsync();
         }
+
+
     }
 }

@@ -610,5 +610,108 @@ namespace Server.Business.Services
             return timeElapsed.TotalHours <= allowedHours;
         }
 
+
+        public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
+        {
+            // Bắt đầu transaction
+            using var transaction = await _unitOfWorks.BeginTransactionAsync();
+
+            try
+            {
+                // 1. Kiểm tra người dùng tồn tại và đang hoạt động
+                var userExists = await _unitOfWorks.UserRepository
+                    .FindByCondition(x => x.UserId == request.UserId && x.Status == "Active")
+                    .AnyAsync();
+
+                if (!userExists)
+                    return ApiResult<object>.Error(null, "User not found or inactive.");
+
+                // 2. Kiểm tra voucher (nếu có)
+                int? voucherId = null;
+                if (request.VoucherId.HasValue)
+                {
+                    var voucher = await _unitOfWorks.VoucherRepository
+                        .FindByCondition(x => x.VoucherId == request.VoucherId && x.Status == "Active")
+                        .FirstOrDefaultAsync();
+
+                    if (voucher == null)
+                        return ApiResult<object>.Error(null, "Invalid voucher.");
+
+                    voucherId = voucher.VoucherId;
+                }
+
+                // 3. Tạo OrderCode ngẫu nhiên 4 chữ số và đảm bảo không trùng
+                int orderCode;
+                do
+                {
+                    orderCode = new Random().Next(1000, 10000); // từ 1000 đến 9999
+                }
+                while (await _unitOfWorks.OrderRepository
+                    .FindByCondition(x => x.OrderCode == orderCode)
+                    .AnyAsync());
+
+                // 4. Tạo order
+                var order = new Order
+                {
+                    OrderCode = orderCode,
+                    CustomerId = request.UserId,
+                    VoucherId = voucherId,
+                    TotalAmount = request.TotalAmount,
+                    OrderType = "Product",
+                    PaymentMethod = request.PaymentMethod,
+                    Status = OrderStatusEnum.Pending.ToString(),
+                    StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                };
+
+                await _unitOfWorks.OrderRepository.AddAsync(order);
+                await _unitOfWorks.OrderRepository.Commit();
+
+                // 5. Tạo danh sách order detail
+                foreach (var item in request.Products)
+                {
+                    var product = await _unitOfWorks.ProductRepository.GetByIdAsync(item.ProductId);
+                    if (product == null)
+                        throw new BadRequestException($"Product ID {item.ProductId} not found.");
+
+                    var subTotal = product.Price * item.Quantity;
+
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = product.Price,
+                        SubTotal = subTotal,
+                        Status = OrderStatusEnum.Pending.ToString(),
+                        StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+                        PaymentMethod = request.PaymentMethod,
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+                }
+
+                await _unitOfWorks.OrderDetailRepository.Commit();
+                await transaction.CommitAsync();
+
+                // 6. Trả kết quả thành công
+                return ApiResult<object>.Succeed(new
+                {
+                    OrderId = order.OrderId,
+                    OrderCode = order.OrderCode,
+                    Message = "Order created successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
+            }
+        }
+
+
     }
 }

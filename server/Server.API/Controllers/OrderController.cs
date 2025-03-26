@@ -8,6 +8,7 @@ using Net.payOS.Types;
 using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
+using Server.Business.Dtos;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Business.Services;
@@ -337,6 +338,18 @@ namespace Server.API.Controllers
             }
 
             return Ok(ApiResult<Pagination<AppointmentsModel>>.Succeed(orders));
+        }
+
+        [HttpPost("create-full")]
+        public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResult<object>.Error(null, "Invalid request format"));
+            }
+
+            var result = await _orderService.CreateOrderWithDetailsAsync(request);
+            return Ok(result);
         }
     }
 }
