@@ -351,5 +351,52 @@ namespace Server.API.Controllers
             var result = await _orderService.CreateOrderWithDetailsAsync(request);
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPut("update-status")]
+        public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusSimpleRequest request)
+        {
+            // Kiểm tra Authorization header
+            if (!Request.Headers.TryGetValue("Authorization", out var tokenHeader))
+            {
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            var tokenParts = tokenHeader.ToString().Split(' ');
+            if (tokenParts.Length != 2 || tokenParts[0] != "Bearer")
+            {
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Invalid Authorization format. Expected 'Bearer <token>'"
+                }));
+            }
+
+            var token = tokenParts[1];
+
+            var result = await _orderService.UpdateOrderStatusSimpleAsync(request.OrderId, token);
+
+            if (!result.Success)
+            {
+                // Nếu result.Result là ApiResponse thì lấy message
+                if (result.Result is ApiResponse errorResponse)
+                {
+                    return BadRequest(ApiResult<object>.Error(new ApiResponse
+                    {
+                        message = errorResponse.message
+                    }));
+                }
+
+                // fallback nếu message không tồn tại
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Unknown error occurred."
+                }));
+            }
+
+            return Ok(result);
+        }
     }
 }

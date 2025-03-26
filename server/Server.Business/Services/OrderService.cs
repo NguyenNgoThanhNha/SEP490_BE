@@ -25,13 +25,15 @@ namespace Server.Business.Services
         private readonly IMapper _mapper;
         private readonly ServiceService _serviceService;
         private readonly PayOSSetting _payOsSetting;
+        private readonly AuthService _authService;
 
-        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting, ServiceService serviceService)
+        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting, ServiceService serviceService, AuthService authService)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _serviceService = serviceService;
             _payOsSetting = payOsSetting.Value;
+            _authService = authService;
         }
 
         public async Task<Pagination<Order>> GetListAsync(
@@ -711,6 +713,77 @@ namespace Server.Business.Services
                 return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
             }
         }
+
+
+        public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string token)
+        {
+            var currentUser = await _authService.GetUserInToken(token);
+            if (currentUser == null)
+            {
+                return ApiResult<object>.Error(ApiResponse.Error("Invalid token or user not found."));
+            }
+
+            int? staffRoleId = null;
+
+            if (currentUser.RoleID == 4)
+            {
+                var staff = await _unitOfWorks.StaffRepository
+                    .FindByCondition(x => x.UserId == currentUser.UserId)
+                    .FirstOrDefaultAsync();
+
+                staffRoleId = staff?.RoleId;
+            }
+
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                return ApiResult<object>.Error(ApiResponse.Error("Order not found."));
+            }
+
+            string currentStatus = order.Status;
+            string updatedStatus = null;
+
+            if (currentUser.RoleID == 3) // Customer
+            {
+                if (currentStatus == OrderStatusEnum.Shipping.ToString())
+                    updatedStatus = OrderStatusEnum.Completed.ToString();
+                else if (currentStatus == OrderStatusEnum.Pending.ToString())
+                    updatedStatus = OrderStatusEnum.Cancelled.ToString();
+                else
+                    return ApiResult<object>.Error(ApiResponse.Error("Customer cannot update this order status."));
+            }
+            else if (currentUser.RoleID == 4 && staffRoleId == 1) // Cashier
+            {
+                if (currentStatus != OrderStatusEnum.Pending.ToString())
+                    return ApiResult<object>.Error(ApiResponse.Error("Cashier can only update order from 'Pending'."));
+
+                updatedStatus = OrderStatusEnum.Shipping.ToString();
+            }
+            else
+            {
+                return ApiResult<object>.Error(ApiResponse.Error("Bạn không được quyền thực hiện."));
+            }
+
+            if (currentStatus == updatedStatus)
+            {
+                return ApiResult<object>.Error(ApiResponse.Error("Đơn hàng đã được cập nhật trước đó."));
+            }
+
+            // Cập nhật trạng thái
+            order.Status = updatedStatus;
+            order.UpdatedDate = DateTime.Now;
+            _unitOfWorks.OrderRepository.Update(order);
+            await _unitOfWorks.OrderRepository.Commit();
+
+            var response = ApiResponse.Succeed(new
+            {
+                OrderId = order.OrderId,
+                NewStatus = order.Status
+            }, "Order status updated successfully.");
+
+            return ApiResult<object>.Succeed(response);
+        }
+
 
 
     }
