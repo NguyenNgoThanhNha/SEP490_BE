@@ -46,6 +46,9 @@ namespace Server.Data.UnitOfWorks
         private CartRepository _cartRepository;
         private ProductCartRepository _productCartRepository;
         private UserVoucherRepository _userVoucherRepository;
+        private ProductRoutineStepRepository _productRoutineStepRepository;
+        private ServiceRoutineStepRepository _serviceRoutineStepRepository;
+        private SkinCareRoutineStepRepository _skinCareRoutineStepRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -229,7 +232,21 @@ namespace Server.Data.UnitOfWorks
             get { return _userVoucherRepository ??= new UserVoucherRepository(_dbContext); }
         }
 
-
+        public ProductRoutineStepRepository ProductRoutineStepRepository
+        {
+            get { return _productRoutineStepRepository ??= new ProductRoutineStepRepository(_dbContext); }
+        }
+        
+        public ServiceRoutineStepRepository ServiceRoutineStepRepository
+        {
+            get { return _serviceRoutineStepRepository ??= new ServiceRoutineStepRepository(_dbContext); }
+        }
+        
+        public SkinCareRoutineStepRepository SkinCareRoutineStepRepository
+        {
+            get { return _skinCareRoutineStepRepository ??= new SkinCareRoutineStepRepository(_dbContext); }
+        }
+        
         public async Task BeginTransactionAsync()
         {
             _transaction = await _dbContext.Database.BeginTransactionAsync();

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Google.Protobuf.Collections;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
@@ -90,4 +91,52 @@ public class RoutineService
         var routineModels = _mapper.Map<List<SkincareRoutineModel>>(routines);
         return routineModels;
     }
+    
+    public async Task<List<SkinCareRoutineStepModel>> GetListSkincareRoutineStepByRoutineId(int routineId)
+    {
+        var steps = await _unitOfWorks.SkinCareRoutineStepRepository
+            .FindByCondition(x => x.SkincareRoutineId == routineId)
+            .Include(x => x.ServiceRoutineSteps)
+            .ThenInclude(x => x.Service)
+            .ThenInclude(x => x.ServiceCategory)
+            .Include(x => x.ProductRoutineSteps)
+            .ThenInclude(x => x.Product)
+            .ThenInclude(x => x.Category)
+            .ToListAsync();
+
+        var stepModels = _mapper.Map<List<SkinCareRoutineStepModel>>(steps);
+
+        // Lấy danh sách sản phẩm từ stepModels
+        var productRoutineSteps = stepModels.SelectMany(x => x.ProductRoutineSteps).ToList();
+        var listProduct = productRoutineSteps.Select(pr => pr.Product).ToList();
+        var listProductModel = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(listProduct));
+
+        // Lấy danh sách dịch vụ từ stepModels
+        var serviceRoutineSteps = stepModels.SelectMany(x => x.ServiceRoutineSteps).ToList();
+        var listService = serviceRoutineSteps.Select(sr => sr.Service).ToList();
+        var listServiceModel = await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(listService));
+
+        // Map images của dịch vụ
+        foreach (var serviceRoutine in serviceRoutineSteps)
+        {
+            var serviceImage = listServiceModel.FirstOrDefault(s => s.ServiceId == serviceRoutine.Service.ServiceId);
+            if (serviceImage != null)
+            {
+                serviceRoutine.Service.images = serviceImage.images;
+            }
+        }
+
+        // Map images của sản phẩm
+        foreach (var productRoutineStep in productRoutineSteps)
+        {
+            var productImage = listProductModel.FirstOrDefault(p => p.ProductId == productRoutineStep.Product.ProductId);
+            if (productImage != null)
+            {
+                productRoutineStep.Product.images = productImage.images;
+            }
+        }
+
+        return stepModels;
+    }
+
 }
