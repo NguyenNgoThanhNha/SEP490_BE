@@ -5,6 +5,7 @@ using Server.API.Extensions;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
+using Server.Business.Models;
 using Server.Business.Services;
 using Server.Data.Entities;
 using System.Linq.Expressions;
@@ -439,6 +440,29 @@ namespace Server.API.Controllers
             return Ok(ApiResponse.Succeed(result));
         }
 
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest request)
+        {
+            try
+            {
+                // Gọi dịch vụ để lọc sản phẩm với các tham số có sẵn trong request
+                var result = await _productService.FilterProductsAsync(request);
+
+                // Kiểm tra nếu không có kết quả hoặc có lỗi trong quá trình lọc
+                if (result == null || !result.Success)
+                {
+                    return BadRequest(ApiResult<object>.Error(null, "No products found based on the filter criteria"));
+                }
+
+                // Trả về kết quả lọc sản phẩm thành công
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<object>.Error(null, $"Something went wrong: {ex.Message}"));
+            }
+        }
 
     }
 }

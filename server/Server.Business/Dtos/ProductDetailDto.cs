@@ -8,6 +8,7 @@ namespace Server.Business.Dtos
 {
     public class ProductDetailDto
     {
+        public int ProductId { get; set; }
         public string ProductName { get; set; }
         public string ProductDescription { get; set; }
         public decimal Price { get; set; }
@@ -18,7 +19,7 @@ namespace Server.Business.Dtos
         public string? Dimension { get; set; }    
         public decimal? Volume { get; set; }
         public string? Status { get; set; }
-        public string? Brand { get; set; }
+        public string? Brand { get; set; }       
         public string CategoryName { get; set; }
         public string CompanyName { get; set; }
         public string? SkinTypeSuitable { get; set; }
