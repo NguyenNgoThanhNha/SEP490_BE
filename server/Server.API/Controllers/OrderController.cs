@@ -8,6 +8,7 @@ using Net.payOS.Types;
 using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
+using Server.Business.Dtos;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Business.Services;
@@ -338,5 +339,88 @@ namespace Server.API.Controllers
 
             return Ok(ApiResult<Pagination<AppointmentsModel>>.Succeed(orders));
         }
+
+        [HttpPost("create-full")]
+        public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResult<object>.Error(null, "Invalid request format"));
+            }
+
+            var result = await _orderService.CreateOrderWithDetailsAsync(request);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPut("update-status")]
+        public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusSimpleRequest request)
+        {
+            // Kiểm tra Authorization header
+            if (!Request.Headers.TryGetValue("Authorization", out var tokenHeader))
+            {
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            var tokenParts = tokenHeader.ToString().Split(' ');
+            if (tokenParts.Length != 2 || tokenParts[0] != "Bearer")
+            {
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Invalid Authorization format. Expected 'Bearer <token>'"
+                }));
+            }
+
+            var token = tokenParts[1];
+
+            var result = await _orderService.UpdateOrderStatusSimpleAsync(request.OrderId, token);
+
+            if (!result.Success)
+            {
+                // Nếu result.Result là ApiResponse thì lấy message
+                if (result.Result is ApiResponse errorResponse)
+                {
+                    return BadRequest(ApiResult<object>.Error(new ApiResponse
+                    {
+                        message = errorResponse.message
+                    }));
+                }
+
+                // fallback nếu message không tồn tại
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Unknown error occurred."
+                }));
+            }
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPut("update-payment-method-or-note")]
+        public async Task<IActionResult> UpdatePaymentMethodOrNote([FromBody] UpdatePaymentMethodOrNoteRequest request)
+        {
+            // Lấy token từ header của request
+            var token = Request.Headers["Authorization"].ToString().Split(' ')[1]; // "Bearer <token>"
+
+            // Gọi Service để xử lý logic cập nhật
+            var result = await _orderService.UpdatePaymentMethodOrNoteAsync(request, token);
+
+            // Trả về kết quả từ Service
+            if (!result.Success)
+            {
+                // Nếu không thành công, trả về lỗi với thông báo rõ ràng
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Đã xảy ra lỗi trong quá trình xử lý yêu cầu. Vui lòng thử lại sau."
+                }));
+            }
+            // Trả về thành công nếu cập nhật thành công
+            return Ok(ApiResult<object>.Succeed(result.Result));
+        }
+
     }
 }

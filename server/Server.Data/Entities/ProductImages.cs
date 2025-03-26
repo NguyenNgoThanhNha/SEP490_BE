@@ -15,4 +15,5 @@ public class ProductImages
     public virtual Product Product { get; set; }
 
     public string image { get; set; }
+
 }

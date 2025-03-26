@@ -231,26 +231,15 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _userVoucherRepository ??= new UserVoucherRepository(_dbContext); }
         }
+      
+      
+ public async Task<IDbContextTransaction> BeginTransactionAsync()
+ {
+     _transaction = await _dbContext.Database.BeginTransactionAsync();
+     return _transaction;
+ }
 
-        public ProductRoutineStepRepository ProductRoutineStepRepository
-        {
-            get { return _productRoutineStepRepository ??= new ProductRoutineStepRepository(_dbContext); }
-        }
-        
-        public ServiceRoutineStepRepository ServiceRoutineStepRepository
-        {
-            get { return _serviceRoutineStepRepository ??= new ServiceRoutineStepRepository(_dbContext); }
-        }
-        
-        public SkinCareRoutineStepRepository SkinCareRoutineStepRepository
-        {
-            get { return _skinCareRoutineStepRepository ??= new SkinCareRoutineStepRepository(_dbContext); }
-        }
-        
-        public async Task BeginTransactionAsync()
-        {
-            _transaction = await _dbContext.Database.BeginTransactionAsync();
-        }
+
 
         public async Task CommitTransactionAsync()
         {
@@ -276,5 +265,7 @@ namespace Server.Data.UnitOfWorks
         {
             return await _dbContext.SaveChangesAsync();
         }
+
+
     }
 }

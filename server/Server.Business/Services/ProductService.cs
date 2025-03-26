@@ -403,7 +403,7 @@ namespace Server.Business.Services
                     return null;
 
                 var productModel = _mapper.Map<ProductModel>(product);
-            
+
                 var serviceImages = await _unitOfWorks.ProductImageRepository.FindByCondition(x => x.ProductId == productModel.ProductId)
                     .Where(si => si.ProductId == product.ProductId)
                     .Select(si => si.image)
@@ -419,7 +419,7 @@ namespace Server.Business.Services
             }
         }
 
-     
+
         public async Task<GetAllProductPaginationResponse> GetAllProduct(int page, int pageSize)
         {
             // Lấy dữ liệu sản phẩm với Category và áp dụng phân trang trực tiếp trên IQueryable
@@ -453,7 +453,7 @@ namespace Server.Business.Services
                     ? productImages[product.ProductId]
                     : Array.Empty<string>();
 
-             
+
             }
 
             return new GetAllProductPaginationResponse
@@ -617,7 +617,7 @@ namespace Server.Business.Services
 
                 // Cập nhật sản phẩm thông qua UnitOfWork
                 _unitOfWorks.ProductRepository.Update(product);
-               
+
 
 
                 // Lưu thay đổi vào cơ sở dữ liệu
@@ -637,30 +637,7 @@ namespace Server.Business.Services
             }
         }
 
-        //public async Task<List<BestSellerProductDto>> GetTop5BestSellersAsync()
-        //{
-        //    // Lấy danh sách OrderDetail hoàn thành
-        //    var orderDetails = await _unitOfWorks.OrderDetailRepository
-        //        .FindByCondition(od => od.Status == "Completed")
-        //        .Include(od => od.Product)
-        //        .ToListAsync();
-
-        //    // Nhóm và tính toán
-        //    var bestSellers = orderDetails
-        //        .GroupBy(od => od.ProductId)
-        //        .Select(g => new BestSellerProductDto
-        //        {
-        //            ProductId = g.Key.Value,
-        //            ProductName = g.First().Product.ProductName,
-        //            QuantitySold = g.Sum(od => od.Quantity),                   
-        //            Price = g.First().Product.Price
-        //        })
-        //        .OrderByDescending(p => p.QuantitySold)
-        //        .Take(5)
-        //        .ToList();
-
-        //    return bestSellers;
-        //}
+        
 
         public async Task<List<Product>> GetTop5BestSellersAsync()
         {
@@ -717,7 +694,7 @@ namespace Server.Business.Services
 
             return productModels;
         }
-        
+
         public async Task<List<ProductModel>> GetListImagesOfProductIds(List<int> productIds)
         {
             var listProducts = await _unitOfWorks.ProductRepository
@@ -737,6 +714,93 @@ namespace Server.Business.Services
 
             return productModels;
         }
+
+        public async Task<ApiResult<object>> FilterProductsAsync(ProductFilterRequest req)
+        {
+            // Khởi tạo query ban đầu với các Include liên quan
+            IQueryable<Product> query = _unitOfWorks.ProductRepository
+                .FindByCondition(p => p.Status == "Active");
+
+            // Include các bảng liên quan: Company, Category và ProductImages
+            query = query
+                .Include(p => p.Company)  // Lọc theo Company (nếu cần)
+                .Include(p => p.Category) // Lọc theo Category
+                .Include(p => p.ProductImages);  // Include Product Images
+
+            // ✅ Lọc theo BrandId từ bảng Brand
+            if (req.BrandId.HasValue)
+            {
+                query = query.Join(
+                    _unitOfWorks.BranchRepository.FindByCondition(b => b.BranchId == req.BrandId.Value), // Lấy tất cả các bản ghi từ bảng Brand theo BrandId
+                    product => product.Brand, // Liên kết với tên thương hiệu trong bảng Product (Brand tên)
+                    brand => brand.BranchName, // Liên kết với tên thương hiệu trong bảng Brand
+                    (product, brand) => product // Trả về Product sau khi join
+                );
+            }
+
+            // ✅ Lọc theo khoảng giá (MinPrice - MaxPrice)
+            if (req.MinPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= req.MinPrice.Value);
+            }
+
+            if (req.MaxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= req.MaxPrice.Value);
+            }
+
+            // ✅ Sắp xếp theo giá
+            if (!string.IsNullOrEmpty(req.SortBy))
+            {
+                switch (req.SortBy.ToLower())
+                {
+                    case "price_asc":
+                        query = query.OrderBy(p => p.Price);  // Giá tăng dần
+                        break;
+                    case "price_desc":
+                        query = query.OrderByDescending(p => p.Price);  // Giá giảm dần
+                        break;
+                }
+            }
+
+            // Lấy danh sách sản phẩm sau khi lọc
+            var products = await query.ToListAsync();
+
+            // Mapping kết quả ra DTO (ProductDetailDto)
+            var result = products.Select(p => new ProductDetailDto
+            {
+                ProductId = p.ProductId,
+                ProductName = p.ProductName,
+                ProductDescription = p.ProductDescription,
+                Price = p.Price,
+                Quantity = p.Quantity,
+                Discount = p.Discount ?? 0,
+                CategoryId = p.CategoryId,
+                //BrandId = p.BrandId,  // Đảm bảo BrandId được gán đúng từ Brand
+                Dimension = p.Dimension,
+                Volume = p.Volume,
+                Status = p.Status,
+                Brand = p.Brand,  // Tên Brand đã join với bảng Brand
+                CategoryName = p.Category?.Name,
+                CompanyName = p.Company?.Name,
+                SkinTypeSuitable = p.SkinTypeSuitable,
+                CreatedDate = p.CreatedDate,
+                UpdatedDate = p.UpdatedDate,
+                Category = new CategoryDetailDto
+                {
+                    CategoryId = p.Category?.CategoryId ?? 0,
+                    Name = p.Category?.Name,
+                    Description = p.Category?.Description,
+                    Status = p.Status                    
+                },
+                images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
+            }).ToList();
+
+            // Trả về kết quả thành công
+            return ApiResult<object>.Succeed(ApiResponse.Succeed(result, "Lọc sản phẩm thành công."));
+        }
+
+
 
 
     }

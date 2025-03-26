@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
 using Server.Business.Middlewares;
+using Server.Business.Worker;
 using Server.Data.Entities;
 using Server.Data.SeedData;
 using Service.Business.Services;
@@ -13,13 +14,16 @@ namespace Server.API
     {
         public static async Task Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-            
+
             builder.Services.AddInfrastructure(builder.Configuration);
 
             builder.Services.AddTransient<IAIMLService, AIMLService>();
+
+            builder.Services.AddHostedService<OrderStatusUpdateService>();
 
             builder.Services.AddSwaggerGen(option =>
             {
@@ -68,8 +72,8 @@ namespace Server.API
             });
             builder.Services.AddHttpContextAccessor();
 
-            /*var redisConnectionString = builder.Configuration.GetSection("RedisSetting:RedisConnection").Value; */           
-            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
+            /*var redisConnectionString = builder.Configuration.GetSection("RedisSetting:RedisConnection").Value; */
+            var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");           
             Console.WriteLine($"RedisDbConnection Program: {redisConnectionString}");
 
             builder.Services.AddStackExchangeRedisCache(option =>
@@ -82,7 +86,7 @@ namespace Server.API
             var firstPart = parts[0];
             var secondPart = parts.Length > 1 ? parts[1] : "";
 
-            
+
             builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 if (string.IsNullOrEmpty(redisConnectionString))
@@ -93,7 +97,7 @@ namespace Server.API
                 var configOptions = new ConfigurationOptions
                 {
                     EndPoints = { firstPart, secondPart },
-                    ConnectRetry = 5, 
+                    ConnectRetry = 5,
                     ReconnectRetryPolicy = new ExponentialRetry(5000),
                     Ssl = false,
                     AbortOnConnectFail = false,
@@ -105,7 +109,7 @@ namespace Server.API
 
                 return ConnectionMultiplexer.Connect(configOptions);
             });
-            
+
             var app = builder.Build();
             // Hook into application lifetime events and trigger only application fully started 
             app.Lifetime.ApplicationStarted.Register(async () =>
@@ -154,9 +158,8 @@ namespace Server.API
             app.MapControllers();
 
             app.MapHub<ChatHubs>("/chat");
-            
+
             app.Run();
         }
     }
 }
-

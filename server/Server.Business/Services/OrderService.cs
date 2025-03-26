@@ -25,13 +25,15 @@ namespace Server.Business.Services
         private readonly IMapper _mapper;
         private readonly ServiceService _serviceService;
         private readonly PayOSSetting _payOsSetting;
+        private readonly AuthService _authService;
 
-        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting, ServiceService serviceService)
+        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting, ServiceService serviceService, AuthService authService)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _serviceService = serviceService;
             _payOsSetting = payOsSetting.Value;
+            _authService = authService;
         }
 
         public async Task<Pagination<Order>> GetListAsync(
@@ -609,6 +611,259 @@ namespace Server.Business.Services
             var timeElapsed = DateTime.UtcNow - createdDate;
             return timeElapsed.TotalHours <= allowedHours;
         }
+
+
+        public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
+        {
+            // Bắt đầu transaction
+            using var transaction = await _unitOfWorks.BeginTransactionAsync();
+
+            try
+            {
+                // 1. Kiểm tra người dùng tồn tại và đang hoạt động
+                var userExists = await _unitOfWorks.UserRepository
+                    .FindByCondition(x => x.UserId == request.UserId && x.Status == "Active")
+                    .AnyAsync();
+
+                if (!userExists)
+                    return ApiResult<object>.Error(null, "User not found or inactive.");
+
+                // 2. Kiểm tra voucher (nếu có)
+                int? voucherId = null;
+                if (request.VoucherId.HasValue)
+                {
+                    var voucher = await _unitOfWorks.VoucherRepository
+                        .FindByCondition(x => x.VoucherId == request.VoucherId && x.Status == "Active")
+                        .FirstOrDefaultAsync();
+
+                    if (voucher == null)
+                        return ApiResult<object>.Error(null, "Invalid voucher.");
+
+                    voucherId = voucher.VoucherId;
+                }
+
+                // 3. Tạo OrderCode ngẫu nhiên 4 chữ số và đảm bảo không trùng
+                int orderCode;
+                do
+                {
+                    orderCode = new Random().Next(1000, 10000); // từ 1000 đến 9999
+                }
+                while (await _unitOfWorks.OrderRepository
+                    .FindByCondition(x => x.OrderCode == orderCode)
+                    .AnyAsync());
+
+                // 4. Tạo order
+                var order = new Order
+                {
+                    OrderCode = orderCode,
+                    CustomerId = request.UserId,
+                    VoucherId = voucherId,
+                    TotalAmount = request.TotalAmount,
+                    OrderType = "Product",
+                    PaymentMethod = request.PaymentMethod,
+                    Status = OrderStatusEnum.Pending.ToString(),
+                    StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                };
+
+                await _unitOfWorks.OrderRepository.AddAsync(order);
+                await _unitOfWorks.OrderRepository.Commit();
+
+                // 5. Tạo danh sách order detail
+                foreach (var item in request.Products)
+                {
+                    var product = await _unitOfWorks.ProductRepository.GetByIdAsync(item.ProductId);
+                    if (product == null)
+                        throw new BadRequestException($"Product ID {item.ProductId} not found.");
+
+                    var subTotal = product.Price * item.Quantity;
+
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = product.Price,
+                        SubTotal = subTotal,
+                        Status = OrderStatusEnum.Pending.ToString(),
+                        StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+                        PaymentMethod = request.PaymentMethod,
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+                }
+
+                await _unitOfWorks.OrderDetailRepository.Commit();
+                await transaction.CommitAsync();
+
+                // 6. Trả kết quả thành công
+                return ApiResult<object>.Succeed(new
+                {
+                    OrderId = order.OrderId,
+                    OrderCode = order.OrderCode,
+                    Message = "Order created successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
+            }
+        }
+
+
+        public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string token)
+        {
+            var currentUser = await _authService.GetUserInToken(token);
+            if (currentUser == null)
+            {
+                return ApiResult<object>.Error(ApiResponse.Error("Invalid token or user not found."));
+            }
+
+            int? staffRoleId = null;
+
+            if (currentUser.RoleID == 4)
+            {
+                var staff = await _unitOfWorks.StaffRepository
+                    .FindByCondition(x => x.UserId == currentUser.UserId)
+                    .FirstOrDefaultAsync();
+
+                staffRoleId = staff?.RoleId;
+            }
+
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                return ApiResult<object>.Error(ApiResponse.Error("Order not found."));
+            }
+
+            string currentStatus = order.Status;
+            string updatedStatus = null;
+
+            if (currentUser.RoleID == 3) // Customer
+            {
+                if (currentStatus == OrderStatusEnum.Shipping.ToString())
+                    updatedStatus = OrderStatusEnum.Completed.ToString();
+                else if (currentStatus == OrderStatusEnum.Pending.ToString())
+                    updatedStatus = OrderStatusEnum.Cancelled.ToString();
+                else
+                    return ApiResult<object>.Error(ApiResponse.Error("Customer cannot update this order status."));
+            }
+            else if (currentUser.RoleID == 4 && staffRoleId == 1) // Cashier
+            {
+                if (currentStatus != OrderStatusEnum.Pending.ToString())
+                    return ApiResult<object>.Error(ApiResponse.Error("Cashier can only update order from 'Pending'."));
+
+                updatedStatus = OrderStatusEnum.Shipping.ToString();
+            }
+            else
+            {
+                return ApiResult<object>.Error(ApiResponse.Error("Bạn không được quyền thực hiện."));
+            }
+
+            if (currentStatus == updatedStatus)
+            {
+                return ApiResult<object>.Error(ApiResponse.Error("Đơn hàng đã được cập nhật trước đó."));
+            }
+
+            // Cập nhật trạng thái
+            order.Status = updatedStatus;
+            order.UpdatedDate = DateTime.Now;
+            _unitOfWorks.OrderRepository.Update(order);
+            await _unitOfWorks.OrderRepository.Commit();
+
+            var response = ApiResponse.Succeed(new
+            {
+                OrderId = order.OrderId,
+                NewStatus = order.Status
+            }, "Order status updated successfully.");
+
+            return ApiResult<object>.Succeed(response);
+        }
+
+        public async Task<ApiResult<object>> UpdatePaymentMethodOrNoteAsync(UpdatePaymentMethodOrNoteRequest request, string token)
+        {
+            // Lấy thông tin người dùng từ token
+            var currentUser = await _authService.GetUserInToken(token);
+            if (currentUser == null)
+            {
+                return ApiResult<object>.Error(null, "Token không hợp lệ hoặc người dùng không tìm thấy.");
+            }
+
+            // Lấy thông tin đơn hàng
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(request.OrderId);
+            if (order == null)
+            {
+                return ApiResult<object>.Error(null, "Không tìm thấy đơn hàng.");
+            }
+
+            // Kiểm tra quyền của người dùng
+            if (order.CustomerId != currentUser.UserId)
+            {
+                return ApiResult<object>.Error(null, "Bạn không có quyền cập nhật đơn hàng này.");
+            }
+
+            // Kiểm tra trạng thái đơn hàng
+            if (order.Status != OrderStatusEnum.Pending.ToString())
+            {
+                return ApiResult<object>.Error(null, "Chỉ có thể cập nhật khi đơn hàng có trạng thái 'Pending'.");
+            }
+
+            // Cập nhật phương thức thanh toán hoặc ghi chú
+            if (!string.IsNullOrEmpty(request.PaymentMethod))
+            {
+                order.PaymentMethod = request.PaymentMethod;
+            }
+
+            if (!string.IsNullOrEmpty(request.Note))
+            {
+                order.Note = request.Note;
+            }
+
+            // Cập nhật thời gian thay đổi
+            order.UpdatedDate = DateTime.UtcNow;
+
+            // Lưu lại thay đổi vào cơ sở dữ liệu
+            _unitOfWorks.OrderRepository.Update(order);
+            await _unitOfWorks.OrderRepository.Commit();
+
+            return ApiResult<object>.Succeed(new
+            {
+                OrderId = order.OrderId,
+                PaymentMethod = order.PaymentMethod,
+                Note = order.Note,
+            });
+        }
+
+
+       public async Task UpdateOrderStatusBasedOnPayment()
+{
+    // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
+    var ordersToUpdate = await _unitOfWorks.OrderRepository
+        .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
+                              o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+        .ToListAsync();
+
+    foreach (var order in ordersToUpdate)
+    {
+        // Kiểm tra nếu đơn hàng đã được tạo quá 1 ngày và CreatedDate không phải null
+        if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
+        {
+            // Cập nhật trạng thái đơn hàng sang "Cancelled"
+            order.Status = OrderStatusEnum.Cancelled.ToString();                  
+            order.UpdatedDate = DateTime.UtcNow;
+
+            // Chỉ cập nhật đơn hàng khi có sự thay đổi trạng thái
+            _unitOfWorks.OrderRepository.Update(order);
+        }
+    }
+
+    // Commit tất cả các thay đổi một lần
+    await _unitOfWorks.OrderRepository.Commit();   
+}
 
     }
 }
