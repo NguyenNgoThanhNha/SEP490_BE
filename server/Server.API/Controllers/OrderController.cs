@@ -398,5 +398,29 @@ namespace Server.API.Controllers
 
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPut("update-payment-method-or-note")]
+        public async Task<IActionResult> UpdatePaymentMethodOrNote([FromBody] UpdatePaymentMethodOrNoteRequest request)
+        {
+            // Lấy token từ header của request
+            var token = Request.Headers["Authorization"].ToString().Split(' ')[1]; // "Bearer <token>"
+
+            // Gọi Service để xử lý logic cập nhật
+            var result = await _orderService.UpdatePaymentMethodOrNoteAsync(request, token);
+
+            // Trả về kết quả từ Service
+            if (!result.Success)
+            {
+                // Nếu không thành công, trả về lỗi với thông báo rõ ràng
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Đã xảy ra lỗi trong quá trình xử lý yêu cầu. Vui lòng thử lại sau."
+                }));
+            }
+            // Trả về thành công nếu cập nhật thành công
+            return Ok(ApiResult<object>.Succeed(result.Result));
+        }
+
     }
 }

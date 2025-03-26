@@ -784,7 +784,58 @@ namespace Server.Business.Services
             return ApiResult<object>.Succeed(response);
         }
 
+        public async Task<ApiResult<object>> UpdatePaymentMethodOrNoteAsync(UpdatePaymentMethodOrNoteRequest request, string token)
+        {
+            // Lấy thông tin người dùng từ token
+            var currentUser = await _authService.GetUserInToken(token);
+            if (currentUser == null)
+            {
+                return ApiResult<object>.Error(null, "Token không hợp lệ hoặc người dùng không tìm thấy.");
+            }
 
+            // Lấy thông tin đơn hàng
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(request.OrderId);
+            if (order == null)
+            {
+                return ApiResult<object>.Error(null, "Không tìm thấy đơn hàng.");
+            }
 
+            // Kiểm tra quyền của người dùng
+            if (order.CustomerId != currentUser.UserId)
+            {
+                return ApiResult<object>.Error(null, "Bạn không có quyền cập nhật đơn hàng này.");
+            }
+
+            // Kiểm tra trạng thái đơn hàng
+            if (order.Status != OrderStatusEnum.Pending.ToString())
+            {
+                return ApiResult<object>.Error(null, "Chỉ có thể cập nhật khi đơn hàng có trạng thái 'Pending'.");
+            }
+
+            // Cập nhật phương thức thanh toán hoặc ghi chú
+            if (!string.IsNullOrEmpty(request.PaymentMethod))
+            {
+                order.PaymentMethod = request.PaymentMethod;
+            }
+
+            if (!string.IsNullOrEmpty(request.Note))
+            {
+                order.Note = request.Note;
+            }
+
+            // Cập nhật thời gian thay đổi
+            order.UpdatedDate = DateTime.UtcNow;
+
+            // Lưu lại thay đổi vào cơ sở dữ liệu
+            _unitOfWorks.OrderRepository.Update(order);
+            await _unitOfWorks.OrderRepository.Commit();
+
+            return ApiResult<object>.Succeed(new
+            {
+                OrderId = order.OrderId,
+                PaymentMethod = order.PaymentMethod,
+                Note = order.Note,
+            });
+        }
     }
 }
