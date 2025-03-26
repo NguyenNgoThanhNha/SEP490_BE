@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Server.Data.MongoDb.Repository;
 using Server.Data.Repositories;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Server.Business.Worker;
 
 namespace Server.API.Extensions
 {
@@ -161,6 +162,7 @@ namespace Server.API.Extensions
             services.AddScoped<VoucherService>();
             services.AddHttpContextAccessor();
             services.AddScoped<CartService>();
+            services.AddScoped<OrderStatusUpdateService>();
             return services;
         }
     };

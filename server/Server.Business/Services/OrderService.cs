@@ -837,5 +837,33 @@ namespace Server.Business.Services
                 Note = order.Note,
             });
         }
+
+
+       public async Task UpdateOrderStatusBasedOnPayment()
+{
+    // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
+    var ordersToUpdate = await _unitOfWorks.OrderRepository
+        .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
+                              o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+        .ToListAsync();
+
+    foreach (var order in ordersToUpdate)
+    {
+        // Kiểm tra nếu đơn hàng đã được tạo quá 1 ngày và CreatedDate không phải null
+        if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
+        {
+            // Cập nhật trạng thái đơn hàng sang "Cancelled"
+            order.Status = OrderStatusEnum.Cancelled.ToString();                  
+            order.UpdatedDate = DateTime.UtcNow;
+
+            // Chỉ cập nhật đơn hàng khi có sự thay đổi trạng thái
+            _unitOfWorks.OrderRepository.Update(order);
+        }
+    }
+
+    // Commit tất cả các thay đổi một lần
+    await _unitOfWorks.OrderRepository.Commit();   
+}
+
     }
 }

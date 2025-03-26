@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Server.API.Extensions;
 using Server.Business.Middlewares;
+using Server.Business.Worker;
 using Server.Data.Entities;
 using Server.Data.SeedData;
 using Service.Business.Services;
@@ -13,6 +14,7 @@ namespace Server.API
     {
         public static async Task Main(string[] args)
         {
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -20,6 +22,8 @@ namespace Server.API
             builder.Services.AddInfrastructure(builder.Configuration);
 
             builder.Services.AddTransient<IAIMLService, AIMLService>();
+
+            builder.Services.AddHostedService<OrderStatusUpdateService>();
 
             builder.Services.AddSwaggerGen(option =>
             {
