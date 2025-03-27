@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Nest;
 using Server.Business.Commons;
+using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Models;
@@ -915,7 +916,34 @@ namespace Server.Business.Services
                 }
             };        
     }
-}
+
+        public async Task<bool> AssignOrUpdateProductToBranchAsync(AssignProductToBranchRequest request)
+        {
+            var existing = await _unitOfWorks.Brand_ProductRepository
+                .FindByCondition(bp => bp.ProductId == request.ProductId && bp.BranchId == request.BranchId)
+                .FirstOrDefaultAsync();
+
+            if (existing != null)
+            {
+                existing.StockQuantity = request.StockQuantity;
+                _unitOfWorks.Brand_ProductRepository.Update(existing);
+            }
+            else
+            {
+                var newEntry = new Branch_Product
+                {
+                    ProductId = request.ProductId,
+                    BranchId = request.BranchId,
+                    StockQuantity = request.StockQuantity
+                };
+
+                await _unitOfWorks.Brand_ProductRepository.AddAsync(newEntry);
+            }
+
+            await _unitOfWorks.SaveChangesAsync(); 
+            return true;
+        }
+    }
 }
 
 

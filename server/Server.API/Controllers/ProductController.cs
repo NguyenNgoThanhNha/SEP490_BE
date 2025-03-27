@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Server.API.Extensions;
 using Server.Business.Commons;
+using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Models;
@@ -458,6 +459,31 @@ namespace Server.API.Controllers
                 }
             });
         }
+
+        [HttpPost("assign-to-branch")]
+        public async Task<IActionResult> AssignProductToBranch([FromBody] AssignProductToBranchRequest request)
+        {
+            var result = await _productService.AssignOrUpdateProductToBranchAsync(request);
+
+            if (result)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    result = new
+                    {
+                        message = "Gán sản phẩm vào chi nhánh thành công."
+                    }
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Thao tác thất bại."
+            });
+        }
+
 
     }
 }
