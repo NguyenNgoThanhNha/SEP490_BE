@@ -109,7 +109,7 @@ namespace Server.Business.Services
             }
 
             var detail = await _unitOfWorks.ProductCartRepository
-                .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductId == productBranch.ProductId)
+                .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductBranchId == productBranch.Id)
                 .FirstOrDefaultAsync();
             if (detail == null)
             {
@@ -118,7 +118,7 @@ namespace Server.Business.Services
                         { message = "Sản phẩm chưa tồn tại trong giỏ hàng!" });
 
                 await _unitOfWorks.ProductCartRepository.AddAsync(new ProductCart
-                    { CartId = existingCart.CartId, ProductId = productBranch.ProductId, Quantity = 1 });
+                    { CartId = existingCart.CartId, ProductBranchId = productBranch.Id, Quantity = 1 });
             }
             else
             {
@@ -152,7 +152,7 @@ namespace Server.Business.Services
             }
         }
         
-        public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productId, int userId)
+        public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productBranchId, int userId)
         {
             await EnsureConnected();
             var customerId = userId.ToString();
@@ -176,7 +176,7 @@ namespace Server.Business.Services
             }
 
             var detail = await _unitOfWorks.ProductCartRepository
-                .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductId == productId)
+                .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductBranchId == productBranchId)
                 .FirstOrDefaultAsync();
             if (detail == null)
             {
@@ -207,22 +207,20 @@ namespace Server.Business.Services
         {
             var cartItems = await _context.ProductCart
                 .Include(c => c.Cart)
-                .Include(c => c.Product)
-                .ThenInclude(p => p.Branch_Products)
-                .Include(c => c.Product)
+                .Include(c => c.ProductBranch)
+                .ThenInclude(c => c.Product)
                 .ThenInclude(p => p.Category)
-                .Include(c => c.Product)
                 .Where(c => c.Cart.CustomerId == userId)
                 .Select(c => new CartDTO
                 {
                     CartId = c.CartId,
                     ProductCartId = c.ProductCartId,
-                    ProductId = c.ProductId,
-                    ProductName = c.Product.ProductName,
-                    Price = c.Product.Price,
+                    ProductId = c.ProductBranch.Product.ProductId,
+                    ProductName = c.ProductBranch.Product.ProductName,
+                    Price = c.ProductBranch.Product.Price,
                     Quantity = c.Quantity,
-                    StockQuantity = c.Product.Branch_Products.Sum(bp => bp.StockQuantity),
-                    Product = _mapper.Map<ProductDetailDto>(c.Product)
+                    StockQuantity = c.ProductBranch.Product.Branch_Products.Sum(bp => bp.StockQuantity),
+                    Product = _mapper.Map<ProductDetailDto>(c.ProductBranch.Product)
                 })
                 .ToListAsync();
 

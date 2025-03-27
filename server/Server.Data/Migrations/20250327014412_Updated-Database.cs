@@ -1040,36 +1040,6 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ProductCart",
-                columns: table => new
-                {
-                    ProductCartId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    CartId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductCart", x => x.ProductCartId);
-                    table.ForeignKey(
-                        name: "FK_Product_Cart_Cart",
-                        column: x => x.CartId,
-                        principalTable: "Cart",
-                        principalColumn: "CartId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Product_Cart_Product",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
-                        principalColumn: "ProductId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "OrderDetail",
                 columns: table => new
                 {
@@ -1166,6 +1136,36 @@ namespace Server.Data.Migrations
                         column: x => x.UserRoutineId,
                         principalTable: "UserRoutine",
                         principalColumn: "UserRoutineId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "ProductCart",
+                columns: table => new
+                {
+                    ProductCartId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    ProductBranchId = table.Column<int>(type: "int", nullable: false),
+                    CartId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductCart", x => x.ProductCartId);
+                    table.ForeignKey(
+                        name: "FK_Product_Cart_Cart",
+                        column: x => x.CartId,
+                        principalTable: "Cart",
+                        principalColumn: "CartId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Product_Cart_ProductBranch",
+                        column: x => x.ProductBranchId,
+                        principalTable: "Branch_Product",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -1613,9 +1613,9 @@ namespace Server.Data.Migrations
                 column: "CartId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductCart_ProductId_CartId",
+                name: "IX_ProductCart_ProductBranchId_CartId",
                 table: "ProductCart",
-                columns: new[] { "ProductId", "CartId" },
+                columns: new[] { "ProductBranchId", "CartId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -1832,9 +1832,6 @@ namespace Server.Data.Migrations
                 name: "BlogRating");
 
             migrationBuilder.DropTable(
-                name: "Branch_Product");
-
-            migrationBuilder.DropTable(
                 name: "Branch_Promotion");
 
             migrationBuilder.DropTable(
@@ -1905,6 +1902,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Cart");
+
+            migrationBuilder.DropTable(
+                name: "Branch_Product");
 
             migrationBuilder.DropTable(
                 name: "OrderDetail");

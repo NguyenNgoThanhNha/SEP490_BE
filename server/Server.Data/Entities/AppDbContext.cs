@@ -182,12 +182,12 @@ namespace Server.Data.Entities
             {
                 e.ToTable("ProductCart");
                 e.HasKey(e => e.ProductCartId);
-                e.HasIndex(e => new { e.ProductId, e.CartId }).IsUnique();
+                e.HasIndex(e => new { e.ProductBranchId, e.CartId }).IsUnique();
 
-                e.HasOne(e => e.Product)
+                e.HasOne(e => e.ProductBranch)
                     .WithMany(e => e.ProductCarts)
-                    .HasForeignKey(e => e.ProductId)
-                    .HasConstraintName("FK_Product_Cart_Product");
+                    .HasForeignKey(e => e.ProductBranchId)
+                    .HasConstraintName("FK_Product_Cart_ProductBranch");
 
                 e.HasOne(e => e.Cart)
                     .WithMany(e => e.ProductCarts)
