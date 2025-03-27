@@ -440,36 +440,20 @@ namespace Server.API.Controllers
             return Ok(ApiResponse.Succeed(result));
         }
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest request)
+        public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest req)
         {
-            try
+            var result = await _productService.FilterProductsAsync(req);
+
+            return Ok(new
             {
-                if (request.BrandId <= 0)
+                success = true,
+                result = new
                 {
-                    var errorResponse = ApiResponse.Error("Vui lòng cung cấp BrandId hợp lệ.");
-                    return Ok(ApiResult<ApiResponse>.Succeed(errorResponse));
+                    message = "Products retrieved successfully.",
+                    data = result.data,
+                    pagination = result.pagination
                 }
-
-                var result = await _productService.FilterProductsAsync(request);
-
-                var apiResponse = result?.Result as ApiResponse;
-                var data = apiResponse?.data;
-
-                if (data == null ||
-                    (data.GetType().GetProperty("Items")?.GetValue(data) is IEnumerable<object> items && !items.Any()))
-                {
-                    var emptyResponse = ApiResponse.Error("Không tìm thấy sản phẩm nào với tiêu chí lọc.");
-                    return Ok(ApiResult<ApiResponse>.Succeed(emptyResponse));
-                }
-
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = ApiResponse.Error($"Đã xảy ra lỗi: {ex.Message}");
-                return Ok(ApiResult<ApiResponse>.Succeed(errorResponse));
-            }
+            });
         }
-
     }
 }
