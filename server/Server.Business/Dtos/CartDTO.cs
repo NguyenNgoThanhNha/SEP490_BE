@@ -1,18 +1,12 @@
-﻿namespace Server.Business.Dtos
+﻿using Server.Data.Entities;
+
+namespace Server.Business.Dtos
 {
     public class CartDTO
     {
         public int ProductCartId { get; set; }
-        public int ProductId { get; set; }
-        public string? ProductName { get; set; }
-        public decimal? Price { get; set; }
         public int CartId { get; set; }
-
-        public int Quantity { get; set; }
         public int StockQuantity { get; set; }
-        public string? Note { get; set; }
-        public string Status { get; set; }
-        
-        public ProductDetailDto Product { get; set; }
+        public ProductDetailInCartDto Product { get; set; }  
     }
 }

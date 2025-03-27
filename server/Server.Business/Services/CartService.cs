@@ -62,28 +62,73 @@ namespace Server.Business.Services
             }
         }
 
+        //public async Task<ApiResult<ApiResponse>> GetCart(int userId)
+        //{
+        //    await EnsureConnected();
+        //    if (userId <= 0)
+        //        return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Vui lòng đăng nhập vào hệ thống" });
+
+        //    string cacheKey = GetCartKey(userId);
+        //    string cachedCart = await _redisDb.StringGetAsync(cacheKey);
+        //    if (!string.IsNullOrEmpty(cachedCart))
+        //    {
+        //        return ApiResult<ApiResponse>.Succeed(new ApiResponse
+        //            { data = JsonConvert.DeserializeObject<List<CartDTO>>(cachedCart) });
+        //    }
+
+        //    var cart = await GetCartFromDatabase(userId);
+        //    if (cart.Any())
+        //    {
+        //        await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
+        //    }
+
+        //    return ApiResult<ApiResponse>.Succeed(new ApiResponse { data = cart });
+        //}
+
         public async Task<ApiResult<ApiResponse>> GetCart(int userId)
         {
             await EnsureConnected();
+
             if (userId <= 0)
-                return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Vui lòng đăng nhập vào hệ thống" });
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Vui lòng đăng nhập vào hệ thống"
+                });
+            }
 
             string cacheKey = GetCartKey(userId);
             string cachedCart = await _redisDb.StringGetAsync(cacheKey);
+
+            List<CartDTO> cart;
+
             if (!string.IsNullOrEmpty(cachedCart))
             {
-                return ApiResult<ApiResponse>.Succeed(new ApiResponse
-                    { data = JsonConvert.DeserializeObject<List<CartDTO>>(cachedCart) });
+                cart = JsonConvert.DeserializeObject<List<CartDTO>>(cachedCart);
             }
-
-            var cart = await GetCartFromDatabase(userId);
-            if (cart.Any())
+            else
             {
-                await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
+                cart = await GetCartFromDatabase(userId);
+
+                if (cart.Any())
+                {
+                    await _redisDb.StringSetAsync(
+                        cacheKey,
+                        JsonConvert.SerializeObject(cart),
+                        TimeSpan.FromMinutes(60));
+                }
             }
 
-            return ApiResult<ApiResponse>.Succeed(new ApiResponse { data = cart });
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy dữ liệu cart thành công!",
+                data = cart
+            });
         }
+
+
+
+
 
         //public async Task<ApiResult<ApiResponse>> AddToCart(AddToCartRequest request)
         //{
@@ -309,38 +354,66 @@ namespace Server.Business.Services
 
         private async Task<List<CartDTO>> GetCartFromDatabase(int userId)
         {
-            var cartItems = await _context.ProductCart
-                .Include(c => c.Cart)
-                .Include(c => c.ProductBranch)
-                .ThenInclude(c => c.Product)
-                .ThenInclude(p => p.Category)
-                .Where(c => c.Cart.CustomerId == userId)
-                .Select(c => new CartDTO
+            var cartEntities = await _context.ProductCart
+     .Include(c => c.Cart)
+     .Include(c => c.ProductBranch)
+         .ThenInclude(pb => pb.Product)
+             .ThenInclude(p => p.Category)      
+     .Where(c => c.Cart.CustomerId == userId)
+     .ToListAsync();
+
+
+            var cartItems = cartEntities.Select(c => new CartDTO
+            {
+                CartId = c.CartId,
+                ProductCartId = c.ProductCartId,
+                StockQuantity = c.ProductBranch.Product.Branch_Products
+                    .Where(bp => bp.ProductId == c.ProductBranch.ProductId)
+                    .Sum(bp => bp.StockQuantity),
+
+                Product = new ProductDetailInCartDto
                 {
-                    CartId = c.CartId,
-                    ProductCartId = c.ProductCartId,
                     ProductId = c.ProductBranch.Product.ProductId,
                     ProductName = c.ProductBranch.Product.ProductName,
+                    ProductDescription = c.ProductBranch.Product.ProductDescription,
                     Price = c.ProductBranch.Product.Price,
-                    Quantity = c.Quantity,
-                    StockQuantity = c.ProductBranch.Product.Branch_Products.Sum(bp => bp.StockQuantity),
-                    Product = _mapper.Map<ProductDetailDto>(c.ProductBranch.Product)
-                })
-                .ToListAsync();
+                    Quantity = c.ProductBranch.Product.Quantity,
+                    BrandId = c.ProductBranch.Product.Branch_Products
+    .FirstOrDefault(bp => bp.ProductId == c.ProductBranch.ProductId)?.BranchId,
+                   ProductBranchId = c.ProductBranchId,
+                    Discount = c.ProductBranch.Product.Discount ?? 0,
+                    CategoryId = c.ProductBranch.Product.CategoryId,
+                    CompanyId = c.ProductBranch.Product.CompanyId,
+                    Dimension = c.ProductBranch.Product.Dimension,
+                    Volume = c.ProductBranch.Product.Volume,
+                    Status = c.ProductBranch.Product.Status,
+                    Brand = c.ProductBranch.Product.Brand,
+                    SkinTypeSuitable = c.ProductBranch.Product.SkinTypeSuitable,
+                    CreatedDate = c.ProductBranch.Product.CreatedDate,
+                    UpdatedDate = c.ProductBranch.Product.UpdatedDate,
+                    Category = c.ProductBranch.Product.Category == null ? null : new CategoryDetailInCartDto
+                    {
+                        CategoryId = c.ProductBranch.Product.Category.CategoryId,
+                        Name = c.ProductBranch.Product.Category.Name,
+                        Description = c.ProductBranch.Product.Category.Description,
+                        Status = c.ProductBranch.Product.Category.Status,
+                        ImageUrl = c.ProductBranch.Product.Category.ImageUrl,
+                        CreatedDate = c.ProductBranch.Product.Category.CreatedDate,
+                        UpdatedDate = c.ProductBranch.Product.Category.UpdatedDate
+                    }
+                }
+            }).ToList();
 
-            // Lấy danh sách productId từ giỏ hàng
-            var productIds = cartItems.Select(x => x.ProductId).ToList();
+            var productIds = cartItems.Select(x => x.Product.ProductId).Distinct().ToList();
 
-            // Gọi service để lấy danh sách hình ảnh sản phẩm
-            var listProductModel = await _productService.GetListImagesOfProductIds(productIds);
+            var productImages = await _productService.GetListImagesOfProductIds(productIds);
 
-            // Gán hình ảnh vào sản phẩm trong giỏ hàng
-            foreach (var cartItem in cartItems)
+            foreach (var item in cartItems)
             {
-                var productWithImages = listProductModel.FirstOrDefault(p => p.ProductId == cartItem.ProductId);
-                if (productWithImages != null)
+                var matched = productImages.FirstOrDefault(p => p.ProductId == item.Product.ProductId);
+                if (matched != null)
                 {
-                    cartItem.Product.images = productWithImages.images;
+                    item.Product.Images = matched.images?.ToList() ?? new List<string>();
                 }
             }
 
