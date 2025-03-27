@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Server.API.Extensions;
 using Server.Business.Commons;
+using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Models;
@@ -432,5 +433,57 @@ namespace Server.API.Controllers
                 }
             });
         }
+
+        [HttpGet("detail-by-productBranchId")]
+        public async Task<IActionResult> GetProductDetailByBranch([FromQuery] int productBranchId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _productService.GetProductDetailByProductBranchIdAsync(productBranchId, page, pageSize);
+
+            if (result.data == null || result.data.Count == 0)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Không tìm thấy sản phẩm tương ứng với ProductBranchId. Đảm bảo đã nhập ProductBrandId."
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Lấy thông tin sản phẩm thành công.",
+                    data = result.data,
+                    pagination = result.pagination
+                }
+            });
+        }
+
+        [HttpPost("assign-to-branch")]
+        public async Task<IActionResult> AssignProductToBranch([FromBody] AssignProductToBranchRequest request)
+        {
+            var result = await _productService.AssignOrUpdateProductToBranchAsync(request);
+
+            if (result)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    result = new
+                    {
+                        message = "Gán sản phẩm vào chi nhánh thành công."
+                    }
+                });
+            }
+
+            return BadRequest(new
+            {
+                success = false,
+                message = "Thao tác thất bại."
+            });
+        }
+
+
     }
 }

@@ -384,4 +384,67 @@ public class AppointmentsService
 
         return _mapper.Map<List<AppointmentsModel>>(listAppointments);
     }
+
+    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
+{
+    if (request.BranchId <= 0)
+    {
+        return new GetAllAppointmentPaginationResponse
+        {
+            data = new List<AppointmentDtoByBrandId>(),
+            pagination = new Pagination
+            {
+                page = request.Page,
+                totalPage = 0,
+                totalCount = 0
+            }
+        };
+    }
+
+    var query = _unitOfWorks.AppointmentsRepository
+        .FindByCondition(a => a.BranchId == request.BranchId)
+        .Include(a => a.Staff)
+        .Include(a => a.Customer)
+        .Include(a => a.Service)
+        .OrderByDescending(a => a.AppointmentsTime);
+
+    var totalCount = await query.CountAsync();
+    var totalPage = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+    var pagedAppointments = await query
+        .Skip((request.Page - 1) * request.PageSize)
+        .Take(request.PageSize)
+        .ToListAsync();
+
+    var appointmentDtos = pagedAppointments.Select(a => new AppointmentDtoByBrandId
+    {
+        AppointmentId = a.AppointmentId,
+        OrderId = a.OrderId,
+        CustomerId = a.CustomerId,
+        StaffId = a.StaffId,
+        ServiceId = a.ServiceId,
+        BranchId = a.BranchId,
+        AppointmentsTime = a.AppointmentsTime,
+        AppointmentEndTime = a.AppointmentEndTime,
+        Status = a.Status,
+        Notes = a.Notes,
+        Feedback = a.Feedback,
+        Quantity = a.Quantity,
+        UnitPrice = a.UnitPrice,
+        SubTotal = a.SubTotal,
+
+    }).ToList();
+
+    return new GetAllAppointmentPaginationResponse
+    {
+        data = appointmentDtos,
+        pagination = new Pagination
+        {
+            page = request.Page,
+            totalPage = totalPage,
+            totalCount = totalCount
+        }
+    };
+}
+
 }

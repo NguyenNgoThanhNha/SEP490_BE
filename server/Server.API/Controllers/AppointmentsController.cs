@@ -345,5 +345,23 @@ namespace Server.API.Controllers
             }));
         }
 
+        [HttpGet("by-branch")]
+        public async Task<IActionResult> GetAppointmentsByBranch([FromQuery] AppointmentFilterRequest request)
+        {
+            var result = await _appointmentsService.GetAppointmentsByBranchAsync(request);
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Lấy danh sách cuộc hẹn theo chi nhánh thành công.",
+                    data = result.data,
+                    pagination = result.pagination
+                }
+            });
+        }
+
+
     }
 }
