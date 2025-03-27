@@ -88,7 +88,7 @@ namespace Server.Business.Mappers
             
             CreateMap<Order, OrderModel>().ReverseMap();
             CreateMap<Order, OrderInfoModel>().ReverseMap();
-            CreateMap<OrderDetail, OrderDetailModels>();
+            CreateMap<OrderDetail, OrderDetailModels>().ReverseMap();
 
             CreateMap<CartRequest, ProductCart>();
             CreateMap<ProductCart, CartDTO>();

@@ -155,7 +155,7 @@ public class RoutineService
         return routineModels;
     }
 
-    public async Task<SkincareRoutineModel> BookCompoSkinCareRoutine(BookCompoSkinCareRoutineRequest request)
+    public async Task<OrderModel> BookCompoSkinCareRoutine(BookCompoSkinCareRoutineRequest request)
     {
         await _unitOfWorks.BeginTransactionAsync();
         try
@@ -198,7 +198,7 @@ public class RoutineService
             {
                 OrderCode = randomOrderCode,
                 CustomerId = user.UserId,
-                TotalAmount = 0,
+                TotalAmount = routine.TotalPrice ?? 0,
                 OrderType = "Routine",
                 VoucherId = request.VoucherId > 0 ? request.VoucherId : null,
                 DiscountAmount = voucher?.DiscountAmount ?? 0,
@@ -258,9 +258,8 @@ public class RoutineService
             }
             await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetail);
             
-            var result = await _unitOfWorks.SaveChangesAsync();
             await _unitOfWorks.CommitTransactionAsync();
-            return result > 0 ? null : null;
+            return  _mapper.Map<OrderModel>(order);
         }
         catch (Exception e)
         {
