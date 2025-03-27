@@ -54,7 +54,7 @@ namespace Server.API.Controllers
             var channels = await _mongoDbService.GetAllUserChannelsAsync(customerId);
             return Ok(ApiResult<List<Channels>>.Succeed(channels));
         }
-
+        
         // Thêm thành viên vào channel
         [HttpPost("add-member")]
         public async Task<IActionResult> AddMemberToChannelAsync(string channelId, string customerId)
@@ -63,6 +63,17 @@ namespace Server.API.Controllers
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Member added successfully",
+            }));
+        }
+
+        // Thêm thành viên vào channel
+        [HttpPost("add-many-member")]
+        public async Task<IActionResult> AddMembersToChannelAsync(string channelId, string[] customerIds)
+        {
+            await _mongoDbService.AddMembersToChannelAsync(channelId, customerIds);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Members added successfully",
             }));
         }
 

@@ -97,6 +97,24 @@ public class MongoDbService
         channel.Members.Add(memberId);
         await _channelsRepository.UpdateAsync(channelId, channel);
     }
+    
+    
+    // thêm nhiều thành viên vào channel
+    public async Task AddMembersToChannelAsync(string channelId, string[] memberIds)
+    {
+        var channel = await _channelsRepository.GetByIdAsync(channelId);
+        if (channel == null) 
+            throw new Exception("Channel not found");
+
+        foreach (var memberId in memberIds)
+        {
+            if (channel.Members.Contains(memberId)) 
+                throw new Exception("User is already a member of this channel");
+
+            channel.Members.Add(memberId);
+            await _channelsRepository.UpdateAsync(channelId, channel);
+        }
+    }
 
     
     // get channel theo id
