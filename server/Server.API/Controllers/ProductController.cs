@@ -446,23 +446,56 @@ namespace Server.API.Controllers
         {
             try
             {
-                // Gọi dịch vụ để lọc sản phẩm với các tham số có sẵn trong request
+                // Gọi service lọc sản phẩm
                 var result = await _productService.FilterProductsAsync(request);
 
-                // Kiểm tra nếu không có kết quả hoặc có lỗi trong quá trình lọc
-                if (result == null || !result.Success)
+                // Ép kiểu result.Result sang ApiResponse để lấy dữ liệu
+                var apiResponse = result?.Result as ApiResponse;
+
+                var data = apiResponse?.data;
+
+                // Kiểm tra nếu không có sản phẩm nào
+                if (data == null || (data is IEnumerable<object> list && !list.Any()))
                 {
-                    return BadRequest(ApiResult<object>.Error(null, "No products found based on the filter criteria"));
+                    var emptyResponse = ApiResponse.Error("No products found based on the filter criteria");
+                    return Ok(ApiResult<ApiResponse>.Succeed(emptyResponse));
                 }
 
-                // Trả về kết quả lọc sản phẩm thành công
+                // Trả về kết quả thành công
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(ApiResult<object>.Error(null, $"Something went wrong: {ex.Message}"));
+                var errorResponse = ApiResponse.Error($"Something went wrong: {ex.Message}");
+                return Ok(ApiResult<ApiResponse>.Succeed(errorResponse));
             }
         }
+
+
+
+
+        //[HttpGet("filter")]
+        //public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest request)
+        //{
+        //    try
+        //    {
+        //        // Gọi dịch vụ để lọc sản phẩm với các tham số có sẵn trong request
+        //        var result = await _productService.FilterProductsAsync(request);
+
+        //        // Kiểm tra nếu không có kết quả hoặc có lỗi trong quá trình lọc
+        //        if (result == null || !result.Success)
+        //        {
+        //            return BadRequest(ApiResult<object>.Error(null, "No products found based on the filter criteria"));
+        //        }
+
+        //        // Trả về kết quả lọc sản phẩm thành công
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ApiResult<object>.Error(null, $"Something went wrong: {ex.Message}"));
+        //    }
+        //}
 
     }
 }
