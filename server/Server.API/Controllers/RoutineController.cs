@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
+using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Services;
 
@@ -51,6 +52,32 @@ namespace Server.API.Controllers
             {
                 message = "Routine steps fetched successfully",
                 data = steps
+            }));
+        }
+        
+        [HttpGet("get-list-routine-sutaitable/{userId}")]
+        public async Task<IActionResult> GetListRoutineSuitable(int userId)
+        {
+            var routines = await _routineService.GetListSkincareRoutineSuitableByUserId(userId);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Routines fetched successfully",
+                data = routines
+            }));
+        }
+        
+        [HttpPost("book-compo-skin-care-routine")]
+        public async Task<IActionResult> BookCompoSkinCareRoutine(BookCompoSkinCareRoutineRequest request)
+        {
+            var result = await _routineService.BookCompoSkinCareRoutine(request);
+            if (result == null) return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+            {
+                message = "Booking failed"
+            }));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Booking successful",
+                data = result
             }));
         }
     }

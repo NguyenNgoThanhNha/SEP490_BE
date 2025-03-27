@@ -11,8 +11,8 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250327014412_Updated-Database")]
-    partial class UpdatedDatabase
+    [Migration("20250327090853_Udpated-Database")]
+    partial class UdpatedDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1453,6 +1453,9 @@ namespace Server.Data.Migrations
 
                     b.Property<string>("TargetSkinTypes")
                         .HasColumnType("longtext");
+
+                    b.Property<decimal?>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
