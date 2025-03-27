@@ -1451,6 +1451,9 @@ namespace Server.Data.Migrations
                     b.Property<string>("TargetSkinTypes")
                         .HasColumnType("longtext");
 
+                    b.Property<decimal?>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 

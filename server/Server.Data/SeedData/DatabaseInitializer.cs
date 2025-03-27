@@ -238,15 +238,29 @@ namespace Server.Data.SeedData
                 Description = "Cung cấp dịch vụ chuyên biệt cho khách hàng"
             };
 
+            var defaultStaffRole = new StaffRole
+            {
+                StaffRoleName = "DefaultStaff",
+                Description = "Nhân viên mặc định, có thể hỗ trợ các nhiệm vụ chung"
+            };
+
             List<StaffRole> staffRoles = new()
             {
                 cashierRole,
-                specialistRole
+                specialistRole,
+                defaultStaffRole
             };
 
-            if (!_context.StaffRole.Any()) // Kiểm tra nếu bảng chưa có dữ liệu
+            var existingRoles = await _context.StaffRole
+                .Where(r => staffRoles.Select(sr => sr.StaffRoleName).Contains(r.StaffRoleName))
+                .Select(r => r.StaffRoleName)
+                .ToListAsync();
+
+            var newRoles = staffRoles.Where(sr => !existingRoles.Contains(sr.StaffRoleName)).ToList();
+
+            if (newRoles.Any()) // Chỉ thêm nếu có role mới
             {
-                await _context.StaffRole.AddRangeAsync(staffRoles);
+                await _context.StaffRole.AddRangeAsync(newRoles);
                 await _context.SaveChangesAsync();
             }
         }
@@ -330,7 +344,7 @@ namespace Server.Data.SeedData
             users.Add(customer);
 
             // Staff
-            for (int i = 1; i <= 50; i++)
+            for (int i = 1; i <= 55; i++)
             {
                 var staff = new User
                 {
@@ -4335,7 +4349,7 @@ namespace Server.Data.SeedData
         {
             var staffUsers = await _context.Users.Where(u => u.RoleID == 4).ToListAsync();
 
-            if (staffUsers.Count < 50)
+            if (staffUsers.Count < 55)
             {
                 throw new Exception("Không đủ người dùng nhân viên trong cơ sở dữ liệu. Vui lòng thêm người dùng.");
             }
@@ -4346,13 +4360,13 @@ namespace Server.Data.SeedData
                 throw new Exception("Not enough branches found. Please seed at least 5 branches.");
             }
 
+            var defaultRole = await _context.StaffRole.FirstOrDefaultAsync(r => r.StaffRoleName == "DefaultStaff");
             var cashierRole = await _context.StaffRole.FirstOrDefaultAsync(r => r.StaffRoleName == "Cashier");
             var specialistRole = await _context.StaffRole.FirstOrDefaultAsync(r => r.StaffRoleName == "Specialist");
 
-            if (cashierRole == null || specialistRole == null)
+            if (defaultRole == null || cashierRole == null || specialistRole == null)
             {
-                throw new Exception(
-                    "Không tìm thấy vai trò nhân viên. Vui lòng chọn vai trò 'Thu ngân' và 'Chuyên gia' trước.");
+                throw new Exception("Không tìm thấy vai trò nhân viên. Vui lòng kiểm tra lại dữ liệu.");
             }
 
             var staffList = new List<Staff>();
@@ -4360,7 +4374,17 @@ namespace Server.Data.SeedData
 
             foreach (var branch in branches)
             {
-                // 1 Cashier
+                // 1. Nhân viên đầu tiên là "DefaultStaff"
+                staffList.Add(new Staff
+                {
+                    UserId = staffUsers[userIndex++].UserId,
+                    BranchId = branch.BranchId,
+                    RoleId = defaultRole.StaffRoleId,
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                });
+
+                // 2. Nhân viên thứ hai là "Cashier"
                 staffList.Add(new Staff
                 {
                     UserId = staffUsers[userIndex++].UserId,
@@ -4370,7 +4394,7 @@ namespace Server.Data.SeedData
                     UpdatedDate = DateTime.UtcNow
                 });
 
-                // 9 Specialists
+                // 3. 9 nhân viên còn lại là "Specialist"
                 for (int i = 0; i < 9; i++)
                 {
                     staffList.Add(new Staff
@@ -6084,7 +6108,7 @@ namespace Server.Data.SeedData
             {
                 var order = new Order
                 {
-                    OrderCode = random.Next(1000, 9999), // Random order code
+                    OrderCode = random.Next(100000, 999999), // Random order code
                     CustomerId = 1, // Assume CustomerId is 1 for simplicity; adjust as needed
                     VoucherId = 1, // Assume VoucherId is 1 for simplicity; adjust as needed
                     TotalAmount = random.Next(100, 500), // Random total amount
@@ -6171,6 +6195,7 @@ namespace Server.Data.SeedData
 
         public async Task SeedSkincareRoutines()
         {
+            var random = new Random();
             var skincareRoutines = new List<SkincareRoutine>
             {
                 new SkincareRoutine
@@ -6179,7 +6204,8 @@ namespace Server.Data.SeedData
                     Description = "Chăm sóc da dầu và giảm bã nhờn dư thừa.",
                     Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
                     Frequency = "Hàng ngày",
-                    TargetSkinTypes = "Da dầu"
+                    TargetSkinTypes = "Da dầu",
+                    TotalPrice = random.Next(500000, 5000000)
                 },
                 new SkincareRoutine
                 {
@@ -6187,7 +6213,8 @@ namespace Server.Data.SeedData
                     Description = "Dưỡng ẩm và nuôi dưỡng làn da khô.",
                     Steps = "Làm sạch, cấp nước, dưỡng ẩm, bảo vệ",
                     Frequency = "Hàng ngày",
-                    TargetSkinTypes = "Da khô"
+                    TargetSkinTypes = "Da khô",
+                    TotalPrice = random.Next(500000, 5000000)
                 },
                 new SkincareRoutine
                 {
@@ -6195,7 +6222,8 @@ namespace Server.Data.SeedData
                     Description = "Duy trì sự cân bằng trung tính cho da.",
                     Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
                     Frequency = "Hàng ngày",
-                    TargetSkinTypes = "Da trung tính"
+                    TargetSkinTypes = "Da trung tính",
+                    TotalPrice = random.Next(500000, 5000000)
                 },
                 new SkincareRoutine
                 {
@@ -6203,7 +6231,8 @@ namespace Server.Data.SeedData
                     Description = "Chăm sóc cho cả vùng da khô và da dầu.",
                     Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
                     Frequency = "Hàng ngày",
-                    TargetSkinTypes = "Da hỗn hợp"
+                    TargetSkinTypes = "Da hỗn hợp",
+                    TotalPrice = random.Next(500000, 5000000)
                 },
                 new SkincareRoutine
                 {
@@ -6211,7 +6240,8 @@ namespace Server.Data.SeedData
                     Description = "Giúp làm sạch và ngăn ngừa mụn đầu đen.",
                     Steps = "Làm sạch, Tẩy tế bào chết, Làm săn chắc, Bảo vệ",
                     Frequency = "Hàng tuần",
-                    TargetSkinTypes = "Mụn đầu đen"
+                    TargetSkinTypes = "Mụn đầu đen",
+                    TotalPrice = random.Next(500000, 5000000)
                 },
                 new SkincareRoutine
                 {
@@ -6219,7 +6249,8 @@ namespace Server.Data.SeedData
                     Description = "Liệu trình chăm sóc da giảm mụn trứng cá.",
                     Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
                     Frequency = "Hàng ngày",
-                    TargetSkinTypes = "Mụn trứng cá"
+                    TargetSkinTypes = "Mụn trứng cá",
+                    TotalPrice = random.Next(500000, 5000000)
                 },
                 new SkincareRoutine
                 {
@@ -6227,7 +6258,8 @@ namespace Server.Data.SeedData
                     Description = "Giúp giảm quầng thâm dưới mắt.",
                     Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
                     Frequency = "Hàng ngày",
-                    TargetSkinTypes = "Quầng thâm mắt"
+                    TargetSkinTypes = "Quầng thâm mắt",
+                    TotalPrice = random.Next(500000, 5000000)
                 },
                 new SkincareRoutine
                 {
@@ -6235,7 +6267,8 @@ namespace Server.Data.SeedData
                     Description = "Liệu trình kiểm soát mụn có nhân đóng.",
                     Steps = "Làm sạch, Tẩy tế bào chết, Dưỡng ẩm, Bảo vệ",
                     Frequency = "Hàng tuần",
-                    TargetSkinTypes = "Mụn có nhân đóng"
+                    TargetSkinTypes = "Mụn có nhân đóng",
+                    TotalPrice = random.Next(500000, 5000000)
                 },
                 new SkincareRoutine
                 {
@@ -6243,7 +6276,8 @@ namespace Server.Data.SeedData
                     Description = "Giúp giảm nếp nhăn vùng giữa hai lông mày.",
                     Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
                     Frequency = "Hằng ngày",
-                    TargetSkinTypes = "Nếp nhăn Glabella"
+                    TargetSkinTypes = "Nếp nhăn Glabella",
+                    TotalPrice = random.Next(500000, 5000000)
                 }
             };
 

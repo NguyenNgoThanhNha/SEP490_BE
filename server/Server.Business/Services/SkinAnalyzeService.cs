@@ -164,7 +164,7 @@ public class SkinAnalyzeService
                 if (existingRoutine != null)
                 {
                     // Nếu đã tồn tại, cập nhật thông tin
-                    existingRoutine.Status = ObjectStatus.Active.ToString();
+                    existingRoutine.Status = ObjectStatus.Suitable.ToString();
                     existingRoutine.ProgressNotes = "Updated routine for your skin";
                     existingRoutine.UpdatedDate = DateTime.Now;
 
@@ -177,7 +177,7 @@ public class SkinAnalyzeService
                     {
                         UserId = userId,
                         RoutineId = routine.SkincareRoutineId,
-                        Status = ObjectStatus.Active.ToString(),
+                        Status = ObjectStatus.Suitable.ToString(),
                         ProgressNotes = "Suitable for your skin",
                         StartDate = DateTime.Now,
                         EndDate = DateTime.Now.AddMonths(1),
@@ -285,7 +285,7 @@ public class SkinAnalyzeService
                 if (existingRoutine != null)
                 {
                     // Nếu đã tồn tại, cập nhật thông tin
-                    existingRoutine.Status = ObjectStatus.Active.ToString();
+                    existingRoutine.Status = ObjectStatus.Suitable.ToString();
                     existingRoutine.ProgressNotes = "Suitable for your skin";
                     existingRoutine.UpdatedDate = DateTime.Now;
                     _unitOfWorks.UserRoutineRepository.Update(existingRoutine);
@@ -297,7 +297,7 @@ public class SkinAnalyzeService
                     {
                         UserId = userId,
                         RoutineId = routine.SkincareRoutineId,
-                        Status = ObjectStatus.Active.ToString(),
+                        Status = ObjectStatus.Suitable.ToString(),
                         ProgressNotes = "Suitable for your skin",
                         StartDate = DateTime.Now,
                         EndDate = DateTime.Now.AddMonths(1),
@@ -364,15 +364,15 @@ public class SkinAnalyzeService
     {
         return new List<(string Concern, double Confidence)>
         {
-            ("Oily Skin", (double)(apiResult.skin_type?.details[0]?.confidence ?? 0)),
-            ("Dry Skin", (double)(apiResult.skin_type?.details[1]?.confidence ?? 0)),
-            ("Neutral Skin", (double)(apiResult.skin_type?.details[2]?.confidence ?? 0)),
-            ("Combination Skin", (double)(apiResult.skin_type?.details[3]?.confidence ?? 0)),
-            ("Blackheads", (double)(apiResult.blackhead?.confidence ?? 0)),
-            /*("Acne", (double)(apiResult.acne != null ? apiResult.acne.confidence ?? 0 : 0)),*/
-            ("Dark Circles", (double)(apiResult.dark_circle?.confidence ?? 0)),
-            ("Closed Comedones", (double)(apiResult.closed_comedones?.confidence ?? 0)),
-            ("Glabella Wrinkles", (double)(apiResult.glabella_wrinkle?.confidence ?? 0))
+            ("Da dầu", (double)(apiResult.skin_type?.details[0]?.confidence ?? 0)),
+            ("Da khô", (double)(apiResult.skin_type?.details[1]?.confidence ?? 0)),
+            ("Da trung tính", (double)(apiResult.skin_type?.details[2]?.confidence ?? 0)),
+            ("Da hỗn hợp", (double)(apiResult.skin_type?.details[3]?.confidence ?? 0)),
+            ("Mụn đầu đen", (double)(apiResult.blackhead?.confidence ?? 0)),
+            ("Mụn trứng cá", (double)(apiResult.acne != null ? apiResult.acne.confidence ?? 0 : 0)),
+            ("Quầng thâm mắt", (double)(apiResult.dark_circle?.confidence ?? 0)),
+            ("Mụn có nhân đóng", (double)(apiResult.closed_comedones?.confidence ?? 0)),
+            ("Nếp nhăn Glabella", (double)(apiResult.glabella_wrinkle?.confidence ?? 0))
         };
     }
 
