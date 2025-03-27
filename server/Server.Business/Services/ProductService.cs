@@ -714,14 +714,9 @@ namespace Server.Business.Services
 
             return productModels;
         }
-        public async Task<ApiResult<object>> FilterProductsAsync(ProductFilterRequest req)
+
+        public async Task<GetAllProductPaginationFilter> FilterProductsAsync(ProductFilterRequest req)
         {
-            if (req.BrandId <= 0)
-            {
-                var errorResponse = ApiResponse.Error("Vui lòng cung cấp BrandId hợp lệ để lọc sản phẩm.");
-                return ApiResult<object>.Succeed(errorResponse);
-            }
-            // 1. Lọc sản phẩm theo trạng thái Active
             IQueryable<Product> query = _unitOfWorks.ProductRepository
                 .FindByCondition(p => p.Status == "Active")
                 .Include(p => p.Company)
@@ -730,16 +725,17 @@ namespace Server.Business.Services
                 .Include(p => p.Branch_Products)
                     .ThenInclude(bp => bp.Branch);
 
-            // 2. Lọc theo BranchId (qua bảng trung gian)
-            var productIdsInBranch = await _unitOfWorks.Brand_ProductRepository
-                .FindByCondition(bp => bp.BranchId == req.BrandId)
-                .Select(bp => bp.ProductId)
-                .Distinct()
-                .ToListAsync();
+            if (req.BrandId > 0)
+            {
+                var productIdsInBranch = await _unitOfWorks.Brand_ProductRepository
+                    .FindByCondition(bp => bp.BranchId == req.BrandId)
+                    .Select(bp => bp.ProductId)
+                    .Distinct()
+                    .ToListAsync();
 
-            query = query.Where(p => productIdsInBranch.Contains(p.ProductId));
+                query = query.Where(p => productIdsInBranch.Contains(p.ProductId));
+            }
 
-            // 3. Lọc theo BrandName (chuỗi)
             if (!string.IsNullOrEmpty(req.Brand))
             {
                 query = query.Where(p =>
@@ -748,13 +744,11 @@ namespace Server.Business.Services
                 );
             }
 
-            // 4. Lọc theo CategoryId
             if (req.CategoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryId == req.CategoryId.Value);
             }
 
-            // 5. Lọc theo khoảng giá
             if (req.MinPrice.HasValue)
             {
                 query = query.Where(p => p.Price >= req.MinPrice.Value);
@@ -765,7 +759,6 @@ namespace Server.Business.Services
                 query = query.Where(p => p.Price <= req.MaxPrice.Value);
             }
 
-            // 6. Sắp xếp theo giá
             if (!string.IsNullOrEmpty(req.SortBy))
             {
                 switch (req.SortBy.ToLower())
@@ -779,20 +772,17 @@ namespace Server.Business.Services
                 }
             }
 
-            // 7. Tính tổng số sản phẩm sau khi lọc
-            var totalItems = await query.CountAsync();
-
-            // 8. Áp dụng phân trang
-            int pageNumber = req.PageNumber > 0 ? req.PageNumber : 1;
+            var totalCount = await query.CountAsync();
+            int page = req.PageNumber > 0 ? req.PageNumber : 1;
             int pageSize = req.PageSize > 0 ? req.PageSize : 10;
+            int totalPage = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-            query = query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+            var pagedProducts = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
-            // 9. Truy vấn dữ liệu
-            var products = await query.ToListAsync();
-
-            // 10. Map kết quả
-            var result = products.Select(p => new ProductDetailDto
+            var productDtos = pagedProducts.Select(p => new ProductDetailDto
             {
                 ProductId = p.ProductId,
                 ProductName = p.ProductName,
@@ -812,7 +802,7 @@ namespace Server.Business.Services
                 UpdatedDate = p.UpdatedDate,
                 BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
                 BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
-                ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id, // 👈 Thêm dòng này
+                ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id,
                 Category = new CategoryDetailDto
                 {
                     CategoryId = p.Category?.CategoryId ?? 0,
@@ -823,18 +813,18 @@ namespace Server.Business.Services
                 images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
             }).ToList();
 
-            // 11. Gói kết quả phân trang
-            var pagedResult = new
+            return new GetAllProductPaginationFilter
             {
-                TotalItems = totalItems,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
-                Items = result
+                data = productDtos,
+                pagination = new Pagination
+                {
+                    page = page,
+                    totalPage = totalPage,
+                    totalCount = totalCount
+                }
             };
-
-            return ApiResult<object>.Succeed(ApiResponse.Succeed(pagedResult, "Lọc sản phẩm thành công."));
         }
+
     }
 }
 
