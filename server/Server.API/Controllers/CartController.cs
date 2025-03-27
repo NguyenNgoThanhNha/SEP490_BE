@@ -16,10 +16,10 @@ namespace Server.API.Controllers
             _cartService = cartService;
         }
 
-        [HttpGet("get-cart/{id}")]
-        public async Task<IActionResult> GetCart(int id)
+        [HttpGet("get-cart/{userId}")]
+        public async Task<IActionResult> GetCart(int userId)
         {
-            return Ok(await _cartService.GetCart(id));
+            return Ok(await _cartService.GetCart(userId));
         }
 
         [HttpPost("add-cart")]
