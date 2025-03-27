@@ -226,7 +226,7 @@ namespace Server.API.Controllers
         {
             try
             {
-                
+
                 var products = await _productService.GetAllProduct(page, pageSize);
 
                 // Kiểm tra nếu không có dữ liệu
@@ -243,7 +243,7 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-                
+
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
                     message = $"An error occurred while retrieving products: {ex.Message}"
@@ -439,63 +439,37 @@ namespace Server.API.Controllers
             var result = await _productService.CheckInputHasGross(input);
             return Ok(ApiResponse.Succeed(result));
         }
-
-
         [HttpGet("filter")]
         public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest request)
         {
             try
             {
-                // Gọi service lọc sản phẩm
+                if (request.BrandId <= 0)
+                {
+                    var errorResponse = ApiResponse.Error("Vui lòng cung cấp BrandId hợp lệ.");
+                    return Ok(ApiResult<ApiResponse>.Succeed(errorResponse));
+                }
+
                 var result = await _productService.FilterProductsAsync(request);
 
-                // Ép kiểu result.Result sang ApiResponse để lấy dữ liệu
                 var apiResponse = result?.Result as ApiResponse;
-
                 var data = apiResponse?.data;
 
-                // Kiểm tra nếu không có sản phẩm nào
-                if (data == null || (data is IEnumerable<object> list && !list.Any()))
+                if (data == null ||
+                    (data.GetType().GetProperty("Items")?.GetValue(data) is IEnumerable<object> items && !items.Any()))
                 {
-                    var emptyResponse = ApiResponse.Error("No products found based on the filter criteria");
+                    var emptyResponse = ApiResponse.Error("Không tìm thấy sản phẩm nào với tiêu chí lọc.");
                     return Ok(ApiResult<ApiResponse>.Succeed(emptyResponse));
                 }
 
-                // Trả về kết quả thành công
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                var errorResponse = ApiResponse.Error($"Something went wrong: {ex.Message}");
+                var errorResponse = ApiResponse.Error($"Đã xảy ra lỗi: {ex.Message}");
                 return Ok(ApiResult<ApiResponse>.Succeed(errorResponse));
             }
         }
-
-
-
-
-        //[HttpGet("filter")]
-        //public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest request)
-        //{
-        //    try
-        //    {
-        //        // Gọi dịch vụ để lọc sản phẩm với các tham số có sẵn trong request
-        //        var result = await _productService.FilterProductsAsync(request);
-
-        //        // Kiểm tra nếu không có kết quả hoặc có lỗi trong quá trình lọc
-        //        if (result == null || !result.Success)
-        //        {
-        //            return BadRequest(ApiResult<object>.Error(null, "No products found based on the filter criteria"));
-        //        }
-
-        //        // Trả về kết quả lọc sản phẩm thành công
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ApiResult<object>.Error(null, $"Something went wrong: {ex.Message}"));
-        //    }
-        //}
 
     }
 }
