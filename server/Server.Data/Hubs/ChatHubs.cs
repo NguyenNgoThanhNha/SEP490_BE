@@ -46,12 +46,13 @@ public class ChatHubs : Hub
     public async Task SendMessage(string senderId, string recipientId, string content)
     {
         var sender = await _customerRepository.GetByIdAsync(senderId);
+        var recipient = await _customerRepository.GetByIdAsync(recipientId);
         if (sender == null) return;
 
         var message = new Messages
         {
             Sender = senderId,
-            Recipient = recipientId,
+            Recipient = recipient.Id ?? recipientId,
             MessageType = "text",
             Content = content,
             Timestamp = DateTime.UtcNow
