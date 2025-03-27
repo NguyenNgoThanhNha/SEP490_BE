@@ -23,12 +23,14 @@ namespace Server.Business.Services
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
+        private readonly ServiceService _serviceService;
 
-        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService)
+        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService, ServiceService serviceService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _mailService = mailService;
+            _serviceService = serviceService;
         }
 
         public async Task<Pagination<Staff>> GetListAsync(
@@ -720,10 +722,10 @@ namespace Server.Business.Services
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
             var schedules = await _unitOfWorks.ScheduleRepository
-            .FindByCondition(s => s.StaffId == staffId &&
-                 s.WorkDate.Year == year &&
-                 s.WorkDate.Month == month)
-            .ToListAsync();
+                .FindByCondition(s => s.StaffId == staffId &&
+                                      s.WorkDate.Year == year &&
+                                      s.WorkDate.Month == month)
+                .ToListAsync();
 
 
             var result = new StaffScheduleDto
@@ -746,10 +748,6 @@ namespace Server.Business.Services
             return result;
         }
 
-
-
-
-        
         public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
         {
             // Kiểm tra xem tất cả dịch vụ có tồn tại trong branch không
@@ -826,9 +824,12 @@ namespace Server.Business.Services
                 var busyStaffIds = await _unitOfWorks.AppointmentsRepository
                     .FindByCondition(a =>
                         a.BranchId == request.BranchId &&
-                        (a.AppointmentsTime <= startTime && a.AppointmentsTime.AddMinutes(serviceDuration) > startTime ||
-                         a.AppointmentsTime < expectedEndTime && a.AppointmentsTime.AddMinutes(serviceDuration) >= expectedEndTime ||
-                         a.AppointmentsTime >= startTime && a.AppointmentsTime.AddMinutes(serviceDuration) <= expectedEndTime)
+                        (a.AppointmentsTime <= startTime &&
+                         a.AppointmentsTime.AddMinutes(serviceDuration) > startTime ||
+                         a.AppointmentsTime < expectedEndTime &&
+                         a.AppointmentsTime.AddMinutes(serviceDuration) >= expectedEndTime ||
+                         a.AppointmentsTime >= startTime &&
+                         a.AppointmentsTime.AddMinutes(serviceDuration) <= expectedEndTime)
                     )
                     .Select(a => a.StaffId)
                     .Distinct()
@@ -856,7 +857,6 @@ namespace Server.Business.Services
                 Data = responseList
             };
         }
-
 
         public async Task<GetListStaffByServiceCategoryResponse> GetListStaffByServiceCategory(
             GetListStaffByServiceCategoryRequest request)
@@ -907,6 +907,87 @@ namespace Server.Business.Services
             var result = await _unitOfWorks.StaffRepository
                 .FirstOrDefaultAsync(x => x.UserId == customerId);
             return _mapper.Map<StaffModel>(result);
+        }
+
+        public async Task<List<StaffAppointmentResponse>> GetStaffAppointmentsAsync(List<int> staffIds,
+            DateTime startDate, DateTime endDate)
+        {
+            var appointments = await _unitOfWorks.AppointmentsRepository
+                .FindByCondition(a => staffIds.Contains(a.StaffId) &&
+                                      a.AppointmentsTime >= startDate &&
+                                      a.AppointmentsTime <= endDate)
+                .Include(a => a.Customer)
+                .Include(a => a.Staff)
+                .Include(a => a.Service)
+                .ThenInclude(s => s.ServiceCategory)
+                .Include(a => a.Branch)
+                .Include(a => a.Order)
+                .ToListAsync();
+
+            var result = appointments
+                .GroupBy(a => a.StaffId) // Chỉ nhóm theo StaffId
+                .Select(g => new StaffAppointmentResponse
+                {
+                    StaffId = g.Key,
+                    Appointments = g.Select(a => new AppointmentsInfoModel
+                    {
+                        AppointmentId = a.AppointmentId,
+                        OrderId = a.OrderId,
+                        Order = _mapper.Map<OrderInfoModel>(a.Order),
+                        CustomerId = a.CustomerId,
+                        Customer = _mapper.Map<UserInfoModel>(a.Customer),
+                        StaffId = a.StaffId,
+                        Staff = _mapper.Map<StaffModel>(a.Staff),
+                        ServiceId = a.ServiceId,
+                        Service = _mapper.Map<ServiceModel>(a.Service),
+                        BranchId = a.BranchId,
+                        Branch = _mapper.Map<BranchModel>(a.Branch),
+                        AppointmentsTime = a.AppointmentsTime,
+                        AppointmentEndTime = a.AppointmentEndTime,
+                        Status = a.Status,
+                        Notes = a.Notes,
+                        Feedback = a.Feedback,
+                        Quantity = a.Quantity,
+                        UnitPrice = a.UnitPrice,
+                        SubTotal = a.Quantity * a.UnitPrice,
+                        StatusPayment = a.StatusPayment,
+                        CreatedDate = a.CreatedDate,
+                        UpdatedDate = a.UpdatedDate
+                    }).ToList()
+                })
+                .ToList();
+            
+            
+            // get image of service
+            var listStaffAppointments = result.Select(x => x.Appointments).ToList();
+            var listService = new List<Data.Entities.Service>();
+            foreach (var listAppointment in listStaffAppointments)
+            {
+                foreach (var appointment in listAppointment)
+                {
+                    listService.Add(_mapper.Map<Data.Entities.Service>(appointment.Service));
+                }
+            }
+
+            var listServiceModel = await _serviceService.GetListImagesOfServices(listService);
+        
+        
+            // map images
+            foreach (var listAppointment in listStaffAppointments)
+            {
+                foreach (var appointment in listAppointment)
+                {
+                    foreach (var service in listServiceModel)
+                    {
+                        if (appointment.Service.ServiceId == service.ServiceId)
+                        {
+                            appointment.Service.images = service.images;
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

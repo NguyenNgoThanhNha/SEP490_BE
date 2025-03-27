@@ -800,5 +800,12 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+        
+        [HttpPost("get-staffs-appointments")]
+        public async Task<IActionResult> GetStaffsAppointments([FromBody] GetStaffsAppointmentsRequest request)
+        {
+            var result = await _staffService.GetStaffAppointmentsAsync(request.StaffIds, request.StartDate, request.EndDate);
+            return Ok(ApiResult<List<StaffAppointmentResponse>>.Succeed(result));
+        }
     }
 }

@@ -52,6 +52,7 @@ namespace Server.Business.Mappers
             CreateMap<CUAppointmentDto, Appointments>();
 
             CreateMap<Appointments, AppointmentsModel>().ReverseMap();
+            CreateMap<Appointments, AppointmentsInfoModel>().ReverseMap();
             CreateMap<Appointments, AppointmentsDTO>().ReverseMap();
             CreateMap<AppointmentsModel, AppointmentsDTO>().ReverseMap();
 
@@ -86,6 +87,7 @@ namespace Server.Business.Mappers
             CreateMap<StaffLeave, StaffLeaveModel>().ReverseMap();
             
             CreateMap<Order, OrderModel>().ReverseMap();
+            CreateMap<Order, OrderInfoModel>().ReverseMap();
             CreateMap<OrderDetail, OrderDetailModels>();
 
             CreateMap<CartRequest, ProductCart>();
