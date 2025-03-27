@@ -340,17 +340,34 @@ namespace Server.API.Controllers
             return Ok(ApiResult<Pagination<AppointmentsModel>>.Succeed(orders));
         }
 
+        //[HttpPost("create-full")]
+        //public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ApiResult<object>.Error(null, "Invalid request format"));
+        //    }
+
+        //    var result = await _orderService.CreateOrderWithDetailsAsync(request);
+        //    return Ok(result);
+        //}
+
         [HttpPost("create-full")]
         public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ApiResult<object>.Error(null, "Invalid request format"));
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {                    
+                    message = "Invalid request format",
+                    data = null
+                }));
             }
-
             var result = await _orderService.CreateOrderWithDetailsAsync(request);
-            return Ok(result);
+
+            return Ok(result); 
         }
+
 
         [Authorize]        
         [HttpPut("update-status")]

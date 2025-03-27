@@ -613,9 +613,109 @@ namespace Server.Business.Services
         }
 
 
+        //public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
+        //{
+        //    // Bắt đầu transaction
+        //    using var transaction = await _unitOfWorks.BeginTransactionAsync();
+
+        //    try
+        //    {
+        //        // 1. Kiểm tra người dùng tồn tại và đang hoạt động
+        //        var userExists = await _unitOfWorks.UserRepository
+        //            .FindByCondition(x => x.UserId == request.UserId && x.Status == "Active")
+        //            .AnyAsync();
+
+        //        if (!userExists)
+        //            return ApiResult<object>.Error(null, "User not found or inactive.");
+
+        //        // 2. Kiểm tra voucher (nếu có)
+        //        int? voucherId = null;
+        //        if (request.VoucherId.HasValue)
+        //        {
+        //            var voucher = await _unitOfWorks.VoucherRepository
+        //                .FindByCondition(x => x.VoucherId == request.VoucherId && x.Status == "Active")
+        //                .FirstOrDefaultAsync();
+
+        //            if (voucher == null)
+        //                return ApiResult<object>.Error(null, "Invalid voucher.");
+
+        //            voucherId = voucher.VoucherId;
+        //        }
+
+        //        // 3. Tạo OrderCode ngẫu nhiên 4 chữ số và đảm bảo không trùng
+        //        int orderCode;
+        //        do
+        //        {
+        //            orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+        //        }
+        //        while (await _unitOfWorks.OrderRepository
+        //            .FindByCondition(x => x.OrderCode == orderCode)
+        //            .AnyAsync());
+
+        //        // 4. Tạo order
+        //        var order = new Order
+        //        {
+        //            OrderCode = orderCode,
+        //            CustomerId = request.UserId,
+        //            VoucherId = voucherId,
+        //            TotalAmount = request.TotalAmount,
+        //            OrderType = "Product",
+        //            PaymentMethod = request.PaymentMethod,
+        //            Status = OrderStatusEnum.Pending.ToString(),
+        //            StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+        //            CreatedDate = DateTime.UtcNow,
+        //            UpdatedDate = DateTime.UtcNow
+        //        };
+
+        //        await _unitOfWorks.OrderRepository.AddAsync(order);
+        //        await _unitOfWorks.OrderRepository.Commit();
+
+        //        // 5. Tạo danh sách order detail
+        //        foreach (var item in request.Products)
+        //        {
+        //            var product = await _unitOfWorks.ProductRepository.GetByIdAsync(item.ProductId);
+        //            if (product == null)
+        //                throw new BadRequestException($"Product ID {item.ProductId} not found.");
+
+        //            var subTotal = product.Price * item.Quantity;
+
+        //            var orderDetail = new OrderDetail
+        //            {
+        //                OrderId = order.OrderId,
+        //                ProductId = item.ProductId,
+        //                Quantity = item.Quantity,
+        //                UnitPrice = product.Price,
+        //                SubTotal = subTotal,
+        //                Status = OrderStatusEnum.Pending.ToString(),
+        //                StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+        //                PaymentMethod = request.PaymentMethod,
+        //                CreatedDate = DateTime.Now,
+        //                UpdatedDate = DateTime.Now
+        //            };
+
+        //            await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+        //        }
+
+        //        await _unitOfWorks.OrderDetailRepository.Commit();
+        //        await transaction.CommitAsync();
+
+        //        // 6. Trả kết quả thành công
+        //        return ApiResult<object>.Succeed(new
+        //        {
+        //            OrderId = order.OrderId,
+        //            OrderCode = order.OrderCode,
+        //            Message = "Order created successfully."
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await transaction.RollbackAsync();
+        //        return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
+        //    }
+        //}      
+
         public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
         {
-            // Bắt đầu transaction
             using var transaction = await _unitOfWorks.BeginTransactionAsync();
 
             try
@@ -637,22 +737,30 @@ namespace Server.Business.Services
                         .FirstOrDefaultAsync();
 
                     if (voucher == null)
-                        return ApiResult<object>.Error(null, "Invalid voucher.");
+                    {
+                        return ApiResult<object>.Succeed(new ApiResponse
+                        {                            
+                            message = "Invalid voucher.",
+                            data = null
+                        });
+                    }
 
                     voucherId = voucher.VoucherId;
                 }
 
-                // 3. Tạo OrderCode ngẫu nhiên 4 chữ số và đảm bảo không trùng
+                // 3. Tạo mã đơn hàng (OrderCode) ngẫu nhiên
                 int orderCode;
+                var random = new Random();
+
                 do
                 {
-                    orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+                    orderCode = random.Next(1000, 10000); // Random số từ 1000 đến 9999
                 }
                 while (await _unitOfWorks.OrderRepository
                     .FindByCondition(x => x.OrderCode == orderCode)
                     .AnyAsync());
 
-                // 4. Tạo order
+                // 4. Tạo Order
                 var order = new Order
                 {
                     OrderCode = orderCode,
@@ -670,19 +778,26 @@ namespace Server.Business.Services
                 await _unitOfWorks.OrderRepository.AddAsync(order);
                 await _unitOfWorks.OrderRepository.Commit();
 
-                // 5. Tạo danh sách order detail
+                // 5. Tạo OrderDetails và cập nhật tồn kho
                 foreach (var item in request.Products)
                 {
-                    var product = await _unitOfWorks.ProductRepository.GetByIdAsync(item.ProductId);
+                    var branchProduct = await _unitOfWorks.Brand_ProductRepository.GetByIdAsync(item.ProductBranchId);
+                    if (branchProduct == null)
+                        throw new BadRequestException($"BranchProduct ID {item.ProductBranchId} not found.");
+
+                    if (branchProduct.StockQuantity < item.Quantity)
+                        throw new BadRequestException($"Product ID {branchProduct.ProductId} in branch không đủ số lượng tồn kho.");
+
+                    var product = await _unitOfWorks.ProductRepository.GetByIdAsync(branchProduct.ProductId);
                     if (product == null)
-                        throw new BadRequestException($"Product ID {item.ProductId} not found.");
+                        throw new BadRequestException($"Product ID {branchProduct.ProductId} not found.");
 
                     var subTotal = product.Price * item.Quantity;
 
                     var orderDetail = new OrderDetail
                     {
                         OrderId = order.OrderId,
-                        ProductId = item.ProductId,
+                        ProductId = product.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = product.Price,
                         SubTotal = subTotal,
@@ -694,9 +809,15 @@ namespace Server.Business.Services
                     };
 
                     await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+
+                    // Trừ tồn kho
+                    branchProduct.StockQuantity -= item.Quantity;
+                    branchProduct.UpdatedDate = DateTime.Now;
+                    _unitOfWorks.Brand_ProductRepository.Update(branchProduct);
                 }
 
                 await _unitOfWorks.OrderDetailRepository.Commit();
+                await _unitOfWorks.Brand_ProductRepository.Commit();
                 await transaction.CommitAsync();
 
                 // 6. Trả kết quả thành công
@@ -712,7 +833,8 @@ namespace Server.Business.Services
                 await transaction.RollbackAsync();
                 return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
             }
-        }      
+        }
+
 
         public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string status, string token)
         {
