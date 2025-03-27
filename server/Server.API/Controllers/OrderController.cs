@@ -31,7 +31,7 @@ namespace Server.API.Controllers
             _authService = authService;
             _payOsSetting = payOsSetting.Value;
         }
-        
+
         [Authorize(Roles = "Admin, Manager")]
         [HttpGet("get-all-order")]
         public async Task<IActionResult> GetAllOrder([FromQuery] string orderType, int page = 1, int pageSize = 5)
@@ -47,12 +47,12 @@ namespace Server.API.Controllers
 
             return Ok(ApiResult<Pagination<OrderModel>>.Succeed(orders));
         }
-        
+
         [HttpPost("confirm-order-appointment")]
         public async Task<IActionResult> ConfirmOrderAppointment([FromBody] ConfirmOrderRequest req)
         {
             var checkoutUrl = await _orderService.ConfirmOrderAppointmentAsync(req);
-            if(checkoutUrl == null)
+            if (checkoutUrl == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
@@ -65,12 +65,12 @@ namespace Server.API.Controllers
                 data = checkoutUrl
             }));
         }
-        
+
         [HttpPost("confirm-order-product")]
         public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderRequest req)
         {
             var checkoutUrl = await _orderService.ConfirmOrderDetailAsync(req);
-            if(checkoutUrl == null)
+            if (checkoutUrl == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
@@ -83,12 +83,12 @@ namespace Server.API.Controllers
                 data = checkoutUrl
             }));
         }
-        
+
         [HttpPost("confirm-order-deposit")]
         public async Task<IActionResult> ConfirmOrderDeposit([FromBody] DepositRequest req)
         {
             var checkoutUrl = await _orderService.DepositAppointmentAsync(req);
-            if(checkoutUrl == null)
+            if (checkoutUrl == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
@@ -101,10 +101,10 @@ namespace Server.API.Controllers
                 data = checkoutUrl
             }));
         }
-        
+
         [Authorize]
         [HttpGet("history-booking")]
-        public async Task<IActionResult> HistoryBooking([FromQuery] string status ,int page = 1, int pageSize = 5)
+        public async Task<IActionResult> HistoryBooking([FromQuery] string status, int page = 1, int pageSize = 5)
         {
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
@@ -127,7 +127,7 @@ namespace Server.API.Controllers
                     message = "Customer info not found!"
                 }));
             }
-            var orders = await _orderService.BookingHistory(currentUser.UserId, status ,page, pageSize);
+            var orders = await _orderService.BookingHistory(currentUser.UserId, status, page, pageSize);
             if (orders.data == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -143,7 +143,7 @@ namespace Server.API.Controllers
                 pagination = orders.pagination
             }));
         }
-        
+
         [Authorize]
         [HttpGet("detail-booking")]
         public async Task<IActionResult> DetailBooking([FromQuery] int orderId)
@@ -184,10 +184,10 @@ namespace Server.API.Controllers
                 data = order.data
             }));
         }
-        
+
         [Authorize]
         [HttpPost("create-order-appointment-more/{orderId}")]
-        public async Task<IActionResult> CreateOrderAppointmentMore(int orderId,[FromBody] AppointmentUpdateRequest req)
+        public async Task<IActionResult> CreateOrderAppointmentMore(int orderId, [FromBody] AppointmentUpdateRequest req)
         {
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
@@ -224,10 +224,10 @@ namespace Server.API.Controllers
                 message = "Create order appointment more successfully"
             }));
         }
-        
+
         [Authorize]
         [HttpPost("create-order-product-more/{orderId}")]
-        public async Task<IActionResult> CreateOrderProductMore(int orderId,[FromBody] OrderDetailRequest req)
+        public async Task<IActionResult> CreateOrderProductMore(int orderId, [FromBody] OrderDetailRequest req)
         {
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
@@ -277,13 +277,13 @@ namespace Server.API.Controllers
                     message = "Update order status failed!"
                 }));
             }
-            
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Update order status successfully"
             }));
         }
-        
+
         [Authorize]
         [HttpPatch("cancel-order/{orderId}")]
         public async Task<IActionResult> CancelOrder(int orderId, string reason)
@@ -296,7 +296,7 @@ namespace Server.API.Controllers
                     message = "Cancel order failed!"
                 }));
             }
-            
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Cancel order successfully"
@@ -340,17 +340,6 @@ namespace Server.API.Controllers
             return Ok(ApiResult<Pagination<AppointmentsModel>>.Succeed(orders));
         }
 
-        //[HttpPost("create-full")]
-        //public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ApiResult<object>.Error(null, "Invalid request format"));
-        //    }
-
-        //    var result = await _orderService.CreateOrderWithDetailsAsync(request);
-        //    return Ok(result);
-        //}
 
         [HttpPost("create-full")]
         public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
@@ -358,18 +347,18 @@ namespace Server.API.Controllers
             if (!ModelState.IsValid)
             {
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {                    
+                {
                     message = "Invalid request format",
                     data = null
                 }));
             }
             var result = await _orderService.CreateOrderWithDetailsAsync(request);
 
-            return Ok(result); 
+            return Ok(result);
         }
 
 
-        [Authorize]        
+        [Authorize]
         [HttpPut("update-status")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusSimpleRequest request)
         {
