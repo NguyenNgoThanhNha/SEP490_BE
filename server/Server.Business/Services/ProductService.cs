@@ -717,6 +717,13 @@ namespace Server.Business.Services
 
         public async Task<GetAllProductPaginationFilter> FilterProductsAsync(ProductFilterRequest req)
         {
+            // ✅ BrandId là bắt buộc
+            if (req.BrandId <= 0)
+            {
+                throw new ArgumentException("BrandId là bắt buộc để lọc sản phẩm.");
+            }
+
+            // 1. Lấy danh sách sản phẩm kèm các liên kết
             IQueryable<Product> query = _unitOfWorks.ProductRepository
                 .FindByCondition(p => p.Status == "Active")
                 .Include(p => p.Company)
@@ -725,17 +732,16 @@ namespace Server.Business.Services
                 .Include(p => p.Branch_Products)
                     .ThenInclude(bp => bp.Branch);
 
-            if (req.BrandId > 0)
-            {
-                var productIdsInBranch = await _unitOfWorks.Brand_ProductRepository
-                    .FindByCondition(bp => bp.BranchId == req.BrandId)
-                    .Select(bp => bp.ProductId)
-                    .Distinct()
-                    .ToListAsync();
+            // 2. Lọc theo BrandId (qua bảng trung gian)
+            var productIdsInBranch = await _unitOfWorks.Brand_ProductRepository
+                .FindByCondition(bp => bp.BranchId == req.BrandId)
+                .Select(bp => bp.ProductId)
+                .Distinct()
+                .ToListAsync();
 
-                query = query.Where(p => productIdsInBranch.Contains(p.ProductId));
-            }
+            query = query.Where(p => productIdsInBranch.Contains(p.ProductId));
 
+            // 3. Lọc theo Brand (chuỗi)
             if (!string.IsNullOrEmpty(req.Brand))
             {
                 query = query.Where(p =>
@@ -744,11 +750,13 @@ namespace Server.Business.Services
                 );
             }
 
+            // 4. Lọc theo CategoryId
             if (req.CategoryId.HasValue)
             {
                 query = query.Where(p => p.CategoryId == req.CategoryId.Value);
             }
 
+            // 5. Lọc theo khoảng giá
             if (req.MinPrice.HasValue)
             {
                 query = query.Where(p => p.Price >= req.MinPrice.Value);
@@ -759,6 +767,7 @@ namespace Server.Business.Services
                 query = query.Where(p => p.Price <= req.MaxPrice.Value);
             }
 
+            // 6. Sắp xếp
             if (!string.IsNullOrEmpty(req.SortBy))
             {
                 switch (req.SortBy.ToLower())
@@ -772,16 +781,19 @@ namespace Server.Business.Services
                 }
             }
 
+            // 7. Tổng số
             var totalCount = await query.CountAsync();
             int page = req.PageNumber > 0 ? req.PageNumber : 1;
             int pageSize = req.PageSize > 0 ? req.PageSize : 10;
             int totalPage = (int)Math.Ceiling(totalCount / (double)pageSize);
 
+            // 8. Lấy dữ liệu phân trang
             var pagedProducts = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
+            // 9. Map sang DTO
             var productDtos = pagedProducts.Select(p => new ProductDetailDto
             {
                 ProductId = p.ProductId,
@@ -813,6 +825,7 @@ namespace Server.Business.Services
                 images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
             }).ToList();
 
+            // 10. Trả kết quả phân trang
             return new GetAllProductPaginationFilter
             {
                 data = productDtos,
