@@ -442,7 +442,7 @@ namespace Server.Business.Services
                     .ThenInclude(x => x.StaffInfo)
                     .ToListAsync();
                 order.Appointments = orderAppointments;
-                
+
                 // get list service images
                 foreach (var appointment in orderAppointments)
                 {
@@ -450,7 +450,8 @@ namespace Server.Business.Services
                 }
 
                 listSerivceModels = await _serviceService.GetListImagesOfServices(listService);
-            }else if (order.OrderType == "Product")
+            }
+            else if (order.OrderType == "Product")
             {
                 var orderDetails = await _unitOfWorks.OrderDetailRepository
                     .FindByCondition(x => x.OrderId == orderId)
@@ -458,7 +459,7 @@ namespace Server.Business.Services
                     .ToListAsync();
                 order.OrderDetails = orderDetails;
             }
-            
+
             if (order == null)
             {
                 return null;
@@ -492,13 +493,13 @@ namespace Server.Business.Services
             {
                 return false;
             }
-            
+
             // Kiểm tra nếu Status không hợp lệ
             if (!string.IsNullOrEmpty(request.Status) && !Enum.IsDefined(typeof(OrderStatusEnum), request.Status))
             {
                 throw new BadRequestException($"Status must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusEnum)))}.");
             }
-            
+
             if (!string.IsNullOrEmpty(request.Status) && !Enum.IsDefined(typeof(OrderStatusPaymentEnum), request.Status))
             {
                 throw new BadRequestException($"Status Order Payment must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusPaymentEnum)))}.");
@@ -523,7 +524,7 @@ namespace Server.Business.Services
             await _unitOfWorks.AppointmentsRepository.AddAsync(appointment);
             return await _unitOfWorks.AppointmentsRepository.Commit() > 0;
         }
-        
+
         public async Task<bool> CreateMoreOrderProduct(int orderId, OrderDetailRequest request)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
@@ -531,11 +532,11 @@ namespace Server.Business.Services
             {
                 return false;
             }
-            
+
             var product = await _unitOfWorks.ProductRepository.GetByIdAsync(request.ProductId);
 
             var productPrice = product?.Price ?? 0;
-            
+
             var orderDetail = new OrderDetail
             {
                 OrderId = orderId,
@@ -553,7 +554,7 @@ namespace Server.Business.Services
             await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
             return await _unitOfWorks.OrderDetailRepository.Commit() > 0;
         }
-        
+
         public async Task<bool> UpdateOrderStatus(int orderId, string orderStatus)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
@@ -563,7 +564,7 @@ namespace Server.Business.Services
             _unitOfWorks.OrderRepository.Update(order);
             return await _unitOfWorks.OrderRepository.Commit() > 0;
         }
-        
+
         public async Task<bool> CancelOrder(int orderId, string reasonCancel)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
@@ -574,7 +575,7 @@ namespace Server.Business.Services
             _unitOfWorks.OrderRepository.Update(order);
             return await _unitOfWorks.OrderRepository.Commit() > 0;
         }
-        
+
         public async Task<Pagination<OrderModel>> GetListOrderByOrderTypeAsync(string orderType, int pageIndex = 1, int pageSize = 10)
         {
             var query = _unitOfWorks.OrderRepository.FindByCondition(x => x.OrderType == orderType);
@@ -589,7 +590,7 @@ namespace Server.Business.Services
                 Data = _mapper.Map<List<OrderModel>>(items)
             };
         }
-        
+
         public async Task<Pagination<AppointmentsModel>> GetListAppointmentsByStaff(string status, int staffId, int pageIndex = 1, int pageSize = 10)
         {
             var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.UserId == staffId).FirstOrDefaultAsync();
@@ -605,17 +606,15 @@ namespace Server.Business.Services
                 Data = _mapper.Map<List<AppointmentsModel>>(items)
             };
         }
-        
+
         private bool CanModifyOrder(DateTime createdDate, int allowedHours = 24)
         {
             var timeElapsed = DateTime.UtcNow - createdDate;
             return timeElapsed.TotalHours <= allowedHours;
         }
 
-
         public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
         {
-            // Bắt đầu transaction
             using var transaction = await _unitOfWorks.BeginTransactionAsync();
 
             try
@@ -637,22 +636,30 @@ namespace Server.Business.Services
                         .FirstOrDefaultAsync();
 
                     if (voucher == null)
-                        return ApiResult<object>.Error(null, "Invalid voucher.");
+                    {
+                        return ApiResult<object>.Succeed(new ApiResponse
+                        {
+                            message = "Invalid voucher.",
+                            data = null
+                        });
+                    }
 
                     voucherId = voucher.VoucherId;
                 }
 
-                // 3. Tạo OrderCode ngẫu nhiên 4 chữ số và đảm bảo không trùng
+                // 3. Tạo mã đơn hàng (OrderCode) ngẫu nhiên
                 int orderCode;
+                var random = new Random();
+
                 do
                 {
-                    orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+                    orderCode = random.Next(1000, 10000); // Random số từ 1000 đến 9999
                 }
                 while (await _unitOfWorks.OrderRepository
                     .FindByCondition(x => x.OrderCode == orderCode)
                     .AnyAsync());
 
-                // 4. Tạo order
+                // 4. Tạo Order
                 var order = new Order
                 {
                     OrderCode = orderCode,
@@ -670,19 +677,26 @@ namespace Server.Business.Services
                 await _unitOfWorks.OrderRepository.AddAsync(order);
                 await _unitOfWorks.OrderRepository.Commit();
 
-                // 5. Tạo danh sách order detail
+                // 5. Tạo OrderDetails và cập nhật tồn kho
                 foreach (var item in request.Products)
                 {
-                    var product = await _unitOfWorks.ProductRepository.GetByIdAsync(item.ProductId);
+                    var branchProduct = await _unitOfWorks.Brand_ProductRepository.GetByIdAsync(item.ProductBranchId);
+                    if (branchProduct == null)
+                        throw new BadRequestException($"BranchProduct ID {item.ProductBranchId} not found.");
+
+                    if (branchProduct.StockQuantity < item.Quantity)
+                        throw new BadRequestException($"Product ID {branchProduct.ProductId} in branch không đủ số lượng tồn kho.");
+
+                    var product = await _unitOfWorks.ProductRepository.GetByIdAsync(branchProduct.ProductId);
                     if (product == null)
-                        throw new BadRequestException($"Product ID {item.ProductId} not found.");
+                        throw new BadRequestException($"Product ID {branchProduct.ProductId} not found.");
 
                     var subTotal = product.Price * item.Quantity;
 
                     var orderDetail = new OrderDetail
                     {
                         OrderId = order.OrderId,
-                        ProductId = item.ProductId,
+                        ProductId = product.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = product.Price,
                         SubTotal = subTotal,
@@ -694,9 +708,15 @@ namespace Server.Business.Services
                     };
 
                     await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+
+                    // Trừ tồn kho
+                    branchProduct.StockQuantity -= item.Quantity;
+                    branchProduct.UpdatedDate = DateTime.Now;
+                    _unitOfWorks.Brand_ProductRepository.Update(branchProduct);
                 }
 
                 await _unitOfWorks.OrderDetailRepository.Commit();
+                await _unitOfWorks.Brand_ProductRepository.Commit();
                 await transaction.CommitAsync();
 
                 // 6. Trả kết quả thành công
@@ -715,7 +735,7 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string token)
+        public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string status, string token)
         {
             var currentUser = await _authService.GetUserInToken(token);
             if (currentUser == null)
@@ -725,7 +745,7 @@ namespace Server.Business.Services
 
             int? staffRoleId = null;
 
-            if (currentUser.RoleID == 4)
+            if (currentUser.RoleID == 4) // Nhân viên
             {
                 var staff = await _unitOfWorks.StaffRepository
                     .FindByCondition(x => x.UserId == currentUser.UserId)
@@ -741,36 +761,49 @@ namespace Server.Business.Services
             }
 
             string currentStatus = order.Status;
-            string updatedStatus = null;
+            string newStatus = status;
 
+            // Validate chuyển trạng thái theo role
             if (currentUser.RoleID == 3) // Customer
             {
-                if (currentStatus == OrderStatusEnum.Shipping.ToString())
-                    updatedStatus = OrderStatusEnum.Completed.ToString();
-                else if (currentStatus == OrderStatusEnum.Pending.ToString())
-                    updatedStatus = OrderStatusEnum.Cancelled.ToString();
-                else
-                    return ApiResult<object>.Error(ApiResponse.Error("Customer cannot update this order status."));
+                if (newStatus != OrderStatusEnum.Completed.ToString() && newStatus != OrderStatusEnum.Cancelled.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Khách hàng chỉ có thể cập nhật trạng thái thành 'Completed' hoặc 'Cancelled'."));
+                }
+
+                if (newStatus == OrderStatusEnum.Completed.ToString() && currentStatus != OrderStatusEnum.Shipping.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể hoàn thành đơn hàng đang ở trạng thái 'Shipping'."));
+                }
+
+                if (newStatus == OrderStatusEnum.Cancelled.ToString() && currentStatus != OrderStatusEnum.Pending.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể hủy đơn hàng đang ở trạng thái 'Pending'."));
+                }
             }
             else if (currentUser.RoleID == 4 && staffRoleId == 1) // Cashier
             {
-                if (currentStatus != OrderStatusEnum.Pending.ToString())
-                    return ApiResult<object>.Error(ApiResponse.Error("Cashier can only update order from 'Pending'."));
+                if (newStatus != OrderStatusEnum.Shipping.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Thu ngân chỉ được cập nhật đơn hàng sang trạng thái 'Shipping'."));
+                }
 
-                updatedStatus = OrderStatusEnum.Shipping.ToString();
+                if (currentStatus != OrderStatusEnum.Pending.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể chuyển trạng thái từ 'Pending' sang 'Shipping'."));
+                }
             }
             else
             {
                 return ApiResult<object>.Error(ApiResponse.Error("Bạn không được quyền thực hiện."));
             }
 
-            if (currentStatus == updatedStatus)
+            if (currentStatus == newStatus)
             {
-                return ApiResult<object>.Error(ApiResponse.Error("Đơn hàng đã được cập nhật trước đó."));
+                return ApiResult<object>.Error(ApiResponse.Error("Trạng thái đơn hàng đã là trạng thái này."));
             }
 
-            // Cập nhật trạng thái
-            order.Status = updatedStatus;
+            order.Status = newStatus;
             order.UpdatedDate = DateTime.Now;
             _unitOfWorks.OrderRepository.Update(order);
             await _unitOfWorks.OrderRepository.Commit();
@@ -783,6 +816,7 @@ namespace Server.Business.Services
 
             return ApiResult<object>.Succeed(response);
         }
+
 
         public async Task<ApiResult<object>> UpdatePaymentMethodOrNoteAsync(UpdatePaymentMethodOrNoteRequest request, string token)
         {
@@ -839,31 +873,31 @@ namespace Server.Business.Services
         }
 
 
-       public async Task UpdateOrderStatusBasedOnPayment()
-{
-    // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
-    var ordersToUpdate = await _unitOfWorks.OrderRepository
-        .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
-                              o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
-        .ToListAsync();
-
-    foreach (var order in ordersToUpdate)
-    {
-        // Kiểm tra nếu đơn hàng đã được tạo quá 1 ngày và CreatedDate không phải null
-        if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
+        public async Task UpdateOrderStatusBasedOnPayment()
         {
-            // Cập nhật trạng thái đơn hàng sang "Cancelled"
-            order.Status = OrderStatusEnum.Cancelled.ToString();                  
-            order.UpdatedDate = DateTime.UtcNow;
+            // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
+            var ordersToUpdate = await _unitOfWorks.OrderRepository
+                .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
+                                      o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+                .ToListAsync();
 
-            // Chỉ cập nhật đơn hàng khi có sự thay đổi trạng thái
-            _unitOfWorks.OrderRepository.Update(order);
+            foreach (var order in ordersToUpdate)
+            {
+                // Kiểm tra nếu đơn hàng đã được tạo quá 1 ngày và CreatedDate không phải null
+                if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
+                {
+                    // Cập nhật trạng thái đơn hàng sang "Cancelled"
+                    order.Status = OrderStatusEnum.Cancelled.ToString();
+                    order.UpdatedDate = DateTime.UtcNow;
+
+                    // Chỉ cập nhật đơn hàng khi có sự thay đổi trạng thái
+                    _unitOfWorks.OrderRepository.Update(order);
+                }
+            }
+
+            // Commit tất cả các thay đổi một lần
+            await _unitOfWorks.OrderRepository.Commit();
         }
-    }
-
-    // Commit tất cả các thay đổi một lần
-    await _unitOfWorks.OrderRepository.Commit();   
-}
 
     }
 }

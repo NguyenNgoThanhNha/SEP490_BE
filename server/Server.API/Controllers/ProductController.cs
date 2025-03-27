@@ -226,7 +226,7 @@ namespace Server.API.Controllers
         {
             try
             {
-                
+
                 var products = await _productService.GetAllProduct(page, pageSize);
 
                 // Kiểm tra nếu không có dữ liệu
@@ -243,7 +243,7 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-                
+
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
                     message = $"An error occurred while retrieving products: {ex.Message}"
@@ -361,39 +361,6 @@ namespace Server.API.Controllers
             }
         }
 
-        //[HttpGet("top5-bestsellers")]
-        //public async Task<IActionResult> GetTop5BestSellers()
-        //{
-        //    try
-        //    {
-        //        // Gọi Service để lấy dữ liệu
-        //        var bestSellers = await _productService.GetTop5BestSellersAsync();
-
-        //        // Kiểm tra kết quả
-        //        if (bestSellers == null || !bestSellers.Any())
-        //        {
-        //            return NotFound(new
-        //            {
-        //                Message = "Không tìm thấy sản phẩm bán chạy nào."
-        //            });
-        //        }
-
-        //        // Trả về dữ liệu thành công
-        //        return Ok(new
-        //        {
-        //            Message = "Lấy danh sách Top 5 sản phẩm bán chạy thành công!",
-        //            Data = bestSellers
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Xử lý lỗi hệ thống
-        //        return StatusCode(500, new
-        //        {
-        //            Message = $"Lỗi hệ thống: {ex.Message}"
-        //        });
-        //    }
-        //}
 
         [HttpGet("top5-bestsellers")]
         public async Task<IActionResult> GetTop5BestSellers()
@@ -439,30 +406,31 @@ namespace Server.API.Controllers
             var result = await _productService.CheckInputHasGross(input);
             return Ok(ApiResponse.Succeed(result));
         }
-
-
         [HttpGet("filter")]
-        public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest request)
+        public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest req)
         {
-            try
+            // Kiểm tra BrandId hợp lệ (nếu bạn chưa validate từ DTO)
+            if (req.BrandId <= 0)
             {
-                // Gọi dịch vụ để lọc sản phẩm với các tham số có sẵn trong request
-                var result = await _productService.FilterProductsAsync(request);
-
-                // Kiểm tra nếu không có kết quả hoặc có lỗi trong quá trình lọc
-                if (result == null || !result.Success)
+                return BadRequest(new
                 {
-                    return BadRequest(ApiResult<object>.Error(null, "No products found based on the filter criteria"));
-                }
-
-                // Trả về kết quả lọc sản phẩm thành công
-                return Ok(result);
+                    success = false,
+                    message = "BrandId là bắt buộc để lọc sản phẩm."
+                });
             }
-            catch (Exception ex)
+
+            var result = await _productService.FilterProductsAsync(req);
+
+            return Ok(new
             {
-                return BadRequest(ApiResult<object>.Error(null, $"Something went wrong: {ex.Message}"));
-            }
+                success = true,
+                result = new
+                {
+                    message = "Products retrieved successfully.",
+                    data = result.data,
+                    pagination = result.pagination
+                }
+            });
         }
-
     }
 }

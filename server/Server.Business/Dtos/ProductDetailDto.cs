@@ -16,10 +16,10 @@ namespace Server.Business.Dtos
         public decimal Discount { get; set; }
         public int CategoryId { get; set; }
         public int CompanyId { get; set; }
-        public string? Dimension { get; set; }    
+        public string? Dimension { get; set; }
         public decimal? Volume { get; set; }
         public string? Status { get; set; }
-        public string? Brand { get; set; }       
+        public string? Brand { get; set; }
         public string CategoryName { get; set; }
         public string CompanyName { get; set; }
         public string? SkinTypeSuitable { get; set; }
@@ -27,5 +27,8 @@ namespace Server.Business.Dtos
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string[] images { get; set; }
+        public int? BrandId { get; set; }          // Chính là BranchId đầu tiên
+        public string? BrandName { get; set; }     // Chính là BranchName đầu tiên
+        public int? ProductBranchId { get; set; }
     }
 }
