@@ -432,5 +432,32 @@ namespace Server.API.Controllers
                 }
             });
         }
+
+        [HttpGet("detail-by-productBranchId")]
+        public async Task<IActionResult> GetProductDetailByBranch([FromQuery] int productBranchId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _productService.GetProductDetailByProductBranchIdAsync(productBranchId, page, pageSize);
+
+            if (result.data == null || result.data.Count == 0)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Không tìm thấy sản phẩm tương ứng với ProductBranchId. Đảm bảo đã nhập ProductBrandId."
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Lấy thông tin sản phẩm thành công.",
+                    data = result.data,
+                    pagination = result.pagination
+                }
+            });
+        }
+
     }
 }
