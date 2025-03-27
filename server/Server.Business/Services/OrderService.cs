@@ -712,10 +712,9 @@ namespace Server.Business.Services
                 await transaction.RollbackAsync();
                 return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
             }
-        }
+        }      
 
-
-        public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string token)
+        public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string status, string token)
         {
             var currentUser = await _authService.GetUserInToken(token);
             if (currentUser == null)
@@ -725,7 +724,7 @@ namespace Server.Business.Services
 
             int? staffRoleId = null;
 
-            if (currentUser.RoleID == 4)
+            if (currentUser.RoleID == 4) // Nhân viên
             {
                 var staff = await _unitOfWorks.StaffRepository
                     .FindByCondition(x => x.UserId == currentUser.UserId)
@@ -741,36 +740,49 @@ namespace Server.Business.Services
             }
 
             string currentStatus = order.Status;
-            string updatedStatus = null;
+            string newStatus = status;
 
+            // Validate chuyển trạng thái theo role
             if (currentUser.RoleID == 3) // Customer
             {
-                if (currentStatus == OrderStatusEnum.Shipping.ToString())
-                    updatedStatus = OrderStatusEnum.Completed.ToString();
-                else if (currentStatus == OrderStatusEnum.Pending.ToString())
-                    updatedStatus = OrderStatusEnum.Cancelled.ToString();
-                else
-                    return ApiResult<object>.Error(ApiResponse.Error("Customer cannot update this order status."));
+                if (newStatus != OrderStatusEnum.Completed.ToString() && newStatus != OrderStatusEnum.Cancelled.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Khách hàng chỉ có thể cập nhật trạng thái thành 'Completed' hoặc 'Cancelled'."));
+                }
+
+                if (newStatus == OrderStatusEnum.Completed.ToString() && currentStatus != OrderStatusEnum.Shipping.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể hoàn thành đơn hàng đang ở trạng thái 'Shipping'."));
+                }
+
+                if (newStatus == OrderStatusEnum.Cancelled.ToString() && currentStatus != OrderStatusEnum.Pending.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể hủy đơn hàng đang ở trạng thái 'Pending'."));
+                }
             }
             else if (currentUser.RoleID == 4 && staffRoleId == 1) // Cashier
             {
-                if (currentStatus != OrderStatusEnum.Pending.ToString())
-                    return ApiResult<object>.Error(ApiResponse.Error("Cashier can only update order from 'Pending'."));
+                if (newStatus != OrderStatusEnum.Shipping.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Thu ngân chỉ được cập nhật đơn hàng sang trạng thái 'Shipping'."));
+                }
 
-                updatedStatus = OrderStatusEnum.Shipping.ToString();
+                if (currentStatus != OrderStatusEnum.Pending.ToString())
+                {
+                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể chuyển trạng thái từ 'Pending' sang 'Shipping'."));
+                }
             }
             else
             {
                 return ApiResult<object>.Error(ApiResponse.Error("Bạn không được quyền thực hiện."));
             }
 
-            if (currentStatus == updatedStatus)
+            if (currentStatus == newStatus)
             {
-                return ApiResult<object>.Error(ApiResponse.Error("Đơn hàng đã được cập nhật trước đó."));
+                return ApiResult<object>.Error(ApiResponse.Error("Trạng thái đơn hàng đã là trạng thái này."));
             }
 
-            // Cập nhật trạng thái
-            order.Status = updatedStatus;
+            order.Status = newStatus;
             order.UpdatedDate = DateTime.Now;
             _unitOfWorks.OrderRepository.Update(order);
             await _unitOfWorks.OrderRepository.Commit();
@@ -783,6 +795,7 @@ namespace Server.Business.Services
 
             return ApiResult<object>.Succeed(response);
         }
+
 
         public async Task<ApiResult<object>> UpdatePaymentMethodOrNoteAsync(UpdatePaymentMethodOrNoteRequest request, string token)
         {

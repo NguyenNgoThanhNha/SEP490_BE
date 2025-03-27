@@ -352,11 +352,10 @@ namespace Server.API.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize]        
         [HttpPut("update-status")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusSimpleRequest request)
         {
-            // Kiểm tra Authorization header
             if (!Request.Headers.TryGetValue("Authorization", out var tokenHeader))
             {
                 return BadRequest(ApiResult<object>.Error(new ApiResponse
@@ -376,11 +375,10 @@ namespace Server.API.Controllers
 
             var token = tokenParts[1];
 
-            var result = await _orderService.UpdateOrderStatusSimpleAsync(request.OrderId, token);
+            var result = await _orderService.UpdateOrderStatusSimpleAsync(request.OrderId, request.Status, token);
 
             if (!result.Success)
             {
-                // Nếu result.Result là ApiResponse thì lấy message
                 if (result.Result is ApiResponse errorResponse)
                 {
                     return BadRequest(ApiResult<object>.Error(new ApiResponse
@@ -389,7 +387,6 @@ namespace Server.API.Controllers
                     }));
                 }
 
-                // fallback nếu message không tồn tại
                 return BadRequest(ApiResult<object>.Error(new ApiResponse
                 {
                     message = "Unknown error occurred."
@@ -398,6 +395,7 @@ namespace Server.API.Controllers
 
             return Ok(result);
         }
+
 
         [Authorize]
         [HttpPut("update-payment-method-or-note")]
