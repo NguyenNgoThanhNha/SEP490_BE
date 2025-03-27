@@ -22,4 +22,6 @@ public class Branch_Product
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
+    
+    public ICollection<ProductCart> ProductCarts { get; set; }
 }

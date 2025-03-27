@@ -746,7 +746,7 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("ProductId")
+                    b.Property<int>("ProductBranchId")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -759,7 +759,7 @@ namespace Server.Data.Migrations
 
                     b.HasIndex("CartId");
 
-                    b.HasIndex("ProductId", "CartId")
+                    b.HasIndex("ProductBranchId", "CartId")
                         .IsUnique();
 
                     b.ToTable("ProductCart", (string)null);
@@ -2235,16 +2235,16 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Product_Cart_Cart");
 
-                    b.HasOne("Server.Data.Entities.Product", "Product")
+                    b.HasOne("Server.Data.Entities.Branch_Product", "ProductBranch")
                         .WithMany("ProductCarts")
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("ProductBranchId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Product_Cart_Product");
+                        .HasConstraintName("FK_Product_Cart_ProductBranch");
 
                     b.Navigation("Cart");
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductBranch");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.ProductFeedback", b =>
@@ -2639,6 +2639,11 @@ namespace Server.Data.Migrations
                     b.Navigation("Staffs");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.Branch_Product", b =>
+                {
+                    b.Navigation("ProductCarts");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Cart", b =>
                 {
                     b.Navigation("ProductCarts");
@@ -2666,8 +2671,6 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.Product", b =>
                 {
                     b.Navigation("Branch_Products");
-
-                    b.Navigation("ProductCarts");
 
                     b.Navigation("ProductImages");
 

@@ -37,7 +37,6 @@ public class Product
     
     public ICollection<Branch_Product> Branch_Products { get; set; }
     public ICollection<ProductRoutine> ProductRoutines { get; set; }
-    public ICollection<ProductCart> ProductCarts { get; set; }
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;

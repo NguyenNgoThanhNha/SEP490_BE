@@ -33,10 +33,10 @@ namespace Server.API.Controllers
             return BadRequest(response);
         }
 
-        [HttpDelete("{userId}/{idProduct}")]
-        public async Task<IActionResult> RemoveProductFromCart(int userId,int idProduct)
+        [HttpDelete("{userId}/{productBranchId}")]
+        public async Task<IActionResult> RemoveProductFromCart(int userId,int productBranchId)
         {
-            var response = await _cartService.DeleteProductFromCart(idProduct, userId);
+            var response = await _cartService.DeleteProductFromCart(productBranchId, userId);
             if (response.Success)
             {
                 return Ok(response);

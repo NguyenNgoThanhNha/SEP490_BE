@@ -10,8 +10,8 @@ public class ProductCart
     public int ProductCartId { get; set; }
     
     [ForeignKey("User_Cart_Product")]
-    public int ProductId { get; set; }
-    public virtual Product Product { get; set; }
+    public int ProductBranchId { get; set; }
+    public virtual Branch_Product ProductBranch { get; set; }
     
     [ForeignKey("User_Cart_Cart")]
     public int CartId { get; set; }
