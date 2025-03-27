@@ -125,7 +125,18 @@ public class MongoDbService
         {
             throw new Exception("Channel not found");
         }
-        return await _messageRepository.GetManyAsync(m => m.Id == channelId);
+
+        // Lấy danh sách messageId từ channel
+        var messageIds = channel.Messages;
+    
+        if (messageIds == null || !messageIds.Any())
+        {
+            return new List<Messages>();
+        }
+
+        // Lấy danh sách tin nhắn dựa trên danh sách ID
+        var result = await _messageRepository.GetMessagesByIdsAsync(messageIds);
+        return result;
     }
     
     // search contacts

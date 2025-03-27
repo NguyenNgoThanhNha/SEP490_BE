@@ -80,11 +80,18 @@ public class RepositoryMongoDb<T> : IRepositoryMongoDB<T> where T : class
         return await _collection.Find(filter).ToListAsync();
     }
     
-    public async Task<List<T>> GetMessagesByChannelIdAsync(string channelId)
+    public async Task<List<T>> GetMessagesByIdsAsync(List<string> messageIds)
     {
-        var filter = Builders<T>.Filter.Eq("ChannelId", channelId);
-        return await _collection.Find(filter).SortBy(m => m.GetType().GetProperty("Timestamp").GetValue(m, null)).ToListAsync();
+        // Chuyển danh sách ID từ string sang ObjectId (nếu cần)
+        var objectIds = messageIds.Select(id => new ObjectId(id)).ToList();
+
+        var filter = Builders<T>.Filter.In("_id", objectIds);
+
+        return await _collection.Find(filter)
+            .SortByDescending(m => ((Messages)(object)m).Timestamp) // Ép kiểu an toàn
+            .ToListAsync();
     }
+
     
     public async Task<List<T>> SearchByRegexAsync(string field, string searchTerm)
     {
