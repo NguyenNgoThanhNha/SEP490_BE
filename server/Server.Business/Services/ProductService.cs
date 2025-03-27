@@ -721,6 +721,7 @@ namespace Server.Business.Services
                 var errorResponse = ApiResponse.Error("Vui lòng cung cấp BrandId hợp lệ để lọc sản phẩm.");
                 return ApiResult<object>.Succeed(errorResponse);
             }
+
             // 1. Lọc sản phẩm theo trạng thái Active
             IQueryable<Product> query = _unitOfWorks.ProductRepository
                 .FindByCondition(p => p.Status == "Active")
@@ -812,7 +813,7 @@ namespace Server.Business.Services
                 UpdatedDate = p.UpdatedDate,
                 BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
                 BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
-                ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id, // 👈 Thêm dòng này
+                ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id,
                 Category = new CategoryDetailDto
                 {
                     CategoryId = p.Category?.CategoryId ?? 0,
@@ -823,18 +824,22 @@ namespace Server.Business.Services
                 images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
             }).ToList();
 
-            // 11. Gói kết quả phân trang
+            // 11. Gói kết quả phân trang đúng định dạng JSON mẫu
             var pagedResult = new
             {
-                TotalItems = totalItems,
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling((double)totalItems / pageSize),
-                Items = result
+                totalItemsCount = totalItems,
+                pageSize = pageSize,
+                totalPagesCount = (int)Math.Ceiling((double)totalItems / pageSize),
+                pageIndex = pageNumber - 1,
+                next = pageNumber * pageSize < totalItems,
+                previous = pageNumber > 1,
+                data = result
             };
 
-            return ApiResult<object>.Succeed(ApiResponse.Succeed(pagedResult, "Lọc sản phẩm thành công."));
+            // 12. Trả về đúng format JSON mẫu từ ảnh
+            return ApiResult<object>.Succeed(ApiResponse.Succeed(pagedResult, "Get products successfully!"));
         }
+
     }
 }
 
