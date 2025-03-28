@@ -204,9 +204,9 @@ public class MongoDbService
     }
     
     // check exist channel appointment
-    public async Task<object> CheckExistChannelAppointmentAsync(int appointmentId, string channelName)
+    public async Task<object> CheckExistChannelAppointmentAsync(int appointmentId)
     {
-        var channel = await _channelsRepository.GetOneAsync(c => c.AppointmentId == appointmentId && c.Name.ToLower() == channelName.ToLower());
+        var channel = await _channelsRepository.GetOneAsync(c => c.AppointmentId == appointmentId);
         return channel;
     }
 }

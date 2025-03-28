@@ -17,6 +17,7 @@ public class SkincareRoutine
     public ICollection<UserRoutine> UserRoutines { get; set; }
     public ICollection<ProductRoutine> ProductRoutines { get; set; }
     public ICollection<ServiceRoutine> ServiceRoutines { get; set; }
+    public ICollection<SkinCareRoutineStep> SkinCareRoutineSteps { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

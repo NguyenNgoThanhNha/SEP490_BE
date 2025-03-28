@@ -153,9 +153,9 @@ namespace Server.API.Controllers
         }
         
         [HttpGet("check-exist-channel")]
-        public async Task<IActionResult> CheckExistChannelAsync(string channelName, int appointmentId)
+        public async Task<IActionResult> CheckExistChannelAsync(int appointmentId)
         {
-            var channel = await _mongoDbService.CheckExistChannelAppointmentAsync(appointmentId, channelName);
+            var channel = await _mongoDbService.CheckExistChannelAppointmentAsync(appointmentId);
             if (channel == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
                 message = "Channel not found",

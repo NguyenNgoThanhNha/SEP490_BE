@@ -161,35 +161,21 @@ public class RoutineService
         try
         {
             var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId);
-            
-            var voucher = await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId);
-            
+            var voucher =
+                await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId);
+
             var routine = await _unitOfWorks.SkincareRoutineRepository
                 .FindByCondition(x => x.SkincareRoutineId == request.RoutineId)
-                .Include(x => x.ProductRoutines)
-                .ThenInclude(x => x.Products)
-                .ThenInclude(x => x.Category)
-                .Include(x => x.ServiceRoutines)
+                .Include(x => x.SkinCareRoutineSteps)
+                .ThenInclude(x => x.ServiceRoutineSteps)
                 .ThenInclude(x => x.Service)
-                .ThenInclude(x => x.ServiceCategory)
+                .Include(x => x.SkinCareRoutineSteps)
+                .ThenInclude(x => x.ProductRoutineSteps)
+                .ThenInclude(x => x.Product)
                 .FirstOrDefaultAsync();
+
             if (routine == null) return null;
 
-            var productRoutines = routine.ProductRoutines;
-            var listProduct = new List<Product>();
-            foreach (var productRoutine in productRoutines)
-            {
-                listProduct.Add(productRoutine.Products);
-            }
-
-            // get image of service
-            var serviceRoutines = routine.ServiceRoutines;
-            var listService = new List<Data.Entities.Service>();
-            foreach (var serviceRoutine in serviceRoutines)
-            {
-                listService.Add(serviceRoutine.Service);
-            }
-        
             var staff = await _unitOfWorks.StaffRepository
                 .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId);
 
@@ -212,56 +198,59 @@ public class RoutineService
             await _unitOfWorks.OrderRepository.Commit();
 
             var listAppointment = new List<Appointments>();
-            foreach (var service in listService)
-            {
-                var appointmentTime = request.AppointmentTime ?? DateTime.Now;
-                var endTime = appointmentTime.AddMinutes(int.Parse(service.Duration));
-                var newAppointment = new AppointmentsModel
-                {
-                    CustomerId = user.UserId,
-                    OrderId = createdOrder.OrderId,
-                    StaffId = staff.StaffId,
-                    ServiceId = service.ServiceId,
-                    Status = OrderStatusEnum.Pending.ToString(),
-                    BranchId = staff.BranchId,
-                    AppointmentsTime = request.AppointmentTime ?? DateTime.Now,
-                    AppointmentEndTime = endTime,
-                    Quantity = 1,
-                    UnitPrice = service.Price,
-                    SubTotal = service.Price,
-                    Feedback = "",
-                    Notes = "",
-                    CreatedDate = DateTime.Now
-                };
-                listAppointment.Add(_mapper.Map<Appointments>(newAppointment));
-                // Cập nhật appointmentTime cho service tiếp theo
-                appointmentTime = endTime.AddMinutes(5);
-            }
-            // save appointment
-            await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointment);
-
-            
-            // create list order detail
             var listOrderDetail = new List<OrderDetail>();
-            foreach (var product in listProduct)
+            var appointmentTime = request.AppointmentTime ?? DateTime.Now;
+
+            foreach (var step in routine.SkinCareRoutineSteps.OrderBy(x => x.Step))
             {
-                var newOrderDetail = new OrderDetailModels()
+                foreach (var serviceStep in step.ServiceRoutineSteps)
                 {
-                    OrderId = createdOrder.OrderId,
-                    ProductId = product.ProductId,
-                    Quantity = 1,
-                    UnitPrice = product.Price,
-                    SubTotal = product.Price,
-                    CreatedDate = DateTime.Now
-                };
-                listOrderDetail.Add(_mapper.Map<OrderDetail>(newOrderDetail));
+                    var service = serviceStep.Service;
+                    var endTime = appointmentTime.AddMinutes(int.Parse(service.Duration));
+                    var newAppointment = new AppointmentsModel
+                    {
+                        CustomerId = user.UserId,
+                        OrderId = createdOrder.OrderId,
+                        StaffId = staff.StaffId,
+                        ServiceId = service.ServiceId,
+                        Status = OrderStatusEnum.Pending.ToString(),
+                        BranchId = staff.BranchId,
+                        AppointmentsTime = appointmentTime,
+                        AppointmentEndTime = endTime,
+                        Quantity = 1,
+                        UnitPrice = service.Price,
+                        SubTotal = service.Price,
+                        Feedback = "",
+                        Notes = "",
+                        CreatedDate = DateTime.Now
+                    };
+                    listAppointment.Add(_mapper.Map<Appointments>(newAppointment));
+                    appointmentTime = endTime.AddMinutes(step.IntervalBeforeNextStep?.TotalMinutes ?? 5);
+                }
+
+                foreach (var productStep in step.ProductRoutineSteps)
+                {
+                    var product = productStep.Product;
+                    var newOrderDetail = new OrderDetailModels()
+                    {
+                        OrderId = createdOrder.OrderId,
+                        ProductId = product.ProductId,
+                        Quantity = 1,
+                        UnitPrice = product.Price,
+                        SubTotal = product.Price,
+                        CreatedDate = DateTime.Now
+                    };
+                    listOrderDetail.Add(_mapper.Map<OrderDetail>(newOrderDetail));
+                }
             }
+
+            await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointment);
             await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetail);
-            
             await _unitOfWorks.CommitTransactionAsync();
-            return  _mapper.Map<OrderModel>(order);
+
+            return _mapper.Map<OrderModel>(order);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             await _unitOfWorks.RollbackTransactionAsync();
             throw;
