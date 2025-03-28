@@ -60,7 +60,7 @@ namespace Server.Business.Services
                     throw new Exception("Cannot connect to Redis");
                 }
             }
-        }     
+        }
 
         public async Task<ApiResult<ApiResponse>> GetCart(int userId)
         {
@@ -101,7 +101,7 @@ namespace Server.Business.Services
                 message = "Lấy dữ liệu cart thành công!",
                 data = cart
             });
-        }      
+        }
 
         private async Task UpdateCartCache(int userId, List<CartDTO> cart)
         {
@@ -268,73 +268,7 @@ namespace Server.Business.Services
             });
         }
 
-        //    private async Task<List<CartDTO>> GetCartFromDatabase(int userId)
-        //    {
-        //        var cartEntities = await _context.ProductCart
-        // .Include(c => c.Cart)
-        // .Include(c => c.ProductBranch)
-        //     .ThenInclude(pb => pb.Product)
-        //         .ThenInclude(p => p.Category)      
-        // .Where(c => c.Cart.CustomerId == userId)
-        // .ToListAsync();
 
-
-        //        var cartItems = cartEntities.Select(c => new CartDTO
-        //        {
-        //            CartId = c.CartId,
-        //            ProductCartId = c.ProductCartId,
-        //            StockQuantity = c.ProductBranch.Product.Branch_Products
-        //                .Where(bp => bp.ProductId == c.ProductBranch.ProductId)
-        //                .Sum(bp => bp.StockQuantity),
-
-        //            Product = new ProductDetailInCartDto
-        //            {
-        //                ProductId = c.ProductBranch.Product.ProductId,
-        //                ProductName = c.ProductBranch.Product.ProductName,
-        //                ProductDescription = c.ProductBranch.Product.ProductDescription,
-        //                Price = c.ProductBranch.Product.Price,
-        //                Quantity = c.ProductBranch.Product.Quantity,
-        //                BrandId = c.ProductBranch.Product.Branch_Products
-        //.FirstOrDefault(bp => bp.ProductId == c.ProductBranch.ProductId)?.BranchId,
-        //               ProductBranchId = c.ProductBranchId,
-        //                Discount = c.ProductBranch.Product.Discount ?? 0,
-        //                CategoryId = c.ProductBranch.Product.CategoryId,
-        //                CompanyId = c.ProductBranch.Product.CompanyId,
-        //                Dimension = c.ProductBranch.Product.Dimension,
-        //                Volume = c.ProductBranch.Product.Volume,
-        //                Status = c.ProductBranch.Product.Status,
-        //                Brand = c.ProductBranch.Product.Brand,
-        //                SkinTypeSuitable = c.ProductBranch.Product.SkinTypeSuitable,
-        //                CreatedDate = c.ProductBranch.Product.CreatedDate,
-        //                UpdatedDate = c.ProductBranch.Product.UpdatedDate,
-        //                Category = c.ProductBranch.Product.Category == null ? null : new CategoryDetailInCartDto
-        //                {
-        //                    CategoryId = c.ProductBranch.Product.Category.CategoryId,
-        //                    Name = c.ProductBranch.Product.Category.Name,
-        //                    Description = c.ProductBranch.Product.Category.Description,
-        //                    Status = c.ProductBranch.Product.Category.Status,
-        //                    ImageUrl = c.ProductBranch.Product.Category.ImageUrl,
-        //                    CreatedDate = c.ProductBranch.Product.Category.CreatedDate,
-        //                    UpdatedDate = c.ProductBranch.Product.Category.UpdatedDate
-        //                }
-        //            }
-        //        }).ToList();
-
-        //        var productIds = cartItems.Select(x => x.Product.ProductId).Distinct().ToList();
-
-        //        var productImages = await _productService.GetListImagesOfProductIds(productIds);
-
-        //        foreach (var item in cartItems)
-        //        {
-        //            var matched = productImages.FirstOrDefault(p => p.ProductId == item.Product.ProductId);
-        //            if (matched != null)
-        //            {
-        //                item.Product.Images = matched.images?.ToList() ?? new List<string>();
-        //            }
-        //        }
-
-        //        return cartItems;
-        //    }
 
         private async Task<List<CartDTO>> GetCartFromDatabase(int userId)
         {

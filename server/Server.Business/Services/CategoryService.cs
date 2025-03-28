@@ -193,60 +193,31 @@ namespace Server.Business.Services
             return categoryModel;
         }
 
-        public async Task<GetAllCategoryPaginationResponse> GetAllCategoryAsync(int page = 1, int pageSize = 4)
+        public async Task<List<CategoryModel>> GetAllCategoryAsync()
         {
             try
             {
-                // Lấy danh sách tất cả các danh mục từ repository
-                var categoriesQuery = _unitOfWorks.CategoryRepository.GetAll()
-                    .Include(c => c.Products) // Bao gồm danh sách sản phẩm nếu cần
-                    .ThenInclude(p => p.Company); // Bao gồm thông tin công ty của sản phẩm
-
-                // Lấy danh sách danh mục
-                var categories = await categoriesQuery.OrderBy(c => c.CategoryId).ToListAsync();
+                // Lấy danh sách tất cả các danh mục, không include product
+                var categories = await _unitOfWorks.CategoryRepository.GetAll()
+                    .OrderBy(c => c.CategoryId)
+                    .ToListAsync();
 
                 if (categories == null || categories.Count == 0)
                 {
-                    return new GetAllCategoryPaginationResponse
-                    {
-                        data = new List<CategoryModel>(),
-                        pagination = new Pagination
-                        {
-                            page = page,
-                            totalPage = 0,
-                            totalCount = 0
-                        }
-                    };
+                    return new List<CategoryModel>();
                 }
 
-                // Tổng số danh mục
-                var totalCount = categories.Count;
+                // Map sang DTO
+                var categoryModels = _mapper.Map<List<CategoryModel>>(categories);
 
-                // Tính tổng số trang
-                var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-                // Phân trang
-                var pagedCategories = categories.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-                // Map từ entity sang model
-                var categoryModels = _mapper.Map<List<CategoryModel>>(pagedCategories);
-
-                return new GetAllCategoryPaginationResponse
-                {
-                    data = categoryModels,
-                    pagination = new Pagination
-                    {
-                        page = page,
-                        totalPage = totalPages,
-                        totalCount = totalCount
-                    }
-                };
+                return categoryModels;
             }
             catch (Exception ex)
             {
                 throw new Exception($"Error retrieving categories: {ex.Message}", ex);
             }
         }
+
 
         public async Task<CategoryModel> UpdateCategoryAsync(int categoryId, CategoryUpdateDto categoryUpdateDto)
         {

@@ -47,42 +47,20 @@ namespace Server.API.Controllers
             }));
         }
 
-        [HttpGet("get-all-categories")]
-        public async Task<IActionResult> GetAllCategory([FromQuery] int page = 1, int pageSize = 4)
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetAllCategories()
         {
-            try
+            var result = await _categoryService.GetAllCategoryAsync();
+            return Ok(new
             {
-                // Gọi service để lấy danh sách danh mục
-                var listCategory = await _categoryService.GetAllCategoryAsync(page, pageSize);
-
-                // Kiểm tra nếu không có danh mục nào
-                if (listCategory == null || listCategory.data.Count == 0)
+                success = true,
+                result = new
                 {
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Currently, there are no categories!"
-                    }));
+                    message = "Lấy danh sách danh mục thành công!",
+                    data = result
                 }
-
-                // Trả về kết quả thành công
-                return Ok(ApiResult<GetAllCategoryPaginationResponse>.Succeed(new GetAllCategoryPaginationResponse
-                {
-                    message = "Categories retrieved successfully!",
-                    data = listCategory.data,
-                    pagination = listCategory.pagination
-                }));
-            }
-            catch (Exception ex)
-            {
-                // Xử lý lỗi nếu có
-                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = $"Internal server error: {ex.Message}"
-                }));
-            }
+            });
         }
-
-
 
         [HttpGet("{categoryId}")]
         public async Task<IActionResult> GetCategoryById(int categoryId)
