@@ -27,6 +27,7 @@ namespace Server.Business.Dtos
         public List<string> Images { get; set; } = new();
         public int? BrandId { get; set; }
         public int ProductBranchId { get; set; }
+        public int StockQuantity { get; set; }
 
 
     }
