@@ -60,30 +60,7 @@ namespace Server.Business.Services
                     throw new Exception("Cannot connect to Redis");
                 }
             }
-        }
-
-        //public async Task<ApiResult<ApiResponse>> GetCart(int userId)
-        //{
-        //    await EnsureConnected();
-        //    if (userId <= 0)
-        //        return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Vui lòng đăng nhập vào hệ thống" });
-
-        //    string cacheKey = GetCartKey(userId);
-        //    string cachedCart = await _redisDb.StringGetAsync(cacheKey);
-        //    if (!string.IsNullOrEmpty(cachedCart))
-        //    {
-        //        return ApiResult<ApiResponse>.Succeed(new ApiResponse
-        //            { data = JsonConvert.DeserializeObject<List<CartDTO>>(cachedCart) });
-        //    }
-
-        //    var cart = await GetCartFromDatabase(userId);
-        //    if (cart.Any())
-        //    {
-        //        await _redisDb.StringSetAsync(cacheKey, JsonConvert.SerializeObject(cart), TimeSpan.FromMinutes(60));
-        //    }
-
-        //    return ApiResult<ApiResponse>.Succeed(new ApiResponse { data = cart });
-        //}
+        }     
 
         public async Task<ApiResult<ApiResponse>> GetCart(int userId)
         {
@@ -124,68 +101,7 @@ namespace Server.Business.Services
                 message = "Lấy dữ liệu cart thành công!",
                 data = cart
             });
-        }
-
-
-
-
-
-        //public async Task<ApiResult<ApiResponse>> AddToCart(AddToCartRequest request)
-        //{
-        //    await EnsureConnected();
-        //    if (request.UserId <= 0)
-        //        return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Vui lòng đăng nhập vào hệ thống" });
-
-        //    var productBranch = await _unitOfWorks.Brand_ProductRepository
-        //        .FirstOrDefaultAsync(x => x.Id == request.ProductBranchId);
-
-        //    if (await _unitOfWorks.ProductRepository.GetByIdAsync(productBranch.ProductId) == null)
-        //        return ApiResult<ApiResponse>.Error(new ApiResponse
-        //            { message = "Sản phẩm không tồn tại trong hệ thống." });
-
-        //    var existingCart = await _unitOfWorks.CartRepository.FindByCondition(c => c.CustomerId == request.UserId)
-        //        .FirstOrDefaultAsync();
-        //    if (existingCart == null)
-        //    {
-        //        existingCart = new Cart
-        //            { CustomerId = request.UserId, CreatedDate = DateTime.Now, UpdatedDate = DateTime.Now };
-        //        await _unitOfWorks.CartRepository.AddAsync(existingCart);
-        //        await _unitOfWorks.CartRepository.Commit();
-        //    }
-
-        //    var detail = await _unitOfWorks.ProductCartRepository
-        //        .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductBranchId == productBranch.Id)
-        //        .FirstOrDefaultAsync();
-        //    if (detail == null)
-        //    {
-        //        if (request.Operation != Data.OperationTypeEnum.Add)
-        //            return ApiResult<ApiResponse>.Error(new ApiResponse
-        //                { message = "Sản phẩm chưa tồn tại trong giỏ hàng!" });
-
-        //        await _unitOfWorks.ProductCartRepository.AddAsync(new ProductCart
-        //            { CartId = existingCart.CartId, ProductBranchId = productBranch.Id, Quantity = 1 });
-        //    }
-        //    else
-        //    {
-        //        detail.Quantity = request.Operation switch
-        //        {
-        //            Data.OperationTypeEnum.Add => detail.Quantity + request.Quantity,
-        //            Data.OperationTypeEnum.Subtract => Math.Max(1, detail.Quantity - request.Quantity),
-        //            Data.OperationTypeEnum.Replace => Math.Max(1, request.Quantity),
-        //            _ => detail.Quantity
-        //        };
-        //        _unitOfWorks.ProductCartRepository.Update(detail);
-        //    }
-
-        //    if (await _unitOfWorks.ProductCartRepository.Commit() > 0)
-        //    {
-        //        var cart = await GetCartFromDatabase(request.UserId);
-        //        await UpdateCartCache(request.UserId, cart);
-        //        return ApiResult<ApiResponse>.Succeed(new ApiResponse { data = cart });
-        //    }
-
-        //    return ApiResult<ApiResponse>.Error(new ApiResponse { message = "Lỗi cập nhật vào hệ thống" });
-        //}
+        }      
 
         private async Task UpdateCartCache(int userId, List<CartDTO> cart)
         {
@@ -352,24 +268,89 @@ namespace Server.Business.Services
             });
         }
 
+        //    private async Task<List<CartDTO>> GetCartFromDatabase(int userId)
+        //    {
+        //        var cartEntities = await _context.ProductCart
+        // .Include(c => c.Cart)
+        // .Include(c => c.ProductBranch)
+        //     .ThenInclude(pb => pb.Product)
+        //         .ThenInclude(p => p.Category)      
+        // .Where(c => c.Cart.CustomerId == userId)
+        // .ToListAsync();
+
+
+        //        var cartItems = cartEntities.Select(c => new CartDTO
+        //        {
+        //            CartId = c.CartId,
+        //            ProductCartId = c.ProductCartId,
+        //            StockQuantity = c.ProductBranch.Product.Branch_Products
+        //                .Where(bp => bp.ProductId == c.ProductBranch.ProductId)
+        //                .Sum(bp => bp.StockQuantity),
+
+        //            Product = new ProductDetailInCartDto
+        //            {
+        //                ProductId = c.ProductBranch.Product.ProductId,
+        //                ProductName = c.ProductBranch.Product.ProductName,
+        //                ProductDescription = c.ProductBranch.Product.ProductDescription,
+        //                Price = c.ProductBranch.Product.Price,
+        //                Quantity = c.ProductBranch.Product.Quantity,
+        //                BrandId = c.ProductBranch.Product.Branch_Products
+        //.FirstOrDefault(bp => bp.ProductId == c.ProductBranch.ProductId)?.BranchId,
+        //               ProductBranchId = c.ProductBranchId,
+        //                Discount = c.ProductBranch.Product.Discount ?? 0,
+        //                CategoryId = c.ProductBranch.Product.CategoryId,
+        //                CompanyId = c.ProductBranch.Product.CompanyId,
+        //                Dimension = c.ProductBranch.Product.Dimension,
+        //                Volume = c.ProductBranch.Product.Volume,
+        //                Status = c.ProductBranch.Product.Status,
+        //                Brand = c.ProductBranch.Product.Brand,
+        //                SkinTypeSuitable = c.ProductBranch.Product.SkinTypeSuitable,
+        //                CreatedDate = c.ProductBranch.Product.CreatedDate,
+        //                UpdatedDate = c.ProductBranch.Product.UpdatedDate,
+        //                Category = c.ProductBranch.Product.Category == null ? null : new CategoryDetailInCartDto
+        //                {
+        //                    CategoryId = c.ProductBranch.Product.Category.CategoryId,
+        //                    Name = c.ProductBranch.Product.Category.Name,
+        //                    Description = c.ProductBranch.Product.Category.Description,
+        //                    Status = c.ProductBranch.Product.Category.Status,
+        //                    ImageUrl = c.ProductBranch.Product.Category.ImageUrl,
+        //                    CreatedDate = c.ProductBranch.Product.Category.CreatedDate,
+        //                    UpdatedDate = c.ProductBranch.Product.Category.UpdatedDate
+        //                }
+        //            }
+        //        }).ToList();
+
+        //        var productIds = cartItems.Select(x => x.Product.ProductId).Distinct().ToList();
+
+        //        var productImages = await _productService.GetListImagesOfProductIds(productIds);
+
+        //        foreach (var item in cartItems)
+        //        {
+        //            var matched = productImages.FirstOrDefault(p => p.ProductId == item.Product.ProductId);
+        //            if (matched != null)
+        //            {
+        //                item.Product.Images = matched.images?.ToList() ?? new List<string>();
+        //            }
+        //        }
+
+        //        return cartItems;
+        //    }
+
         private async Task<List<CartDTO>> GetCartFromDatabase(int userId)
         {
             var cartEntities = await _context.ProductCart
-     .Include(c => c.Cart)
-     .Include(c => c.ProductBranch)
-         .ThenInclude(pb => pb.Product)
-             .ThenInclude(p => p.Category)      
-     .Where(c => c.Cart.CustomerId == userId)
-     .ToListAsync();
-
+                .Include(c => c.Cart)
+                .Include(c => c.ProductBranch)
+                    .ThenInclude(pb => pb.Product)
+                        .ThenInclude(p => p.Category)
+                .Where(c => c.Cart.CustomerId == userId)
+                .ToListAsync();
 
             var cartItems = cartEntities.Select(c => new CartDTO
             {
-                CartId = c.CartId,
                 ProductCartId = c.ProductCartId,
-                StockQuantity = c.ProductBranch.Product.Branch_Products
-                    .Where(bp => bp.ProductId == c.ProductBranch.ProductId)
-                    .Sum(bp => bp.StockQuantity),
+                CartId = c.CartId,
+                Quantity = c.Quantity, // ✅ Số lượng user thêm vào cart
 
                 Product = new ProductDetailInCartDto
                 {
@@ -378,9 +359,6 @@ namespace Server.Business.Services
                     ProductDescription = c.ProductBranch.Product.ProductDescription,
                     Price = c.ProductBranch.Product.Price,
                     Quantity = c.ProductBranch.Product.Quantity,
-                    BrandId = c.ProductBranch.Product.Branch_Products
-    .FirstOrDefault(bp => bp.ProductId == c.ProductBranch.ProductId)?.BranchId,
-                   ProductBranchId = c.ProductBranchId,
                     Discount = c.ProductBranch.Product.Discount ?? 0,
                     CategoryId = c.ProductBranch.Product.CategoryId,
                     CompanyId = c.ProductBranch.Product.CompanyId,
@@ -391,6 +369,9 @@ namespace Server.Business.Services
                     SkinTypeSuitable = c.ProductBranch.Product.SkinTypeSuitable,
                     CreatedDate = c.ProductBranch.Product.CreatedDate,
                     UpdatedDate = c.ProductBranch.Product.UpdatedDate,
+                    BrandId = c.ProductBranch.BranchId,
+                    ProductBranchId = c.ProductBranch.Id,
+                    StockQuantity = c.ProductBranch.StockQuantity, // ✅ lấy trực tiếp tồn kho từ branch_product
                     Category = c.ProductBranch.Product.Category == null ? null : new CategoryDetailInCartDto
                     {
                         CategoryId = c.ProductBranch.Product.Category.CategoryId,
@@ -404,8 +385,8 @@ namespace Server.Business.Services
                 }
             }).ToList();
 
+            // Load hình ảnh sản phẩm
             var productIds = cartItems.Select(x => x.Product.ProductId).Distinct().ToList();
-
             var productImages = await _productService.GetListImagesOfProductIds(productIds);
 
             foreach (var item in cartItems)
@@ -419,6 +400,9 @@ namespace Server.Business.Services
 
             return cartItems;
         }
+
+
+
 
     }
 }
