@@ -724,7 +724,7 @@ namespace Server.Business.Services
             }
 
             IQueryable<Product> query = _unitOfWorks.ProductRepository
-                .FindByCondition(p => p.Status == "Active") 
+                .FindByCondition(p => p.Status == "Active")
                 .Include(p => p.Company)
                 .Include(p => p.Category)
                 .Include(p => p.ProductImages)
@@ -830,49 +830,30 @@ namespace Server.Business.Services
             };
         }
 
-        public async Task<GetAllProductPaginationFilter> GetProductDetailByProductBranchIdAsync(int productBranchId, int page, int pageSize)
+        public async Task<ProductDetailDto> GetProductDetailByProductBranchIdAsync(int productBranchId)
         {
             // Tìm branch_product theo Id
             var productBranch = await _unitOfWorks.Brand_ProductRepository
-                .FindByCondition(bp => bp.Id == productBranchId)
-                .Include(bp => bp.Product)
-                .FirstOrDefaultAsync();
+      .FindByCondition(bp => bp.Id == productBranchId)
+      .Include(bp => bp.Product)
+          .ThenInclude(p => p.Company)
+      .Include(bp => bp.Product)
+          .ThenInclude(p => p.Category)
+      .Include(bp => bp.Product)
+          .ThenInclude(p => p.ProductImages)
+      .AsTracking() // ⭐ Thêm cái này sẽ ngắt vòng lặp
+      .FirstOrDefaultAsync();
+
 
             if (productBranch == null || productBranch.Product == null)
             {
-                return new GetAllProductPaginationFilter
-                {
-                    data = new List<ProductDetailDto>(),
-                    pagination = new Pagination
-                    {
-                        page = page,
-                        totalPage = 0,
-                        totalCount = 0
-                    }
-                };
+                return null;
             }
 
-            // Lấy ProductId từ bản ghi trung gian
-            var productId = productBranch.ProductId;
+            var p = productBranch.Product;
 
-            // Truy vấn product theo Id và include đầy đủ
-            var query = _unitOfWorks.ProductRepository
-                .FindByCondition(p => p.ProductId == productId && p.Status == "Active")
-                .Include(p => p.Company)
-                .Include(p => p.Category)
-                .Include(p => p.ProductImages)
-                .Include(p => p.Branch_Products)
-                    .ThenInclude(bp => bp.Branch);
-
-            var totalCount = await query.CountAsync();
-            int totalPage = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-            var pagedProducts = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            var productDtos = pagedProducts.Select(p => new ProductDetailDto
+            // Map sang DTO
+            var productDto = new ProductDetailDto
             {
                 ProductId = p.ProductId,
                 ProductName = p.ProductName,
@@ -880,8 +861,7 @@ namespace Server.Business.Services
                 Price = p.Price,
                 Brand = p.Brand,
                 Quantity = p.Quantity,
-                StockQuantity = p.Branch_Products
-                    ?.FirstOrDefault(bp => bp.Id == productBranchId)?.StockQuantity ?? 0,
+                StockQuantity = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.StockQuantity ?? 0,
                 Discount = p.Discount ?? 0,
                 CategoryId = p.CategoryId,
                 Dimension = p.Dimension,
@@ -903,19 +883,11 @@ namespace Server.Business.Services
                     Status = p.Category?.Status
                 },
                 images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
-            }).ToList();
+            };
 
-            return new GetAllProductPaginationFilter
-            {
-                data = productDtos,
-                pagination = new Pagination
-                {
-                    page = page,
-                    totalPage = totalPage,
-                    totalCount = totalCount
-                }
-            };        
-    }
+            return productDto;
+        }
+
 
         public async Task<bool> AssignOrUpdateProductToBranchAsync(AssignProductToBranchRequest request)
         {
@@ -940,7 +912,7 @@ namespace Server.Business.Services
                 await _unitOfWorks.Brand_ProductRepository.AddAsync(newEntry);
             }
 
-            await _unitOfWorks.SaveChangesAsync(); 
+            await _unitOfWorks.SaveChangesAsync();
             return true;
         }
     }

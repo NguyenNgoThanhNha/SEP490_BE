@@ -434,17 +434,22 @@ namespace Server.API.Controllers
             });
         }
 
-        [HttpGet("detail-by-productBranchId")]
-        public async Task<IActionResult> GetProductDetailByBranch([FromQuery] int productBranchId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
-        {
-            var result = await _productService.GetProductDetailByProductBranchIdAsync(productBranchId, page, pageSize);
 
-            if (result.data == null || result.data.Count == 0)
+        [HttpGet("detail-by-productBranchId")]
+        public async Task<IActionResult> GetProductDetailByBranch([FromQuery] int productBranchId)
+        {
+            var result = await _productService.GetProductDetailByProductBranchIdAsync(productBranchId);
+
+            if (result == null)
             {
                 return Ok(new
                 {
                     success = true,
-                    message = "Không tìm thấy sản phẩm tương ứng với ProductBranchId. Đảm bảo đã nhập ProductBrandId."
+                    result = new
+                    {
+                        message = "Không tìm thấy sản phẩm tương ứng với ProductBranchId. Đảm bảo đã nhập ProductBranchId đúng.",
+                        data = (object)null
+                    }
                 });
             }
 
@@ -454,11 +459,11 @@ namespace Server.API.Controllers
                 result = new
                 {
                     message = "Lấy thông tin sản phẩm thành công.",
-                    data = result.data,
-                    pagination = result.pagination
+                    data = result
                 }
             });
         }
+
 
         [HttpPost("assign-to-branch")]
         public async Task<IActionResult> AssignProductToBranch([FromBody] AssignProductToBranchRequest request)
