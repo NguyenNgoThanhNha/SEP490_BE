@@ -70,8 +70,6 @@ namespace Server.Business.Mappers
             
             CreateMap<SkincareRoutine, SkincareRoutineModel>().ReverseMap();
             
-            CreateMap<UserRoutine,UserRoutineModel>().ReverseMap();
-            
             CreateMap<ServiceRoutine, ServiceRoutineModel>().ReverseMap();
             
             CreateMap<ProductRoutine, ProductRoutineModel>().ReverseMap();
@@ -97,6 +95,9 @@ namespace Server.Business.Mappers
             CreateMap<SkinCareRoutineStep, SkinCareRoutineStepModel>();
             CreateMap<ServiceRoutineStep, ServiceRoutineStepModel>();
             CreateMap<ProductRoutineStep, ProductRoutineStepModel>();
+            
+            CreateMap<UserRoutine, UserRoutineModel>();
+            CreateMap<UserRoutineStep, UserRoutineStepModel>();
             
             
         }

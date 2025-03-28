@@ -3,6 +3,7 @@ using Google.Protobuf.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Server.Business.Commons.Request;
+using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Data;
 using Server.Data.Entities;
@@ -143,15 +144,55 @@ public class RoutineService
         return stepModels;
     }
 
-    public async Task<List<SkincareRoutineModel>> GetListSkincareRoutineSuitableByUserId(int userId)
+    public async Task<List<SkincareRoutineModel>> GetListSkincareRoutineByUserId(int userId, string status)
     {
         var routines = await _unitOfWorks.UserRoutineRepository
-            .FindByCondition(x => x.UserId == userId && x.Status == ObjectStatus.Suitable.ToString())
+            .FindByCondition(x => x.UserId == userId && x.Status == status)
             .Include(x => x.Routine)
+            .ThenInclude(x => x.ServiceRoutines)
+            .ThenInclude(x => x.Service)
+            .ThenInclude(x => x.ServiceCategory)
+            .Include(x => x.Routine)
+            .ThenInclude(x => x.ProductRoutines)
+            .ThenInclude(x => x.Products)
+            .ThenInclude(x => x.Category)
             .Select(x => x.Routine)
             .OrderByDescending(x => x.CreatedDate)
             .ToListAsync();
         var routineModels = _mapper.Map<List<SkincareRoutineModel>>(routines);
+
+        // Lấy danh sách sản phẩm từ stepModels
+        var productRoutines = routineModels.SelectMany(x => x.ProductRoutines).ToList();
+        var listProduct = productRoutines.Select(pr => pr.Products).ToList();
+        var listProductModel = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(listProduct));
+
+        // Lấy danh sách dịch vụ từ stepModels
+        var serviceRoutines = routineModels.SelectMany(x => x.ServiceRoutines).ToList();
+        var listService = serviceRoutines.Select(sr => sr.Service).ToList();
+        var listServiceModel =
+            await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(listService));
+
+        // Map images của dịch vụ
+        foreach (var serviceRoutine in serviceRoutines)
+        {
+            var serviceImage = listServiceModel.FirstOrDefault(s => s.ServiceId == serviceRoutine.Service.ServiceId);
+            if (serviceImage != null)
+            {
+                serviceRoutine.Service.images = serviceImage.images;
+            }
+        }
+
+        // Map images của sản phẩm
+        foreach (var productRoutine in productRoutines)
+        {
+            var productImage =
+                listProductModel.FirstOrDefault(p => p.ProductId == productRoutine.Products.ProductId);
+            if (productImage != null)
+            {
+                productRoutine.Products.images = productImage.images;
+            }
+        }
+
         return routineModels;
     }
 
@@ -243,7 +284,7 @@ public class RoutineService
                     listOrderDetail.Add(_mapper.Map<OrderDetail>(newOrderDetail));
                 }
             }
-            
+
             var userRoutine = await _unitOfWorks.UserRoutineRepository
                 .FirstOrDefaultAsync(x => x.UserId == request.UserId && x.RoutineId == routine.SkincareRoutineId);
             if (userRoutine != null)
@@ -252,7 +293,7 @@ public class RoutineService
                 userRoutine.UpdatedDate = DateTime.Now;
                 _unitOfWorks.UserRoutineRepository.Update(userRoutine);
                 await _unitOfWorks.UserRoutineRepository.Commit();
-                
+
                 var listUserRoutineStep = new List<UserRoutineStep>();
                 foreach (var step in routine.SkinCareRoutineSteps)
                 {
@@ -299,7 +340,7 @@ public class RoutineService
 
                 await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
             }
-            
+
 
             await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointment);
             await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetail);
@@ -312,5 +353,182 @@ public class RoutineService
             await _unitOfWorks.RollbackTransactionAsync();
             throw;
         }
+    }
+
+    public async Task<UserRoutineModel> TrackingUserRoutineByRoutineId(int routineId, int userId)
+    {
+        var userRoutine = await _unitOfWorks.UserRoutineRepository
+            .FindByCondition(x =>
+                x.RoutineId == routineId && x.UserId == userId && x.Status == ObjectStatus.Active.ToString())
+            .Include(x => x.Routine)
+            .Include(x => x.User)
+            .Include(x => x.UserRoutineSteps)
+            .ThenInclude(x => x.SkinCareRoutineStep)
+            .ThenInclude(x => x.ServiceRoutineSteps)
+            .ThenInclude(x => x.Service)
+            .Include(x => x.UserRoutineSteps)
+            .ThenInclude(x => x.SkinCareRoutineStep)
+            .ThenInclude(x => x.ProductRoutineSteps)
+            .ThenInclude(x => x.Product)
+            .ThenInclude(x => x.Category)
+            .FirstOrDefaultAsync();
+        if (userRoutine == null)
+        {
+            throw new BadRequestException("User routine not found");
+        }
+
+        var userRoutineModel = _mapper.Map<UserRoutineModel>(userRoutine);
+
+        // get images of product
+        var productRoutines = userRoutineModel.UserRoutineSteps
+            .SelectMany(x => x.SkinCareRoutineStep.ProductRoutineSteps)
+            .ToList();
+        var listProduct = new List<Product>();
+        foreach (var productRoutine in productRoutines)
+        {
+            listProduct.Add(_mapper.Map<Product>(productRoutine.Product));
+        }
+
+        var listProductModel = await _productService.GetListImagesOfProduct(listProduct);
+
+        // get image of service
+        var serviceRoutines = userRoutineModel.UserRoutineSteps
+            .SelectMany(x => x.SkinCareRoutineStep.ServiceRoutineSteps)
+            .ToList();
+        var listService = new List<Data.Entities.Service>();
+        foreach (var serviceRoutine in serviceRoutines)
+        {
+            listService.Add(_mapper.Map<Data.Entities.Service>(serviceRoutine.Service));
+        }
+
+        var listServiceModel = await _serviceService.GetListImagesOfServices(listService);
+
+
+        // map images
+        foreach (var serviceRoutine in serviceRoutines)
+        {
+            foreach (var service in listServiceModel)
+            {
+                if (serviceRoutine.Service.ServiceId == service.ServiceId)
+                {
+                    serviceRoutine.Service.images = service.images;
+                }
+            }
+        }
+
+        foreach (var productRoutine in productRoutines)
+        {
+            foreach (var product in listProductModel)
+            {
+                if (productRoutine.Product.ProductId == product.ProductId)
+                {
+                    productRoutine.Product.images = product.images;
+                }
+            }
+        }
+
+        return userRoutineModel;
+    }
+
+    public async Task<SkincareRoutineModel> GetInfoRoutineOfUserNew(int userId)
+    {
+        var routine = await _unitOfWorks.UserRoutineRepository
+            .FindByCondition(x => x.UserId == userId && x.Status == ObjectStatus.Active.ToString())
+            .Include(x => x.Routine)
+            .ThenInclude(x => x.ServiceRoutines)
+            .ThenInclude(x => x.Service)
+            .ThenInclude(x => x.ServiceCategory)
+            .Include(x => x.Routine)
+            .ThenInclude(x => x.ProductRoutines)
+            .ThenInclude(x => x.Products)
+            .ThenInclude(x => x.Category)
+            .Select(x => x.Routine)
+            .OrderByDescending(x => x.CreatedDate)
+            .FirstOrDefaultAsync();
+        var routineModel = _mapper.Map<SkincareRoutineModel>(routine);
+
+        // Lấy danh sách sản phẩm từ stepModels
+        var productRoutines = routineModel.ProductRoutines;
+        var listProduct = productRoutines.Select(pr => pr.Products).ToList();
+        var listProductModel = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(listProduct));
+
+        // Lấy danh sách dịch vụ từ stepModels
+        var serviceRoutines = routineModel.ServiceRoutines;
+        var listService = serviceRoutines.Select(sr => sr.Service).ToList();
+        var listServiceModel =
+            await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(listService));
+
+        // Map images của dịch vụ
+        foreach (var serviceRoutine in serviceRoutines)
+        {
+            var serviceImage = listServiceModel.FirstOrDefault(s => s.ServiceId == serviceRoutine.Service.ServiceId);
+            if (serviceImage != null)
+            {
+                serviceRoutine.Service.images = serviceImage.images;
+            }
+        }
+
+        // Map images của sản phẩm
+        foreach (var productRoutine in productRoutines)
+        {
+            var productImage =
+                listProductModel.FirstOrDefault(p => p.ProductId == productRoutine.Products.ProductId);
+            if (productImage != null)
+            {
+                productRoutine.Products.images = productImage.images;
+            }
+        }
+
+        return routineModel;
+    }
+    
+    public async Task<OrderModel> GetDetailOrderRoutine(int userId, int orderId)
+    {
+        var order = await _unitOfWorks.OrderRepository
+            .FindByCondition(x => x.CustomerId == userId && x.OrderId == orderId && x.OrderType == "Routine")
+            .Include(x => x.Customer)
+            .Include(x => x.OrderDetails)
+            .ThenInclude(x => x.Product)
+            .ThenInclude(x => x.Category)
+            .Include(x => x.Appointments)
+            .ThenInclude(x => x.Service)
+            .ThenInclude(x => x.ServiceCategory)
+            .FirstOrDefaultAsync();
+        if (order == null) return null;
+
+        var orderModel = _mapper.Map<OrderModel>(order);
+        
+        // lấy danh sách sản phẩm từ orderDetails
+        var orderDetails = orderModel.OrderDetails;
+        var listProduct = orderDetails.Select(pr => pr.Product).ToList();
+        var listProductModel = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(listProduct));
+
+        // lấy danh sách dich vụ từ appointments
+        var appointments = orderModel.Appointments;
+        var listService = appointments.Select(sr => sr.Service).ToList();
+        var listServiceModel =
+            await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(listService));
+
+        // Map images của dịch vụ
+        foreach (var appointment in appointments)
+        {
+            var serviceImage = listServiceModel.FirstOrDefault(s => s.ServiceId == appointment.Service.ServiceId);
+            if (serviceImage != null)
+            {
+                appointment.Service.images = serviceImage.images;
+            }
+        }
+
+        // Map images của sản phẩm
+        foreach (var orderDetail in orderDetails)
+        {
+            var productImage =
+                listProductModel.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
+            if (productImage != null)
+            {
+                orderDetail.Product.images = productImage.images;
+            }
+        }
+        return orderModel;
     }
 }

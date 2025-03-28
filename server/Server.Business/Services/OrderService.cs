@@ -26,14 +26,17 @@ namespace Server.Business.Services
         private readonly ServiceService _serviceService;
         private readonly PayOSSetting _payOsSetting;
         private readonly AuthService _authService;
+        private readonly ProductService _productService;
 
-        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting, ServiceService serviceService, AuthService authService)
+        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting, 
+            ServiceService serviceService, AuthService authService, ProductService productService)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _serviceService = serviceService;
             _payOsSetting = payOsSetting.Value;
             _authService = authService;
+            _productService = productService;
         }
 
         public async Task<Pagination<Order>> GetListAsync(
@@ -389,7 +392,7 @@ namespace Server.Business.Services
             }
         }
 
-        public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, int page = 1,
+        public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType, int page = 1,
             int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository.FindByCondition(x => x.CustomerId == userId)
@@ -399,7 +402,7 @@ namespace Server.Business.Services
                 .ThenInclude(x => x.Service)
                 .Include(x => x.OrderDetails)
                 .ThenInclude(x => x.Product)
-                .Where(x => x.Status == status)
+                .Where(x => x.Status == status && x.OrderType == orderType)
                 .ToListAsync();
             if (listOrders.Equals(null))
             {
@@ -431,7 +434,9 @@ namespace Server.Business.Services
             var order = await _unitOfWorks.OrderRepository.FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
                 .FirstOrDefaultAsync();
             var listService = new List<Data.Entities.Service>();
+            var listProduct = new List<Product>();
             var listSerivceModels = new List<ServiceModel>();
+            var listProductModels = new List<ProductModel>();
             if (order.OrderType == "Appointment")
             {
                 var orderAppointments = await _unitOfWorks.AppointmentsRepository
@@ -458,6 +463,13 @@ namespace Server.Business.Services
                     .Include(x => x.Product)
                     .ToListAsync();
                 order.OrderDetails = orderDetails;
+                // get list order images
+                foreach (var orderDetail in orderDetails)
+                {
+                    listProduct.Add(orderDetail.Product);
+                }
+
+                listProductModels = await _productService.GetListImagesOfProduct(listProduct);
             }
 
             if (order == null)
@@ -475,6 +487,18 @@ namespace Server.Business.Services
                         if (appointment.ServiceId == serviceModel.ServiceId)
                         {
                             appointment.Service.images = serviceModel.images;
+                        }
+                    }
+                }
+            }else if (orderModel.OrderDetails.Any())
+            {
+                foreach (var orderDetail in orderModel.OrderDetails)
+                {
+                    foreach (var productModel in listProductModels)
+                    {
+                        if (orderDetail.ProductId == productModel.ProductId)
+                        {
+                            orderDetail.Product.images = productModel.images;
                         }
                     }
                 }

@@ -104,7 +104,7 @@ namespace Server.API.Controllers
 
         [Authorize]
         [HttpGet("history-booking")]
-        public async Task<IActionResult> HistoryBooking([FromQuery] string status, int page = 1, int pageSize = 5)
+        public async Task<IActionResult> HistoryBooking([FromQuery] string status, string orderType, int page = 1, int pageSize = 5)
         {
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
@@ -127,7 +127,7 @@ namespace Server.API.Controllers
                     message = "Customer info not found!"
                 }));
             }
-            var orders = await _orderService.BookingHistory(currentUser.UserId, status, page, pageSize);
+            var orders = await _orderService.BookingHistory(currentUser.UserId, status, orderType, page, pageSize);
             if (orders.data == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()

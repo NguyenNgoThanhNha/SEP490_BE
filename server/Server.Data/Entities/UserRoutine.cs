@@ -26,4 +26,6 @@ public class UserRoutine
     
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
+    
+    public ICollection<UserRoutineStep> UserRoutineSteps { get; set; }
 }

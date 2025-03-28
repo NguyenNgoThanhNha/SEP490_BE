@@ -10,10 +10,12 @@ namespace Server.Business.Services;
 public class FeedbackService
 {
     private readonly UnitOfWorks _unitOfWorks;
+    private readonly CloudianryService _cloudianryService;
 
-    public FeedbackService(UnitOfWorks unitOfWorks)
+    public FeedbackService(UnitOfWorks unitOfWorks, CloudianryService cloudianryService)
     {
         _unitOfWorks = unitOfWorks;
+        _cloudianryService = cloudianryService;
     }
     
     public async Task<FeebackResponse> CreateFeedbackService(ServiceFeedbackRequest feedback)
@@ -142,6 +144,24 @@ public class FeedbackService
                 Message = "Customer feedback only 3 times"
             };
         }
+        var imageBefore = "";
+        var imageAfter = "";
+        if (request.ImageBefore != null)
+        {
+            var uploadImageBefore = await _cloudianryService.UploadImageAsync(request.ImageBefore);
+            if (uploadImageBefore != null)
+            {
+                imageBefore = uploadImageBefore.SecureUrl.ToString();
+            }
+        }
+        if (request.ImageAfter != null)
+        {
+            var uploadImageAfter = await _cloudianryService.UploadImageAsync(request.ImageAfter);
+            if (uploadImageAfter != null)
+            {
+                imageAfter = uploadImageAfter.SecureUrl.ToString();
+            }
+        }
         
         var appointmentFeedback = new AppointmentFeedback()
         {
@@ -152,8 +172,8 @@ public class FeedbackService
             Status = FeedbackStatus.Feedbacked.ToString(),
             CreatedBy = customer.UserName,
             UpdatedBy = customer.UserName,
-            ImageBefore = request.ImageBefore ?? "",
-            ImageAfter = request.ImageAfter ?? ""
+            ImageBefore = imageBefore ?? "",
+            ImageAfter = imageAfter ?? ""
         };
         
         await _unitOfWorks.FeedbackAppointmentRepository.AddAsync(appointmentFeedback);
