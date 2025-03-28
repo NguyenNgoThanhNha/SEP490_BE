@@ -12,5 +12,4 @@ namespace Server.Business.Commons.Response
         public List<AppointmentDtoByBrandId> data { get; set; }
         public Pagination pagination { get; set; }
     }
-
 }
