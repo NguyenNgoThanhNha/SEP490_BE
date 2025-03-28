@@ -155,7 +155,7 @@ public class RoutineService
         return routineModels;
     }
 
-    public async Task<OrderModel> BookCompoSkinCareRoutine(BookCompoSkinCareRoutineRequest request)
+    public async Task<int> BookCompoSkinCareRoutine(BookCompoSkinCareRoutineRequest request)
     {
         await _unitOfWorks.BeginTransactionAsync();
         try
@@ -174,7 +174,7 @@ public class RoutineService
                 .ThenInclude(x => x.Product)
                 .FirstOrDefaultAsync();
 
-            if (routine == null) return null;
+            if (routine == null) return 0;
 
             var staff = await _unitOfWorks.StaffRepository
                 .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId);
@@ -243,12 +243,69 @@ public class RoutineService
                     listOrderDetail.Add(_mapper.Map<OrderDetail>(newOrderDetail));
                 }
             }
+            
+            var userRoutine = await _unitOfWorks.UserRoutineRepository
+                .FirstOrDefaultAsync(x => x.UserId == request.UserId && x.RoutineId == routine.SkincareRoutineId);
+            if (userRoutine != null)
+            {
+                userRoutine.Status = ObjectStatus.Active.ToString();
+                userRoutine.UpdatedDate = DateTime.Now;
+                _unitOfWorks.UserRoutineRepository.Update(userRoutine);
+                await _unitOfWorks.UserRoutineRepository.Commit();
+                
+                var listUserRoutineStep = new List<UserRoutineStep>();
+                foreach (var step in routine.SkinCareRoutineSteps)
+                {
+                    var newUserRoutineStep = new UserRoutineStep
+                    {
+                        UserRoutineId = userRoutine.UserRoutineId,
+                        SkinCareRoutineStepId = step.SkinCareRoutineStepId,
+                        StepStatus = UserRoutineStepEnum.Pending.ToString(),
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
+                    };
+                    listUserRoutineStep.Add(newUserRoutineStep);
+                }
+
+                await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
+            }
+            else
+            {
+                var newUserRoutine = new UserRoutine
+                {
+                    UserId = request.UserId,
+                    RoutineId = routine.SkincareRoutineId,
+                    ProgressNotes = "",
+                    Status = ObjectStatus.Active.ToString(),
+                    CreatedDate = DateTime.UtcNow,
+                    UpdatedDate = DateTime.UtcNow
+                };
+                await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
+                await _unitOfWorks.UserRoutineRepository.Commit();
+
+                var listUserRoutineStep = new List<UserRoutineStep>();
+                foreach (var step in routine.SkinCareRoutineSteps)
+                {
+                    var newUserRoutineStep = new UserRoutineStep
+                    {
+                        UserRoutineId = newUserRoutine.UserRoutineId,
+                        SkinCareRoutineStepId = step.SkinCareRoutineStepId,
+                        StepStatus = UserRoutineStepEnum.Pending.ToString(),
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
+                    };
+                    listUserRoutineStep.Add(newUserRoutineStep);
+                }
+
+                await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
+            }
+            
 
             await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointment);
             await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetail);
             await _unitOfWorks.CommitTransactionAsync();
 
-            return _mapper.Map<OrderModel>(order);
+            return order.OrderId;
         }
         catch (Exception)
         {

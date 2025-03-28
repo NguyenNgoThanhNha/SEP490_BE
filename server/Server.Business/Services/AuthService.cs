@@ -62,6 +62,7 @@ public class AuthService
         userEntity.Password = SecurityUtil.Hash(req.Password!);
         userEntity.BirthDate = DateTime.Now;
         userEntity.TypeLogin = "Normal";
+        userEntity.RoleID = 3;
         var existedUser = _unitOfWorks.UserRepository.FindByCondition(x => x.Email == req.Email || x.PhoneNumber == req.PhoneNumber).FirstOrDefault();
         if (existedUser != null)
         {

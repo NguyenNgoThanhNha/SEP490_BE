@@ -70,7 +70,7 @@ namespace Server.API.Controllers
         public async Task<IActionResult> BookCompoSkinCareRoutine(BookCompoSkinCareRoutineRequest request)
         {
             var result = await _routineService.BookCompoSkinCareRoutine(request);
-            if (result == null) return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+            if (result == 0) return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
                 message = "Booking failed"
             }));
