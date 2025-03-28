@@ -8,9 +8,7 @@ namespace Server.Business.Commons.Request
 {
     public class AppointmentFilterRequest
     {
-        public int BranchId { get; set; }
-        public int Page { get; set; } = 1;
-        public int PageSize { get; set; } = 10;
+        public int BranchId { get; set; }      
     }
 
 }

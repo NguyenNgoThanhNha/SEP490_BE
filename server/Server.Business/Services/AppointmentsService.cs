@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Utilities;
+using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
@@ -162,7 +163,7 @@ public class AppointmentsService
 
                 var totalDuration = int.Parse(service.Duration) + 5; // Thời gian dịch vụ + thời gian nghỉ
                 var endTime = appointmentTime.AddMinutes(totalDuration);
-                
+
                 if (staffAppointments.ContainsKey(staffId))
                 {
                     var lastAppointmentEndTime = staffAppointments[staffId];
@@ -172,7 +173,7 @@ public class AppointmentsService
                     }
                 }
                 staffAppointments[staffId] = endTime;
-                
+
                 var isStaffBusy = await _unitOfWorks.AppointmentsRepository
                     .FirstOrDefaultAsync(a => a.StaffId == staffId &&
                                               a.AppointmentsTime < endTime &&
@@ -385,66 +386,47 @@ public class AppointmentsService
         return _mapper.Map<List<AppointmentsModel>>(listAppointments);
     }
 
-    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
-{
-    if (request.BranchId <= 0)
+    public async Task<ApiResult<ApiResponse>> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
     {
-        return new GetAllAppointmentPaginationResponse
+        if (request.BranchId <= 0)
         {
-            data = new List<AppointmentDtoByBrandId>(),
-            pagination = new Pagination
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                page = request.Page,
-                totalPage = 0,
-                totalCount = 0
-            }
-        };
-    }
-
-    var query = _unitOfWorks.AppointmentsRepository
-        .FindByCondition(a => a.BranchId == request.BranchId)
-        .Include(a => a.Staff)
-        .Include(a => a.Customer)
-        .Include(a => a.Service)
-        .OrderByDescending(a => a.AppointmentsTime);
-
-    var totalCount = await query.CountAsync();
-    var totalPage = (int)Math.Ceiling(totalCount / (double)request.PageSize);
-
-    var pagedAppointments = await query
-        .Skip((request.Page - 1) * request.PageSize)
-        .Take(request.PageSize)
-        .ToListAsync();
-
-    var appointmentDtos = pagedAppointments.Select(a => new AppointmentDtoByBrandId
-    {
-        AppointmentId = a.AppointmentId,
-        OrderId = a.OrderId,
-        CustomerId = a.CustomerId,
-        StaffId = a.StaffId,
-        ServiceId = a.ServiceId,
-        BranchId = a.BranchId,
-        AppointmentsTime = a.AppointmentsTime,
-        AppointmentEndTime = a.AppointmentEndTime,
-        Status = a.Status,
-        Notes = a.Notes,
-        Feedback = a.Feedback,
-        Quantity = a.Quantity,
-        UnitPrice = a.UnitPrice,
-        SubTotal = a.SubTotal,
-
-    }).ToList();
-
-    return new GetAllAppointmentPaginationResponse
-    {
-        data = appointmentDtos,
-        pagination = new Pagination
-        {
-            page = request.Page,
-            totalPage = totalPage,
-            totalCount = totalCount
+                message = "Vui lòng nhập BranchId hợp lệ!",
+                data = new { appointments = new List<AppointmentDtoByBrandId>() }
+            });
         }
-    };
-}
 
+        var appointments = await _unitOfWorks.AppointmentsRepository
+            .FindByCondition(a => a.BranchId == request.BranchId)
+            .Include(a => a.Staff)
+            .Include(a => a.Customer)
+            .Include(a => a.Service)
+            .OrderByDescending(a => a.AppointmentsTime)
+            .ToListAsync();
+
+        var dtos = appointments.Select(a => new AppointmentDtoByBrandId
+        {
+            AppointmentId = a.AppointmentId,
+            OrderId = a.OrderId,
+            CustomerId = a.CustomerId,
+            StaffId = a.StaffId,
+            ServiceId = a.ServiceId,
+            BranchId = a.BranchId,
+            AppointmentsTime = a.AppointmentsTime,
+            AppointmentEndTime = a.AppointmentEndTime,
+            Status = a.Status,
+            Notes = a.Notes,
+            Feedback = a.Feedback,
+            Quantity = a.Quantity,
+            UnitPrice = a.UnitPrice,
+            SubTotal = a.SubTotal
+        }).ToList();
+
+        return ApiResult<ApiResponse>.Succeed(new ApiResponse
+        {
+            message = "Lấy danh sách cuộc hẹn theo chi nhánh thành công.",
+            data = new { appointments = dtos }
+        });
+    }
 }

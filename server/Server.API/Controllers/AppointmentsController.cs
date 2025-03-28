@@ -198,7 +198,7 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
-            
+
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
             {
@@ -284,7 +284,7 @@ namespace Server.API.Controllers
                 data = _mapper.Map<AppointmentsDTO>(appointmentsModel)
             }));
         }
-        
+
         [Authorize]
         [HttpPut("cancel-booking/{id}")]
         public async Task<IActionResult> CancleBooking([FromRoute] int id)
@@ -352,16 +352,13 @@ namespace Server.API.Controllers
 
             return Ok(new
             {
-                success = true,
+                success = result.Success,
                 result = new
                 {
-                    message = "Lấy danh sách cuộc hẹn theo chi nhánh thành công.",
-                    data = result.data,
-                    pagination = result.pagination
+                    message = result.Result.message,
+                    data = result.Result.data
                 }
             });
         }
-
-
     }
 }

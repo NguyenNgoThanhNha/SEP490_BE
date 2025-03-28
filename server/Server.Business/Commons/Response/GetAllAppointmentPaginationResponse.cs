@@ -9,8 +9,8 @@ namespace Server.Business.Commons.Response
 {
     public class GetAllAppointmentPaginationResponse
     {
-        public List<AppointmentDtoByBrandId> data { get; set; }
-        public Pagination pagination { get; set; }
+        public AppointmentDtoByBrandId data { get; set; }
+        public string message { get; set; }
     }
 
 }
