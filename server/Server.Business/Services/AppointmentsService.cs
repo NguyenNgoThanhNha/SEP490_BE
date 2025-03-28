@@ -386,26 +386,38 @@ public class AppointmentsService
         return _mapper.Map<List<AppointmentsModel>>(listAppointments);
     }
 
-    public async Task<ApiResult<ApiResponse>> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
+    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
     {
         if (request.BranchId <= 0)
         {
-            return ApiResult<ApiResponse>.Succeed(new ApiResponse
+            return new GetAllAppointmentPaginationResponse
             {
-                message = "Vui lòng nhập BranchId hợp lệ!",
-                data = new { appointments = new List<AppointmentDtoByBrandId>() }
-            });
+                data = new List<AppointmentDtoByBrandId>(),
+                pagination = new Pagination
+                {
+                    page = request.Page,
+                    totalPage = 0,
+                    totalCount = 0
+                }
+            };
         }
 
-        var appointments = await _unitOfWorks.AppointmentsRepository
+        var query = _unitOfWorks.AppointmentsRepository
             .FindByCondition(a => a.BranchId == request.BranchId)
             .Include(a => a.Staff)
             .Include(a => a.Customer)
             .Include(a => a.Service)
-            .OrderByDescending(a => a.AppointmentsTime)
+            .OrderByDescending(a => a.AppointmentsTime);
+
+        var totalCount = await query.CountAsync();
+        var totalPage = (int)Math.Ceiling(totalCount / (double)request.PageSize);
+
+        var pagedAppointments = await query
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
             .ToListAsync();
 
-        var dtos = appointments.Select(a => new AppointmentDtoByBrandId
+        var appointmentDtos = pagedAppointments.Select(a => new AppointmentDtoByBrandId
         {
             AppointmentId = a.AppointmentId,
             OrderId = a.OrderId,
@@ -420,13 +432,19 @@ public class AppointmentsService
             Feedback = a.Feedback,
             Quantity = a.Quantity,
             UnitPrice = a.UnitPrice,
-            SubTotal = a.SubTotal
+            SubTotal = a.SubTotal,
+
         }).ToList();
 
-        return ApiResult<ApiResponse>.Succeed(new ApiResponse
+        return new GetAllAppointmentPaginationResponse
         {
-            message = "Lấy danh sách cuộc hẹn theo chi nhánh thành công.",
-            data = new { appointments = dtos }
-        });
+            data = appointmentDtos,
+            pagination = new Pagination
+            {
+                page = request.Page,
+                totalPage = totalPage,
+                totalCount = totalCount
+            }
+        };
     }
 }

@@ -352,13 +352,15 @@ namespace Server.API.Controllers
 
             return Ok(new
             {
-                success = result.Success,
+                success = true,
                 result = new
                 {
-                    message = result.Result.message,
-                    data = result.Result.data
+                    message = "Lấy danh sách cuộc hẹn theo chi nhánh thành công.",
+                    data = result.data,
+                    pagination = result.pagination
                 }
             });
         }
+
     }
 }
