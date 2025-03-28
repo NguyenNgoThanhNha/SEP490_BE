@@ -39,7 +39,7 @@ namespace Server.API.Controllers
         
         [Authorize]
         [HttpPost("appointment")]
-        public async Task<IActionResult> CreateFeedbackAppointment([FromBody] AppointmentFeedbackRequest feedback)
+        public async Task<IActionResult> CreateFeedbackAppointment([FromForm] AppointmentFeedbackRequest feedback)
         {
             var result = await _feedbackService.CreateFeedbackAppointment(feedback);
             if(result.Success == false)
