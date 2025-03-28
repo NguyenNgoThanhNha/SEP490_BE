@@ -65,12 +65,18 @@ public class MongoDbService
     }
     
     // tạo mới channel
-    public async Task<Channels> CreateChannelAsync(string name, string adminId)
+    public async Task<Channels> CreateChannelAsync(string name, string adminId, int appointmentId)
     {
+        var channelExists = await _channelsRepository
+            .GetManyAsync(c => c.Name == name && c.AppointmentId == appointmentId);
+        if (channelExists.Any())
+        {
+            throw new Exception($"Channel's {name} already exists.");
+        }
         var admin = await _customerRepository.GetByIdAsync(adminId);
         if (admin == null)
         {
-            throw new Exception("Admin Customer Not Found.");
+            throw new Exception("Admin Not Found.");
         }
 
         var channel = new Channels
@@ -78,6 +84,7 @@ public class MongoDbService
             Id = ObjectId.GenerateNewId().ToString(),
             Name = name,
             Admin = adminId,
+            AppointmentId = appointmentId,
             CreateAt = DateTime.UtcNow
         };
         await _channelsRepository.AddAsync(channel);
@@ -194,5 +201,12 @@ public class MongoDbService
         }
 
         return filePath;
+    }
+    
+    // check exist channel appointment
+    public async Task<object> CheckExistChannelAppointmentAsync(int appointmentId, string channelName)
+    {
+        var channel = await _channelsRepository.GetOneAsync(c => c.AppointmentId == appointmentId && c.Name.ToLower() == channelName.ToLower());
+        return channel;
     }
 }

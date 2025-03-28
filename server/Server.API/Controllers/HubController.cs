@@ -25,7 +25,7 @@ namespace Server.API.Controllers
         public async Task<IActionResult> CreateChannelAsync(CreateChannelRequest request)
         {
             var admin = await _mongoDbService.GetCustomerByIdAsync(request.AdminId);
-            var channel = await _mongoDbService.CreateChannelAsync(request.ChannelName, admin.Id);
+            var channel = await _mongoDbService.CreateChannelAsync(request.ChannelName, admin.Id, request.AppointmentId);
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
@@ -150,6 +150,22 @@ namespace Server.API.Controllers
             }));
 
             return Ok(ApiResult<Customers>.Succeed(customer));
+        }
+        
+        [HttpGet("check-exist-channel")]
+        public async Task<IActionResult> CheckExistChannelAsync(string channelName, int appointmentId)
+        {
+            var channel = await _mongoDbService.CheckExistChannelAppointmentAsync(appointmentId, channelName);
+            if (channel == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+            {
+                message = "Channel not found",
+            }));
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Channel exists",
+                data = channel
+            }));
         }
     }
 }

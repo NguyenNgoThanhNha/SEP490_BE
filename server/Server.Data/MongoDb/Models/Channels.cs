@@ -12,6 +12,9 @@ public class Channels
     [BsonElement("name")]
     [BsonRequired]
     public string Name { get; set; }
+    
+    [BsonElement("appointmentId")]
+    public int AppointmentId { get; set; }
 
     [BsonElement("members")]
     [BsonRepresentation(BsonType.ObjectId)]

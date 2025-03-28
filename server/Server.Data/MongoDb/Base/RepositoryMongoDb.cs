@@ -104,6 +104,11 @@ public class RepositoryMongoDb<T> : IRepositoryMongoDB<T> where T : class
         return await _collection.Find(filter).ToListAsync();
     }
     
+    public async Task<T> GetOneAsync(Expression<Func<T, bool>> filter)
+    {
+        return await _collection.Find(filter).FirstOrDefaultAsync();
+    }
+    
     public async Task<List<T>> GetManyByIdsAsync(List<string> ids)
     {
         var filter = Builders<T>.Filter.In("_id", ids.Select(id => ObjectId.Parse(id)));

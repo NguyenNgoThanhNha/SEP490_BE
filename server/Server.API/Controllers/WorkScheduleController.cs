@@ -167,7 +167,7 @@ namespace Server.API.Controllers
                     var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
 
                     // create channel
-                    var channel = await _mongoDbService.CreateChannelAsync("Channel", adminMongo!.Id);
+                    var channel = await _mongoDbService.CreateChannelAsync($"Channel {appointment.AppointmentId} ${appointment.Service.Name}", adminMongo!.Id, appointment.AppointmentId);
 
                     // add member to channel
                     await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
