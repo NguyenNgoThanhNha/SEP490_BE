@@ -18,7 +18,11 @@ public class BranchDTO
     
     public int ManagerId { get; set; }
     public virtual UserDTO ManagerBranch { get; set; }
-    
+
+    public int? District { get; set; }
+
+    public int? WardCode { get; set; }
+
     public int CompanyId { get; set; }
     /*public virtual Company Company { get; set; }*/
     

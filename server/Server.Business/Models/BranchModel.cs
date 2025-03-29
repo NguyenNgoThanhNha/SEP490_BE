@@ -15,7 +15,10 @@ public class BranchModel
     public string? LatAddress { get; set; }
     
     public string? Status { get; set; }
-    
+    public int? District { get; set; }
+
+    public int? WardCode { get; set; }
+
     public int ManagerId { get; set; }
     public virtual UserModel ManagerBranch { get; set; }
     
