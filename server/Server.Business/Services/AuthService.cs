@@ -178,6 +178,7 @@ public class AuthService
         userRegister.RefreshToken = handler.WriteToken(refreshToken);
 
         await _unitOfWorks.UserRepository.AddAsync(userRegister);
+        await _mongoDbService.CreateCustomerAsync(userRegister.UserId);
         int result = await _unitOfWorks.UserRepository.Commit();
 
         if (result > 0)
@@ -242,6 +243,7 @@ public class AuthService
         userRegister.RefreshToken = handler.WriteToken(refreshToken);
 
         await _unitOfWorks.UserRepository.AddAsync(userRegister);
+        await _mongoDbService.CreateCustomerAsync(userRegister.UserId);
         int result = await _unitOfWorks.UserRepository.Commit();
 
         if (result > 0)
@@ -571,6 +573,7 @@ public class AuthService
         };
         var userEntity = await _unitOfWorks.UserRepository.AddAsync(user);
         var result = await _unitOfWorks.UserRepository.Commit();
+        await _mongoDbService.CreateCustomerAsync(userEntity.UserId);
         return result > 0 ? _mapper.Map<UserInfoModel>(userEntity) : null;
     }
     

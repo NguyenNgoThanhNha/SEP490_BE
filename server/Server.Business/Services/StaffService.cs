@@ -24,13 +24,15 @@ namespace Server.Business.Services
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
         private readonly ServiceService _serviceService;
+        private readonly MongoDbService _mongoDbService;
 
-        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService, ServiceService serviceService)
+        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService, ServiceService serviceService, MongoDbService mongoDbService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _mailService = mailService;
             _serviceService = serviceService;
+            _mongoDbService = mongoDbService;
         }
 
         public async Task<Pagination<Staff>> GetListAsync(
@@ -110,8 +112,9 @@ namespace Server.Business.Services
                     TypeLogin = "Normal" // Thêm giá trị mặc định cho TypeLogin
                 };
 
-                await _unitOfWorks.UserRepository.AddAsync(newUser);
+                var userEntity = await _unitOfWorks.UserRepository.AddAsync(newUser);
                 await _unitOfWorks.UserRepository.Commit();
+                await _mongoDbService.CreateCustomerAsync(userEntity.UserId);
 
                 // Tạo Staff mới liên kết với User
                 var newStaff = new Staff
