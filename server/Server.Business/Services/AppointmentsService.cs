@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Runtime.InteropServices.JavaScript;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Utilities;
 using Server.Business.Commons;
@@ -181,7 +182,7 @@ public class AppointmentsService
                 var isStaffBusy = await _unitOfWorks.AppointmentsRepository
                     .FirstOrDefaultAsync(a => a.StaffId == staffId &&
                                               a.AppointmentsTime < endTime &&
-                                              a.AppointmentEndTime > appointmentTime) != null;
+                                              a.AppointmentEndTime > appointmentTime && a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
                 if (isStaffBusy)
                 {
                     throw new BadRequestException($"Staff is busy during this time!");
@@ -371,7 +372,8 @@ public class AppointmentsService
 
     public async Task<AppointmentsModel> CancelBookingAppointment(AppointmentsModel appointmentsModel)
     {
-        appointmentsModel.Status = "Canceled";
+        appointmentsModel.Status = OrderStatusEnum.Cancelled.ToString();
+        appointmentsModel.UpdatedDate = DateTime.Now;
         var appointmentsEntity =
             _unitOfWorks.AppointmentsRepository.Update(_mapper.Map<Appointments>(appointmentsModel));
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
