@@ -12,6 +12,7 @@ using Server.Business.Ultils;
 using Server.Data;
 using Server.Data.Entities;
 using Server.Data.Helpers;
+using Server.Data.MongoDb.Models;
 using Server.Data.UnitOfWorks;
 
 namespace Server.Business.Services;
@@ -22,13 +23,15 @@ public class AuthService
     private readonly JwtSettings _jwtSettings;
     private readonly IMapper _mapper;
     private readonly CloudianryService _cloudianryService;
+    private readonly MongoDbService _mongoDbService;
 
-    public AuthService(UnitOfWorks unitOfWorks, JwtSettings jwtSettings, IMapper mapper, CloudianryService cloudianryService)
+    public AuthService(UnitOfWorks unitOfWorks, JwtSettings jwtSettings, IMapper mapper, CloudianryService cloudianryService, MongoDbService mongoDbService)
     {
         _unitOfWorks = unitOfWorks;
         _jwtSettings = jwtSettings;
         _mapper = mapper;
         _cloudianryService = cloudianryService;
+        _mongoDbService = mongoDbService;
     }
 
     public async Task<UserModel> FirstStep(UserModel req)
@@ -398,6 +401,8 @@ public class AuthService
             existedUser.OTPCode = "0";
             _unitOfWorks.UserRepository.Update(existedUser);
             result = await _unitOfWorks.UserRepository.Commit();
+
+            await _mongoDbService.CreateCustomerAsync(existedUser.UserId);
         }
         else
         {

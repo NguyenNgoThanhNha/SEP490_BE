@@ -17,11 +17,15 @@ public class AppointmentsService
 {
     private readonly UnitOfWorks _unitOfWorks;
     private readonly IMapper _mapper;
+    private readonly StaffService _staffService;
+    private readonly MongoDbService _mongoDbService;
 
-    public AppointmentsService(UnitOfWorks unitOfWorks, IMapper mapper)
+    public AppointmentsService(UnitOfWorks unitOfWorks, IMapper mapper, StaffService staffService, MongoDbService mongoDbService)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
+        _staffService = staffService;
+        _mongoDbService = mongoDbService;
     }
 
     public async Task<GetAllAppointmentResponse> GetAllAppointments(int page = 1, int pageSize = 5)
@@ -204,6 +208,21 @@ public class AppointmentsService
                     await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(newAppointment));
                 await _unitOfWorks.AppointmentsRepository.Commit();
                 appointments.Add(_mapper.Map<AppointmentsModel>(appointmentEntity));
+                
+                // get specialist MySQL
+                var specialistMySQL = await _staffService.GetStaffById(staffId);
+
+                // get admin, specialist, customer from MongoDB
+                var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
+                var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+                var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+
+                // create channel
+                var channel = await _mongoDbService.CreateChannelAsync($"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id, appointmentEntity.AppointmentId);
+
+                // add member to channel
+                await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+                await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
             }
 
 

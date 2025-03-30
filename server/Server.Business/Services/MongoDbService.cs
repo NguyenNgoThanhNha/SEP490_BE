@@ -31,7 +31,7 @@ public class MongoDbService
         var existedCustomer = await _customerRepository.GetByIdAsync(userId);
         if (existedCustomer != null)
         {
-            throw new BadRequestException("Customer already existed.");
+            return existedCustomer;
         }
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == userId);
         var newCustomer = new Customers
