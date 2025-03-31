@@ -264,7 +264,8 @@ namespace Server.Business.Services
             await UpdateCartCache(int.Parse(customerId), cart);
             return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                data = true
+                message = "Xóa sản phẩm khỏi giỏ hàng thành công",
+                data = cart
             });
         }
 

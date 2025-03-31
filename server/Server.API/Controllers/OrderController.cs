@@ -357,7 +357,6 @@ namespace Server.API.Controllers
             return Ok(result);
         }
 
-
         [Authorize]
         [HttpPut("update-status")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusSimpleRequest request)

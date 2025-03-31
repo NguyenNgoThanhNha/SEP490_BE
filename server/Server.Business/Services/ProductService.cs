@@ -718,7 +718,7 @@ namespace Server.Business.Services
 
         public async Task<GetAllProductPaginationFilter> FilterProductsAsync(ProductFilterRequest req)
         {
-            if (req.BrandId <= 0)
+            if (req.BranchId <= 0)
             {
                 throw new ArgumentException("BrandId là bắt buộc để lọc sản phẩm.");
             }
@@ -732,7 +732,7 @@ namespace Server.Business.Services
                     .ThenInclude(bp => bp.Branch);
 
             var productIdsInBranch = await _unitOfWorks.Brand_ProductRepository
-                .FindByCondition(bp => bp.BranchId == req.BrandId)
+                .FindByCondition(bp => bp.BranchId == req.BranchId)
                 .Select(bp => bp.ProductId)
                 .Distinct()
                 .ToListAsync();
@@ -794,7 +794,7 @@ namespace Server.Business.Services
                 Brand = p.Brand,
                 Quantity = p.Quantity,
                 StockQuantity = p.Branch_Products?
-    .FirstOrDefault(bp => bp.BranchId == req.BrandId)?.StockQuantity ?? 0,
+    .FirstOrDefault(bp => bp.BranchId == req.BranchId)?.StockQuantity ?? 0,
                 Discount = p.Discount ?? 0,
                 CategoryId = p.CategoryId,
                 Dimension = p.Dimension,
