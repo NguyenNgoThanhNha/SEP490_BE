@@ -411,12 +411,12 @@ namespace Server.API.Controllers
         public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest req)
         {
             // Kiểm tra BrandId hợp lệ (nếu bạn chưa validate từ DTO)
-            if (req.BrandId <= 0)
+            if (req.BranchId <= 0)
             {
                 return BadRequest(new
                 {
                     success = false,
-                    message = "BrandId là bắt buộc để lọc sản phẩm."
+                    message = "BranchId là bắt buộc để lọc sản phẩm."
                 });
             }
 

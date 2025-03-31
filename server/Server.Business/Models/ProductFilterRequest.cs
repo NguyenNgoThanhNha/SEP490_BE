@@ -8,7 +8,7 @@ namespace Server.Business.Models
 {
     public class ProductFilterRequest
     {
-        public int BrandId { get; set; }         // Lọc theo brand
+        public int BranchId { get; set; }         // Lọc theo brand
         public string? Brand { get; set; }
         public int? CategoryId { get; set; }
         public decimal? MinPrice { get; set; }      // Giá thấp nhất
