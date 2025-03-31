@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Nest;
 using Server.API.Extensions;
 using Server.Business.Commons;
+using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
@@ -420,6 +421,20 @@ namespace Server.API.Controllers
                 return StatusCode(500, ApiResponse.Error(ex.Message));
             }
         }
+
+        [HttpPost("assign-update-to-branch")]
+        public async Task<IActionResult> AssignServicesToBranch([FromBody] AssignServiceToBranchRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                return Ok(new { success = false, result = new { message = string.Join(" | ", errors) } });
+            }
+
+            var result = await _serviceService.AssignOrUpdateBranchServices(request);
+            return Ok(result);
+        }
+
 
     }
 }
