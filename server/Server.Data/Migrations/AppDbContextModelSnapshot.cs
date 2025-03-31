@@ -1220,8 +1220,20 @@ namespace Server.Data.Migrations
                     b.Property<DateTime?>("EstimatedDeliveryDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("OrderDetailId")
+                    b.Property<int>("OrderId")
                         .HasColumnType("int");
+
+                    b.Property<string>("RecipientAddress")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RecipientName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RecipientPhone")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime?>("ShippedDate")
                         .HasColumnType("datetime(6)");
@@ -1246,7 +1258,7 @@ namespace Server.Data.Migrations
 
                     b.HasKey("ShipmentId");
 
-                    b.HasIndex("OrderDetailId");
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Shipment");
                 });
@@ -2418,19 +2430,19 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.Shipment", b =>
                 {
-                    b.HasOne("Server.Data.Entities.OrderDetail", "OrderDetail")
+                    b.HasOne("Server.Data.Entities.Order", "Order")
                         .WithMany()
-                        .HasForeignKey("OrderDetailId")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("OrderDetail");
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.SkinCareRoutineStep", b =>
                 {
                     b.HasOne("Server.Data.Entities.SkincareRoutine", "SkincareRoutine")
-                        .WithMany()
+                        .WithMany("SkinCareRoutineSteps")
                         .HasForeignKey("SkincareRoutineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2581,7 +2593,7 @@ namespace Server.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Server.Data.Entities.UserRoutine", "UserRoutine")
-                        .WithMany()
+                        .WithMany("UserRoutineSteps")
                         .HasForeignKey("UserRoutineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2712,6 +2724,8 @@ namespace Server.Data.Migrations
 
                     b.Navigation("ServiceRoutines");
 
+                    b.Navigation("SkinCareRoutineSteps");
+
                     b.Navigation("UserRoutines");
                 });
 
@@ -2733,6 +2747,11 @@ namespace Server.Data.Migrations
                     b.Navigation("UserRoutines");
 
                     b.Navigation("UserVoucher");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.UserRoutine", b =>
+                {
+                    b.Navigation("UserRoutineSteps");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Voucher", b =>

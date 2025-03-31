@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UdpatedDatabase : Migration
+    public partial class UpdatedDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -1087,6 +1087,37 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Shipment",
+                columns: table => new
+                {
+                    ShipmentId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    TrackingNumber = table.Column<string>(type: "longtext", nullable: false),
+                    ShippingCarrier = table.Column<string>(type: "longtext", nullable: false),
+                    ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ShippedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    EstimatedDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    ShippingStatus = table.Column<string>(type: "longtext", nullable: false),
+                    RecipientName = table.Column<string>(type: "longtext", nullable: false),
+                    RecipientAddress = table.Column<string>(type: "longtext", nullable: false),
+                    RecipientPhone = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Shipment", x => x.ShipmentId);
+                    table.ForeignKey(
+                        name: "FK_Shipment_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "OrderId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "SkinHealthImage",
                 columns: table => new
                 {
@@ -1345,34 +1376,6 @@ namespace Server.Data.Migrations
                         column: x => x.StaffId,
                         principalTable: "Staff",
                         principalColumn: "StaffId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Shipment",
-                columns: table => new
-                {
-                    ShipmentId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    OrderDetailId = table.Column<int>(type: "int", nullable: false),
-                    TrackingNumber = table.Column<string>(type: "longtext", nullable: false),
-                    ShippingCarrier = table.Column<string>(type: "longtext", nullable: false),
-                    ShippingCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ShippedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    EstimatedDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    ShippingStatus = table.Column<string>(type: "longtext", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Shipment", x => x.ShipmentId);
-                    table.ForeignKey(
-                        name: "FK_Shipment_OrderDetail_OrderDetailId",
-                        column: x => x.OrderDetailId,
-                        principalTable: "OrderDetail",
-                        principalColumn: "OrderDetailId",
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
@@ -1707,9 +1710,9 @@ namespace Server.Data.Migrations
                 column: "StepId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Shipment_OrderDetailId",
+                name: "IX_Shipment_OrderId",
                 table: "Shipment",
-                column: "OrderDetailId");
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SkinCareRoutineStep_SkincareRoutineId",
@@ -1845,6 +1848,9 @@ namespace Server.Data.Migrations
                 name: "Notifications");
 
             migrationBuilder.DropTable(
+                name: "OrderDetail");
+
+            migrationBuilder.DropTable(
                 name: "ProductCart");
 
             migrationBuilder.DropTable(
@@ -1908,9 +1914,6 @@ namespace Server.Data.Migrations
                 name: "Branch_Product");
 
             migrationBuilder.DropTable(
-                name: "OrderDetail");
-
-            migrationBuilder.DropTable(
                 name: "SkinHealth");
 
             migrationBuilder.DropTable(
@@ -1920,13 +1923,13 @@ namespace Server.Data.Migrations
                 name: "Shifts");
 
             migrationBuilder.DropTable(
+                name: "Order");
+
+            migrationBuilder.DropTable(
                 name: "Service");
 
             migrationBuilder.DropTable(
                 name: "Staff");
-
-            migrationBuilder.DropTable(
-                name: "Order");
 
             migrationBuilder.DropTable(
                 name: "Product");
@@ -1941,6 +1944,9 @@ namespace Server.Data.Migrations
                 name: "UserRoutine");
 
             migrationBuilder.DropTable(
+                name: "Voucher");
+
+            migrationBuilder.DropTable(
                 name: "ServiceCategory");
 
             migrationBuilder.DropTable(
@@ -1948,9 +1954,6 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "StaffRole");
-
-            migrationBuilder.DropTable(
-                name: "Voucher");
 
             migrationBuilder.DropTable(
                 name: "Category");
