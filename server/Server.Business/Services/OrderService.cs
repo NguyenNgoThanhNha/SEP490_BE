@@ -16,6 +16,7 @@ using Server.Business.Models;
 using Server.Business.Ultils;
 using Server.Data;
 using Server.Data.MongoDb.Models;
+using CloudinaryDotNet.Core;
 
 namespace Server.Business.Services
 {
@@ -28,7 +29,7 @@ namespace Server.Business.Services
         private readonly AuthService _authService;
         private readonly ProductService _productService;
 
-        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting, 
+        public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting,
             ServiceService serviceService, AuthService authService, ProductService productService)
         {
             this._unitOfWorks = unitOfWorks;
@@ -490,7 +491,8 @@ namespace Server.Business.Services
                         }
                     }
                 }
-            }else if (orderModel.OrderDetails.Any())
+            }
+            else if (orderModel.OrderDetails.Any())
             {
                 foreach (var orderDetail in orderModel.OrderDetails)
                 {
@@ -637,21 +639,30 @@ namespace Server.Business.Services
             return timeElapsed.TotalHours <= allowedHours;
         }
 
+
+
         public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
         {
+            if (request == null
+    || request.Products == null
+    || !request.Products.Any()
+    || request.TotalAmount <= 0
+    || string.IsNullOrWhiteSpace(request.PaymentMethod))
+            {
+                return ApiResult<object>.Error(null, "Vui lòng nhập đầy đủ thông tin đơn hàng.");
+            }
             using var transaction = await _unitOfWorks.BeginTransactionAsync();
-
             try
             {
-                // 1. Kiểm tra người dùng tồn tại và đang hoạt động
-                var userExists = await _unitOfWorks.UserRepository
+                // 1. Lấy user
+                var user = await _unitOfWorks.UserRepository
                     .FindByCondition(x => x.UserId == request.UserId && x.Status == "Active")
-                    .AnyAsync();
+                    .FirstOrDefaultAsync();
 
-                if (!userExists)
+                if (user == null)
                     return ApiResult<object>.Error(null, "User not found or inactive.");
 
-                // 2. Kiểm tra voucher (nếu có)
+                // 2. Kiểm tra voucher
                 int? voucherId = null;
                 if (request.VoucherId.HasValue)
                 {
@@ -667,19 +678,16 @@ namespace Server.Business.Services
                             data = null
                         });
                     }
-
                     voucherId = voucher.VoucherId;
                 }
 
-                // 3. Tạo mã đơn hàng (OrderCode) ngẫu nhiên
+                // 3. Tạo OrderCode ngẫu nhiên
                 int orderCode;
                 var random = new Random();
-
                 do
                 {
-                    orderCode = random.Next(1000, 10000); // Random số từ 1000 đến 9999
-                }
-                while (await _unitOfWorks.OrderRepository
+                    orderCode = random.Next(1000, 10000);
+                } while (await _unitOfWorks.OrderRepository
                     .FindByCondition(x => x.OrderCode == orderCode)
                     .AnyAsync());
 
@@ -697,25 +705,24 @@ namespace Server.Business.Services
                     CreatedDate = DateTime.UtcNow,
                     UpdatedDate = DateTime.UtcNow
                 };
-
                 await _unitOfWorks.OrderRepository.AddAsync(order);
                 await _unitOfWorks.OrderRepository.Commit();
 
-                // 5. Tạo OrderDetails và cập nhật tồn kho
+                // 5. Tạo OrderDetail và cập nhật tồn kho
                 foreach (var item in request.Products)
                 {
+                    if (item.Quantity <= 0)
+                        throw new BadRequestException($"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
                     var branchProduct = await _unitOfWorks.Brand_ProductRepository.GetByIdAsync(item.ProductBranchId);
                     if (branchProduct == null)
                         throw new BadRequestException($"BranchProduct ID {item.ProductBranchId} not found.");
 
                     if (branchProduct.StockQuantity < item.Quantity)
-                        throw new BadRequestException($"Product ID {branchProduct.ProductId} in branch không đủ số lượng tồn kho.");
+                        throw new BadRequestException($"Product ID {branchProduct.ProductId} in branch không đủ tồn kho.");
 
                     var product = await _unitOfWorks.ProductRepository.GetByIdAsync(branchProduct.ProductId);
                     if (product == null)
                         throw new BadRequestException($"Product ID {branchProduct.ProductId} not found.");
-
-                    var subTotal = product.Price * item.Quantity;
 
                     var orderDetail = new OrderDetail
                     {
@@ -723,7 +730,7 @@ namespace Server.Business.Services
                         ProductId = product.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = product.Price,
-                        SubTotal = subTotal,
+                        SubTotal = product.Price * item.Quantity,
                         Status = OrderStatusEnum.Pending.ToString(),
                         StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
                         PaymentMethod = request.PaymentMethod,
@@ -733,17 +740,40 @@ namespace Server.Business.Services
 
                     await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
 
-                    // Trừ tồn kho
+                    // Cập nhật tồn kho
                     branchProduct.StockQuantity -= item.Quantity;
                     branchProduct.UpdatedDate = DateTime.Now;
                     _unitOfWorks.Brand_ProductRepository.Update(branchProduct);
                 }
 
+                // 6. Chuẩn hóa thông tin giao hàng
+                var recipientName = string.IsNullOrWhiteSpace(request.RecipientName) ? user.FullName : request.RecipientName;
+                var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress) ? user.Address : request.RecipientAddress;
+                var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone) ? user.PhoneNumber : request.RecipientPhone;
+
+                // 7. Tạo Shipment
+                var shipment = new Shipment
+                {
+                    OrderId = order.OrderId,
+                    EstimatedDeliveryDate = request.EstimatedDeliveryDate,
+                    ShippingCost = request.ShippingCost,
+                    RecipientName = recipientName,
+                    RecipientAddress = recipientAddress,
+                    RecipientPhone = recipientPhone,
+                    ShippingStatus = ShippingStatusEnum.Pending.ToString(),
+                    ShippingCarrier = "Unknown",
+                    TrackingNumber = "Unknown",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                };
+                await _unitOfWorks.ShipmentRepository.AddAsync(shipment);
+
+                // 8. Commit transaction
                 await _unitOfWorks.OrderDetailRepository.Commit();
+                await _unitOfWorks.ShipmentRepository.Commit();
                 await _unitOfWorks.Brand_ProductRepository.Commit();
                 await transaction.CommitAsync();
 
-                // 6. Trả kết quả thành công
                 return ApiResult<object>.Succeed(new
                 {
                     OrderId = order.OrderId,
@@ -757,6 +787,8 @@ namespace Server.Business.Services
                 return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
             }
         }
+
+
 
 
         public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string status, string token)

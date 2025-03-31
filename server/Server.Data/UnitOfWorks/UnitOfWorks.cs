@@ -50,6 +50,7 @@ namespace Server.Data.UnitOfWorks
         private ServiceRoutineStepRepository _serviceRoutineStepRepository;
         private SkinCareRoutineStepRepository _skinCareRoutineStepRepository;
         private UserRoutineStepRepository _userRoutineStepRepository;
+        private ShipmentRepository _shipmentRepository;
 
         public UnitOfWorks(AppDbContext dbContext)
         {
@@ -255,6 +256,11 @@ namespace Server.Data.UnitOfWorks
         public UserRoutineStepRepository UserRoutineStepRepository
         {
             get { return _userRoutineStepRepository ??= new UserRoutineStepRepository(_dbContext); }
+        }
+
+        public ShipmentRepository ShipmentRepository
+        {
+            get { return _shipmentRepository ??= new ShipmentRepository(_dbContext); }
         }
 
 
