@@ -7,8 +7,8 @@
         public string FullName { get; set; }
         public string Email { get; set; }
         //public int UserId { get; set; }
-
-
+        
+        public int RoleId { get; set; }
         public int BranchId { get; set; }
 
         public DateTime CreatedDate { get; set; }

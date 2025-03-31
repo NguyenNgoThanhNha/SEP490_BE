@@ -99,6 +99,14 @@ namespace Server.Business.Services
                 if (!branchExists)
                     return ApiResponse.Error("Branch not found.");
 
+                var userExist = await _unitOfWorks.UserRepository
+                    .FirstOrDefaultAsync(x => x.Email.ToLower() == staffDto.Email.ToLower());
+
+                if (userExist != null)
+                {
+                    throw new BadRequestException("Email already exists.");
+                }
+
                 // Tạo User mới
                 var newUser = new User
                 {
@@ -121,6 +129,7 @@ namespace Server.Business.Services
                 {
                     UserId = newUser.UserId,
                     BranchId = staffDto.BranchId,
+                    RoleId = staffDto.RoleId,
                     CreatedDate = DateTime.UtcNow,
                     UpdatedDate = DateTime.UtcNow
                 };
@@ -160,12 +169,16 @@ namespace Server.Business.Services
 
                 // Lấy dữ liệu Staff đã tạo
                 var createdStaff = await _unitOfWorks.StaffRepository
-                    .GetAll()
+                    .FindByCondition(s => s.StaffId == newStaff.StaffId)
                     .Include(s => s.Branch)
                     .Include(s => s.StaffInfo)
-                    .FirstOrDefaultAsync(s => s.StaffId == newStaff.StaffId);
+                    .FirstOrDefaultAsync();
 
-                return ApiResponse.Succeed(createdStaff, "Staff created successfully.");
+                return ApiResponse.Succeed(new ApiResponse()
+                {
+                    message = "Staff created successfully.",
+                    data = createdStaff
+                });
             }
             catch (DbUpdateException dbEx)
             {

@@ -207,7 +207,13 @@ public async Task<bool> SeedingDataChatbot()
                     parts.ValueKind == JsonValueKind.Array &&
                     parts.GetArrayLength() > 0)
                 {
-                    return parts[0].GetProperty("text").GetString() ?? "No output from the AI model.";
+                    string responseText = parts[0].GetProperty("text").GetString() ?? "";
+                    responseText = responseText.Replace("Theo đoạn văn bạn cung cấp,", "").Trim();
+                    responseText = responseText.Replace("Dựa trên đoạn văn bạn cung cấp,", "").Trim();
+                    responseText = responseText.Replace("Dựa trên đoạn văn mô tả,", "").Trim();
+                    responseText = responseText.Replace("Dựa trên thông tin được cung cấp,", "").Trim();
+                    responseText = responseText.Replace("Dựa trên thông tin bạn cung cấp,", "").Trim();
+                    return responseText;
                 }
 
                 return "Invalid response structure from the AI model.";

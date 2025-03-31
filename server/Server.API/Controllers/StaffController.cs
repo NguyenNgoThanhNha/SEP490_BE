@@ -96,31 +96,19 @@ namespace Server.API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ApiResult<ApiResponse>> CreateStaff([FromBody] CUStaffDto staffDto)
+        public async Task<IActionResult> CreateStaff([FromBody] CUStaffDto staffDto)
         {
             if (staffDto == null)
             {
-                return ApiResult<ApiResponse>.Error(new ApiResponse
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
                     message = "Invalid staff data."
-                });
+                }));
             }
 
             var response = await _staffService.CreateStaffAsync(staffDto);
 
-            if (response.message == null)
-            {
-                return ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    message = "Staff created successfully.",
-                    data = response.data
-                });
-            }
-
-            return ApiResult<ApiResponse>.Error(new ApiResponse
-            {
-                message = response.message
-            });
+            return Ok(ApiResult<ApiResponse>.Succeed(response));
         }
 
         [HttpGet("{staffId}")]
