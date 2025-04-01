@@ -1262,39 +1262,6 @@ namespace Server.Data.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Schedule",
-                columns: table => new
-                {
-                    ScheduleId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    StaffId = table.Column<int>(type: "int", nullable: false),
-                    BranchId = table.Column<int>(type: "int", nullable: false),
-                    ShiftName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    StartTime = table.Column<TimeSpan>(type: "time(6)", nullable: false),
-                    EndTime = table.Column<TimeSpan>(type: "time(6)", nullable: false),
-                    WorkDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Schedule", x => x.ScheduleId);
-                    table.ForeignKey(
-                        name: "FK_Schedule_Branch_BranchId",
-                        column: x => x.BranchId,
-                        principalTable: "Branch",
-                        principalColumn: "BranchId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Schedule_Staff_StaffId",
-                        column: x => x.StaffId,
-                        principalTable: "Staff",
-                        principalColumn: "StaffId",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
                 name: "Staff_ServiceCategory",
                 columns: table => new
                 {
@@ -1659,16 +1626,6 @@ namespace Server.Data.Migrations
                 column: "StepId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Schedule_BranchId",
-                table: "Schedule",
-                column: "BranchId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Schedule_StaffId",
-                table: "Schedule",
-                column: "StaffId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Service_ServiceCategoryId",
                 table: "Service",
                 column: "ServiceCategoryId");
@@ -1864,9 +1821,6 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductRoutineStep");
-
-            migrationBuilder.DropTable(
-                name: "Schedule");
 
             migrationBuilder.DropTable(
                 name: "ServiceFeedback");

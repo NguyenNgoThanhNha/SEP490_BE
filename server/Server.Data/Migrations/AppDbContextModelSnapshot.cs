@@ -935,47 +935,6 @@ namespace Server.Data.Migrations
                     b.ToTable("Promotion");
                 });
 
-            modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
-                {
-                    b.Property<int>("ScheduleId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time(6)");
-
-                    b.Property<string>("ShiftName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<int>("StaffId")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time(6)");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("WorkDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.HasKey("ScheduleId");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("StaffId");
-
-                    b.ToTable("Schedule");
-                });
-
             modelBuilder.Entity("Server.Data.Entities.Service", b =>
                 {
                     b.Property<int>("ServiceId")
@@ -2328,25 +2287,6 @@ namespace Server.Data.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Step");
-                });
-
-            modelBuilder.Entity("Server.Data.Entities.Schedule", b =>
-                {
-                    b.HasOne("Server.Data.Entities.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Server.Data.Entities.Staff", "Staff")
-                        .WithMany()
-                        .HasForeignKey("StaffId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Service", b =>

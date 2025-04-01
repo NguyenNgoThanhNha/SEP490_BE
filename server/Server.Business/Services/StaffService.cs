@@ -737,7 +737,7 @@ namespace Server.Business.Services
             var startDate = new DateTime(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            var schedules = await _unitOfWorks.ScheduleRepository
+            var schedules = await _unitOfWorks.WorkScheduleRepository
                 .FindByCondition(s => s.StaffId == staffId &&
                                       s.WorkDate.Year == year &&
                                       s.WorkDate.Month == month)
@@ -750,11 +750,11 @@ namespace Server.Business.Services
                 //FullName = staff.StaffInfo?.FullName,
                 SlotWorkings = schedules.Select(s => new SlotWorkingDto
                 {
-                    ScheduleId = s.ScheduleId,
-                    BranchId = s.BranchId,
-                    ShiftName = s.ShiftName,
-                    StartTime = s.StartTime,
-                    EndTime = s.EndTime,
+                    ScheduleId = s.Id,
+                    BranchId = s.Staff.BranchId,
+                    ShiftName = s.Shift.ShiftName,
+                    StartTime = s.Shift.StartTime,
+                    EndTime = s.Shift.EndTime,
                     WorkDate = s.WorkDate,
                     CreatedDate = s.CreatedDate,
                     UpdatedDate = s.UpdatedDate

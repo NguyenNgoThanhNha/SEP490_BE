@@ -32,7 +32,6 @@ namespace Server.Data.Entities
         public DbSet<Branch_Service> Branch_Services { get; set; }
         public DbSet<Branch_Product> Branch_Products { get; set; }
         public DbSet<Branch_Promotion> Branch_Promotions { get; set; }
-        public DbSet<Schedule> Schedules { get; set; }
         public DbSet<ProductImages> ProductImages { get; set; }
         public DbSet<ServiceImages> ServiceImages { get; set; }
         public DbSet<SkinHealth> SkinHealths { get; set; }
