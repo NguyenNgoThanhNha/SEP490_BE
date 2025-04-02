@@ -44,7 +44,11 @@ namespace Server.API.Controllers
                 message = "Channel not found",
             }));
 
-            return Ok(ApiResult<Channels>.Succeed(channel));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get channel successfully",
+                data = channel
+            }));
         }
 
         // Lấy danh sách tất cả các kênh của một user
@@ -52,7 +56,11 @@ namespace Server.API.Controllers
         public async Task<IActionResult> GetAllUserChannelsAsync(string customerId)
         {
             var channels = await _mongoDbService.GetAllUserChannelsAsync(customerId);
-            return Ok(ApiResult<List<Channels>>.Succeed(channels));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get all channels successfully",
+                data = channels
+            }));
         }
         
         // Thêm thành viên vào channel
@@ -82,7 +90,11 @@ namespace Server.API.Controllers
         public async Task<IActionResult> GetChannelMessagesAsync(string channelId)
         {
             var messages = await _mongoDbService.GetChannelMessagesAsync(channelId);
-            return Ok(ApiResult<List<Messages>>.Succeed(messages));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get channel messages successfully",
+                data = messages,
+            }));
         }
 
         // Tìm kiếm khách hàng
@@ -90,7 +102,11 @@ namespace Server.API.Controllers
         public async Task<IActionResult> SearchContactsAsync([FromQuery] string searchTerm, [FromQuery] string currentCustomerId)
         {
             var contacts = await _mongoDbService.SearchContactsAsync(searchTerm, currentCustomerId);
-            return Ok(ApiResult<List<Customers>>.Succeed(contacts));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Search contacts successfully",
+                data = contacts,
+            }));
         }
 
         // Lấy tin nhắn giữa hai người dùng
@@ -98,7 +114,11 @@ namespace Server.API.Controllers
         public async Task<IActionResult> GetMessagesAsync(string user1, string user2)
         {
             var messages = await _mongoDbService.GetMessagesAsync(user1, user2);
-            return Ok(ApiResult<List<Messages>>.Succeed(messages));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Get messages successfully",
+                data = messages,
+            }));
         }
 
         // Tạo mới khách hàng từ MySQL lên MongoDB
@@ -106,7 +126,10 @@ namespace Server.API.Controllers
         public async Task<IActionResult> CreateCustomerAsync(int userId)
         {
             var customer = await _mongoDbService.CreateCustomerAsync(userId);
-            return Ok(ApiResult<Customers>.Succeed(customer));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                data = customer
+            }));
         }
 
         // Đồng bộ tất cả khách hàng từ MySQL lên MongoDB
@@ -149,7 +172,10 @@ namespace Server.API.Controllers
                 message = "Customer not found",
             }));
 
-            return Ok(ApiResult<Customers>.Succeed(customer));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                data = customer
+            }));
         }
         
         [HttpGet("check-exist-channel")]

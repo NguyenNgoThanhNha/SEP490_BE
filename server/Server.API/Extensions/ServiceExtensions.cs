@@ -119,7 +119,6 @@ namespace Server.API.Extensions
             services.AddScoped<CustomerRepository>();
             services.AddScoped<MessageRepository>();
             services.AddScoped<ChannelsRepository>();
-            services.AddScoped<ScheduleRepository>();
 
             /*Config SignalR*/
             services.AddSignalR();

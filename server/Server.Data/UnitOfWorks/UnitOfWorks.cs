@@ -42,7 +42,6 @@ namespace Server.Data.UnitOfWorks
         private FeedbackAppointmentRepository _feedbackAppointmentRepository;
         private FeedbackServiceRepository _feedbackServiceRepository;
         private Staff_ServiceCategoryRepository _staffServiceCategoryRepository;
-        private ScheduleRepository _scheduleRepository;
         private CartRepository _cartRepository;
         private ProductCartRepository _productCartRepository;
         private UserVoucherRepository _userVoucherRepository;
@@ -56,11 +55,7 @@ namespace Server.Data.UnitOfWorks
         {
             _dbContext = dbContext;
         }
-
-        public ScheduleRepository ScheduleRepository
-        {
-            get { return _scheduleRepository ??= new ScheduleRepository(_dbContext); }
-        }
+        
 
         public UserRepository UserRepository
         {
