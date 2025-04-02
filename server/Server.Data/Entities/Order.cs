@@ -36,4 +36,6 @@ public class Order
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     public virtual ICollection<Appointments> Appointments { get; set; }
+    public virtual Shipment Shipment { get; set; }
+    //public virtual Promotion Promotion { get; set; }
 }

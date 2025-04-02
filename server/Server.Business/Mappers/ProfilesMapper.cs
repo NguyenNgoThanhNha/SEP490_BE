@@ -67,7 +67,8 @@ namespace Server.Business.Mappers
             CreateMap<Branch_Service, Branch_ServiceModel>().ReverseMap();
             
             CreateMap<Order, OrderModel>().ReverseMap();
-            
+            CreateMap<Shipment, ShipmentModel>();
+
             CreateMap<SkincareRoutine, SkincareRoutineModel>().ReverseMap();
             
             CreateMap<ServiceRoutine, ServiceRoutineModel>().ReverseMap();
