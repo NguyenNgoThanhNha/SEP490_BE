@@ -75,7 +75,7 @@ namespace Server.API.Controllers
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "L?y ch??ng trình khuy?n mãi c?a chi nhánh thành công!",,
+                message = "L?y ch??ng trình khuy?n mãi c?a chi nhánh thành công!",
                 data = _mapper.Map<BranchPromotionDTO>(branchPromotionModel)
             }));
         }
