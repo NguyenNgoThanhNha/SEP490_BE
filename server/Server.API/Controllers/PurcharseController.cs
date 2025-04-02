@@ -112,7 +112,7 @@ namespace Server.API.Controllers
                                                   .ToList();
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "Xác thực không thành công."
+                        message = "Xác thực không thành công.",
                         data = errors
                     }));
                 }
