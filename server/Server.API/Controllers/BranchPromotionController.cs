@@ -32,12 +32,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there is no promotion!"
+                    message = "Hi?n t?i không có khuy?n mãi nào!"
                 }));
             }
             return Ok(ApiResult<GetAllBranchPromotionResponse>.Succeed(new GetAllBranchPromotionResponse()
             {
-                message = "Get all promotions of branch successfully!",
+                message = "L?y t?t c? ch??ng trình khuy?n mãi thành công!",
                 data = listPromotion.data,
                 pagination = listPromotion.pagination
             }));
@@ -51,12 +51,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there is no promotion!"
+                    message = "Hi?n t?i không có khuy?n mãi nào!"
                 }));
             }
             return Ok(ApiResult<GetAllBranchPromotionResponse>.Succeed(new GetAllBranchPromotionResponse()
             {
-                message = "Get all promotions of branch successfully!",
+                message = "L?y t?t c? ch??ng trình khuy?n mãi c?a chi nhánh thành công!",
                 data = listPromotion.data,
                 pagination = listPromotion.pagination
             }));
@@ -70,12 +70,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Promotion not found!"
+                    message = "Không tìm th?y khuy?n mãi!"
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get promotion of branch successfully!",
+                message = "L?y ch??ng trình khuy?n mãi c?a chi nhánh thành công!",,
                 data = _mapper.Map<BranchPromotionDTO>(branchPromotionModel)
             }));
         }
@@ -99,13 +99,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in create promotion for branch!"
+                    message = "L?i khi t?o khuy?n mãi cho chi nhánh!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create promotion for branch successfully!",
+                message = "T?o khuy?n mãi cho chi nhánh thành công!",
                 data = _mapper.Map<BranchPromotionModel>(branchPromotionModel)
             }));
         }
@@ -138,13 +138,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in update promotion for branch!"
+                    message = "Không tìm th?y khuy?n mãi c?a chi nhánh!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Update promotion for branch successfully!",
+                message = "C?p nh?t khuy?n mãi cho chi nhánh thành công!",
                 data = _mapper.Map<BranchPromotionModel>(branchPromotionModel)
             }));
         }
@@ -168,7 +168,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Promotion not found!"
+                    message = "Không tìm th?y khuy?n mãi!"
                 }));
             }
 
@@ -177,13 +177,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in delete promotion!"
+                    message = "L?i khi xóa khuy?n mãi!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Delete promotion successfully!",
+                message = "Xóa khuy?n mãi thành công!",
                 data = _mapper.Map<BranchPromotionModel>(branchPromotionModel)
             }));
         }

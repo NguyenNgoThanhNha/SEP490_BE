@@ -20,7 +20,7 @@ namespace Server.API.Controllers
             try
             {
                 if (file == null || file.Length == 0)
-                    return BadRequest("Not file");
+                    return BadRequest("Không có tập tin");
 
                 var uploadResult = await _cloudinaryService.UploadImageAsync(file);
 
@@ -30,14 +30,14 @@ namespace Server.API.Controllers
                     {
                         Url = uploadResult.Uri.ToString(),
                         PublicId = uploadResult.PublicId
-                    }, "Upload image successfully."));
+                    }, "Tải ảnh lên thành công."));
                 }
 
-                return BadRequest(ApiResponse.Error("Upload fail"));
+                return BadRequest(ApiResponse.Error("Tải lên không thành công"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse.Error("Internal server error"));
+                return StatusCode(500, ApiResponse.Error("Lỗi máy chủ nội bộ"));
             }
         }
     }

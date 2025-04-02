@@ -42,12 +42,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there are no blogs!"
+                    message = "Hiện tại không có blog nào!"
                 }));
             }
             return Ok(ApiResult<GetAllBlogResponse>.Succeed(new GetAllBlogResponse()
             {
-                message = "Get blogs successfully!",
+                message = "Lấy danh sách blog thành công!",
                 data = listBlog.data,
                 pagination = listBlog.pagination
             }));
@@ -65,12 +65,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Blog not found!"
+                    message = "Không tìm thấy blog!"
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get blogs successfully!",
+                message = "Lấy blogs thành công!",
                 data = _mapper.Map<BlogDTO>(blogsModel)
             }));
         }
@@ -82,7 +82,7 @@ namespace Server.API.Controllers
             try
             {
                 if (file == null || file.Length == 0)
-                    return BadRequest("No file provided");
+                    return BadRequest("Không có tệp nào được cung cấp");
 
                 var uploadResult = await _cloudianryService.UploadImageAsync(file);
 
@@ -92,14 +92,14 @@ namespace Server.API.Controllers
                     {
                         Url = uploadResult.Uri.ToString(),
                         PublicId = uploadResult.PublicId
-                    }, "Upload thumbnail successfully."));
+                    }, "Tải hình lên thành công."));
                 }
 
-                return BadRequest(ApiResponse.Error("Upload failed"));
+                return BadRequest(ApiResponse.Error("Tải lên không thành công"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse.Error("Internal server error"));
+                return StatusCode(500, ApiResponse.Error("Lỗi máy chủ nội bộ"));
             }
         }
 
@@ -167,14 +167,14 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in creating blog!"
+                    message = "Lỗi khi tạo blog!"
                 }));
             }
 
             // 3. Trả về kết quả thành công
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Blog created successfully!",
+                message = "Blog đã được tạo thành công!",
                 data = _mapper.Map<BlogDTO>(blogsModel)
             }));
         }
@@ -202,7 +202,7 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Blog not found!"
+                    message = "Không tìm thấy blog!"
                 }));
             }
 
@@ -212,14 +212,14 @@ namespace Server.API.Controllers
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error occurred while updating the blog!"
+                    message = "Đã xảy ra lỗi khi cập nhật blog!"
                 }));
             }
 
             // 4. Trả về kết quả thành công
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Blog updated successfully!",
+                message = "Blog đã được cập nhật thành công!",
                 data = _mapper.Map<BlogDTO>(updatedBlog)
             }));
         }
@@ -247,7 +247,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Blog not found!"
+                    message = "Không tìm thấy blog!"
                 }));
             }
 
@@ -256,13 +256,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in delete blogs!"
+                    message = "Có lỗi khi xóa blog!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Delete blogs successfully!",
+                message = "Xóa blog thành công!",
                 data = _mapper.Map<BlogDTO>(blogsModel)
             }));
         }

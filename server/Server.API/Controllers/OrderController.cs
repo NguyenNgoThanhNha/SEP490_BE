@@ -41,7 +41,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Order not found!"
+                    message = "Không tìm thấy đơn hàng!"
                 }));
             }
 
@@ -56,12 +56,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in create payment link"
+                    message = "Lỗi khi tạo liên kết thanh toán"
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create payment link successfully",
+                message = "Tạo liên kết thanh toán thành công",
                 data = checkoutUrl
             }));
         }
@@ -74,12 +74,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in create payment link"
+                    message = "Lỗi khi tạo liên kết thanh toán"
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create payment link successfully",
+                message = "Tạo liên kết thanh toán thành công",
                 data = checkoutUrl
             }));
         }
@@ -92,12 +92,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in create payment link"
+                    message = "Lỗi khi tạo liên kết thanh toán"
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create payment link successfully",
+                message = "Tạo liên kết thanh toán thành công",
                 data = checkoutUrl
             }));
         }
@@ -124,7 +124,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
             var orders = await _orderService.BookingHistory(currentUser.UserId, status, orderType, page, pageSize);
@@ -132,7 +132,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "History booking not found!"
+                    message = "Không tìm thấy lịch sử lịch hẹn!"
                 }));
             }
 
@@ -166,7 +166,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
             var order = await _orderService.GetDetailOrder(orderId, currentUser.UserId);
@@ -174,7 +174,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Detail booking not found!"
+                    message = "Không tìm thấy thông tin lịch hẹn chi tiết!"
                 }));
             }
 
@@ -207,7 +207,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
             var order = await _orderService.CreateMoreOrderAppointment(orderId, req);
@@ -215,13 +215,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Create order appointment more failed!"
+                    message = "Tạo thêm lịch hẹn không thành công!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create order appointment more successfully"
+                message = "Tạo thêm lịch hẹn thành công!"
             }));
         }
 
@@ -247,7 +247,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
             var order = await _orderService.CreateMoreOrderProduct(orderId, req);
@@ -255,13 +255,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Create order product more failed!"
+                    message = "Tạo thêm đơn hàng sản phẩm không thành công!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create order product more successfully"
+                message = "Tạo thêm đơn hàng sản phẩm thành công!"
             }));
         }
 
@@ -274,13 +274,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Update order status failed!"
+                    message = "Cập nhật trạng thái đơn hàng không thành công!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Update order status successfully"
+                message = "Cập nhật trạng thái đơn hàng thành công"
             }));
         }
 
@@ -293,13 +293,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Cancel order failed!"
+                    message = "Hủy đơn hàng không thành công!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Cancel order successfully"
+                message = "Hủy đơn hàng thành công!"
             }));
         }
 
@@ -325,7 +325,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Staff info not found!"
+                    message = "Không tìm thấy thông tin nhân viên!"
                 }));
             }
             var orders = await _orderService.GetListAppointmentsByStaff(status, currentUser.UserId, page, pageSize);
@@ -333,7 +333,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Order not found!"
+                    message = "Không tìm thấy đơn hàng!"
                 }));
             }
 
@@ -348,7 +348,7 @@ namespace Server.API.Controllers
             {
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Invalid request format",
+                    message = "Định dạng yêu cầu không hợp lệ",
                     data = null
                 }));
             }
@@ -394,7 +394,7 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<object>.Error(new ApiResponse
                 {
-                    message = "Unknown error occurred."
+                    message = "Đã xảy ra lỗi không xác định."
                 }));
             }
 

@@ -39,13 +39,13 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "No staff data found."
+                    message = "Không tìm thấy dữ liệu nhân viên."
                 });
             }
 
             return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Staff list retrieved successfully.",
+                message = "Lấy danh sách nhân viên thành công.",
                 data = response
             });
         }
@@ -61,7 +61,7 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Role assigned successfully.",
+                    message = "Phân quyền thành công.",
                     data = response.data
                 });
             }
@@ -84,7 +84,7 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Branch assigned successfully.",
+                    message = "Chỉ định nhân viên vào chi nhánh thành công.",
                     data = response.data
                 });
             }
@@ -121,7 +121,7 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Staff retrieved successfully.",
+                    message = "Lấy danh sách nhân viên thành công",
                     data = response
                 });
             }
@@ -129,7 +129,7 @@ namespace Server.API.Controllers
             // Trường hợp thất bại, trả về lỗi
             return ApiResult<ApiResponse>.Error(new ApiResponse
             {
-                message = $"Staff with ID {staffId} not found.",
+                message = $"Nhân viên với ID {staffId} không tìm thấy.",
                 data = null
             });
         }
@@ -141,7 +141,7 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Invalid staff data."
+                    message = "Dữ liệu nhân viên không hợp lệ."
                 });
             }
 
@@ -152,7 +152,7 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Failed to update staff.",
+                    message = "Không cập nhật được nhân viên.",
                     data = null
                 });
             }
@@ -197,7 +197,7 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Customer not found."
+                    message = "Không tìm thấy khách hàng."
                 });
             }
 
@@ -207,13 +207,13 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "No staff data found."
+                    message = "Không tìm thấy dữ liệu nhân viên."
                 });
             }
 
             return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Staff list retrieved successfully.",
+                message = "Danh sách nhân viên đã được lấy thành công.",
                 data = staffs
             });
         }
@@ -225,7 +225,7 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Customer not found."
+                    message = "Không tìm thấy khách hàng."
                 });
             }
 
@@ -235,13 +235,13 @@ namespace Server.API.Controllers
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "No staff data found."
+                    message = "Không tìm thấy dữ liệu nhân viên."
                 });
             }
 
             return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Staff retrieved successfully.",
+                message = "Nhân viên đã lấy thành công.",
                 data = staff
             });
         }
@@ -257,14 +257,14 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "No staff found for this branch..",
+                        message = "Không tìm thấy nhân viên nào cho chi nhánh này..",
                         data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
                     }));
                 }
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    message = "Get staff list successfully.",
+                    message = "Lấy danh sách nhân viên thành công.",
                     data = staffList
                 }));
             }
@@ -291,14 +291,14 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "No staff found for the given branch and service.",
+                        message = "Không tìm thấy nhân viên nào cho chi nhánh và dịch vụ đã cho.",
                         data = new List<object>() // Trả về danh sách rỗng để đảm bảo format
                     }));
                 }
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    message = "Staff list fetched successfully.",
+                    message = "Danh sách nhân viên đã được tải thành công.",
                     data = staffList
                 }));
             }
@@ -324,14 +324,14 @@ namespace Server.API.Controllers
                 {
                     return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                     {
-                        message = "No busy times found for the staff on the specified date.",
+                        message = "Không tìm thấy thời gian bận nào của nhân viên vào ngày đã chỉ định.",
                         data = new List<BusyTimeDto>()
                     }));
                 }
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    message = "Successfully retrieved the staff's busy times!",
+                    message = "Lấy thành công thời gian bận của nhân viên!",
                     data = busyTimes
                 }));
             }
@@ -354,13 +354,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to create staff leave."
+                    message = "Không tạo được ngày nghỉ cho nhân viên."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Staff leave created successfully.",
+                message = "Đã tạo thành công ngày nghỉ của nhân viên.",
                 data = result
             }));
         }
@@ -374,13 +374,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to approve staff leave."
+                    message = "Từ chối ngày nghỉ phép của nhân viên."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Staff leave approved successfully.",
+                message = "Chấp thuận ngày nghỉ phép của nhân viên.",
                 data = note
             }));
         }
@@ -394,13 +394,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to reject staff leave."
+                    message = "Từ chối ngày nghỉ của nhân viên thất bại."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Staff leave rejected successfully.",
+                message = "Đã từ chối ngày nghỉ của nhân viên.",
                 data = note
             }));
         }
@@ -434,7 +434,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "User info not found!"
+                    message = "Không tìm thấy thông tin người dùng!"
                 }));
             }
 
@@ -443,7 +443,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "You are not authorized to access staff schedule. Only staff role is allowed."
+                    message = "Bạn không được phép truy cập vào lịch trình của nhân viên. Chỉ có vai trò nhân viên mới được phép."
                 }));
             }
 
@@ -453,7 +453,7 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Staff info not found!"
+                    message = "Không tìm thấy thông tin nhân viên!"
                 }));
             }
 
@@ -463,13 +463,13 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Schedule not found."
+                    message = "Không tìm thấy lịch trình."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Schedule retrieved successfully.",
+                message = "Đã lấy lịch trình thành công.",
                 data = schedule
             }));
         }
@@ -505,7 +505,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "User info not found!"
+                    message = "Không tìm thấy thông tin người dùng!"
                 }));
             }
 
@@ -517,7 +517,7 @@ namespace Server.API.Controllers
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "StaffId is required for Admin/Manager."
+                        message = "StaffId là bắt buộc đối với Admin/Manager."
                     }));
                 }
 
@@ -528,7 +528,7 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Specified staff not found."
+                        message = "Không tìm thấy chuyên viên được chỉ định."
                     }));
                 }
             }
@@ -536,7 +536,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "You are not authorized to access this schedule. Only Admin or Manager roles are allowed."
+                    message = "Bạn không được phép truy cập vào lịch trình này. Chỉ những người có vai trò Admin hoặc Manager mới được phép."
                 }));
             }
 
@@ -546,13 +546,13 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Schedule not found."
+                    message = "Không tìm thấy lịch trình."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Schedule retrieved successfully.",
+                message = "Đã lấy lịch trình thành công.",
                 data = schedule
             }));
         }
@@ -568,13 +568,13 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Cashier schedule not found or the staff is not a cashier."
+                    message = "Không tìm thấy lịch làm việc của thu ngân hoặc nhân viên không phải là thu ngân."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Cashier schedule retrieved successfully.",
+                message = "Lấy lịch trình của thu ngân thành công.",
                 data = schedule
             }));
         }
@@ -599,7 +599,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "User info not found!"
+                    message = "Không tìm thấy thông tin người dùng!"
                 }));
             }
 
@@ -608,7 +608,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Access denied. Only staff can view their schedule."
+                    message = "Không thể truy cập. Chỉ nhân viên mới có thể xem lịch trình của họ."
                 }));
             }
 
@@ -618,7 +618,7 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Staff info not found!"
+                    message = "Không tìm thấy thông tin nhân viên!"
                 }));
             }
 
@@ -629,13 +629,13 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "No slot working found for this staff in the selected month."
+                    message = "Không tìm thấy lịch làm việc nào của nhân viên này trong tháng đã chọn."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Successfully retrieved staff slot working for the month!",
+                message = "Lấy thành công lịch trình nhân viên làm việc trong tháng!",
                 data = schedule
             }));
         }
@@ -659,7 +659,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "User info not found!"
+                    message = "Không tìm thấy thông tin người dùng!"
                 }));
             }
 
@@ -668,7 +668,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Access denied. Only Admin or Manager can view staff slot working."
+                    message = "Quyền truy cập bị từ chối. Chỉ có Admin hoặc Manager mới có thể xem vị trí nhân viên đang hoạt động."
                 }));
             }
 
@@ -678,7 +678,7 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Staff not found with the provided ID."
+                    message = "Không tìm thấy nhân viên có ID đã cung cấp."
                 }));
             }
 
@@ -689,13 +689,13 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "No slot working found for this staff in the selected month."
+                    message = "Không tìm thấy lịch làm việc nào của nhân viên này trong tháng đã chọn."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Successfully retrieved staff slot working for the month!",
+                message = "Lấy thành công lịch làm việc của nhân viên trong tháng!",
                 data = schedule
             }));
         }
@@ -740,7 +740,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "User info not found!"
+                    message = "Không tìm thấy thông tin người dùng!"
                 }));
             }
 
@@ -749,7 +749,7 @@ namespace Server.API.Controllers
             var result = await _workScheduleService.GetWorkSchedulesByMonthYearAsync(staff.StaffId, month, year);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get work schedules successfully",
+                message = "Lấy lịch làm việc thành công",
                 data = result
             }));
         }
@@ -775,7 +775,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "User info not found!"
+                    message = "Không tìm thấy thông tin người dùng!"
                 }));
             }
 
@@ -784,7 +784,7 @@ namespace Server.API.Controllers
             var result = await _workScheduleService.GetShiftSlotsByMonthYearAsync(staff.StaffId, month, year);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get shift slots successfully",
+                message = "Lấy ca làm việc thành công",
                 data = result
             }));
         }

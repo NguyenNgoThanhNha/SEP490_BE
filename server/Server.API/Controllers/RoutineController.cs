@@ -24,7 +24,7 @@ namespace Server.API.Controllers
             var routines = await _routineService.GetListSkincareRoutine();
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Routines fetched successfully",
+                message = "L?y danh sách li?u trình thành công!",
                 data = routines
             }));
         }
@@ -35,11 +35,11 @@ namespace Server.API.Controllers
             var routine = await _routineService.GetSkincareRoutineDetails(id);
             if (routine == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Routine not found"
+                message = "Không tìm th?y li?u trình!"
             }));
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Routine details fetched successfully",
+                message = "L?y thành công chi ti?t li?u trình!",
                 data = routine
             }));
         }
@@ -50,7 +50,7 @@ namespace Server.API.Controllers
             var steps = await _routineService.GetListSkincareRoutineStepByRoutineId(routineId);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Routine steps fetched successfully",
+                message = "L?y thành công các b??c c?a li?u trình!",
                 data = steps
             }));
         }
@@ -61,7 +61,7 @@ namespace Server.API.Controllers
             var routines = await _routineService.GetListSkincareRoutineByUserId(userId, status);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Routines fetched successfully",
+                message = "L?y thành công li?u trình!",
                 data = routines
             }));
         }
@@ -72,11 +72,11 @@ namespace Server.API.Controllers
             var result = await _routineService.BookCompoSkinCareRoutine(request);
             if (result == 0) return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Booking failed"
+                message = "??t li?u trình th?t b?i!"
             }));
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Booking successful",
+                message = "??t li?u trình thành công!",
                 data = result
             }));
         }
@@ -87,11 +87,11 @@ namespace Server.API.Controllers
             var routine = await _routineService.TrackingUserRoutineByRoutineId(routineId, userId);
             if (routine == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Routine not found"
+                message = "Không tìm th?y li?u trình!"
             }));
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Routine details fetched successfully",
+                message = "L?y thành công chi ti?t li?u trình!",
                 data = routine
             }));
         }
@@ -102,11 +102,11 @@ namespace Server.API.Controllers
             var routine = await _routineService.GetInfoRoutineOfUserNew(userId);
             if (routine == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Routine not found"
+                message = "Không tìm th?y li?u trình!"
             }));
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Routine details fetched successfully",
+                message = "L?y thành công chi ti?t li?u trình!",
                 data = routine
             }));
         }
@@ -117,11 +117,11 @@ namespace Server.API.Controllers
             var routine = await _routineService.GetDetailOrderRoutine(userId, orderId);
             if (routine == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Order not found"
+                message = "Không tìm th?y ??n hàng"
             }));
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Order details fetched successfully",
+                message = "L?y thành công chi ti?t ??n hàng!",
                 data = routine
             }));
         }

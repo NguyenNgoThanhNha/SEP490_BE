@@ -1,4 +1,5 @@
 using AutoMapper;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
@@ -55,7 +56,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Account Already Exists"
+                    message = "Tài khoản đã tồn tại"
                 }));
             }
 
@@ -63,7 +64,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "OTP Code is not expired"
+                    message = "Mã OTP chưa hết hạn"
                 }));
             }
 
@@ -92,7 +93,7 @@ namespace Server.API.Controllers
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Send Email Fail"
+                        message = "Gửi email không thành công"
                     }));
                 }
             }
@@ -131,14 +132,14 @@ namespace Server.API.Controllers
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Send Email Fail"
+                        message = "Gửi email không thành công"
                     }));
                 }
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Check Email and Verify OTP",
+                message = "Kiểm tra Email và Xác minh OTP",
             }));
         }
 
@@ -157,11 +158,11 @@ namespace Server.API.Controllers
             var result = await authService.SubmitOTP(req);
             if (!result)
             {
-                throw new BadRequestException("OTP Code is not Correct");
+                throw new BadRequestException("Mã OTP không đúng");
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = $"Verify Account Success for email: {req.Email}"
+                message = $"Xác minh tài khoản thành công cho email: {req.Email}"
             }));
         }
 
@@ -183,7 +184,7 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "User Not Found"
+                    message = "Không tìm thấy người dùng"
                 }));
             }
 
@@ -218,7 +219,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Username or password is invalid"
+                    message = "Tên người dùng hoặc mật khẩu không hợp lệ"
                 }));
             }
 
@@ -226,7 +227,7 @@ namespace Server.API.Controllers
 
             var res = new ApiResponse()
             {
-                message = "Sign In Successfully",
+                message = "Đăng nhập thành công",
                 data = handler.WriteToken(loginResult.Token)
             };
             return Ok(ApiResult<ApiResponse>.Succeed(res));
@@ -249,7 +250,7 @@ namespace Server.API.Controllers
             var loginResult = await authService.SignIn(req.Identifier, req.Password);
             if (loginResult.Token == null)
             {
-                var result = ApiResponse.Error("Username or password is invalid");
+                var result = ApiResponse.Error("Tên người dùng hoặc mật khẩu không hợp lệ");
                 return BadRequest(ApiResult<ApiResponse>.Error(result));
             }
 
@@ -257,7 +258,7 @@ namespace Server.API.Controllers
 
             var res = new ApiResponse
             {
-                message = "Sign In Successfully",
+                message = "Đăng nhập thành công",
                 data = new Token()
                 {
                     accessToken = handler.WriteToken(loginResult.Token),
@@ -289,7 +290,7 @@ namespace Server.API.Controllers
 
                 var res = new ApiResponse()
                 {
-                    message = "Sign In Successfully",
+                    message = "Đăng nhập thành công",
                     data = handler.WriteToken(loginResult.Token)
                 };
                 return Ok(ApiResult<ApiResponse>.Succeed(res));
@@ -297,7 +298,7 @@ namespace Server.API.Controllers
 
             return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Error in login with Google!"
+                message = "Lỗi khi đăng nhập bằng Google!"
             }));
         }
         
@@ -323,7 +324,7 @@ namespace Server.API.Controllers
                 
                 var res = new ApiResponse()
                 {
-                    message = "Sign In Successfully",
+                    message = "Đăng nhập thành công",
                     data = handler.WriteToken(loginResult.Token)
                 };
                 return Ok(ApiResult<ApiResponse>.Succeed(res));
@@ -331,7 +332,7 @@ namespace Server.API.Controllers
 
             return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
             {
-                message = "Error in login with Google!"
+                message = "Lỗi khi đăng nhập bằng Google!"
             }));
         }
 
@@ -342,7 +343,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Invalid request data!"
+                    message = "Dữ liệu yêu cầu không hợp lệ!"
                 }));
             }
 
@@ -351,7 +352,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Account not found!"
+                    message = "Không tìm thấy tài khoản!"
                 }));
             }
 
@@ -360,7 +361,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to generate OTP!"
+                    message = "Không tạo được OTP!"
                 }));
             }
 
@@ -382,13 +383,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to send email!"
+                    message = "Không gửi được email!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "OTP sent successfully!"
+                message = "Đã gửi OTP thành công!"
             }));
         }
 
@@ -399,7 +400,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Invalid request data!"
+                    message = "Dữ liệu yêu cầu không hợp lệ!"
                 }));
             }
 
@@ -407,7 +408,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Passwords do not match!"
+                    message = "Mật khẩu không khớp!"
                 }));
             }
 
@@ -417,14 +418,14 @@ namespace Server.API.Controllers
             {
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    message = "Password updated successfully!"
+                    message = "Đã cập nhật mật khẩu thành công!"
                 }));
             }
             else
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to update password! Please make sure verify otp code to update new password!"
+                    message = "Không cập nhật được mật khẩu! Vui lòng đảm bảo xác minh mã OTP để cập nhật mật khẩu mới!"
                 }));
             }
         }
@@ -436,7 +437,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Invalid request data!"
+                    message = "Dữ liệu yêu cầu không hợp lệ!"
                 }));
             }
 
@@ -445,7 +446,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Account not found!"
+                    message = "Không tìm thấy tài khoản!"
                 }));
             }
 
@@ -453,7 +454,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "OTP Code is not expired!"
+                    message = "Mã OTP chưa hết hạn!"
                 }));
             }
 
@@ -480,14 +481,14 @@ namespace Server.API.Controllers
                 {
                     return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                     {
-                        message = "OTP resent successfully!"
+                        message = "Đã gửi lại OTP thành công!"
                     }));
                 }
                 else
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Failed to send email!"
+                        message = "Không gửi được email!"
                     }));
                 }
             }
@@ -495,7 +496,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to resend OTP!"
+                    message = "Không gửi lại được OTP!"
                 }));
             }
         }
@@ -523,7 +524,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "No refresh token provided, Please login again!"
+                    message = "Không cung cấp mã thông báo làm mới, vui lòng đăng nhập lại!"
                 }));
             }
 
@@ -533,7 +534,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "AccessToken are invalid!"
+                    message = "Mã truy cập không hợp lệ!"
                 }));
             }
 
@@ -546,7 +547,7 @@ namespace Server.API.Controllers
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Refresh token expired or invalid, please log in again"
+                        message = "Mã thông báo làm mới đã hết hạn hoặc không hợp lệ, vui lòng đăng nhập lại"
                     }));
                 }
 
@@ -554,7 +555,7 @@ namespace Server.API.Controllers
                 var handler = new JwtSecurityTokenHandler();
                 var res = new ApiResponse
                 {
-                    message = "Token refreshed successfully",
+                    message = "Mã thông báo đã được làm mới thành công",
                     data = handler.WriteToken(loginResult.Token)
                 };
 
@@ -590,13 +591,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "User info not found!"
+                    message = "Không tìm thấy thông tin người dùng!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get user info success!",
+                message = "Lấy thông tin người dùng thành công!",
                 data = _mapper.Map<UserDTO>(currentUser)
             }));
         }
@@ -609,13 +610,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to create account!"
+                    message = "Không tạo được tài khoản!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Account created successfully!",
+                message = "Tài khoản đã được tạo thành công!",
                 data = result
             }));
         }
@@ -628,13 +629,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "User not found!"
+                    message = "Không tìm thấy người dùng!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get user info success!",
+                message = "Lấy thông tin người dùng thành công!",
                 data = user
             }));
         }
@@ -648,13 +649,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to update user info!"
+                    message = "Không cập nhật được thông tin người dùng!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Update user info successfully!",
+                message = "Cập nhật thông tin người dùng thành công!",
                 data = result
             }));
         }

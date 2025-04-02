@@ -17,10 +17,7 @@ namespace Server.API.Controllers
             _customerService = customerService;
         }
 
-        /// <summary>
-        /// API 1: Kiểm tra điểm thưởng hiện tại của khách hàng.
-        /// </summary>
-        /// <param name="userId">ID của khách hàng</param>
+       
         [HttpGet("check-points/{customerId}")]
         public async Task<IActionResult> CheckBonusPoints([FromRoute] int customerId)
         {
@@ -30,7 +27,7 @@ namespace Server.API.Controllers
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    message = "Check bonus points successful!",
+                    message = "Kiểm tra điểm thưởng thành công!",
                     data = result
                 }));
             }
@@ -45,15 +42,12 @@ namespace Server.API.Controllers
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = $"Internal server error: {ex.Message}"
+                    message = $"Lỗi máy chủ nội bộ: {ex.Message}"
                 }));
             }
         }
 
-        /// <summary>
-        /// API 2: Đổi điểm thưởng lấy Promotion.
-        /// </summary>
-        /// <param name="request">Thông tin đổi điểm</param>
+      
         [HttpPost("exchange-points")]
         public async Task<IActionResult> ExchangePoints([FromBody] ExchangePointRequest request)
         {
@@ -73,7 +67,7 @@ namespace Server.API.Controllers
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    message = "Exchange points successful!",
+                    message = "Đổi điểm thành công!",
                     data = result
                 }));
             }
@@ -95,7 +89,7 @@ namespace Server.API.Controllers
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = $"Internal server error: {ex.Message}"
+                    message = $"Lỗi máy chủ nội bộ: {ex.Message}"
                 }));
             }
         }

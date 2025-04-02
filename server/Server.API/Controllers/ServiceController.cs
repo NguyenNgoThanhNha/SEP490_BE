@@ -39,13 +39,13 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "No services found."
+                        message = "Không tìm thấy dịch vụ."
                     }));
                 }
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Services retrieved successfully.",
+                    message = "Lấy danh sách dịch vụ thành công.",
                     data = services
                 }));
             }
@@ -53,7 +53,7 @@ namespace Server.API.Controllers
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"An error occurred while retrieving services: {ex.Message}"
+                    message = $"Xảy ra lỗi khi lấy dịch vụ: {ex.Message}"
                 }));
             }
         }
@@ -71,11 +71,11 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "No services found."
+                        message = "Không tìm thấy dịch vụ."
                     }));
                 }
 
-                services.message = "Services retrieved successfully.";
+                services.message = "Lấy tất cả dịch vụ thành công.";
                 return Ok(ApiResult<GetAllServicePaginationResponse>.Succeed(services));
             }
             catch (Exception ex)
@@ -83,7 +83,7 @@ namespace Server.API.Controllers
                 // Xử lý lỗi và trả về phản hồi lỗi
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"An error occurred while retrieving services: {ex.Message}"
+                    message = $"Đã xảy ra lỗi khi lấy dịch vụ: {ex.Message}"
                 }));
             }
         }
@@ -101,18 +101,18 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "No services found."
+                        message = "Không tìm thấy dịch vụ."
                     }));
                 }
 
-                services.message = "Services retrieved successfully.";
+                services.message = "Lấy danh sách dịch vụ theo chi nhánh thành công.";
                 return Ok(ApiResult<GetAllServicePaginationResponse>.Succeed(services));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"An error occurred while retrieving services: {ex.Message}"
+                    message = $"Đã xảy ra lỗi khi lấy dịch vụ: {ex.Message}"
                 }));
             }
         }
@@ -132,14 +132,14 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "Service not found."
+                        message = "Không tìm thấy dịch vụ."
                     }));
                 }
 
                 // Trả về dữ liệu nếu tìm thấy
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Service retrieved successfully.",
+                    message = "Lấy dịch vụ thành công.",
                     data = service
                 }));
             }
@@ -148,7 +148,7 @@ namespace Server.API.Controllers
                 // Xử lý lỗi và trả về phản hồi lỗi
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"An error occurred: {ex.Message}"
+                    message = $"Đã xảy ra lỗi: {ex.Message}"
                 }));
             }
         }
@@ -219,7 +219,7 @@ namespace Server.API.Controllers
                 // Trả về kết quả nếu thành công
                 return CreatedAtAction(nameof(GetServiceById), new { id = service.ServiceId }, ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Service created successfully.",
+                    message = "Tạo dịch vụ thành công.",
                     data = service
                 }));
             }
@@ -228,7 +228,7 @@ namespace Server.API.Controllers
                 // Xử lý lỗi ngoại lệ
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"An error occurred while creating the service: {ex.Message}"
+                    message = $"Đã xảy ra lỗi khi tạo dịch vụ: {ex.Message}"
                 }));
             }
         }
@@ -248,7 +248,7 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Validation failed.",
+                    message = "Xác thực không thành công",
                     data = errors
                 }));
             }
@@ -261,14 +261,14 @@ namespace Server.API.Controllers
             {
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Service not found."
+                    message = "Không tìm thấy dịch vụ."
                 }));
             }
 
             // Trả về kết quả nếu thành công
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Service updated successfully.",
+                message = "Cập nhật dịch vụ thành công.",
                 data = updatedService
             }));
         }
@@ -287,14 +287,14 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "Service not found."
+                        message = "Không tìm thấy dịch vụ."
                     }));
                 }
 
                 // Trả về kết quả nếu thành công
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Service deleted successfully.",
+                    message = "Xóa dịch vụ thành công.",
                     data = new { ServiceId = deletedService.ServiceId } // Trả về ID của dịch vụ đã xóa
                 }));
             }
@@ -303,44 +303,10 @@ namespace Server.API.Controllers
                 // Xử lý ngoại lệ
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"An error occurred while deleting the service: {ex.Message}"
+                    message = $"Đã xảy ra lỗi khi xóa dịch vụ: {ex.Message}"
                 }));
             }
-        }
-
-        //[HttpGet("top4-featured-services")]
-        //public async Task<IActionResult> GetTop4FeaturedServices()
-        //{
-        //    try
-        //    {
-        //        // Gọi Service để lấy dữ liệu
-        //        var featuredServices = await _serviceService.GetTop4FeaturedServicesAsync();
-
-        //        // Kiểm tra kết quả
-        //        if (featuredServices == null || !featuredServices.Any())
-        //        {
-        //            return NotFound(new
-        //            {
-        //                Message = "Không tìm thấy dịch vụ nổi bật nào."
-        //            });
-        //        }
-
-        //        // Trả về dữ liệu thành công
-        //        return Ok(new
-        //        {
-        //            Message = "Lấy danh sách Top 4 dịch vụ nổi bật thành công!",
-        //            Data = featuredServices
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Xử lý lỗi hệ thống
-        //        return StatusCode(500, new
-        //        {
-        //            Message = $"Lỗi hệ thống: {ex.Message}"
-        //        });
-        //    }
-        //}
+        }      
 
 
         [HttpGet("top4-featured-services")]
@@ -392,7 +358,7 @@ namespace Server.API.Controllers
                 var branches = await _serviceService.GetBranchesOfService(serviceId);
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Branchs retrieved successfully.",
+                    message = "Lấy danh sách chi nhánh thành công.",
                     data = branches
                 }));
             }
@@ -412,7 +378,7 @@ namespace Server.API.Controllers
                 var services = await _serviceService.GetListServiceByBranchId(branchId, serviceCategoryId);
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Services retrieved successfully.",
+                    message = "Lấy dịch vụ theo chi nhánh thành công.",
                     data = services
                 }));
             }

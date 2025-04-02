@@ -41,14 +41,14 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there are no branches!"
+                    message = "Hiện tại không có chi nhánh nào!"
                 }));
             }
 
             // Trả về kết quả thành công
             return Ok(ApiResult<GetAllBranchResponse>.Succeed(new GetAllBranchResponse()
             {
-                message = "Get branches successfully!",
+                message = "Lấy chi nhánh thành công!",
                 data = listBranch.data,
                 pagination = listBranch.pagination
             }));
@@ -65,14 +65,14 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there are no branches!",
+                    message = "Hiện tại không có chi nhánh nào!",
                     data = new List<object>()
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get branches successfully!",
+                message = "Lấy chi nhánh thành công!",
                 data = branches
             }));
         }
@@ -88,13 +88,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there are no branch!"
+                    message = "Hiện tại chưa có chi nhánh nào!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get branch successfully!",
+                message = "Lấy chi nhánh thành công!",
                 data = branch
             }));
         }

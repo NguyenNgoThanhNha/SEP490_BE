@@ -63,7 +63,7 @@ namespace Server.API.Controllers
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Invalid order code format in description!"
+                        message = "Định dạng mã đơn hàng trong phần mô tả không hợp lệ!"
                     }));
                 }
 
@@ -78,7 +78,7 @@ namespace Server.API.Controllers
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        message = "Order not found!"
+                        message = "Không tìm thấy đơn hàng!"
                     }));
                 }
 
@@ -157,14 +157,14 @@ namespace Server.API.Controllers
                 {
                     return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                     {
-                        message = $"Payment successful for order code: {order.OrderCode}"
+                        message = $"Thanh toán thành công cho mã đơn hàng: {order.OrderCode}"
                     }));
                 }
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Error updating order status."
+                message = "Lỗi khi cập nhật trạng thái đơn hàng."
             }));
         }
 

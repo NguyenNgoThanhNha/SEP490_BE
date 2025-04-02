@@ -30,7 +30,7 @@ namespace Server.API.Controllers
             var vouchers = await _voucherService.GetAllVouchers(request);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get voucher by date successfully",
+                message = "Lấy tất cả phiếu giảm giá thành công",
                 data = vouchers
             }));
         }
@@ -54,7 +54,7 @@ namespace Server.API.Controllers
             var vouchers = await _voucherService.GetVoucherByDate(dateTime);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get voucher by date successfully",
+                message = "Lấy phiếu giảm giá theo ngày thành công",
                 data = vouchers
             }));
         }
@@ -69,13 +69,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in exchange point!"
+                    message = "Lỗi khi đổi điểm!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Exchange point successfully!"
+                message = "Đổi điểm thành công!"
             }));
         }
 
@@ -86,7 +86,7 @@ namespace Server.API.Controllers
             var result = await _voucherService.GetListVoucherOfUser(userId);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get list voucher successfully!",
+                message = "Lấy danh sách phiếu giảm giá thành công!",
                 data = result
             }));
         }
