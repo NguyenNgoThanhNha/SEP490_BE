@@ -795,5 +795,12 @@ namespace Server.API.Controllers
             var result = await _staffService.GetStaffAppointmentsAsync(request.StaffIds, request.StartDate, request.EndDate);
             return Ok(ApiResult<List<StaffAppointmentResponse>>.Succeed(result));
         }
+
+        [HttpGet("working-slots")]
+        public async Task<IActionResult> GetStaffWorkingSlots([FromQuery] int branchId, [FromQuery] int month, [FromQuery] int year)
+        {
+            var result = await _staffService.GetStaffWorkingSlots(branchId, month, year);
+            return Ok(result);
+        }
     }
 }

@@ -1005,5 +1005,57 @@ namespace Server.Business.Services
 
             return result;
         }
+
+        public async Task<ApiResult<object>> GetStaffWorkingSlots(int branchId, int month, int year)
+        {
+            if (branchId <= 0 || month <= 0 || year <= 0)
+            {
+                return ApiResult<object>.Error(null, "Invalid input.");
+            }
+
+            var staffs = await _unitOfWorks.StaffRepository
+                .FindByCondition(x => x.BranchId == branchId) // Role = Staff
+                .Include(x => x.StaffInfo)
+                .ToListAsync();
+
+            if (!staffs.Any())
+                return ApiResult<object>.Error(null, "No staff found in this branch.");
+
+            var result = new List<object>();
+
+            foreach (var staff in staffs)
+            {
+                var workSchedules = await _unitOfWorks.WorkScheduleRepository
+                    .FindByCondition(x => x.StaffId == staff.StaffId
+                                          && x.WorkDate.Month == month
+                                          && x.WorkDate.Year == year
+                                          && x.Status == "Active")
+                    .Include(x => x.Shift)
+                    .ToListAsync();
+
+                var slots = workSchedules.Select(ws => new
+                {
+                    ws.WorkDate,
+                    ws.DayOfWeek,
+                    ws.ShiftId,
+                    ws.Shift.ShiftName,
+                    StartTime = ws.Shift.StartTime,
+                    EndTime = ws.Shift.EndTime
+                });
+
+                result.Add(new
+                {
+                    StaffId = staff.StaffId,
+                    StaffName = staff.StaffInfo.FullName,
+                    Slots = slots
+                });
+            }
+
+            return ApiResult<object>.Succeed(new
+            {
+                message = "Get working slots successfully!",
+                data = result
+            });
+        }
     }
 }
