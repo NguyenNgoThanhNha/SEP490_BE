@@ -1042,31 +1042,132 @@ namespace Server.Business.Services
         }
 
 
+        //public async Task UpdateOrderStatusBasedOnPayment()
+        //{
+        //    // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
+        //    var ordersToUpdate = await _unitOfWorks.OrderRepository
+        //        .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
+        //                              o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+        //        .ToListAsync();
+
+        //    foreach (var order in ordersToUpdate)
+        //    {
+        //        // Kiểm tra nếu đơn hàng đã được tạo quá 1 ngày và CreatedDate không phải null
+        //        if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
+        //        {
+        //            // Cập nhật trạng thái đơn hàng sang "Cancelled"
+        //            order.Status = OrderStatusEnum.Cancelled.ToString();
+        //            order.UpdatedDate = DateTime.UtcNow;
+
+        //            // Chỉ cập nhật đơn hàng khi có sự thay đổi trạng thái
+        //            _unitOfWorks.OrderRepository.Update(order);
+        //        }
+        //    }
+
+        //    // Commit tất cả các thay đổi một lần
+        //    await _unitOfWorks.OrderRepository.Commit();
+        //}
+
         public async Task UpdateOrderStatusBasedOnPayment()
         {
             // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
             var ordersToUpdate = await _unitOfWorks.OrderRepository
                 .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
                                       o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+                .Include(o => o.OrderDetails)
+                .Include(o => o.Shipment)
                 .ToListAsync();
 
             foreach (var order in ordersToUpdate)
             {
-                // Kiểm tra nếu đơn hàng đã được tạo quá 1 ngày và CreatedDate không phải null
+                // Check thời gian
                 if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
                 {
-                    // Cập nhật trạng thái đơn hàng sang "Cancelled"
+                    // ======= Cập nhật Order =======
                     order.Status = OrderStatusEnum.Cancelled.ToString();
                     order.UpdatedDate = DateTime.UtcNow;
-
-                    // Chỉ cập nhật đơn hàng khi có sự thay đổi trạng thái
                     _unitOfWorks.OrderRepository.Update(order);
+
+                    // ======= Cập nhật OrderDetails =======
+                    if (order.OrderDetails != null && order.OrderDetails.Any())
+                    {
+                        foreach (var detail in order.OrderDetails)
+                        {
+                            detail.Status = OrderStatusEnum.Cancelled.ToString();
+                            detail.UpdatedDate = DateTime.UtcNow;
+                            _unitOfWorks.OrderDetailRepository.Update(detail);
+                        }
+                    }
+
+                    // ======= Cập nhật Shipment =======
+                    if (order.Shipment != null)
+                    {
+                        order.Shipment.ShippingStatus = ShippingStatusEnum.Cancelled.ToString();
+                        order.Shipment.UpdatedDate = DateTime.UtcNow;
+                        _unitOfWorks.ShipmentRepository.Update(order.Shipment);
+                    }
                 }
             }
 
-            // Commit tất cả các thay đổi một lần
+            // ======= Commit =======
+            await _unitOfWorks.OrderDetailRepository.Commit();
+            await _unitOfWorks.ShipmentRepository.Commit();
             await _unitOfWorks.OrderRepository.Commit();
         }
+
+
+        public async Task AutoCompleteOrderAfterDelivery()
+        {
+            // Lấy các đơn hàng đủ điều kiện auto-complete
+            var orders = await _unitOfWorks.OrderRepository
+                .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString()
+                                      && o.StatusPayment == OrderStatusPaymentEnum.Paid.ToString()
+                                      && o.Shipment != null
+                                      && o.Shipment.EstimatedDeliveryDate != null)
+                .Include(o => o.OrderDetails)
+                .Include(o => o.Shipment)
+                .ToListAsync();
+
+            foreach (var order in orders)
+            {
+                // Kiểm tra nếu đã quá 3 ngày sau ngày dự kiến giao hàng
+                if (order.Shipment.EstimatedDeliveryDate.HasValue &&
+                    DateTime.UtcNow.Date >= order.Shipment.EstimatedDeliveryDate.Value.Date.AddDays(3))
+                {
+                    // ======= Cập nhật Order =======
+                    order.Status = OrderStatusEnum.Completed.ToString();
+                    order.UpdatedDate = DateTime.UtcNow;
+                    _unitOfWorks.OrderRepository.Update(order);
+
+                    // ======= Cập nhật OrderDetails =======
+                    if (order.OrderDetails != null && order.OrderDetails.Any())
+                    {
+                        foreach (var detail in order.OrderDetails)
+                        {
+                            detail.Status = OrderStatusEnum.Completed.ToString();
+                            detail.UpdatedDate = DateTime.UtcNow;
+                            _unitOfWorks.OrderDetailRepository.Update(detail);
+                        }
+                    }
+
+                    // ======= Cập nhật Shipment =======
+                    if (order.Shipment != null)
+                    {
+                        order.Shipment.ShippingStatus = ShippingStatusEnum.Delivered.ToString();
+                        order.Shipment.UpdatedDate = DateTime.UtcNow;
+                        _unitOfWorks.ShipmentRepository.Update(order.Shipment);
+                    }
+                }
+            }
+
+            // ======= Commit =======
+            await _unitOfWorks.OrderDetailRepository.Commit();
+            await _unitOfWorks.ShipmentRepository.Commit();
+            await _unitOfWorks.OrderRepository.Commit();
+        }
+
+
+
 
     }
 }
