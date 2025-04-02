@@ -1005,5 +1005,153 @@ namespace Server.Business.Services
 
             return result;
         }
+
+        public async Task<ApiResult<object>> GetStaffWorkingSlots(int branchId, int month, int year)
+        {
+            if (branchId <= 0 || month <= 0 || year <= 0)
+            {
+                return ApiResult<object>.Error(null, "Invalid input.");
+            }
+
+            var staffs = await _unitOfWorks.StaffRepository
+                .FindByCondition(x => x.BranchId == branchId) // Role = Staff
+                .Include(x => x.StaffInfo)
+                .ToListAsync();
+
+            if (!staffs.Any())
+                return ApiResult<object>.Error(null, "No staff found in this branch.");
+
+            var result = new List<object>();
+
+            foreach (var staff in staffs)
+            {
+                var workSchedules = await _unitOfWorks.WorkScheduleRepository
+                    .FindByCondition(x => x.StaffId == staff.StaffId
+                                          && x.WorkDate.Month == month
+                                          && x.WorkDate.Year == year
+                                          && x.Status == "Active")
+                    .Include(x => x.Shift)
+                    .ToListAsync();
+
+                var slots = workSchedules.Select(ws => new
+                {
+                    ws.WorkDate,
+                    ws.DayOfWeek,
+                    ws.ShiftId,
+                    ws.Shift.ShiftName,
+                    StartTime = ws.Shift.StartTime,
+                    EndTime = ws.Shift.EndTime
+                });
+
+                result.Add(new
+                {
+                    StaffId = staff.StaffId,
+                    StaffName = staff.StaffInfo.FullName,
+                    Slots = slots
+                });
+            }
+
+            return ApiResult<object>.Succeed(new
+            {
+                message = "Get working slots successfully!",
+                data = result
+            });
+        }
+
+        public async Task<ApiResult<object>> GetBranchStaffWorkingSlotsByAppointment(int branchId, int month, int year)
+        {
+            if (branchId <= 0 || month <= 0 || year <= 0)
+                return ApiResult<object>.Error(null, "Invalid input.");
+
+            // Lấy danh sách staff trong branch
+            var staffs = await _unitOfWorks.StaffRepository
+                .FindByCondition(x => x.BranchId == branchId)
+                .Include(x => x.StaffInfo)
+                .ToListAsync();
+
+            if (!staffs.Any())
+                return ApiResult<object>.Error(null, "No staff found in this branch.");
+
+            var data = new List<object>();
+
+            foreach (var staff in staffs)
+            {
+                // Lấy appointment của staff trong tháng và năm
+                var appointments = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(a => a.StaffId == staff.StaffId &&
+                                          a.AppointmentsTime.Month == month &&
+                                          a.AppointmentsTime.Year == year)
+                    .ToListAsync();
+
+                var slots = appointments.Select(a => new
+                {
+                    a.AppointmentId,
+                    a.OrderId,
+                    a.AppointmentsTime,
+                    a.Status,
+                    a.Notes
+                }).ToList();
+
+                data.Add(new
+                {
+                    StaffId = staff.StaffId,
+                    StaffName = staff.StaffInfo.FullName,
+                    Slots = slots
+                });
+            }
+
+            return ApiResult<object>.Succeed(new
+            {
+                message = "Get working slots successfully!",
+                data = data
+            });
+        }
+
+        public async Task<ApiResult<object>> GetStaffsBusySlots(List<int> staffIds, int month, int year)
+        {
+            if (staffIds == null || !staffIds.Any() || month <= 0 || year <= 0)
+                return ApiResult<object>.Error(null, "Invalid input.");
+
+            var data = new List<object>();
+
+            foreach (var staffId in staffIds)
+            {
+                var staff = await _unitOfWorks.StaffRepository
+                    .FindByCondition(x => x.StaffId == staffId)
+                    .Include(x => x.StaffInfo)
+                    .FirstOrDefaultAsync();
+
+                if (staff == null) continue;
+
+                var appointments = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(a => a.StaffId == staffId &&
+                                          a.AppointmentsTime.Month == month &&
+                                          a.AppointmentsTime.Year == year)
+                    .ToListAsync();
+
+                var slots = appointments.Select(a => new
+                {
+                    a.AppointmentId,
+                    a.OrderId,
+                    a.AppointmentsTime,
+                    a.Status,
+                    a.Notes
+                }).ToList();
+
+                data.Add(new
+                {
+                    StaffId = staff.StaffId,
+                    StaffName = staff.StaffInfo.FullName,
+                    Slots = slots
+                });
+            }
+
+            return ApiResult<object>.Succeed(new
+            {
+                message = "Get busy slots successfully!",
+                data = data
+            });
+        }
+
     }
 }

@@ -430,14 +430,117 @@ namespace Server.Business.Services
             };
         }
 
+        //public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
+        //{
+        //    var order = await _unitOfWorks.OrderRepository.FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+        //        .FirstOrDefaultAsync();
+        //    var listService = new List<Data.Entities.Service>();
+        //    var listProduct = new List<Product>();
+        //    var listSerivceModels = new List<ServiceModel>();
+        //    var listProductModels = new List<ProductModel>();
+        //    if (order.OrderType == "Appointment")
+        //    {
+        //        var orderAppointments = await _unitOfWorks.AppointmentsRepository
+        //            .FindByCondition(x => x.OrderId == orderId)
+        //            .Include(x => x.Branch)
+        //            .Include(x => x.Service)
+        //            .Include(x => x.Staff)
+        //            .ThenInclude(x => x.StaffInfo)
+        //            .ToListAsync();
+        //        order.Appointments = orderAppointments;
+
+        //        // get list service images
+        //        foreach (var appointment in orderAppointments)
+        //        {
+        //            listService.Add(appointment.Service);
+        //        }
+
+        //        listSerivceModels = await _serviceService.GetListImagesOfServices(listService);
+        //    }
+        //    else if (order.OrderType == "Product")
+        //    {
+        //        var orderDetails = await _unitOfWorks.OrderDetailRepository
+        //            .FindByCondition(x => x.OrderId == orderId)
+        //            .Include(x => x.Product)
+        //            .ToListAsync();
+        //        order.OrderDetails = orderDetails;
+        //        // get list order images
+        //        foreach (var orderDetail in orderDetails)
+        //        {
+        //            listProduct.Add(orderDetail.Product);
+        //        }
+
+        //        listProductModels = await _productService.GetListImagesOfProduct(listProduct);
+        //    }
+
+        //    if (order == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    var orderModel = _mapper.Map<OrderModel>(order);
+        //    if (orderModel.Appointments.Any())
+        //    {
+        //        foreach (var appointment in orderModel.Appointments)
+        //        {
+        //            foreach (var serviceModel in listSerivceModels)
+        //            {
+        //                if (appointment.ServiceId == serviceModel.ServiceId)
+        //                {
+        //                    appointment.Service.images = serviceModel.images;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else if (orderModel.OrderDetails.Any())
+        //    {
+        //        foreach (var orderDetail in orderModel.OrderDetails)
+        //        {
+        //            foreach (var productModel in listProductModels)
+        //            {
+        //                if (orderDetail.ProductId == productModel.ProductId)
+        //                {
+        //                    orderDetail.Product.images = productModel.images;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return new DetailOrderResponse()
+        //    {
+        //        message = "Get detail order success",
+        //        data = orderModel
+        //    };
+        //}
+
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
         {
-            var order = await _unitOfWorks.OrderRepository.FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
-                .FirstOrDefaultAsync();
+            // Include full thông tin
+            //var order = await _unitOfWorks.OrderRepository
+            //    .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+            //    .Include(x => x.Customer) // Customer
+            //    .Include(x => x.Shipment) // Shipment
+            //    .Include(x => x.Voucher)  // Voucher
+
+            //    .FirstOrDefaultAsync();
+
+            var order = await _unitOfWorks.OrderRepository
+    .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+    .Include(x => x.Customer)
+    .Include(x => x.Shipment) // CHẮC CHẮN PHẢI CÓ
+    .Include(x => x.Voucher)
+    .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
+    .Include(x => x.Appointments)
+    .FirstOrDefaultAsync();
+
+
+            if (order == null)
+                return null;
+
             var listService = new List<Data.Entities.Service>();
             var listProduct = new List<Product>();
             var listSerivceModels = new List<ServiceModel>();
             var listProductModels = new List<ProductModel>();
+
             if (order.OrderType == "Appointment")
             {
                 var orderAppointments = await _unitOfWorks.AppointmentsRepository
@@ -445,8 +548,9 @@ namespace Server.Business.Services
                     .Include(x => x.Branch)
                     .Include(x => x.Service)
                     .Include(x => x.Staff)
-                    .ThenInclude(x => x.StaffInfo)
+                        .ThenInclude(x => x.StaffInfo)
                     .ToListAsync();
+
                 order.Appointments = orderAppointments;
 
                 // get list service images
@@ -463,7 +567,9 @@ namespace Server.Business.Services
                     .FindByCondition(x => x.OrderId == orderId)
                     .Include(x => x.Product)
                     .ToListAsync();
+
                 order.OrderDetails = orderDetails;
+
                 // get list order images
                 foreach (var orderDetail in orderDetails)
                 {
@@ -473,12 +579,10 @@ namespace Server.Business.Services
                 listProductModels = await _productService.GetListImagesOfProduct(listProduct);
             }
 
-            if (order == null)
-            {
-                return null;
-            }
-
+            // Mapping
             var orderModel = _mapper.Map<OrderModel>(order);
+
+            // Gắn images cho service
             if (orderModel.Appointments.Any())
             {
                 foreach (var appointment in orderModel.Appointments)
@@ -492,6 +596,7 @@ namespace Server.Business.Services
                     }
                 }
             }
+            // Gắn images cho product
             else if (orderModel.OrderDetails.Any())
             {
                 foreach (var orderDetail in orderModel.OrderDetails)
@@ -505,12 +610,14 @@ namespace Server.Business.Services
                     }
                 }
             }
+
             return new DetailOrderResponse()
             {
                 message = "Get detail order success",
                 data = orderModel
             };
         }
+
 
         public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
         {
@@ -776,9 +883,15 @@ namespace Server.Business.Services
 
                 return ApiResult<object>.Succeed(new
                 {
-                    OrderId = order.OrderId,
-                    OrderCode = order.OrderCode,
-                    Message = "Order created successfully."
+                    //OrderId = order.OrderId,
+                    //OrderCode = order.OrderCode,
+                    //Message = "Order created successfully."
+                    message = "Order created successfully.",
+                    data = new
+                    {
+                        OrderId = order.OrderId,
+                        OrderCode = order.OrderCode
+                    }
                 });
             }
             catch (Exception ex)
@@ -929,31 +1042,132 @@ namespace Server.Business.Services
         }
 
 
+        //public async Task UpdateOrderStatusBasedOnPayment()
+        //{
+        //    // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
+        //    var ordersToUpdate = await _unitOfWorks.OrderRepository
+        //        .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
+        //                              o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+        //        .ToListAsync();
+
+        //    foreach (var order in ordersToUpdate)
+        //    {
+        //        // Kiểm tra nếu đơn hàng đã được tạo quá 1 ngày và CreatedDate không phải null
+        //        if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
+        //        {
+        //            // Cập nhật trạng thái đơn hàng sang "Cancelled"
+        //            order.Status = OrderStatusEnum.Cancelled.ToString();
+        //            order.UpdatedDate = DateTime.UtcNow;
+
+        //            // Chỉ cập nhật đơn hàng khi có sự thay đổi trạng thái
+        //            _unitOfWorks.OrderRepository.Update(order);
+        //        }
+        //    }
+
+        //    // Commit tất cả các thay đổi một lần
+        //    await _unitOfWorks.OrderRepository.Commit();
+        //}
+
         public async Task UpdateOrderStatusBasedOnPayment()
         {
             // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
             var ordersToUpdate = await _unitOfWorks.OrderRepository
                 .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
                                       o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+                .Include(o => o.OrderDetails)
+                .Include(o => o.Shipment)
                 .ToListAsync();
 
             foreach (var order in ordersToUpdate)
             {
-                // Kiểm tra nếu đơn hàng đã được tạo quá 1 ngày và CreatedDate không phải null
+                // Check thời gian
                 if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
                 {
-                    // Cập nhật trạng thái đơn hàng sang "Cancelled"
+                    // ======= Cập nhật Order =======
                     order.Status = OrderStatusEnum.Cancelled.ToString();
                     order.UpdatedDate = DateTime.UtcNow;
-
-                    // Chỉ cập nhật đơn hàng khi có sự thay đổi trạng thái
                     _unitOfWorks.OrderRepository.Update(order);
+
+                    // ======= Cập nhật OrderDetails =======
+                    if (order.OrderDetails != null && order.OrderDetails.Any())
+                    {
+                        foreach (var detail in order.OrderDetails)
+                        {
+                            detail.Status = OrderStatusEnum.Cancelled.ToString();
+                            detail.UpdatedDate = DateTime.UtcNow;
+                            _unitOfWorks.OrderDetailRepository.Update(detail);
+                        }
+                    }
+
+                    // ======= Cập nhật Shipment =======
+                    if (order.Shipment != null)
+                    {
+                        order.Shipment.ShippingStatus = ShippingStatusEnum.Cancelled.ToString();
+                        order.Shipment.UpdatedDate = DateTime.UtcNow;
+                        _unitOfWorks.ShipmentRepository.Update(order.Shipment);
+                    }
                 }
             }
 
-            // Commit tất cả các thay đổi một lần
+            // ======= Commit =======
+            await _unitOfWorks.OrderDetailRepository.Commit();
+            await _unitOfWorks.ShipmentRepository.Commit();
             await _unitOfWorks.OrderRepository.Commit();
         }
+
+
+        public async Task AutoCompleteOrderAfterDelivery()
+        {
+            // Lấy các đơn hàng đủ điều kiện auto-complete
+            var orders = await _unitOfWorks.OrderRepository
+                .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString()
+                                      && o.StatusPayment == OrderStatusPaymentEnum.Paid.ToString()
+                                      && o.Shipment != null
+                                      && o.Shipment.EstimatedDeliveryDate != null)
+                .Include(o => o.OrderDetails)
+                .Include(o => o.Shipment)
+                .ToListAsync();
+
+            foreach (var order in orders)
+            {
+                // Kiểm tra nếu đã quá 3 ngày sau ngày dự kiến giao hàng
+                if (order.Shipment.EstimatedDeliveryDate.HasValue &&
+                    DateTime.UtcNow.Date >= order.Shipment.EstimatedDeliveryDate.Value.Date.AddDays(3))
+                {
+                    // ======= Cập nhật Order =======
+                    order.Status = OrderStatusEnum.Completed.ToString();
+                    order.UpdatedDate = DateTime.UtcNow;
+                    _unitOfWorks.OrderRepository.Update(order);
+
+                    // ======= Cập nhật OrderDetails =======
+                    if (order.OrderDetails != null && order.OrderDetails.Any())
+                    {
+                        foreach (var detail in order.OrderDetails)
+                        {
+                            detail.Status = OrderStatusEnum.Completed.ToString();
+                            detail.UpdatedDate = DateTime.UtcNow;
+                            _unitOfWorks.OrderDetailRepository.Update(detail);
+                        }
+                    }
+
+                    // ======= Cập nhật Shipment =======
+                    if (order.Shipment != null)
+                    {
+                        order.Shipment.ShippingStatus = ShippingStatusEnum.Delivered.ToString();
+                        order.Shipment.UpdatedDate = DateTime.UtcNow;
+                        _unitOfWorks.ShipmentRepository.Update(order.Shipment);
+                    }
+                }
+            }
+
+            // ======= Commit =======
+            await _unitOfWorks.OrderDetailRepository.Commit();
+            await _unitOfWorks.ShipmentRepository.Commit();
+            await _unitOfWorks.OrderRepository.Commit();
+        }
+
+
+
 
     }
 }

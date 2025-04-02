@@ -3,7 +3,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Server.Business.Services;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,31 +21,33 @@ namespace Server.Business.Worker
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("OrderStatusUpdateService is starting.");
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    // Tạo scope để lấy dịch vụ cần thiết
-                    using (var scope = _serviceProvider.CreateScope())
-                    {
-                        var orderService = scope.ServiceProvider.GetRequiredService<OrderService>();
+                    using var scope = _serviceProvider.CreateScope();
+                    var orderService = scope.ServiceProvider.GetRequiredService<OrderService>();
 
-                        // Kiểm tra và cập nhật các đơn hàng dựa trên điều kiện
-                        await orderService.UpdateOrderStatusBasedOnPayment();
+                    // Task 1: Auto Cancel đơn hàng chưa thanh toán
+                    await orderService.UpdateOrderStatusBasedOnPayment();
 
-                        // Log thông tin sau mỗi lần kiểm tra
-                        _logger.LogInformation("Checked and updated order statuses at: {time}", DateTimeOffset.Now);
-                    }
+                    // Task 2: Auto Complete đơn hàng giao xong 3 ngày
+                    await orderService.AutoCompleteOrderAfterDelivery();
 
-                    // Chờ 24 giờ trước khi chạy lại
-                    await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
+                    _logger.LogInformation("OrderStatusUpdateService ran successfully at: {time}", DateTimeOffset.Now);
                 }
                 catch (Exception ex)
                 {
-                    // Nếu có lỗi xảy ra, log lại và tiếp tục
-                    _logger.LogError(ex, "An error occurred while updating order statuses.");
+                    _logger.LogError(ex, "An error occurred while processing order status updates.");
                 }
+
+                // Chờ 10 phút rồi lặp lại
+                await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
             }
+
+            _logger.LogInformation("OrderStatusUpdateService is stopping.");
         }
     }
 }

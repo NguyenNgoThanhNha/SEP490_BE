@@ -30,6 +30,7 @@ public class OrderModel
 
     public virtual ICollection<OrderDetailModels> OrderDetails { get; set; }
     public virtual ICollection<AppointmentsModel> Appointments { get; set; }
+    public ShipmentModel Shipment { get; set; }
 }
 
 public class OrderInfoModel

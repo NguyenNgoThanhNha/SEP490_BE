@@ -9,6 +9,8 @@ using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
 using Server.Business.Exceptions;
 using Service.Business.Services;
+using Microsoft.AspNetCore.Mvc;
+using Server.Business.Commons.Request;
 
 namespace Server.Business.Services
 {
@@ -504,6 +506,53 @@ namespace Server.Business.Services
             var serviceModels = _mapper.Map<List<ServiceModel>>(services);
             return serviceModels;
         }
+
+        public async Task<object> AssignOrUpdateBranchServices(AssignServiceToBranchRequest request)
+        {
+            // Kiểm tra branch
+            var branch = await _unitOfWorks.BranchRepository.GetByIdAsync(request.BranchId);
+            if (branch == null)
+                return new { success = false, result = new { message = "Branch không tồn tại." } };
+
+            // Lấy danh sách dịch vụ hiện có của branch
+            var oldServices = await _unitOfWorks.Branch_ServiceRepository
+                .FindByCondition(x => x.BranchId == request.BranchId)
+                .ToListAsync();
+
+            // Lấy các serviceId cũ
+            var oldServiceIds = oldServices.Select(s => s.ServiceId).ToList();
+
+            // 1. Xóa các service không còn
+            var toRemove = oldServices.Where(s => !request.ServiceIds.Contains(s.ServiceId)).ToList();
+            if (toRemove.Any())
+                await _unitOfWorks.Branch_ServiceRepository.RemoveRangeAsync(toRemove);
+
+            // 2. Thêm các service mới chưa có
+            var toAdd = request.ServiceIds.Except(oldServiceIds)
+                .Select(id => new Branch_Service
+                {
+                    BranchId = request.BranchId,
+                    ServiceId = id,
+                    Status = "Active",
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                }).ToList();
+
+            if (toAdd.Any())
+                await _unitOfWorks.Branch_ServiceRepository.AddRangeAsync(toAdd);
+
+            await _unitOfWorks.Branch_ServiceRepository.Commit();
+
+            return new
+            {
+                success = true,
+                result = new
+                {
+                    message = "Cập nhật dịch vụ cho chi nhánh thành công."
+                }
+            };
+        }
+
 
     }
 }
