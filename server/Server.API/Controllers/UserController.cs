@@ -45,14 +45,14 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "No customers found."
+                        message = "Không tìm thấy khách hàng nào."
                     }));
                 }
 
                 // Trả về kết quả thành công
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Customer list retrieved successfully.",
+                    message = "Danh sách khách hàng đã được lấy thành công.",
                     data = response
                 }));
             }
@@ -61,7 +61,7 @@ namespace Server.API.Controllers
                 // Xử lý ngoại lệ
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Error retrieving customer list: {ex.Message}"
+                    message = $"Lỗi khi truy xuất danh sách khách hàng: {ex.Message}"
                 }));
             }
         }
@@ -77,7 +77,7 @@ namespace Server.API.Controllers
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "Username must not be null or empty."
+                        message = "Tên người dùng không được để trống hoặc rỗng."
                     }));
                 }
 
@@ -88,13 +88,13 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "User not found."
+                        message = "Không tìm thấy người dùng."
                     }));
                 }
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Account details retrieved successfully.",
+                    message = "Đã lấy thông tin tài khoản thành công.",
                     data = user // Trực tiếp gán user vào data mà không gói thêm ApiResponse
                 }));
             }
@@ -102,7 +102,7 @@ namespace Server.API.Controllers
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Error retrieving account details: {ex.Message}"
+                    message = $"Lỗi khi truy xuất thông tin tài khoản: {ex.Message}"
                 }));
             }
         }
@@ -126,7 +126,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Account does not exist"
+                    message = "Tài khoản không tồn tại"
                 }));
             }
             
@@ -134,7 +134,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "OTP Code is not expired"
+                    message = "Mã OTP chưa hết hạn"
                 }));
             }
 
@@ -165,13 +165,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to send email"
+                    message = "Không gửi được email"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Check your email for OTP confirmation to delete your account."
+                message = "Kiểm tra email để xác nhận OTP để xóa tài khoản của bạn."
             }));
         }
 
@@ -194,7 +194,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Invalid OTP or Account does not exist"
+                    message = "OTP không hợp lệ hoặc Tài khoản không tồn tại"
                 }));
             }
             
@@ -204,7 +204,7 @@ namespace Server.API.Controllers
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Account has been successfully disabled."
+                message = "Tài khoản đã bị vô hiệu hóa thành công."
             }));
         }
     }

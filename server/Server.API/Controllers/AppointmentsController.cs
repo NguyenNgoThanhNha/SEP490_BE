@@ -40,12 +40,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there is no appointments!"
+                    message = "Hiện tại chưa có cuộc hẹn nào!"
                 }));
             }
             return Ok(ApiResult<GetAllAppointmentResponse>.Succeed(new GetAllAppointmentResponse()
             {
-                message = "Get appointments successfully!",
+                message = "Đặt lịch hẹn thành công!",
                 data = listAppointment.data,
                 pagination = listAppointment.pagination
             }));
@@ -60,12 +60,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Appointment not found!"
+                    message = "Không tìm thấy cuộc hẹn!"
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get appointments successfully!",
+                message = "Đặt lịch hẹn thành công!",
                 data = _mapper.Map<AppointmentsDTO>(appointmentsModel)
             }));
         }
@@ -102,7 +102,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
 
@@ -112,7 +112,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in create appointments!"
+                    message = "Lỗi khi tạo cuộc hẹn!"
                 }));
             }
 
@@ -123,7 +123,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Order not found!"
+                    message = "Không tìm thấy đơn hàng!"
                 }));
             }
 
@@ -172,13 +172,13 @@ namespace Server.API.Controllers
                 var emailResult = await _mailService.SendEmailAsync(mailData, false);
                 if (!emailResult)
                 {
-                    Console.WriteLine("Failed to send confirmation email.");
+                    Console.WriteLine("Không gửi được email xác nhận.");
                 }
             });
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Appointments and order created successfully! Confirmation email has been sent.",
+                message = "Đã tạo cuộc hẹn và đơn hàng thành công! Email xác nhận đã được gửi.",
                 data = order.OrderId
             }));
         }
@@ -217,7 +217,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
 
@@ -226,7 +226,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Appointment not found!"
+                    message = "Không tìm thấy cuộc hẹn!"
                 }));
             }
 
@@ -235,13 +235,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in update appointments!"
+                    message = "Lỗi khi cập nhật lịch hẹn!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Update appointments successfully!",
+                message = "Cập nhật cuộc hẹn thành công!",
                 data = _mapper.Map<AppointmentsDTO>(appointmentsModel)
             }));
         }
@@ -265,7 +265,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Appointment not found!"
+                    message = "Không tìm thấy cuộc hẹn!"
                 }));
             }
 
@@ -274,13 +274,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in delete appointments!"
+                    message = "Lỗi khi xóa cuộc hẹn!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Delete appointments successfully!",
+                message = "Xóa cuộc hẹn thành công!",
                 data = _mapper.Map<AppointmentsDTO>(appointmentsModel)
             }));
         }
@@ -294,7 +294,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Booking not found!"
+                    message = "Không tìm thấy lịch hẹn!"
                 }));
             }
 
@@ -303,7 +303,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Failed to cancel booking!"
+                    message = "Không thể hủy lịch hẹn!"
                 }));
             }
 
@@ -341,7 +341,7 @@ namespace Server.API.Controllers
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Booking cancelled and email confirmation sent successfully!"
+                message = "Đã hủy lịch hẹn và đã gửi email xác nhận thành công!"
             }));
         }
 

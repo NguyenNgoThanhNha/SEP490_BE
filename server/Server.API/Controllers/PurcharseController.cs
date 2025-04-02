@@ -46,12 +46,12 @@ namespace Server.API.Controllers
                 if (response == null || response.Data == null || !response.Data.Any())
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "No orders found."
+                        message = "Không tìm thấy đơn hàng."
                     }));
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Orders retrieved successfully.",
+                    message = "Đã lấy đơn hàng thành công.",
                     data = response
                 }));
             }
@@ -59,7 +59,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Error occurred: {ex.Message}"
+                    message = $"Đã xảy ra lỗi: {ex.Message}"
                 }));
             }
         }
@@ -76,7 +76,7 @@ namespace Server.API.Controllers
                                                   .ToList();
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "Validation failed.",
+                        message = "Xác thực không thành công.",
                         data = errors
                     }));
                 }
@@ -87,7 +87,7 @@ namespace Server.API.Controllers
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Order created successfully.",
+                    message = "Đã tạo đơn hàng thành công.",
                     data = orderResult.Result
                 }));
             }
@@ -95,7 +95,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Error occurred: {ex.Message}"
+                    message = $"Đã xảy ra lỗi: {ex.Message}"
                 }));
             }
         }
@@ -112,7 +112,7 @@ namespace Server.API.Controllers
                                                   .ToList();
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "Validation failed.",
+                        message = "Xác thực không thành công."
                         data = errors
                     }));
                 }
@@ -123,7 +123,7 @@ namespace Server.API.Controllers
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Order detail created successfully.",
+                    message = "Đã tạo chi tiết đơn hàng thành công.",
                     data = orderDetailResult.Result
                 }));
             }
@@ -131,7 +131,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Error occurred: {ex.Message}"
+                    message = $"Đã xảy ra lỗi: {ex.Message}"
                 }));
             }
         }

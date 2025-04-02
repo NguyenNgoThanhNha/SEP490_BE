@@ -29,7 +29,7 @@ namespace Server.API.Controllers
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create channel successfully",
+                message = "Tạo kênh thành công",
                 data = channel
             }));
         }
@@ -41,12 +41,12 @@ namespace Server.API.Controllers
             var channel = await _mongoDbService.GetChannelByIdAsync(channelId);
             if (channel == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Channel not found",
+                message = "Không tìm thấy kênh",
             }));
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get channel successfully",
+                message = "Lấy kênh thành công",
                 data = channel
             }));
         }
@@ -58,7 +58,7 @@ namespace Server.API.Controllers
             var channels = await _mongoDbService.GetAllUserChannelsAsync(customerId);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get all channels successfully",
+                message = "Lấy tất cả các kênh thành công",
                 data = channels
             }));
         }
@@ -70,7 +70,7 @@ namespace Server.API.Controllers
             await _mongoDbService.AddMemberToChannelAsync(channelId, customerId);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Member added successfully",
+                message = "Thêm thành viên thành công",
             }));
         }
 
@@ -81,7 +81,7 @@ namespace Server.API.Controllers
             await _mongoDbService.AddMembersToChannelAsync(channelId, customerIds);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Members added successfully",
+                message = "Thêm thành viên thành công",
             }));
         }
 
@@ -92,7 +92,7 @@ namespace Server.API.Controllers
             var messages = await _mongoDbService.GetChannelMessagesAsync(channelId);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get channel messages successfully",
+                message = "Lấy tin nhắn của kênh thành công",
                 data = messages,
             }));
         }
@@ -104,7 +104,7 @@ namespace Server.API.Controllers
             var contacts = await _mongoDbService.SearchContactsAsync(searchTerm, currentCustomerId);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Search contacts successfully",
+                message = "Tìm kiếm thành công",
                 data = contacts,
             }));
         }
@@ -116,7 +116,7 @@ namespace Server.API.Controllers
             var messages = await _mongoDbService.GetMessagesAsync(user1, user2);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get messages successfully",
+                message = "Lấy tin nhắn thành công",
                 data = messages,
             }));
         }
@@ -139,7 +139,7 @@ namespace Server.API.Controllers
             await _mongoDbService.SyncAllCustomersAsync(customers);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Sync all customers successfully",
+                message = "Đồng bộ hóa tất cả khách hàng thành công",
             }));
         }
 
@@ -150,7 +150,7 @@ namespace Server.API.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "File is required"
+                    message = "Yêu cầu tệp"
                 }));
 
             using var stream = file.OpenReadStream();
@@ -158,7 +158,7 @@ namespace Server.API.Controllers
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "File uploaded successfully",
+                message = "Đã tải tệp lên thành công",
                 data = filePath
             }));
         }
@@ -169,7 +169,7 @@ namespace Server.API.Controllers
             var customer = await _mongoDbService.GetCustomerByIdAsync(customerId);
             if (customer == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Customer not found",
+                message = "Không tìm thấy khách hàng",
             }));
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
@@ -184,12 +184,12 @@ namespace Server.API.Controllers
             var channel = await _mongoDbService.CheckExistChannelAppointmentAsync(appointmentId);
             if (channel == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Channel not found",
+                message = "Không tìm thấy kênh",
             }));
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Channel exists",
+                message = "Kênh tồn tại",
                 data = channel
             }));
         }

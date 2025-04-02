@@ -45,7 +45,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
 
@@ -89,7 +89,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
 
@@ -133,7 +133,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Customer info not found!"
+                    message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
 
@@ -141,7 +141,7 @@ namespace Server.API.Controllers
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get skin health successfully!",
+                message = "Lấy hiện trạng da thành công!",
                 data = skinHealthImages
             }));
         }

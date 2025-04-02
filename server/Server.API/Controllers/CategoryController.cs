@@ -36,13 +36,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "No categories found."
+                    message = "Không tìm thấy danh sản phẩm mục nào."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Categories retrieved successfully.",
+                message = "Lấy thành công danh mục sản phẩm.",
                 data = response
             }));
         }
@@ -56,7 +56,7 @@ namespace Server.API.Controllers
                 success = true,
                 result = new
                 {
-                    message = "Lấy danh sách danh mục thành công!",
+                    message = "Lấy danh sách danh mục sản phẩm thành công!",
                     data = result
                 }
             });
@@ -73,7 +73,7 @@ namespace Server.API.Controllers
                 // Trả về kết quả thành công
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Category retrieved successfully.",
+                    message = "Lấy thành công danh mục sản phẩm.",
                     data = category
                 }));
             }
@@ -112,7 +112,7 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Invalid category data.",
+                    message = "Dữ liệu danh mục sản phẩm không hợp lệ.",
                     data = errors
                 }));
             }
@@ -125,14 +125,14 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Category with the same name already exists or failed to create."
+                    message = "Danh mục có cùng tên đã tồn tại hoặc không tạo được."
                 }));
             }
 
             // Trả về kết quả thành công
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Category created successfully.",
+                message = "Danh mục sản phẩm đã được tạo thành công.",
                 data = category
             }));
         }
@@ -154,7 +154,7 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Invalid category data.",
+                    message = "Dữ liệu danh mục không hợp lệ.",
                     data = errors
                 }));
             }
@@ -167,7 +167,7 @@ namespace Server.API.Controllers
                 // Trả về kết quả thành công
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Category updated successfully.",
+                    message = "Danh mục sản phẩm đã được cập nhật thành công.",
                     data = updatedCategory
                 }));
             }
@@ -189,7 +189,7 @@ namespace Server.API.Controllers
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Internal server error: {ex.Message}"
+                    message = $"Lỗi máy chủ nội bộ: {ex.Message}"
                 }));
             }
         }
@@ -208,7 +208,7 @@ namespace Server.API.Controllers
                 // Trả về kết quả thành công
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Category status updated to Inactive successfully.",
+                    message = "Trạng thái danh mục đã được cập nhật thành công.",
                     data = updatedCategory
                 }));
             }
@@ -230,7 +230,7 @@ namespace Server.API.Controllers
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Internal server error: {ex.Message}"
+                    message = $"Lỗi máy chủ nội bộ: {ex.Message}"
                 }));
             }
         }

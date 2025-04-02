@@ -79,13 +79,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "No products found!"
+                    message = "Không tìm thấy sản phẩm nào!"
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Get products successfully!",
+                message = "Lấy danh sách sản phẩm thành công!",
                 data = products
             }));
         }
@@ -133,39 +133,7 @@ namespace Server.API.Controllers
 
 
         [Authorize(Roles = "Admin, Manager")]
-        [HttpPost("create")]
-        //public async Task<IActionResult> CreateProduct([FromBody] ProductCreateDto productCreateDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        var errors = ModelState.Values
-        //            .SelectMany(v => v.Errors)
-        //            .Select(e => e.ErrorMessage)
-        //            .ToList();
-
-        //        return BadRequest(ApiResult<List<string>>.Error(errors));
-        //    }
-
-        //    // Gọi service để tạo sản phẩm
-        //    var result = await _productService.CreateProductAsync(productCreateDto);
-
-        //    // Kiểm tra nếu có lỗi
-        //    if (!result.Success) // Nếu `Success` là false
-        //    {
-        //        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-        //        {
-        //            message = result.Result?.message
-        //        }));
-        //    }
-
-        //    // Trả về phản hồi thành công
-        //    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-        //    {
-        //        message = "Product created successfully!",
-        //        data = result.Result?.data
-        //    }));
-        //}
-        //
+        [HttpPost("create")]       
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto productCreateDto)
         {
             // Kiểm tra tính hợp lệ của Model
@@ -194,7 +162,7 @@ namespace Server.API.Controllers
             // Trả về phản hồi thành công
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Product created successfully!",
+                message = "Sản phẩm đã được tạo thành công!",
                 data = result.Result?.data
             }));
         }
@@ -210,13 +178,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Product with ID {productId} not found."
+                    message = $"Sản phẩm có ID {productId} không tìm thấy."
                 }));
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                message = "Get product successfully!",
+                message = "Lấy sản phẩm thành công!",
                 data = product
             }));
         }
@@ -235,11 +203,11 @@ namespace Server.API.Controllers
                 {
                     return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "No products found."
+                        message = "Không tìm thấy sản phẩm nào."
                     }));
                 }
 
-                products.message = "Products retrieved successfully.";
+                products.message = "Lấy sản phẩm thành công.";
                 return Ok(ApiResult<GetAllProductPaginationResponse>.Succeed(products));
             }
             catch (Exception ex)
@@ -247,7 +215,7 @@ namespace Server.API.Controllers
 
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"An error occurred while retrieving products: {ex.Message}"
+                    message = $"Đã xảy ra lỗi khi truy xuất sản phẩm: {ex.Message}"
                 }));
             }
         }
@@ -257,20 +225,20 @@ namespace Server.API.Controllers
         public async Task<IActionResult> CheckProductInBranchAsync(int productId, int branchId)
         {
             if (productId == 0 || branchId == 0)
-                return BadRequest(ApiResponse.Error("Please enter complete information"));
+                return BadRequest(ApiResponse.Error("Vui lòng nhập thông tin đầy đủ"));
             if (await _productService.GetProductByIdAsync(productId) == null)
             {
-                return BadRequest(ApiResponse.Error("Product not found"));
+                return BadRequest(ApiResponse.Error("Không tìm thấy sản phẩm"));
             }
             if (await _branchService.GetBranchAsync(productId) == null)
             {
-                return BadRequest(ApiResponse.Error("Branch not found"));
+                return BadRequest(ApiResponse.Error("Không tìm thấy chi nhánh"));
             }
 
             var productBranch = await _productService.GetProductInBranchAsync(productId, branchId);
             if (productBranch == null)
             {
-                return BadRequest(ApiResponse.Error("This product not exist in branch"));
+                return BadRequest(ApiResponse.Error("Sản phẩm này không tồn tại trong chi nhánh"));
             }
 
             return Ok(ApiResponse.Succeed(productBranch));
@@ -328,12 +296,12 @@ namespace Server.API.Controllers
                 {
                     return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "Product not found or cannot be deleted."
+                        message = "Không tìm thấy sản phẩm hoặc không thể xóa."
                     }));
                 }
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Product deleted successfully!"
+                    message = "Sản phẩm đã được xóa thành công!"
                 }));
             }
             catch (InvalidOperationException ex)
@@ -357,7 +325,7 @@ namespace Server.API.Controllers
                 // Xử lý lỗi chung
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"An error occurred while deleting the product: {ex.Message}"
+                    message = $"Đã xảy ra lỗi khi xóa sản phẩm: {ex.Message}"
                 }));
             }
         }
@@ -427,7 +395,7 @@ namespace Server.API.Controllers
                 success = true,
                 result = new
                 {
-                    message = "Products retrieved successfully.",
+                    message = "Đã lấy sản phẩm thành công.",
                     data = result.data,
                     pagination = result.pagination
                 }

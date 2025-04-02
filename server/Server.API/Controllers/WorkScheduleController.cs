@@ -41,7 +41,7 @@ namespace Server.API.Controllers
             await _workScheduleService.CreateWorkScheduleAsync(workSheduleRequest);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create work schedule successfully",
+                message = "Tạo lịch làm việc thành công",
             }));
         }
 
@@ -71,7 +71,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Staff does not have any appointments."
+                    message = "Nhân viên không có cuộc hẹn nào."
                 }));
             }
 
@@ -82,7 +82,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Update work schedules failed",
+                    message = "Cập nhật lịch trình làm việc không thành công",
                 }));
             }
 
@@ -186,7 +186,7 @@ namespace Server.API.Controllers
             // 5. Trả về kết quả thành công
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Update work schedules successfully",
+                message = "Cập nhật lịch làm việc thành công",
             }));
         }
 
@@ -197,7 +197,7 @@ namespace Server.API.Controllers
             var result = await _workScheduleService.GetWorkSchedulesByMonthYearAsync(staffId, month, year);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get work schedules successfully",
+                message = "Lấy lịch làm việc thành công",
                 data = result
             }));
         }
@@ -209,7 +209,7 @@ namespace Server.API.Controllers
             var result = await _workScheduleService.GetShiftSlotsByMonthYearAsync(staffId, month, year);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get shift slots successfully",
+                message = "Lấy ca làm việc thành công",
                 data = result
             }));
         }

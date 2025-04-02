@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
@@ -29,12 +29,12 @@ public class ServiceCategoryController : ControllerBase
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 data = result,
-                message = "Create ServiceCategory successfully"
+                message = "Tạo danh mục dịch vụ thành công"
             }));
         }
         return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
         {
-            message = "Create ServiceCategory failed"
+            message = "Tạo danh mục dịch vụ thất bại"
         }));
     }
 
@@ -47,13 +47,13 @@ public class ServiceCategoryController : ControllerBase
         {
             return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "ServiceCategory not found"
+                message = "Không tìm thấy danh mục dịch vụ"
             }));
         }
         return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
         {
             data = result,
-            message = "Get ServiceCategory successfully"
+            message = "Lấy danh mục dịch vụ thành công"
         }));
     }
 
@@ -62,7 +62,7 @@ public class ServiceCategoryController : ControllerBase
     public async Task<IActionResult> SearchServiceCategories([FromQuery] string? keyword, int page = 1, int pageSize = 5)
     {
         var result = await _serviceCategoryService.SearchServiceCategoriesAsync(keyword, page, pageSize);
-        result.message = "Get ServiceCategories successfully";
+        result.message = "Lấy danh mục dịch vụ thành công";
         return Ok(ApiResult<GetAllServiceCategoryResponse>.Succeed(result));
     }
 
@@ -75,13 +75,13 @@ public class ServiceCategoryController : ControllerBase
         {
             return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "ServiceCategory not found"
+                message = "Không tìm thấy danh mục dịch vụ"
             }));
         }
         return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
         {
             data = result,
-            message = "Update ServiceCategory successfully"
+            message = "Cập nhật danh mục dịch vụ thành công"
         }));
     }
 
@@ -94,12 +94,12 @@ public class ServiceCategoryController : ControllerBase
         {
             return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "ServiceCategory not found"
+                message = "Không tìm thấy danh mục dịch vụ"
             }));
         }
         return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
         {
-            message = "Delete ServiceCategory successfully"
+            message = "Xóa danh mục dịch vụ thành công"
         }));
     }
 }

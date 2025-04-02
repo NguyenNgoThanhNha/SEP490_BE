@@ -31,12 +31,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Currently, there is no promotion!"
+                    message = "Hi?n t?i không có khuy?n mãi nào!"
                 }));
             }
             return Ok(ApiResult<GetAllPromotionResponse>.Succeed(new GetAllPromotionResponse()
             {
-                message = "Get promotions successfully!",
+                message = "L?y ch??ng trình khuy?n mãi thành công!",
                 data = listPromotion.data,
                 pagination = listPromotion.pagination
             }));
@@ -50,12 +50,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Promotion not found!"
+                    message = "Không tìm th?y khuy?n mãi!"
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Get promotion successfully!",
+                message = "L?y ch??ng trình khuy?n mãi thành công!",
                 data = _mapper.Map<PromotionDTO>(promotionModel)
             }));
         }
@@ -79,13 +79,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in create promotion!"
+                    message = "L?i khi t?o khuy?n mãi!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Create promotion successfully!",
+                message = "T?o khuy?n mãi thành công!",
                 data = _mapper.Map<PromotionDTO>(promotionModel)
             }));
         }
@@ -109,7 +109,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Promotion not found!"
+                    message = "Không tìm th?y ch??ng trình khuy?n mãi!"
                 }));
             }
 
@@ -118,13 +118,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in update promotion!"
+                    message = "L?i khi c?p nh?t ch??ng trình khuy?n mãi!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Update promotion successfully!",
+                message = "C?p nh?t ch??ng trình khuy?n mãi thành công!",
                 data = _mapper.Map<PromotionDTO>(promotionModel)
             }));
         }
@@ -148,7 +148,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Promotion not found!"
+                    message = "Không tìm th?y khuy?n mãi!"
                 }));
             }
 
@@ -157,13 +157,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Error in delete promotion!"
+                    message = "L?i khi xóa khuy?n mãi!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Delete promotion successfully!",
+                message = "Xóa khuy?n mãi thành công!",
                 data = _mapper.Map<PromotionDTO>(promotionModel)
             }));
         }
