@@ -802,5 +802,13 @@ namespace Server.API.Controllers
             var result = await _staffService.GetStaffWorkingSlots(branchId, month, year);
             return Ok(result);
         }
+
+        [HttpGet("branch-staff-appointments")]
+        public async Task<IActionResult> GetBranchStaffWorkingSlotsByAppointment([FromQuery] int branchId, [FromQuery] int month, [FromQuery] int year)
+        {
+            var result = await _staffService.GetBranchStaffWorkingSlotsByAppointment(branchId, month, year);
+            return Ok(result);
+        }
+
     }
 }

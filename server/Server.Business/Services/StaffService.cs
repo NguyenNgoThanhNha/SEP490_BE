@@ -1057,5 +1057,55 @@ namespace Server.Business.Services
                 data = result
             });
         }
+
+        public async Task<ApiResult<object>> GetBranchStaffWorkingSlotsByAppointment(int branchId, int month, int year)
+        {
+            if (branchId <= 0 || month <= 0 || year <= 0)
+                return ApiResult<object>.Error(null, "Invalid input.");
+
+            // Lấy danh sách staff trong branch
+            var staffs = await _unitOfWorks.StaffRepository
+                .FindByCondition(x => x.BranchId == branchId)
+                .Include(x => x.StaffInfo)
+                .ToListAsync();
+
+            if (!staffs.Any())
+                return ApiResult<object>.Error(null, "No staff found in this branch.");
+
+            var data = new List<object>();
+
+            foreach (var staff in staffs)
+            {
+                // Lấy appointment của staff trong tháng và năm
+                var appointments = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(a => a.StaffId == staff.StaffId &&
+                                          a.AppointmentsTime.Month == month &&
+                                          a.AppointmentsTime.Year == year)
+                    .ToListAsync();
+
+                var slots = appointments.Select(a => new
+                {
+                    a.AppointmentId,
+                    a.OrderId,
+                    a.AppointmentsTime,
+                    a.Status,
+                    a.Notes
+                }).ToList();
+
+                data.Add(new
+                {
+                    StaffId = staff.StaffId,
+                    StaffName = staff.StaffInfo.FullName,
+                    Slots = slots
+                });
+            }
+
+            return ApiResult<object>.Succeed(new
+            {
+                message = "Get working slots successfully!",
+                data = data
+            });
+        }
+
     }
 }
