@@ -776,9 +776,15 @@ namespace Server.Business.Services
 
                 return ApiResult<object>.Succeed(new
                 {
-                    OrderId = order.OrderId,
-                    OrderCode = order.OrderCode,
-                    Message = "Order created successfully."
+                    //OrderId = order.OrderId,
+                    //OrderCode = order.OrderCode,
+                    //Message = "Order created successfully."
+                    message = "Order created successfully.",
+                    data = new
+                    {
+                        OrderId = order.OrderId,
+                        OrderCode = order.OrderCode
+                    }
                 });
             }
             catch (Exception ex)
