@@ -1107,5 +1107,51 @@ namespace Server.Business.Services
             });
         }
 
+        public async Task<ApiResult<object>> GetStaffsBusySlots(List<int> staffIds, int month, int year)
+        {
+            if (staffIds == null || !staffIds.Any() || month <= 0 || year <= 0)
+                return ApiResult<object>.Error(null, "Invalid input.");
+
+            var data = new List<object>();
+
+            foreach (var staffId in staffIds)
+            {
+                var staff = await _unitOfWorks.StaffRepository
+                    .FindByCondition(x => x.StaffId == staffId)
+                    .Include(x => x.StaffInfo)
+                    .FirstOrDefaultAsync();
+
+                if (staff == null) continue;
+
+                var appointments = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(a => a.StaffId == staffId &&
+                                          a.AppointmentsTime.Month == month &&
+                                          a.AppointmentsTime.Year == year)
+                    .ToListAsync();
+
+                var slots = appointments.Select(a => new
+                {
+                    a.AppointmentId,
+                    a.OrderId,
+                    a.AppointmentsTime,
+                    a.Status,
+                    a.Notes
+                }).ToList();
+
+                data.Add(new
+                {
+                    StaffId = staff.StaffId,
+                    StaffName = staff.StaffInfo.FullName,
+                    Slots = slots
+                });
+            }
+
+            return ApiResult<object>.Succeed(new
+            {
+                message = "Get busy slots successfully!",
+                data = data
+            });
+        }
+
     }
 }

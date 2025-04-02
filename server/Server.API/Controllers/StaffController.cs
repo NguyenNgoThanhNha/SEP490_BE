@@ -810,5 +810,13 @@ namespace Server.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("staffs-busy-slots")]
+        public async Task<IActionResult> GetStaffsBusySlots([FromBody] StaffBusySlotRequest request)
+        {
+            var result = await _staffService.GetStaffsBusySlots(request.StaffIds, request.Month, request.Year);
+            return Ok(result);
+        }
+
+
     }
 }
