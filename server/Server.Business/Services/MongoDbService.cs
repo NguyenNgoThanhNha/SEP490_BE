@@ -84,6 +84,7 @@ public class MongoDbService
             Id = ObjectId.GenerateNewId().ToString(),
             Name = name,
             Admin = adminId,
+            Members = new List<string> { adminId },
             AppointmentId = appointmentId,
             CreateAt = DateTime.UtcNow
         };
@@ -125,9 +126,9 @@ public class MongoDbService
 
     
     // get channel theo id
-    public async Task<Channels?> GetChannelByIdAsync(string channelId)
+    public async Task<ChannelsDTO?> GetChannelByIdAsync(string channelId)
     {
-        return await _channelsRepository.GetByIdAsync(channelId);
+        return await _channelsRepository.GetChannelByIdAsync(channelId);
     }
     
     // get customer theo id
@@ -143,7 +144,7 @@ public class MongoDbService
     }
     
     // get messages of a channel
-    public async Task<List<Messages>> GetChannelMessagesAsync(string channelId)
+    public async Task<object> GetChannelMessagesAsync(string channelId)
     {
         var channel = await _channelsRepository.GetByIdAsync(channelId);
         if (channel == null)
@@ -156,7 +157,7 @@ public class MongoDbService
     
         if (messageIds == null || !messageIds.Any())
         {
-            return new List<Messages>();
+            return new List<BsonDocument>();
         }
 
         // Lấy danh sách tin nhắn dựa trên danh sách ID
