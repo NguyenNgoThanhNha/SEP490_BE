@@ -68,16 +68,19 @@ public class MongoDbService
     public async Task<Channels> CreateChannelAsync(string name, string adminId, int appointmentId)
     {
         var channelExists = await _channelsRepository
-            .GetManyAsync(c => c.Name == name && c.AppointmentId == appointmentId);
+            .GetManyAsync(c => c.Name == name || c.AppointmentId == appointmentId);
         if (channelExists.Any())
         {
-            throw new Exception($"Channel's {name} already exists.");
+            throw new BadRequestException($"Channel's {name} with Appointment already exists.");
         }
         var admin = await _customerRepository.GetByIdAsync(adminId);
         if (admin == null)
         {
-            throw new Exception("Admin Not Found.");
+            throw new BadRequestException("Admin Not Found.");
         }
+
+        var appointment = await _unitOfWorks.AppointmentsRepository.GetByIdAsync(appointmentId)
+                          ?? throw new BadRequestException("Appointment Not Found.");
 
         var channel = new Channels
         {
@@ -85,7 +88,7 @@ public class MongoDbService
             Name = name,
             Admin = adminId,
             Members = new List<string> { adminId },
-            AppointmentId = appointmentId,
+            AppointmentId = appointment.AppointmentId,
             CreateAt = DateTime.UtcNow
         };
         await _channelsRepository.AddAsync(channel);
