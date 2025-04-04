@@ -886,12 +886,8 @@ namespace Server.Business.Services
                     //OrderId = order.OrderId,
                     //OrderCode = order.OrderCode,
                     //Message = "Order created successfully."
-                    message = "Order created successfully.",
-                    data = new
-                    {
-                        OrderId = order.OrderId,
-                        OrderCode = order.OrderCode
-                    }
+                    message = "Tạo đơn hàng thành công.",
+                    data = order.OrderId
                 });
             }
             catch (Exception ex)
