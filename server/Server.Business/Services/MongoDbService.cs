@@ -71,16 +71,16 @@ public class MongoDbService
             .GetManyAsync(c => c.Name == name || c.AppointmentId == appointmentId);
         if (channelExists.Any())
         {
-            throw new BadRequestException($"Channel's {name} with Appointment already exists.");
+            throw new BadRequestException($"Kênh {name} với cuộc hẹn đã tồn tại.");
         }
         var admin = await _customerRepository.GetByIdAsync(adminId);
         if (admin == null)
         {
-            throw new BadRequestException("Admin Not Found.");
+            throw new BadRequestException("Không tìm thấy quản trị viên.");
         }
 
         var appointment = await _unitOfWorks.AppointmentsRepository.GetByIdAsync(appointmentId)
-                          ?? throw new BadRequestException("Appointment Not Found.");
+                          ?? throw new BadRequestException("Không tìm thấy cuộc hẹn.");
 
         var channel = new Channels
         {
@@ -100,10 +100,10 @@ public class MongoDbService
     {
         var channel = await _channelsRepository.GetByIdAsync(channelId);
         if (channel == null) 
-            throw new Exception("Channel not found");
+            throw new Exception("Không tìm thấy kênh.");
 
         if (channel.Members.Contains(memberId)) 
-            throw new Exception("User is already a member of this channel");
+            throw new Exception("Người dùng đã là thành viên của kênh này.");
 
         channel.Members.Add(memberId);
         await _channelsRepository.UpdateAsync(channelId, channel);
@@ -115,12 +115,12 @@ public class MongoDbService
     {
         var channel = await _channelsRepository.GetByIdAsync(channelId);
         if (channel == null) 
-            throw new Exception("Channel not found");
+            throw new Exception("Không tìm thấy kênh.");
 
         foreach (var memberId in memberIds)
         {
             if (channel.Members.Contains(memberId)) 
-                throw new Exception("User is already a member of this channel");
+                throw new Exception("Người dùng đã là thành viên của kênh này.");
 
             channel.Members.Add(memberId);
             await _channelsRepository.UpdateAsync(channelId, channel);
@@ -152,7 +152,7 @@ public class MongoDbService
         var channel = await _channelsRepository.GetByIdAsync(channelId);
         if (channel == null)
         {
-            throw new Exception("Channel not found");
+            throw new Exception("Không tìm thấy kênh.");
         }
 
         // Lấy danh sách messageId từ channel
@@ -173,7 +173,7 @@ public class MongoDbService
     {
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
-            throw new Exception("Search term is required");
+            throw new Exception("Vui lòng nhập từ khóa tìm kiếm.");
         }
 
         return await _customerRepository.GetManyAsync(c => 
