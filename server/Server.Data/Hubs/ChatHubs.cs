@@ -42,7 +42,7 @@ public class ChatHubs : Hub
         if (!string.IsNullOrEmpty(userEntry.Key))
         {
             UserSocketMap.TryRemove(userEntry.Key, out _);
-            Console.WriteLine($"User Disconnected: {Context.ConnectionId}");
+            _logger.LogInformation($"User Disconnected: {Context.ConnectionId}");
         }
         await base.OnDisconnectedAsync(exception);
     }
