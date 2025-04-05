@@ -10,7 +10,8 @@ public class ChatHubs : Hub
     private readonly MessageRepository _messageRepository;
     private static readonly ConcurrentDictionary<string, string> UserSocketMap = new();
 
-    public ChatHubs(CustomerRepository customerRepository, ChannelsRepository channelsRepository, MessageRepository messageRepository)
+    public ChatHubs(CustomerRepository customerRepository, ChannelsRepository channelsRepository, 
+        MessageRepository messageRepository)
     {
         _customerRepository = customerRepository;
         _channelsRepository = channelsRepository;
@@ -19,7 +20,7 @@ public class ChatHubs : Hub
 
     public override async Task OnConnectedAsync()
     {
-        var userId = Context.GetHttpContext()?.Request.Query["id"];
+        var userId = Context.GetHttpContext()?.Request.Query["userId"];
         if (!string.IsNullOrEmpty(userId))
         {
             UserSocketMap[userId] = Context.ConnectionId;
