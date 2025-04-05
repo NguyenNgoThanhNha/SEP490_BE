@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.Logging;
 using Server.Data.MongoDb.Models;
 using Server.Data.MongoDb.Repository;
 
@@ -8,14 +9,16 @@ public class ChatHubs : Hub
     private readonly CustomerRepository _customerRepository;
     private readonly ChannelsRepository _channelsRepository;
     private readonly MessageRepository _messageRepository;
+    private readonly ILogger<ChatHubs> _logger;
     private static readonly ConcurrentDictionary<string, string> UserSocketMap = new();
 
     public ChatHubs(CustomerRepository customerRepository, ChannelsRepository channelsRepository, 
-        MessageRepository messageRepository)
+        MessageRepository messageRepository, ILogger<ChatHubs> logger)
     {
         _customerRepository = customerRepository;
         _channelsRepository = channelsRepository;
         _messageRepository = messageRepository;
+        _logger = logger;
     }
 
     public override async Task OnConnectedAsync()
@@ -24,11 +27,11 @@ public class ChatHubs : Hub
         if (!string.IsNullOrEmpty(userId))
         {
             UserSocketMap[userId] = Context.ConnectionId;
-            Console.WriteLine($"User Connected: {userId} with socket Id: {Context.ConnectionId}");
+            _logger.LogInformation($"User Connected: {userId} with socket Id: {Context.ConnectionId}");
         }
         else
         {
-            Console.WriteLine("User Id not found during connection");
+            _logger.LogInformation("User Id not found during connection");
         }
         await base.OnConnectedAsync();
     }
