@@ -19,7 +19,7 @@ namespace Server.API.Controllers
             _voucherService = voucherService;
             _authService = authService;
         }
-        
+
         [Authorize]
         [HttpGet("get-all-vouchers")]
         public async Task<IActionResult> GetAllVouchers([FromQuery] VoucherRequest request)
@@ -31,7 +31,7 @@ namespace Server.API.Controllers
                 data = vouchers
             }));
         }
-        
+
         [Authorize]
         [HttpGet("get-voucher-by-date")]
         public async Task<IActionResult> GetVoucherByDate([FromQuery] DateTime dateTime)
@@ -101,6 +101,7 @@ namespace Server.API.Controllers
                     data = result
                 }));
             }
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Tạo phiếu giảm giá thành công!",
@@ -128,7 +129,7 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
-        
+
         [Authorize]
         [HttpDelete("delete-voucher/{voucherId}")]
         public async Task<IActionResult> DeleteVoucher(int voucherId)
