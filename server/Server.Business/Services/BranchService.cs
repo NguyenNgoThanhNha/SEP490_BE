@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
+using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
@@ -105,7 +107,56 @@ namespace Server.Business.Services
             return branchModel;
         }
 
+        public async Task<bool> CreateBranch(CreateBranchRequest request)
+        {
+            var branch = new Branch
+            {
+                BranchName = request.BranchName,
+                BranchAddress = request.BranchAddress,
+                BranchPhone = request.BranchPhone,
+                LongAddress = request.LongAddress,
+                LatAddress = request.LatAddress,
+                Status = request.Status,
+                ManagerId = request.ManagerId,
+                CompanyId = request.CompanyId,
+                District = request.District,
+                WardCode = request.WardCode
+            };
+            // Thêm chi nhánh vào cơ sở dữ liệu
+            await unitOfWorks.BranchRepository.AddAsync(branch);
+            return await unitOfWorks.BranchRepository.Commit() > 0;
+        }
 
+        public async Task<bool> UpdateBranch(UpdateBranchRequest request)
+        {
+            var branch = await unitOfWorks.BranchRepository.GetByIdAsync(request.BranchId);
+            if (branch == null) throw new BadRequestException("Chi nhánh không tồn tại!");
 
+            // Cập nhật thông tin chi nhánh
+            branch.BranchName = request.BranchName ?? branch.BranchName;
+            branch.BranchAddress = request.BranchAddress ?? branch.BranchAddress;
+            branch.BranchPhone = request.BranchPhone ?? branch.BranchPhone;
+            branch.LongAddress = request.LongAddress ?? branch.LongAddress;
+            branch.LatAddress = request.LatAddress ?? branch.LatAddress;
+            branch.Status = request.Status ?? branch.Status;
+            branch.ManagerId = request.ManagerId != null ? request.ManagerId : branch.ManagerId;
+            branch.CompanyId = request.CompanyId != null ? request.CompanyId : branch.CompanyId;
+            branch.District = request.District ?? branch.District;
+            branch.WardCode = request.WardCode ?? branch.WardCode;
+
+            // Cập nhật chi nhánh trong cơ sở dữ liệu
+            unitOfWorks.BranchRepository.Update(branch);
+            return await unitOfWorks.BranchRepository.Commit() > 0;
+        }
+
+        public async Task<bool> DeleteBranch(int id)
+        {
+            var branch = await unitOfWorks.BranchRepository.GetByIdAsync(id);
+            if (branch == null) throw new BadRequestException("Chi nhánh không tồn tại!");
+
+            // Xóa chi nhánh trong cơ sở dữ liệu
+            unitOfWorks.BranchRepository.Remove(branch.BranchId);
+            return await unitOfWorks.BranchRepository.Commit() > 0;
+        }
     }
 }

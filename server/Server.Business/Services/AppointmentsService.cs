@@ -21,7 +21,8 @@ public class AppointmentsService
     private readonly StaffService _staffService;
     private readonly MongoDbService _mongoDbService;
 
-    public AppointmentsService(UnitOfWorks unitOfWorks, IMapper mapper, StaffService staffService, MongoDbService mongoDbService)
+    public AppointmentsService(UnitOfWorks unitOfWorks, IMapper mapper, StaffService staffService,
+        MongoDbService mongoDbService)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
@@ -93,13 +94,14 @@ public class AppointmentsService
             if (request.VoucherId != null && request.VoucherId > 0)
             {
                 voucher = await _unitOfWorks.VoucherRepository
-                                  .FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
-                              ?? throw new BadRequestException("Voucher not found!");
+                              .FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
+                          ?? throw new BadRequestException("Voucher not found!");
             }
 
             if (customer == null) throw new BadRequestException("Customer not found!");
             if (branch == null) throw new BadRequestException("Branch not found!");
-            if (request.ServiceId.Length != request.StaffId.Length || request.ServiceId.Length != request.AppointmentsTime.Length)
+            if (request.ServiceId.Length != request.StaffId.Length ||
+                request.ServiceId.Length != request.AppointmentsTime.Length)
             {
                 throw new BadRequestException("The number of services, staff, and appointment times must match!");
             }
@@ -129,6 +131,7 @@ public class AppointmentsService
                 {
                     throw new BadRequestException("Voucher is out of stock!");
                 }
+
                 _unitOfWorks.VoucherRepository.Update(voucher);
                 await _unitOfWorks.VoucherRepository.Commit();
             }
@@ -177,12 +180,14 @@ public class AppointmentsService
                         throw new BadRequestException($"Staff is busy during this time!");
                     }
                 }
+
                 staffAppointments[staffId] = endTime;
 
                 var isStaffBusy = await _unitOfWorks.AppointmentsRepository
                     .FirstOrDefaultAsync(a => a.StaffId == staffId &&
                                               a.AppointmentsTime < endTime &&
-                                              a.AppointmentEndTime > appointmentTime && a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                                              a.AppointmentEndTime > appointmentTime &&
+                                              a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
                 if (isStaffBusy)
                 {
                     throw new BadRequestException($"Staff is busy during this time!");
@@ -209,7 +214,7 @@ public class AppointmentsService
                     await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(newAppointment));
                 await _unitOfWorks.AppointmentsRepository.Commit();
                 appointments.Add(_mapper.Map<AppointmentsModel>(appointmentEntity));
-                
+
                 // get specialist MySQL
                 var specialistMySQL = await _staffService.GetStaffById(staffId);
 
@@ -219,7 +224,9 @@ public class AppointmentsService
                 var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
 
                 // create channel
-                var channel = await _mongoDbService.CreateChannelAsync($"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id, appointmentEntity.AppointmentId);
+                var channel = await _mongoDbService.CreateChannelAsync(
+                    $"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id,
+                    appointmentEntity.AppointmentId);
 
                 // add member to channel
                 await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
@@ -407,7 +414,8 @@ public class AppointmentsService
         return _mapper.Map<List<AppointmentsModel>>(listAppointments);
     }
 
-    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
+    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(
+        AppointmentFilterRequest request)
     {
         if (request.BranchId <= 0)
         {
@@ -454,7 +462,6 @@ public class AppointmentsService
             Quantity = a.Quantity,
             UnitPrice = a.UnitPrice,
             SubTotal = a.SubTotal,
-
         }).ToList();
 
         return new GetAllAppointmentPaginationResponse
