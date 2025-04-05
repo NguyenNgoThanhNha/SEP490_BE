@@ -14,9 +14,9 @@ namespace Server.Business.Dtos
         public int UserId { get; set; }
         [Range(1, double.MaxValue, ErrorMessage = "VoucherID phải tồn tại")]
         public int? VoucherId { get; set; }
-        [Required]
-        [Range(1, double.MaxValue, ErrorMessage = "Tổng tiền phải lớn hơn 0")]
-        public decimal TotalAmount { get; set; }
+        //[Required]
+        //[Range(1, double.MaxValue, ErrorMessage = "Tổng tiền phải lớn hơn 0")]
+        //public decimal TotalAmount { get; set; }
         [Required]
         public string PaymentMethod { get; set; }
 
