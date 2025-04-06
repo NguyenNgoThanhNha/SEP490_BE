@@ -213,4 +213,14 @@ public class MongoDbService
         var channel = await _channelsRepository.GetOneAsync(c => c.AppointmentId == appointmentId);
         return channel;
     }
+    
+    public async Task<ChannelsDTO?> GetChannelByAppointmentIdAsync(int appointmentId)
+    {
+        var channel = await _channelsRepository.GetChannelByAppointmentIdAsync(appointmentId);
+        if (channel == null)
+        {
+            throw new Exception("Không tìm thấy kênh.");
+        }
+        return channel;
+    }
 }

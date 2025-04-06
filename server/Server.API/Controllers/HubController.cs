@@ -193,5 +193,22 @@ namespace Server.API.Controllers
                 data = channel
             }));
         }
+
+        [HttpGet("get-channel-appointment/{appointmentId}")]
+        public async Task<IActionResult> GetChannelAppointmentAsync(int appointmentId)
+        {
+            var channel = await _mongoDbService.GetChannelByAppointmentIdAsync(appointmentId);
+            if (channel == null)
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy kênh",
+                }));
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy kênh thành công",
+                data = channel
+            }));
+        }
     }
 }
