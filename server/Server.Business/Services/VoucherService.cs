@@ -131,7 +131,7 @@ public class VoucherService
         {
             Code = request.Code,
             Quantity = request.Quantity,
-            RemainQuantity = request.RemainQuantity,
+            RemainQuantity = request.RemainQuantity > 0 ? request.RemainQuantity : request.Quantity,
             Status = request.Status,
             Description = request.Description,
             DiscountAmount = request.DiscountAmount,

@@ -18,7 +18,7 @@ public class CreateVoucherRequest
     [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0.")]
     public int Quantity { get; set; }
 
-    [Range(0, int.MaxValue, ErrorMessage = "Số lượng còn lại không hợp lệ.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Số lượng còn lại không hợp lệ.")]
     public int RemainQuantity { get; set; }
 
     [Required]
