@@ -422,6 +422,7 @@ namespace Server.Business.Services
               .ThenInclude(p => p.Branch_Products)
                   .ThenInclude(bp => bp.Branch) // ✅ Chi nhánh của sản phẩm
       .Where(x => x.Status == status && x.OrderType == orderType)
+      .OrderByDescending(x => x.CreatedDate)
       .ToListAsync();
 
 
