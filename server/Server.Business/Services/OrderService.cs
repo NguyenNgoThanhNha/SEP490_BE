@@ -535,6 +535,90 @@ namespace Server.Business.Services
         //    };
         //}
 
+        //public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
+        //{
+        //    var order = await _unitOfWorks.OrderRepository
+        //        .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+        //        .Include(x => x.Customer)
+        //        .Include(x => x.Shipment)
+        //        .Include(x => x.Voucher)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //                .ThenInclude(p => p.ProductImages)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //                .ThenInclude(p => p.Branch_Products)
+        //                    .ThenInclude(bp => bp.Branch)
+        //        .Include(x => x.Appointments)
+        //        .FirstOrDefaultAsync();
+
+        //    if (order == null)
+        //        return null;
+
+        //    var listService = new List<Data.Entities.Service>();
+        //    var listProduct = new List<Product>();
+        //    var listServiceModels = new List<ServiceModel>();
+        //    var listProductModels = new List<ProductModel>();
+
+        //    if (order.OrderType == "Appointment")
+        //    {
+        //        var orderAppointments = await _unitOfWorks.AppointmentsRepository
+        //            .FindByCondition(x => x.OrderId == orderId)
+        //            .Include(x => x.Branch)
+        //            .Include(x => x.Service)
+        //            .Include(x => x.Staff)
+        //                .ThenInclude(x => x.StaffInfo)
+        //            .ToListAsync();
+
+        //        order.Appointments = orderAppointments;
+
+        //        listService = orderAppointments.Select(a => a.Service).ToList();
+        //        listServiceModels = await _serviceService.GetListImagesOfServices(listService);
+        //    }
+        //    else if (order.OrderType == "Product")
+        //    {
+        //        var orderDetails = order.OrderDetails.ToList(); // đã include sẵn Product + ProductImages
+        //        listProduct = orderDetails.Select(od => od.Product).ToList();
+
+        //        listProductModels = await _productService.GetListImagesOfProduct(listProduct);
+        //    }
+
+        //    // Mapping
+        //    var orderModel = _mapper.Map<OrderModel>(order);
+
+        //    // Gắn images cho service
+        //    if (orderModel.Appointments.Any())
+        //    {
+        //        foreach (var appointment in orderModel.Appointments)
+        //        {
+        //            var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+        //            if (matchedService != null)
+        //            {
+        //                appointment.Service.images = matchedService.images;
+        //            }
+        //        }
+        //    }
+        //    // Gắn images và branch cho product
+        //    else if (orderModel.OrderDetails.Any())
+        //    {
+        //        foreach (var orderDetail in orderModel.OrderDetails)
+        //        {
+        //            var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.ProductId);
+        //            if (matchedProduct != null)
+        //            {
+        //                orderDetail.Product.images = matchedProduct.images;
+        //                orderDetail.Product.Branches = matchedProduct.Branches; // ✅ gán chi nhánh
+        //            }
+        //        }
+        //    }
+
+        //    return new DetailOrderResponse()
+        //    {
+        //        message = "Get detail order success",
+        //        data = orderModel
+        //    };
+        //}
+
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
         {
             var order = await _unitOfWorks.OrderRepository
@@ -553,7 +637,9 @@ namespace Server.Business.Services
                 .FirstOrDefaultAsync();
 
             if (order == null)
-                return null;
+            {
+                return null; // Controller xử lý lỗi
+            }
 
             var listService = new List<Data.Entities.Service>();
             var listProduct = new List<Product>();
@@ -571,22 +657,18 @@ namespace Server.Business.Services
                     .ToListAsync();
 
                 order.Appointments = orderAppointments;
-
                 listService = orderAppointments.Select(a => a.Service).ToList();
                 listServiceModels = await _serviceService.GetListImagesOfServices(listService);
             }
             else if (order.OrderType == "Product")
             {
-                var orderDetails = order.OrderDetails.ToList(); // đã include sẵn Product + ProductImages
+                var orderDetails = order.OrderDetails.ToList();
                 listProduct = orderDetails.Select(od => od.Product).ToList();
-
                 listProductModels = await _productService.GetListImagesOfProduct(listProduct);
             }
 
-            // Mapping
             var orderModel = _mapper.Map<OrderModel>(order);
 
-            // Gắn images cho service
             if (orderModel.Appointments.Any())
             {
                 foreach (var appointment in orderModel.Appointments)
@@ -598,7 +680,6 @@ namespace Server.Business.Services
                     }
                 }
             }
-            // Gắn images và branch cho product
             else if (orderModel.OrderDetails.Any())
             {
                 foreach (var orderDetail in orderModel.OrderDetails)
@@ -607,17 +688,20 @@ namespace Server.Business.Services
                     if (matchedProduct != null)
                     {
                         orderDetail.Product.images = matchedProduct.images;
-                        orderDetail.Product.Branches = matchedProduct.Branches; // ✅ gán chi nhánh
+                        orderDetail.Product.Branches = matchedProduct.Branches;
                     }
                 }
             }
 
-            return new DetailOrderResponse()
+            return new DetailOrderResponse
             {
                 message = "Get detail order success",
-                data = orderModel
+                data = orderModel // ✅ Là 1 object, không phải list
             };
         }
+
+
+
 
 
 
