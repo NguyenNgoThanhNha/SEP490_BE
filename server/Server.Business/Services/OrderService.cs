@@ -700,10 +700,22 @@ namespace Server.Business.Services
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
             if (order == null) throw new BadRequestException("Order not found!");
+
+            if (order.Status == OrderStatusEnum.Completed.ToString())
+            {
+                throw new BadRequestException("Đơn hàng đã hoàn thành không thể thay đổi trạng thái!");
+            }
+            
             order.Status = orderStatus;
             order.UpdatedDate = DateTime.Now;
+
+            var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+            customer.BonusPoint += 200;
+            _unitOfWorks.UserRepository.Update(customer);
+            _unitOfWorks.UserRepository.Commit();               
+            
             _unitOfWorks.OrderRepository.Update(order);
-            return await _unitOfWorks.OrderRepository.Commit() > 0;
+            return await _unitOfWorks.OrderRepository.Commit() > 0;     
         }
 
         public async Task<bool> CancelOrder(int orderId, string reasonCancel)
