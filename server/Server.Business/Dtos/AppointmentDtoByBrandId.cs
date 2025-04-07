@@ -1,4 +1,5 @@
 ﻿using Server.Data;
+using Server.Data.MongoDb.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +12,10 @@ namespace Server.Business.Dtos
     {
         public int AppointmentId { get; set; }
 
-        public int CustomerId { get; set; }
+        //public int CustomerId { get; set; }
        
 
-        public int StaffId { get; set; }
+        //public int StaffId { get; set; }
     
 
         public int ServiceId { get; set; }
@@ -43,6 +44,11 @@ namespace Server.Business.Dtos
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
         public int? OrderId { get; set; }
-        public DateTime AppointmentEndTime { get; set; }      
+        public DateTime AppointmentEndTime { get; set; }
+
+        public UserDTO Customer { get; set; }
+        public UserDTO Staff { get; set; }
+        public ServiceDto Service { get; set; }
+
     }
 }
