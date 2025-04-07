@@ -401,18 +401,32 @@ namespace Server.Business.Services
             }
         }
 
+        
+
         public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType, int page = 1,
             int pageSize = 5)
         {
-            var listOrders = await _unitOfWorks.OrderRepository.FindByCondition(x => x.CustomerId == userId)
-                .Include(x => x.Customer)
-                .Include(x => x.Voucher)
-                .Include(x => x.Appointments)
-                .ThenInclude(x => x.Service)
-                .Include(x => x.OrderDetails)
-                .ThenInclude(x => x.Product)
-                .Where(x => x.Status == status && x.OrderType == orderType)
-                .ToListAsync();
+
+            var listOrders = await _unitOfWorks.OrderRepository
+      .FindByCondition(x => x.CustomerId == userId)
+      .Include(x => x.Customer)
+      .Include(x => x.Voucher)
+      .Include(x => x.Shipment) // ✅ Thêm Include Shipment
+      .Include(x => x.Appointments)
+          .ThenInclude(x => x.Service)
+      .Include(x => x.OrderDetails)
+          .ThenInclude(od => od.Product)
+              .ThenInclude(p => p.ProductImages) // ✅ Hình ảnh sản phẩm
+      .Include(x => x.OrderDetails)
+          .ThenInclude(od => od.Product)
+              .ThenInclude(p => p.Branch_Products)
+                  .ThenInclude(bp => bp.Branch) // ✅ Chi nhánh của sản phẩm
+      .Where(x => x.Status == status && x.OrderType == orderType)
+      .ToListAsync();
+
+
+
+
             if (listOrders.Equals(null))
             {
                 return null;

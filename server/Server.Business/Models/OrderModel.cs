@@ -1,4 +1,5 @@
-﻿using Server.Data;
+﻿using Server.Business.Dtos;
+using Server.Data;
 using Server.Data.Entities;
 
 namespace Server.Business.Models;

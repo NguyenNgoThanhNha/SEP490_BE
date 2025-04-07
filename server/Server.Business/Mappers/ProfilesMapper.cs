@@ -41,7 +41,17 @@ namespace Server.Business.Mappers
             CreateMap<ProductModel, ProductDto>().ReverseMap();
             CreateMap<Product, ProductDto>().ReverseMap();
             CreateMap<Product, ProductDetailDto>().ReverseMap();
-            
+
+            CreateMap<Product, ProductModel>()
+      .ForMember(dest => dest.images, opt => opt.MapFrom(src => src.ProductImages.Select(i => i.image)))
+      .ForMember(dest => dest.Branches, opt => opt.MapFrom(src => src.Branch_Products.Select(bp => bp.Branch)));
+
+           
+
+
+
+
+
             CreateMap<Category, CategoryModel>().ReverseMap();
             CreateMap<Category, CategoryDetailDto>().ReverseMap();
             CreateMap<Category, CategoryDto>().ReverseMap();
