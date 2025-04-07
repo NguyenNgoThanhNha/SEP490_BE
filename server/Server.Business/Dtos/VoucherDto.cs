@@ -19,7 +19,9 @@ public class VoucherDto
     public DateTime ValidFrom { get; set; }
     
     public DateTime ValidTo { get; set; }
-    
+    public decimal? MinOrderAmount { get; set; }
+    public int RequirePoint { get; set; } = 10;
+
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }
