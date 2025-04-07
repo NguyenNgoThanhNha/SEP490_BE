@@ -1,4 +1,5 @@
-﻿using Server.Data.Entities;
+﻿using Server.Business.Dtos;
+using Server.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -40,6 +41,7 @@ namespace Server.Business.Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
+        public List<BranchDTO> Branches { get; set; }
     }
 
 }
