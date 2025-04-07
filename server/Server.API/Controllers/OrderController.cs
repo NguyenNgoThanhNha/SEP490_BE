@@ -148,7 +148,6 @@ namespace Server.API.Controllers
         [HttpGet("detail-booking")]
         public async Task<IActionResult> DetailBooking([FromQuery] int orderId)
         {
-            // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
             {
                 return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -157,9 +156,7 @@ namespace Server.API.Controllers
                 }));
             }
 
-            // Chia tách token
             var tokenValue = token.ToString().Split(' ')[1];
-            // accessUser
             var currentUser = await _authService.GetUserInToken(tokenValue);
 
             if (currentUser == null)
@@ -169,8 +166,10 @@ namespace Server.API.Controllers
                     message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
+
             var order = await _orderService.GetDetailOrder(orderId, currentUser.UserId);
-            if (order == null)
+
+            if (order == null || order.data == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
@@ -178,12 +177,11 @@ namespace Server.API.Controllers
                 }));
             }
 
-            return Ok(ApiResult<DetailOrderResponse>.Succeed(new DetailOrderResponse()
-            {
-                message = order.message,
-                data = order.data
-            }));
+            return Ok(ApiResult<DetailOrderResponse>.Succeed(order));
         }
+
+
+
 
         [Authorize]
         [HttpPost("create-order-appointment-more/{orderId}")]

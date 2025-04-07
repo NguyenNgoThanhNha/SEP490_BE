@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 using AutoMapper;
+using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Utilities;
 using Server.Business.Commons;
@@ -414,8 +415,9 @@ public class AppointmentsService
         return _mapper.Map<List<AppointmentsModel>>(listAppointments);
     }
 
-    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(
-        AppointmentFilterRequest request)
+   
+
+    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
     {
         if (request.BranchId <= 0)
         {
@@ -434,6 +436,7 @@ public class AppointmentsService
         var query = _unitOfWorks.AppointmentsRepository
             .FindByCondition(a => a.BranchId == request.BranchId)
             .Include(a => a.Staff)
+                .ThenInclude(s => s.StaffInfo) 
             .Include(a => a.Customer)
             .Include(a => a.Service)
             .OrderByDescending(a => a.AppointmentsTime);
@@ -450,9 +453,70 @@ public class AppointmentsService
         {
             AppointmentId = a.AppointmentId,
             OrderId = a.OrderId,
-            CustomerId = a.CustomerId,
-            StaffId = a.StaffId,
+
+            //CustomerId = a.CustomerId,
+            Customer = a.Customer == null ? null : new UserDTO
+            {
+                UserId = a.Customer.UserId,
+                UserName = a.Customer.UserName,
+                FullName = a.Customer.FullName,
+                Email = a.Customer.Email,
+                Gender = a.Customer.Gender,
+                City = a.Customer.City,
+                Address = a.Customer.Address,
+                BirthDate = a.Customer.BirthDate,
+                Avatar = a.Customer.Avatar,
+                PhoneNumber = a.Customer.PhoneNumber,
+                CreatedDate = a.Customer.CreatedDate,
+                CreateBy = a.Customer.CreateBy,
+                ModifyBy = a.Customer.ModifyBy,
+                ModifyDate = a.Customer.ModifyDate,
+                Status = a.Customer.Status,
+                BonusPoint = a.Customer.BonusPoint,
+                TypeLogin = a.Customer.TypeLogin,
+                RoleID = a.Customer.RoleID
+            },
+
+            //StaffId = a.StaffId,
+            Staff = a.Staff?.StaffInfo == null ? null : new UserDTO
+            {
+                UserId = a.Staff.StaffInfo.UserId,
+                UserName = a.Staff.StaffInfo.UserName,
+                FullName = a.Staff.StaffInfo.FullName,
+                Email = a.Staff.StaffInfo.Email,
+                Gender = a.Staff.StaffInfo.Gender,
+                City = a.Staff.StaffInfo.City,
+                Address = a.Staff.StaffInfo.Address,
+                BirthDate = a.Staff.StaffInfo.BirthDate,
+                Avatar = a.Staff.StaffInfo.Avatar,
+                PhoneNumber = a.Staff.StaffInfo.PhoneNumber,
+                CreatedDate = a.Staff.StaffInfo.CreatedDate,
+                CreateBy = a.Staff.StaffInfo.CreateBy,
+                ModifyBy = a.Staff.StaffInfo.ModifyBy,
+                ModifyDate = a.Staff.StaffInfo.ModifyDate,
+                Status = a.Staff.StaffInfo.Status,
+                BonusPoint = a.Staff.StaffInfo.BonusPoint,
+                TypeLogin = a.Staff.StaffInfo.TypeLogin,
+                RoleID = a.Staff.StaffInfo.RoleID
+
+
+            },
+
             ServiceId = a.ServiceId,
+            Service = a.Service == null ? null : new ServiceDto
+            {
+                ServiceId = a.Service.ServiceId,
+                Name = a.Service.Name,
+                Price = a.Service.Price,
+                Description = a.Service.Description,
+                Duration = a.Service.Duration,
+                Status = a.Service.Status,
+                Steps = a.Service.Steps,
+                CreatedDate = a.Service.CreatedDate,
+                UpdatedDate = a.Service.UpdatedDate,
+
+            },
+
             BranchId = a.BranchId,
             AppointmentsTime = a.AppointmentsTime,
             AppointmentEndTime = a.AppointmentEndTime,
@@ -461,7 +525,7 @@ public class AppointmentsService
             Feedback = a.Feedback,
             Quantity = a.Quantity,
             UnitPrice = a.UnitPrice,
-            SubTotal = a.SubTotal,
+            SubTotal = a.SubTotal
         }).ToList();
 
         return new GetAllAppointmentPaginationResponse

@@ -401,18 +401,33 @@ namespace Server.Business.Services
             }
         }
 
+        
+
         public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType, int page = 1,
             int pageSize = 5)
         {
-            var listOrders = await _unitOfWorks.OrderRepository.FindByCondition(x => x.CustomerId == userId)
-                .Include(x => x.Customer)
-                .Include(x => x.Voucher)
-                .Include(x => x.Appointments)
-                .ThenInclude(x => x.Service)
-                .Include(x => x.OrderDetails)
-                .ThenInclude(x => x.Product)
-                .Where(x => x.Status == status && x.OrderType == orderType)
-                .ToListAsync();
+
+            var listOrders = await _unitOfWorks.OrderRepository
+      .FindByCondition(x => x.CustomerId == userId)
+      .Include(x => x.Customer)
+      .Include(x => x.Voucher)
+      .Include(x => x.Shipment) // ✅ Thêm Include Shipment
+      .Include(x => x.Appointments)
+          .ThenInclude(x => x.Service)
+      .Include(x => x.OrderDetails)
+          .ThenInclude(od => od.Product)
+              .ThenInclude(p => p.ProductImages) // ✅ Hình ảnh sản phẩm
+      .Include(x => x.OrderDetails)
+          .ThenInclude(od => od.Product)
+              .ThenInclude(p => p.Branch_Products)
+                  .ThenInclude(bp => bp.Branch) // ✅ Chi nhánh của sản phẩm
+      .Where(x => x.Status == status && x.OrderType == orderType)
+      .OrderByDescending(x => x.CreatedDate)
+      .ToListAsync();
+
+
+
+
             if (listOrders.Equals(null))
             {
                 return null;
@@ -520,33 +535,115 @@ namespace Server.Business.Services
         //    };
         //}
 
+        //public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
+        //{
+        //    var order = await _unitOfWorks.OrderRepository
+        //        .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+        //        .Include(x => x.Customer)
+        //        .Include(x => x.Shipment)
+        //        .Include(x => x.Voucher)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //                .ThenInclude(p => p.ProductImages)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //                .ThenInclude(p => p.Branch_Products)
+        //                    .ThenInclude(bp => bp.Branch)
+        //        .Include(x => x.Appointments)
+        //        .FirstOrDefaultAsync();
+
+        //    if (order == null)
+        //        return null;
+
+        //    var listService = new List<Data.Entities.Service>();
+        //    var listProduct = new List<Product>();
+        //    var listServiceModels = new List<ServiceModel>();
+        //    var listProductModels = new List<ProductModel>();
+
+        //    if (order.OrderType == "Appointment")
+        //    {
+        //        var orderAppointments = await _unitOfWorks.AppointmentsRepository
+        //            .FindByCondition(x => x.OrderId == orderId)
+        //            .Include(x => x.Branch)
+        //            .Include(x => x.Service)
+        //            .Include(x => x.Staff)
+        //                .ThenInclude(x => x.StaffInfo)
+        //            .ToListAsync();
+
+        //        order.Appointments = orderAppointments;
+
+        //        listService = orderAppointments.Select(a => a.Service).ToList();
+        //        listServiceModels = await _serviceService.GetListImagesOfServices(listService);
+        //    }
+        //    else if (order.OrderType == "Product")
+        //    {
+        //        var orderDetails = order.OrderDetails.ToList(); // đã include sẵn Product + ProductImages
+        //        listProduct = orderDetails.Select(od => od.Product).ToList();
+
+        //        listProductModels = await _productService.GetListImagesOfProduct(listProduct);
+        //    }
+
+        //    // Mapping
+        //    var orderModel = _mapper.Map<OrderModel>(order);
+
+        //    // Gắn images cho service
+        //    if (orderModel.Appointments.Any())
+        //    {
+        //        foreach (var appointment in orderModel.Appointments)
+        //        {
+        //            var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+        //            if (matchedService != null)
+        //            {
+        //                appointment.Service.images = matchedService.images;
+        //            }
+        //        }
+        //    }
+        //    // Gắn images và branch cho product
+        //    else if (orderModel.OrderDetails.Any())
+        //    {
+        //        foreach (var orderDetail in orderModel.OrderDetails)
+        //        {
+        //            var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.ProductId);
+        //            if (matchedProduct != null)
+        //            {
+        //                orderDetail.Product.images = matchedProduct.images;
+        //                orderDetail.Product.Branches = matchedProduct.Branches; // ✅ gán chi nhánh
+        //            }
+        //        }
+        //    }
+
+        //    return new DetailOrderResponse()
+        //    {
+        //        message = "Get detail order success",
+        //        data = orderModel
+        //    };
+        //}
+
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
         {
-            // Include full thông tin
-            //var order = await _unitOfWorks.OrderRepository
-            //    .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
-            //    .Include(x => x.Customer) // Customer
-            //    .Include(x => x.Shipment) // Shipment
-            //    .Include(x => x.Voucher)  // Voucher
-
-            //    .FirstOrDefaultAsync();
-
             var order = await _unitOfWorks.OrderRepository
-    .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
-    .Include(x => x.Customer)
-    .Include(x => x.Shipment) // CHẮC CHẮN PHẢI CÓ
-    .Include(x => x.Voucher)
-    .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
-    .Include(x => x.Appointments)
-    .FirstOrDefaultAsync();
-
+                .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+                .Include(x => x.Customer)
+                .Include(x => x.Shipment)
+                .Include(x => x.Voucher)
+                .Include(x => x.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.ProductImages)
+                .Include(x => x.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.Branch_Products)
+                            .ThenInclude(bp => bp.Branch)
+                .Include(x => x.Appointments)
+                .FirstOrDefaultAsync();
 
             if (order == null)
-                return null;
+            {
+                return null; // Controller xử lý lỗi
+            }
 
             var listService = new List<Data.Entities.Service>();
             var listProduct = new List<Product>();
-            var listSerivceModels = new List<ServiceModel>();
+            var listServiceModels = new List<ServiceModel>();
             var listProductModels = new List<ProductModel>();
 
             if (order.OrderType == "Appointment")
@@ -560,71 +657,52 @@ namespace Server.Business.Services
                     .ToListAsync();
 
                 order.Appointments = orderAppointments;
-
-                // get list service images
-                foreach (var appointment in orderAppointments)
-                {
-                    listService.Add(appointment.Service);
-                }
-
-                listSerivceModels = await _serviceService.GetListImagesOfServices(listService);
+                listService = orderAppointments.Select(a => a.Service).ToList();
+                listServiceModels = await _serviceService.GetListImagesOfServices(listService);
             }
             else if (order.OrderType == "Product")
             {
-                var orderDetails = await _unitOfWorks.OrderDetailRepository
-                    .FindByCondition(x => x.OrderId == orderId)
-                    .Include(x => x.Product)
-                    .ToListAsync();
-
-                order.OrderDetails = orderDetails;
-
-                // get list order images
-                foreach (var orderDetail in orderDetails)
-                {
-                    listProduct.Add(orderDetail.Product);
-                }
-
+                var orderDetails = order.OrderDetails.ToList();
+                listProduct = orderDetails.Select(od => od.Product).ToList();
                 listProductModels = await _productService.GetListImagesOfProduct(listProduct);
             }
 
-            // Mapping
             var orderModel = _mapper.Map<OrderModel>(order);
 
-            // Gắn images cho service
             if (orderModel.Appointments.Any())
             {
                 foreach (var appointment in orderModel.Appointments)
                 {
-                    foreach (var serviceModel in listSerivceModels)
+                    var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+                    if (matchedService != null)
                     {
-                        if (appointment.ServiceId == serviceModel.ServiceId)
-                        {
-                            appointment.Service.images = serviceModel.images;
-                        }
+                        appointment.Service.images = matchedService.images;
                     }
                 }
             }
-            // Gắn images cho product
             else if (orderModel.OrderDetails.Any())
             {
                 foreach (var orderDetail in orderModel.OrderDetails)
                 {
-                    foreach (var productModel in listProductModels)
+                    var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.ProductId);
+                    if (matchedProduct != null)
                     {
-                        if (orderDetail.ProductId == productModel.ProductId)
-                        {
-                            orderDetail.Product.images = productModel.images;
-                        }
+                        orderDetail.Product.images = matchedProduct.images;
+                        orderDetail.Product.Branches = matchedProduct.Branches;
                     }
                 }
             }
 
-            return new DetailOrderResponse()
+            return new DetailOrderResponse
             {
                 message = "Get detail order success",
-                data = orderModel
+                data = orderModel // ✅ Là 1 object, không phải list
             };
         }
+
+
+
+
 
 
         public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
