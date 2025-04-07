@@ -45,6 +45,9 @@ namespace Server.Business.Models
         public string? Bank { get; set; }
         public string? QRCode { get; set; }
         public string? AccountBalance { get; set; }
+        public int? District { get; set; }
+
+        public int? WardCode { get; set; }
 
         public string? CreateBy { get; set; }
 
