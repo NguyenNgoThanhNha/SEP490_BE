@@ -217,7 +217,59 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productBranchId, int userId)
+        //public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productBranchId, int userId)
+        //{
+        //    await EnsureConnected();
+        //    var customerId = userId.ToString();
+        //    if (string.IsNullOrEmpty(customerId))
+        //    {
+        //        return ApiResult<ApiResponse>.Error(new ApiResponse
+        //        {
+        //            message = "Vui lòng đăng nhập vào hệ thống"
+        //        });
+        //    }
+
+        //    var existingCart = await _unitOfWorks.CartRepository
+        //        .FindByCondition(c => c.CustomerId == int.Parse(customerId))
+        //        .FirstOrDefaultAsync();
+        //    if (existingCart == null)
+        //    {
+        //        return ApiResult<ApiResponse>.Error(new ApiResponse
+        //        {
+        //            message = "Giỏ hàng không có sản phẩm"
+        //        });
+        //    }
+
+        //    var detail = await _unitOfWorks.ProductCartRepository
+        //        .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductBranchId == productBranchId)
+        //        .FirstOrDefaultAsync();
+        //    if (detail == null)
+        //    {
+        //        return ApiResult<ApiResponse>.Error(new ApiResponse
+        //        {
+        //            message = "Sản phẩm không tồn tại trong giỏ hàng"
+        //        });
+        //    }
+
+        //    _unitOfWorks.ProductCartRepository.Remove(detail.ProductCartId);
+        //    int result = await _unitOfWorks.ProductCartRepository.Commit();
+        //    if (result == 0)
+        //    {
+        //        return ApiResult<ApiResponse>.Error(new ApiResponse
+        //        {
+        //            message = "Lỗi xóa sản phẩm trong giỏ hàng"
+        //        });
+        //    }
+        //    var cart = await GetCartFromDatabase(userId);
+        //    await UpdateCartCache(int.Parse(customerId), cart);
+        //    return ApiResult<ApiResponse>.Succeed(new ApiResponse
+        //    {
+        //        message = "Xóa sản phẩm khỏi giỏ hàng thành công",
+        //        data = cart
+        //    });
+        //}
+
+        public async Task<ApiResult<ApiResponse>> DeleteProductsFromCart(List<int> productBranchIds, int userId)
         {
             await EnsureConnected();
             var customerId = userId.ToString();
@@ -240,18 +292,23 @@ namespace Server.Business.Services
                 });
             }
 
-            var detail = await _unitOfWorks.ProductCartRepository
-                .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductBranchId == productBranchId)
-                .FirstOrDefaultAsync();
-            if (detail == null)
+            var detailsToRemove = await _unitOfWorks.ProductCartRepository
+                .FindByCondition(c => c.CartId == existingCart.CartId && productBranchIds.Contains(c.ProductBranchId))
+                .ToListAsync();
+
+            if (detailsToRemove == null || !detailsToRemove.Any())
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Sản phẩm không tồn tại trong giỏ hàng"
+                    message = "Không tìm thấy sản phẩm cần xóa trong giỏ hàng"
                 });
             }
 
-            _unitOfWorks.ProductCartRepository.Remove(detail.ProductCartId);
+            foreach (var item in detailsToRemove)
+            {
+                _unitOfWorks.ProductCartRepository.Remove(item.ProductCartId);
+            }
+
             int result = await _unitOfWorks.ProductCartRepository.Commit();
             if (result == 0)
             {
@@ -260,14 +317,17 @@ namespace Server.Business.Services
                     message = "Lỗi xóa sản phẩm trong giỏ hàng"
                 });
             }
+
             var cart = await GetCartFromDatabase(userId);
             await UpdateCartCache(int.Parse(customerId), cart);
+
             return ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Xóa sản phẩm khỏi giỏ hàng thành công",
                 data = cart
             });
         }
+
 
 
 
