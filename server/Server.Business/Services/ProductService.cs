@@ -805,8 +805,8 @@ namespace Server.Business.Services
                 SkinTypeSuitable = p.SkinTypeSuitable,
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
-                BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
-                BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
+                //BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
+                //BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
                 ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id,
                 Category = new CategoryDetailDto
                 {
@@ -834,15 +834,15 @@ namespace Server.Business.Services
         {
             // Tìm branch_product theo Id
             var productBranch = await _unitOfWorks.Branch_ProductRepository
-      .FindByCondition(bp => bp.Id == productBranchId)
-      .Include(bp => bp.Product)
-          .ThenInclude(p => p.Company)
-      .Include(bp => bp.Product)
-          .ThenInclude(p => p.Category)
-      .Include(bp => bp.Product)
-          .ThenInclude(p => p.ProductImages)
-      .AsTracking() // ⭐ Thêm cái này sẽ ngắt vòng lặp
-      .FirstOrDefaultAsync();
+       .FindByCondition(bp => bp.Id == productBranchId)
+       .Include(bp => bp.Product)
+           .ThenInclude(p => p.Company)
+       .Include(bp => bp.Product)
+           .ThenInclude(p => p.Category)
+       .Include(bp => bp.Product)
+           .ThenInclude(p => p.ProductImages)
+       .Include(bp => bp.Branch)
+       .FirstOrDefaultAsync();
 
 
             if (productBranch == null || productBranch.Product == null)
@@ -872,8 +872,8 @@ namespace Server.Business.Services
                 SkinTypeSuitable = p.SkinTypeSuitable,
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
-                BrandId = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.BranchId,
-                BrandName = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.Branch?.BranchName,
+                //BrandId = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.BranchId,
+               // BrandName = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.Branch?.BranchName,
                 ProductBranchId = productBranchId,
                 Category = new CategoryDetailDto
                 {
@@ -882,7 +882,8 @@ namespace Server.Business.Services
                     Description = p.Category?.Description,
                     Status = p.Category?.Status
                 },
-                images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
+                images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>(),
+                Branch = _mapper.Map<BranchDTO>(productBranch.Branch)
             };
 
             return productDto;

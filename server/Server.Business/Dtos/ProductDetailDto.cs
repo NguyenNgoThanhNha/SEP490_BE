@@ -27,8 +27,8 @@ namespace Server.Business.Dtos
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public string[] images { get; set; }
-        public int? BrandId { get; set; }          // Chính là BranchId đầu tiên
-        public string? BrandName { get; set; }     // Chính là BranchName đầu tiên
+        public BranchDTO Branch { get; set; }          // Chính là BranchId đầu tiên
+        //public string? BrandName { get; set; }     // Chính là BranchName đầu tiên
         public int? ProductBranchId { get; set; }
         public int StockQuantity { get; set; }  
     }
