@@ -158,6 +158,7 @@ namespace Server.API
             app.MapControllers();
 
             app.MapHub<ChatHubs>("/chat");
+            app.MapHub<NotificationHub>("/notification");
 
             app.Run();
         }

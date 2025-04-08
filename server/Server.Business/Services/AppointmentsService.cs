@@ -1,9 +1,6 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using AutoMapper;
-using Microsoft.AspNet.SignalR.Hubs;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.SignalR; // ASP.NET Core SignalR
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Utilities;
-using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
@@ -21,14 +18,16 @@ public class AppointmentsService
     private readonly IMapper _mapper;
     private readonly StaffService _staffService;
     private readonly MongoDbService _mongoDbService;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
     public AppointmentsService(UnitOfWorks unitOfWorks, IMapper mapper, StaffService staffService,
-        MongoDbService mongoDbService)
+        MongoDbService mongoDbService, IHubContext<NotificationHub> hubContext)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
         _staffService = staffService;
         _mongoDbService = mongoDbService;
+        _hubContext = hubContext;
     }
 
     public async Task<GetAllAppointmentResponse> GetAllAppointments(int page = 1, int pageSize = 5)
@@ -159,7 +158,9 @@ public class AppointmentsService
                     throw new BadRequestException($"Service is not available in this branch!");
                 }
 
-                var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == staffId);
+                var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId)
+                    .Include(x => x.StaffInfo)
+                    .FirstOrDefaultAsync();
                 if (staff == null)
                 {
                     throw new BadRequestException($"Staff not found!");
@@ -232,6 +233,23 @@ public class AppointmentsService
                 // add member to channel
                 await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
                 await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
+                
+                // create notification
+                if (NotificationHub.TryGetConnectionId(customer.UserId.ToString(), out var connectionId))
+                {
+                    var notification = new Notifications()
+                    {
+                        CustomerId = customer.UserId,
+                        Content = $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                        Type = "Appointment",
+                        isRead = false,
+                        CreatedDate = DateTime.Now,
+                    };
+                    await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                    await _unitOfWorks.NotificationRepository.Commit();
+
+                    await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                }
             }
 
 

@@ -50,6 +50,7 @@ namespace Server.Data.UnitOfWorks
         private SkinCareRoutineStepRepository _skinCareRoutineStepRepository;
         private UserRoutineStepRepository _userRoutineStepRepository;
         private ShipmentRepository _shipmentRepository;
+        private NotificationRepository _notificationRepository;
 
         public UnitOfWorks(AppDbContext dbContext)
         {
@@ -258,7 +259,11 @@ namespace Server.Data.UnitOfWorks
             get { return _shipmentRepository ??= new ShipmentRepository(_dbContext); }
         }
 
-
+        public NotificationRepository NotificationRepository
+        {
+            get { return _notificationRepository ??= new NotificationRepository(_dbContext); }
+        }
+        
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             _transaction = await _dbContext.Database.BeginTransactionAsync();

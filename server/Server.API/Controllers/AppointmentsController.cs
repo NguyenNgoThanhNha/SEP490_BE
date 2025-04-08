@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
@@ -22,6 +22,7 @@ namespace Server.API.Controllers
         private readonly MailService _mailService;
         private readonly UserService _userService;
         private readonly UnitOfWorks _unitOfWorks;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         public AppointmentsController(AppointmentsService appointmentsService, AuthService authService, IMapper mapper, 
             MailService mailService, UserService userService, UnitOfWorks unitOfWorks)
@@ -34,7 +35,7 @@ namespace Server.API.Controllers
             _unitOfWorks = unitOfWorks;
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllAppointment([FromQuery] int page = 1, int pageSize = 5)
         {
@@ -54,7 +55,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetByAppointmentId([FromRoute] int id)
         {
@@ -73,7 +74,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateAppointment([FromBody] ApointmentRequest request)
         {
@@ -168,7 +169,7 @@ namespace Server.API.Controllers
 
 
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateAppointment([FromRoute] int id, [FromBody] AppointmentUpdateRequest request)
         {
@@ -229,7 +230,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpPut("delete/{id}")]
         public async Task<IActionResult> DeleteAppointment([FromRoute] int id)
         {
@@ -268,7 +269,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpPut("cancel-booking/{id}")]
         public async Task<IActionResult> CancleBooking([FromRoute] int id)
         {
