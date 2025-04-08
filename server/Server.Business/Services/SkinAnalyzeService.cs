@@ -348,15 +348,15 @@ public class SkinAnalyzeService
     {
         return new List<(string Concern, double Confidence)>
         {
-            ("Oily Skin", (double)(apiResult.result.skin_type?.details[0]?.confidence ?? 0)),
-            ("Dry Skin", (double)(apiResult.result.skin_type?.details[1]?.confidence ?? 0)),
-            ("Neutral Skin", (double)(apiResult.result.skin_type?.details[2]?.confidence ?? 0)),
-            ("Combination Skin", (double)(apiResult.result.skin_type?.details[3]?.confidence ?? 0)),
-            ("Blackheads", (double)(apiResult.result.blackhead?.confidence ?? 0)),
-            ("Acne", (double)(apiResult.result.acne?.confidence ?? 0)),
-            ("Dark Circles", (double)(apiResult.result.dark_circle?.confidence ?? 0)),
-            ("Closed Comedones", (double)(apiResult.result.closed_comedones?.confidence ?? 0)),
-            ("Glabella Wrinkles", (double)(apiResult.result.glabella_wrinkle?.confidence ?? 0))
+            ("Da dầu", (double)(apiResult.result.skin_type?.details[0]?.confidence ?? 0)),
+            ("Da khô", (double)(apiResult.result.skin_type?.details[1]?.confidence ?? 0)),
+            ("Da trung tính", (double)(apiResult.result.skin_type?.details[2]?.confidence ?? 0)),
+            ("Da hỗn hợp", (double)(apiResult.result.skin_type?.details[3]?.confidence ?? 0)),
+            ("Mụn đầu đen", (double)(apiResult.result.blackhead?.confidence ?? 0)),
+            ("Mụn trứng cá", (double)(apiResult.result.acne?.confidence ?? 0)),
+            ("Quầng thâm mắt", (double)(apiResult.result.dark_circle?.confidence ?? 0)),
+            ("Mụn có nhân đóng", (double)(apiResult.result.closed_comedones?.confidence ?? 0)),
+            ("Nếp nhăn Glabella", (double)(apiResult.result.glabella_wrinkle?.confidence ?? 0))
         };
     }
     
