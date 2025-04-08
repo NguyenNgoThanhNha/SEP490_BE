@@ -124,6 +124,11 @@ namespace Server.Business.Mappers
 
             CreateMap<Promotion, PromotionDTO>();
 
+            CreateMap<Branch_Service, BranchServiceDto>();
+            CreateMap<CreateBranchServiceDto, Branch_Service>();
+            CreateMap<UpdateBranchServiceDto, Branch_Service>();
+           
+
         }
     }
 }
