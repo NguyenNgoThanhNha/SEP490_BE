@@ -20,14 +20,17 @@ namespace Server.API.Controllers
         private readonly AuthService _authService;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
+        private readonly UserService _userService;
         private readonly UnitOfWorks _unitOfWorks;
 
-        public AppointmentsController(AppointmentsService appointmentsService, AuthService authService, IMapper mapper, MailService mailService, UnitOfWorks unitOfWorks)
+        public AppointmentsController(AppointmentsService appointmentsService, AuthService authService, IMapper mapper, 
+            MailService mailService, UserService userService, UnitOfWorks unitOfWorks)
         {
             _appointmentsService = appointmentsService;
             _authService = authService;
             _mapper = mapper;
             _mailService = mailService;
+            _userService = userService;
             _unitOfWorks = unitOfWorks;
         }
 
@@ -84,30 +87,10 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            // Lấy token từ header
-            if (!Request.Headers.TryGetValue("Authorization", out var token))
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Authorization header is missing."
-                }));
-            }
-
-            // Chia tách token
-            var tokenValue = token.ToString().Split(' ')[1];
-            // Lấy thông tin user từ token
-            var currentUser = await _authService.GetUserInToken(tokenValue);
-
-            if (currentUser == null)
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Không tìm thấy thông tin khách hàng!"
-                }));
-            }
+            var customer = await _userService.GetCustomerById(request.UserId);
 
             // Tạo appointments và lấy order tương ứng
-            var appointmentsList = await _appointmentsService.CreateAppointments(currentUser.UserId, request);
+            var appointmentsList = await _appointmentsService.CreateAppointments(customer.UserId, request);
             if (appointmentsList == null || !appointmentsList.Any())
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -128,7 +111,7 @@ namespace Server.API.Controllers
             }
 
             // Chuẩn bị thông tin cho email
-            var customerName = currentUser.FullName ?? "Customer";
+            var customerName = customer.FullName ?? "Customer";
             var appointmentDate = firstAppointment.AppointmentsTime.ToString("dd/MM/yyyy");
             var appointmentTime = firstAppointment.AppointmentsTime.ToString(@"hh\:mm tt");
             var servicesDetails = string.Join("", appointmentsList.Select(a =>
@@ -140,7 +123,7 @@ namespace Server.API.Controllers
 
             var mailData = new MailData()
             {
-                EmailToId = currentUser.Email,
+                EmailToId = customer.Email,
                 EmailToName = customerName,
                 EmailSubject = "Order & Appointment Confirmation",
                 EmailBody = $@"
