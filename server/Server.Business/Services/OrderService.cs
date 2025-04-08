@@ -1073,7 +1073,7 @@ namespace Server.Business.Services
                     if (item.Quantity <= 0)
                         throw new BadRequestException($"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
 
-                    var branchProduct = await _unitOfWorks.Brand_ProductRepository.GetByIdAsync(item.ProductBranchId);
+                    var branchProduct = await _unitOfWorks.Branch_ProductRepository.GetByIdAsync(item.ProductBranchId);
                     if (branchProduct == null)
                         throw new BadRequestException($"Không tìm thấy BranchProduct với ID = {item.ProductBranchId}.");
 
@@ -1106,7 +1106,7 @@ namespace Server.Business.Services
                     // Cập nhật tồn kho
                     branchProduct.StockQuantity -= item.Quantity;
                     branchProduct.UpdatedDate = DateTime.Now;
-                    _unitOfWorks.Brand_ProductRepository.Update(branchProduct);
+                    _unitOfWorks.Branch_ProductRepository.Update(branchProduct);
                 }
 
                 // 6. Chuẩn hóa thông tin giao hàng
@@ -1144,7 +1144,7 @@ namespace Server.Business.Services
                 // 10. Commit tất cả
                 await _unitOfWorks.OrderDetailRepository.Commit();
                 await _unitOfWorks.ShipmentRepository.Commit();
-                await _unitOfWorks.Brand_ProductRepository.Commit();
+                await _unitOfWorks.Branch_ProductRepository.Commit();
                 await transaction.CommitAsync();
 
                 return ApiResult<object>.Succeed(new

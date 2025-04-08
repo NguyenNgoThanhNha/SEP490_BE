@@ -126,7 +126,7 @@ namespace Server.Business.Services
             }
 
             // 1. Kiểm tra productBranchId hợp lệ
-            var productBranch = await _unitOfWorks.Brand_ProductRepository
+            var productBranch = await _unitOfWorks.Branch_ProductRepository
                 .FirstOrDefaultAsync(x => x.Id == request.ProductBranchId);
 
             if (productBranch == null)
