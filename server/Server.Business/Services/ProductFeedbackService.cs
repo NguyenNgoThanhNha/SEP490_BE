@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Dtos;
+using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System;
 using System.Collections.Generic;
@@ -32,5 +33,66 @@ namespace Server.Business.Services
 
             return feedback == null ? null : _mapper.Map<ProductFeedbackDetailDto>(feedback);
         }
+
+        public async Task<List<ProductFeedbackDetailDto>> GetAllAsync()
+        {
+            var feedbacks = await _unitOfWorks.ProductFeedbackRepository
+                .GetAll()
+                .Include(f => f.Product)
+                .Include(f => f.User)
+                .ToListAsync();
+
+            return _mapper.Map<List<ProductFeedbackDetailDto>>(feedbacks);
+        }
+
+        public async Task<ProductFeedbackDetailDto> CreateAsync(ProductFeedbackCreateDto dto)
+        {
+            if (dto.ProductId <= 0 || dto.UserId <= 0 || dto.Rating <= 0)
+                throw new ArgumentException("ProductId, UserId và Rating phải lớn hơn 0.");
+
+            // 👉 Gán mặc định nếu không truyền Status
+            if (string.IsNullOrWhiteSpace(dto.Status))
+                dto.Status = "Pending";
+
+            var entity = _mapper.Map<ProductFeedback>(dto);
+            entity.CreatedDate = DateTime.UtcNow;
+            entity.UpdatedDate = DateTime.UtcNow;
+            entity.UpdatedBy = entity.CreatedBy;
+
+            await _unitOfWorks.ProductFeedbackRepository.AddAsync(entity);
+            await _unitOfWorks.SaveChangesAsync();
+
+            return _mapper.Map<ProductFeedbackDetailDto>(entity);
+        }
+
+
+
+        public async Task<ProductFeedbackDetailDto?> UpdateAsync(int id, ProductFeedbackUpdateDto dto)
+        {
+            var feedback = await _unitOfWorks.ProductFeedbackRepository
+                .FindByCondition(f => f.ProductFeedbackId == id)
+                .FirstOrDefaultAsync();
+
+            if (feedback == null) return null;
+
+            _mapper.Map(dto, feedback);
+            feedback.UpdatedDate = DateTime.UtcNow;
+
+            _unitOfWorks.ProductFeedbackRepository.Update(feedback);
+            await _unitOfWorks.SaveChangesAsync();
+
+            return _mapper.Map<ProductFeedbackDetailDto>(feedback);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var entity = _unitOfWorks.ProductFeedbackRepository.Remove(id); // synchronous như bạn yêu cầu
+            if (entity == null) return false;
+
+            await _unitOfWorks.SaveChangesAsync();
+            return true;
+        }
+
     }
+
 }

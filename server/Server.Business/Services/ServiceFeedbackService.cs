@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Dtos;
+using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,62 @@ namespace Server.Business.Services
                 .FirstOrDefaultAsync();
 
             return feedback == null ? null : _mapper.Map<ServiceFeedbackDetailDto>(feedback);
+        }
+
+        public async Task<List<ServiceFeedbackDetailDto>> GetAllAsync()
+        {
+            var feedbacks = await _unitOfWorks.ServiceFeedbackRepository
+                .GetAll()
+                .Include(f => f.Service)
+                .Include(f => f.User)
+                .ToListAsync();
+
+            return _mapper.Map<List<ServiceFeedbackDetailDto>>(feedbacks);
+        }
+
+        public async Task<ServiceFeedbackDetailDto> CreateAsync(ServiceFeedbackCreateDto dto)
+        {
+            if (dto.ServiceId <= 0 || dto.UserId <= 0 || dto.Rating <= 0)
+                throw new ArgumentException("ServiceId, UserId và Rating phải lớn hơn 0.");
+
+            if (string.IsNullOrWhiteSpace(dto.Status))
+                dto.Status = "Pending";
+
+            var entity = _mapper.Map<ServiceFeedback>(dto);
+            entity.CreatedDate = DateTime.UtcNow;
+            entity.UpdatedDate = DateTime.UtcNow;
+            entity.UpdatedBy = entity.CreatedBy;
+
+            await _unitOfWorks.ServiceFeedbackRepository.AddAsync(entity);
+            await _unitOfWorks.SaveChangesAsync();
+
+            return _mapper.Map<ServiceFeedbackDetailDto>(entity);
+        }
+
+        public async Task<ServiceFeedbackDetailDto?> UpdateAsync(int id, ServiceFeedbackUpdateDto dto)
+        {
+            var feedback = await _unitOfWorks.ServiceFeedbackRepository
+                .FindByCondition(f => f.ServiceFeedbackId == id)
+                .FirstOrDefaultAsync();
+
+            if (feedback == null) return null;
+
+            _mapper.Map(dto, feedback);
+            feedback.UpdatedDate = DateTime.UtcNow;
+
+            _unitOfWorks.ServiceFeedbackRepository.Update(feedback);
+            await _unitOfWorks.SaveChangesAsync();
+
+            return _mapper.Map<ServiceFeedbackDetailDto>(feedback);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var entity = _unitOfWorks.ServiceFeedbackRepository.Remove(id);
+            if (entity == null) return false;
+
+            await _unitOfWorks.SaveChangesAsync();
+            return true;
         }
     }
 }

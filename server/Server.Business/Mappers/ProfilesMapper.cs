@@ -129,12 +129,22 @@ namespace Server.Business.Mappers
             CreateMap<UpdateBranchServiceDto, Branch_Service>();
 
             CreateMap<AppointmentFeedback, AppointmentFeedbackDetailDto>();
-            CreateMap<ProductFeedback, ProductFeedbackDetailDto>()
-     .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.UserId));
+            CreateMap<AppointmentFeedbackCreateDto, AppointmentFeedback>();
+            CreateMap<AppointmentFeedbackUpdateDto, AppointmentFeedback>();
 
-            CreateMap<ServiceFeedback, ServiceFeedbackDetailDto>()
-                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.User.UserId));
+            CreateMap<ProductFeedback, ProductFeedbackDetailDto>();     
+            CreateMap<ProductFeedbackCreateDto, ProductFeedback>();
+       
 
+
+            CreateMap<ProductFeedbackUpdateDto, ProductFeedback>();
+
+            CreateMap<ServiceFeedback, ServiceFeedbackDetailDto>();
+
+            CreateMap<ServiceFeedbackCreateDto, ServiceFeedback>();
+
+            CreateMap<ServiceFeedbackUpdateDto, ServiceFeedback>();
+              
 
 
         }
