@@ -179,7 +179,7 @@ public class AppointmentsService
                     var lastAppointmentEndTime = staffAppointments[staffId];
                     if (appointmentTime < lastAppointmentEndTime)
                     {
-                        throw new BadRequestException($"Staff is busy during this time: {lastAppointmentEndTime}!");
+                        throw new BadRequestException($"Staff is busy during in: {appointmentTime}!");
                     }
                 }
 
@@ -192,7 +192,7 @@ public class AppointmentsService
                                               a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
                 if (isStaffBusy)
                 {
-                    throw new BadRequestException($"Staff is busy during this time!");
+                    throw new BadRequestException($"Staff is busy during in: {appointmentTime}!");
                 }
 
                 var newAppointment = new AppointmentsModel
