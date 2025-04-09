@@ -166,6 +166,7 @@ namespace Server.API.Extensions
             services.AddScoped<OrderStatusUpdateService>();
             services.AddScoped<AppointmentFeedbackService>();
             services.AddScoped<ProductFeedbackService>();
+            services.AddScoped<ServiceFeedbackService>();
             return services;
         }
     };
