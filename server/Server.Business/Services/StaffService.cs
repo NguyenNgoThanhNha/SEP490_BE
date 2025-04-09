@@ -870,7 +870,7 @@ namespace Server.Business.Services
                 int serviceDuration = serviceDurationDict[serviceId];
                 int serviceCategoryId = serviceCategoryDict[serviceId];
 
-                var expectedEndTime = startTime.AddMinutes(serviceDuration);
+                var expectedEndTime = startTime.AddMinutes(serviceDuration + 5);
 
                 var busyStaffIds = await _unitOfWorks.AppointmentsRepository
                     .FindByCondition(a =>
