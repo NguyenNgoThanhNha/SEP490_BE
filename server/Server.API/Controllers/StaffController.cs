@@ -817,6 +817,65 @@ namespace Server.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("multiple-staff-busy-times")]
+        public async Task<IActionResult> GetMultipleStaffBusyTimes([FromQuery] string staffIds, DateTime date)
+        {
+            if (string.IsNullOrWhiteSpace(staffIds))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Tham số 'staffIds' là bắt buộc.",
+                    data = new List<object>()
+                }));
+            }
+
+            if (date == default)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Tham số 'date' không hợp lệ.",
+                    data = new List<object>()
+                }));
+            }
+
+            try
+            {
+                var staffIdList = staffIds.Split(',')
+                    .Select(id => int.TryParse(id.Trim(), out var parsedId) ? parsedId : (int?)null)
+                    .Where(id => id.HasValue)
+                    .Select(id => id.Value)
+                    .ToList();
+
+                if (!staffIdList.Any())
+                {
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Danh sách 'staffIds' không hợp lệ hoặc không chứa ID hợp lệ.",
+                        data = new List<object>()
+                    }));
+                }
+
+                var result = await _staffService.GetMultipleStaffBusyTimesAsync(staffIdList, date);
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Lấy thành công thời gian bận của các nhân viên!",
+                    data = result
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
+            }
+        }
+
+
+
+
 
     }
 }
