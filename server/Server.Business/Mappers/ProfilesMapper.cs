@@ -32,7 +32,11 @@ namespace Server.Business.Mappers
             CreateMap<Branch_Promotion, BranchPromotionModel>().ReverseMap();
             CreateMap<Branch_Promotion, BranchPromotionDTO>().ReverseMap();
             CreateMap<BranchPromotionModel, BranchPromotionDTO>().ReverseMap();
-           
+
+            CreateMap<Branch_Product, BranchProductDto>().ReverseMap();
+            CreateMap<CreateBranchProductDto, Branch_Product>();
+            CreateMap<UpdateBranchProductDto, Branch_Product>();
+
             CreateMap<Staff, StaffModel>().ReverseMap();
             CreateMap<Staff, StaffDTO>().ReverseMap();
             CreateMap<StaffModel, StaffDTO>().ReverseMap();
@@ -116,8 +120,15 @@ namespace Server.Business.Mappers
             
             CreateMap<UserRoutine, UserRoutineModel>();
             CreateMap<UserRoutineStep, UserRoutineStepModel>();
-            
-            
+
+
+            CreateMap<Promotion, PromotionDTO>();
+
+            CreateMap<Branch_Service, BranchServiceDto>();
+            CreateMap<CreateBranchServiceDto, Branch_Service>();
+            CreateMap<UpdateBranchServiceDto, Branch_Service>();
+           
+
         }
     }
 }

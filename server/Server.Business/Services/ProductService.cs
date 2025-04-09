@@ -134,7 +134,7 @@ namespace Server.Business.Services
         public async Task<Branch_Product?> GetProductInBranchAsync(int productId, int branchId)
         {
             // Sử dụng UnitOfWorks để truy cập dữ liệu
-            var productInBranch = await _unitOfWorks.Brand_ProductRepository
+            var productInBranch = await _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(bp => bp.ProductId == productId &&
                                        bp.BranchId == branchId &&
                                        bp.Status == "Active")
@@ -731,7 +731,7 @@ namespace Server.Business.Services
                 .Include(p => p.Branch_Products)
                     .ThenInclude(bp => bp.Branch);
 
-            var productIdsInBranch = await _unitOfWorks.Brand_ProductRepository
+            var productIdsInBranch = await _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(bp => bp.BranchId == req.BranchId)
                 .Select(bp => bp.ProductId)
                 .Distinct()
@@ -805,8 +805,8 @@ namespace Server.Business.Services
                 SkinTypeSuitable = p.SkinTypeSuitable,
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
-                BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
-                BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
+                //BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
+                //BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
                 ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id,
                 Category = new CategoryDetailDto
                 {
@@ -833,16 +833,16 @@ namespace Server.Business.Services
         public async Task<ProductDetailDto> GetProductDetailByProductBranchIdAsync(int productBranchId)
         {
             // Tìm branch_product theo Id
-            var productBranch = await _unitOfWorks.Brand_ProductRepository
-      .FindByCondition(bp => bp.Id == productBranchId)
-      .Include(bp => bp.Product)
-          .ThenInclude(p => p.Company)
-      .Include(bp => bp.Product)
-          .ThenInclude(p => p.Category)
-      .Include(bp => bp.Product)
-          .ThenInclude(p => p.ProductImages)
-      .AsTracking() // ⭐ Thêm cái này sẽ ngắt vòng lặp
-      .FirstOrDefaultAsync();
+            var productBranch = await _unitOfWorks.Branch_ProductRepository
+       .FindByCondition(bp => bp.Id == productBranchId)
+       .Include(bp => bp.Product)
+           .ThenInclude(p => p.Company)
+       .Include(bp => bp.Product)
+           .ThenInclude(p => p.Category)
+       .Include(bp => bp.Product)
+           .ThenInclude(p => p.ProductImages)
+       .Include(bp => bp.Branch)
+       .FirstOrDefaultAsync();
 
 
             if (productBranch == null || productBranch.Product == null)
@@ -872,8 +872,8 @@ namespace Server.Business.Services
                 SkinTypeSuitable = p.SkinTypeSuitable,
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
-                BrandId = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.BranchId,
-                BrandName = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.Branch?.BranchName,
+                //BrandId = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.BranchId,
+               // BrandName = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.Branch?.BranchName,
                 ProductBranchId = productBranchId,
                 Category = new CategoryDetailDto
                 {
@@ -882,7 +882,8 @@ namespace Server.Business.Services
                     Description = p.Category?.Description,
                     Status = p.Category?.Status
                 },
-                images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
+                images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>(),
+                Branch = _mapper.Map<BranchDTO>(productBranch.Branch)
             };
 
             return productDto;
@@ -891,14 +892,14 @@ namespace Server.Business.Services
 
         public async Task<bool> AssignOrUpdateProductToBranchAsync(AssignProductToBranchRequest request)
         {
-            var existing = await _unitOfWorks.Brand_ProductRepository
+            var existing = await _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(bp => bp.ProductId == request.ProductId && bp.BranchId == request.BranchId)
                 .FirstOrDefaultAsync();
 
             if (existing != null)
             {
                 existing.StockQuantity = request.StockQuantity;
-                _unitOfWorks.Brand_ProductRepository.Update(existing);
+                _unitOfWorks.Branch_ProductRepository.Update(existing);
             }
             else
             {
@@ -909,7 +910,7 @@ namespace Server.Business.Services
                     StockQuantity = request.StockQuantity
                 };
 
-                await _unitOfWorks.Brand_ProductRepository.AddAsync(newEntry);
+                await _unitOfWorks.Branch_ProductRepository.AddAsync(newEntry);
             }
 
             await _unitOfWorks.SaveChangesAsync();
