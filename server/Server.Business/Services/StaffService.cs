@@ -875,12 +875,9 @@ namespace Server.Business.Services
                 var busyStaffIds = await _unitOfWorks.AppointmentsRepository
                     .FindByCondition(a =>
                         a.BranchId == request.BranchId &&
-                        (a.AppointmentsTime <= startTime &&
-                         a.AppointmentsTime.AddMinutes(serviceDuration) > startTime ||
-                         a.AppointmentsTime < expectedEndTime &&
-                         a.AppointmentsTime.AddMinutes(serviceDuration) >= expectedEndTime ||
-                         a.AppointmentsTime >= startTime &&
-                         a.AppointmentsTime.AddMinutes(serviceDuration) <= expectedEndTime)
+                        a.AppointmentsTime < expectedEndTime &&
+                        a.AppointmentEndTime > startTime
+                        && a.Status != OrderStatusEnum.Cancelled.ToString()
                     )
                     .Select(a => a.StaffId)
                     .Distinct()
