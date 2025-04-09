@@ -32,6 +32,17 @@ namespace Server.Business.Services
 
             return _mapper.Map<List<BranchServiceDto>>(entities);
         }
+        
+        public async Task<List<BranchServiceDto>> GetAllServiceInBranchAsync(int branchId)
+        {
+            var entities = await _unitOfWorks.Branch_ServiceRepository
+                .FindByCondition(x => x.BranchId == branchId)
+                .Include(x => x.Branch)
+                .Include(x => x.Service)
+                .ToListAsync();
+
+            return _mapper.Map<List<BranchServiceDto>>(entities);
+        }
 
         public async Task<BranchServiceDto?> GetByIdAsync(int id)
         {
