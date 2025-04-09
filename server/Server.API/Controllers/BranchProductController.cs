@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Server.Business.Commons;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
 using Server.Data.Entities;
@@ -37,6 +39,27 @@ namespace Server.API.Controllers
                 message = "Lấy danh sách sản phẩm chi nhánh thành công",
                 data = result
             });
+        }
+        
+        [HttpGet("get-all-product-in-branch/{branchId}")]
+        public async Task<IActionResult> GetAllProductInBranch(int branchId)
+        {
+            var result = await _branchProductservice.GetAllProductInBranchAsync(branchId);
+
+            if (result == null || !result.Any())
+            {
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Không có sản phẩm nào trong chi nhánh này",
+                    data = new List<object>()
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy danh sách sản phẩm trong chi nhánh thành công",
+                data = result
+            }));
         }
 
 
