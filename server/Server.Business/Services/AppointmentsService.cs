@@ -1,8 +1,6 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.SignalR; // ASP.NET Core SignalR
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Utilities;
-using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
@@ -20,13 +18,16 @@ public class AppointmentsService
     private readonly IMapper _mapper;
     private readonly StaffService _staffService;
     private readonly MongoDbService _mongoDbService;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
-    public AppointmentsService(UnitOfWorks unitOfWorks, IMapper mapper, StaffService staffService, MongoDbService mongoDbService)
+    public AppointmentsService(UnitOfWorks unitOfWorks, IMapper mapper, StaffService staffService,
+        MongoDbService mongoDbService, IHubContext<NotificationHub> hubContext)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
         _staffService = staffService;
         _mongoDbService = mongoDbService;
+        _hubContext = hubContext;
     }
 
     public async Task<GetAllAppointmentResponse> GetAllAppointments(int page = 1, int pageSize = 5)
@@ -93,13 +94,14 @@ public class AppointmentsService
             if (request.VoucherId != null && request.VoucherId > 0)
             {
                 voucher = await _unitOfWorks.VoucherRepository
-                                  .FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
-                              ?? throw new BadRequestException("Voucher not found!");
+                              .FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
+                          ?? throw new BadRequestException("Voucher not found!");
             }
 
             if (customer == null) throw new BadRequestException("Customer not found!");
             if (branch == null) throw new BadRequestException("Branch not found!");
-            if (request.ServiceId.Length != request.StaffId.Length || request.ServiceId.Length != request.AppointmentsTime.Length)
+            if (request.ServiceId.Length != request.StaffId.Length ||
+                request.ServiceId.Length != request.AppointmentsTime.Length)
             {
                 throw new BadRequestException("The number of services, staff, and appointment times must match!");
             }
@@ -129,6 +131,7 @@ public class AppointmentsService
                 {
                     throw new BadRequestException("Voucher is out of stock!");
                 }
+
                 _unitOfWorks.VoucherRepository.Update(voucher);
                 await _unitOfWorks.VoucherRepository.Commit();
             }
@@ -155,7 +158,9 @@ public class AppointmentsService
                     throw new BadRequestException($"Service is not available in this branch!");
                 }
 
-                var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == staffId);
+                var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId)
+                    .Include(x => x.StaffInfo)
+                    .FirstOrDefaultAsync();
                 if (staff == null)
                 {
                     throw new BadRequestException($"Staff not found!");
@@ -177,12 +182,14 @@ public class AppointmentsService
                         throw new BadRequestException($"Staff is busy during this time!");
                     }
                 }
+
                 staffAppointments[staffId] = endTime;
 
                 var isStaffBusy = await _unitOfWorks.AppointmentsRepository
                     .FirstOrDefaultAsync(a => a.StaffId == staffId &&
                                               a.AppointmentsTime < endTime &&
-                                              a.AppointmentEndTime > appointmentTime && a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                                              a.AppointmentEndTime > appointmentTime &&
+                                              a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
                 if (isStaffBusy)
                 {
                     throw new BadRequestException($"Staff is busy during this time!");
@@ -209,7 +216,7 @@ public class AppointmentsService
                     await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(newAppointment));
                 await _unitOfWorks.AppointmentsRepository.Commit();
                 appointments.Add(_mapper.Map<AppointmentsModel>(appointmentEntity));
-                
+
                 // get specialist MySQL
                 var specialistMySQL = await _staffService.GetStaffById(staffId);
 
@@ -219,11 +226,30 @@ public class AppointmentsService
                 var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
 
                 // create channel
-                var channel = await _mongoDbService.CreateChannelAsync($"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id, appointmentEntity.AppointmentId);
+                var channel = await _mongoDbService.CreateChannelAsync(
+                    $"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id,
+                    appointmentEntity.AppointmentId);
 
                 // add member to channel
                 await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
                 await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
+                
+                // create notification
+                if (NotificationHub.TryGetConnectionId(customer.UserId.ToString(), out var connectionId))
+                {
+                    var notification = new Notifications()
+                    {
+                        CustomerId = customer.UserId,
+                        Content = $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                        Type = "Appointment",
+                        isRead = false,
+                        CreatedDate = DateTime.Now,
+                    };
+                    await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                    await _unitOfWorks.NotificationRepository.Commit();
+
+                    await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                }
             }
 
 
@@ -407,6 +433,8 @@ public class AppointmentsService
         return _mapper.Map<List<AppointmentsModel>>(listAppointments);
     }
 
+   
+
     public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
     {
         if (request.BranchId <= 0)
@@ -426,6 +454,7 @@ public class AppointmentsService
         var query = _unitOfWorks.AppointmentsRepository
             .FindByCondition(a => a.BranchId == request.BranchId)
             .Include(a => a.Staff)
+                .ThenInclude(s => s.StaffInfo) 
             .Include(a => a.Customer)
             .Include(a => a.Service)
             .OrderByDescending(a => a.AppointmentsTime);
@@ -442,9 +471,70 @@ public class AppointmentsService
         {
             AppointmentId = a.AppointmentId,
             OrderId = a.OrderId,
-            CustomerId = a.CustomerId,
-            StaffId = a.StaffId,
+
+            //CustomerId = a.CustomerId,
+            Customer = a.Customer == null ? null : new UserDTO
+            {
+                UserId = a.Customer.UserId,
+                UserName = a.Customer.UserName,
+                FullName = a.Customer.FullName,
+                Email = a.Customer.Email,
+                Gender = a.Customer.Gender,
+                City = a.Customer.City,
+                Address = a.Customer.Address,
+                BirthDate = a.Customer.BirthDate,
+                Avatar = a.Customer.Avatar,
+                PhoneNumber = a.Customer.PhoneNumber,
+                CreatedDate = a.Customer.CreatedDate,
+                CreateBy = a.Customer.CreateBy,
+                ModifyBy = a.Customer.ModifyBy,
+                ModifyDate = a.Customer.ModifyDate,
+                Status = a.Customer.Status,
+                BonusPoint = a.Customer.BonusPoint,
+                TypeLogin = a.Customer.TypeLogin,
+                RoleID = a.Customer.RoleID
+            },
+
+            //StaffId = a.StaffId,
+            Staff = a.Staff?.StaffInfo == null ? null : new UserDTO
+            {
+                UserId = a.Staff.StaffInfo.UserId,
+                UserName = a.Staff.StaffInfo.UserName,
+                FullName = a.Staff.StaffInfo.FullName,
+                Email = a.Staff.StaffInfo.Email,
+                Gender = a.Staff.StaffInfo.Gender,
+                City = a.Staff.StaffInfo.City,
+                Address = a.Staff.StaffInfo.Address,
+                BirthDate = a.Staff.StaffInfo.BirthDate,
+                Avatar = a.Staff.StaffInfo.Avatar,
+                PhoneNumber = a.Staff.StaffInfo.PhoneNumber,
+                CreatedDate = a.Staff.StaffInfo.CreatedDate,
+                CreateBy = a.Staff.StaffInfo.CreateBy,
+                ModifyBy = a.Staff.StaffInfo.ModifyBy,
+                ModifyDate = a.Staff.StaffInfo.ModifyDate,
+                Status = a.Staff.StaffInfo.Status,
+                BonusPoint = a.Staff.StaffInfo.BonusPoint,
+                TypeLogin = a.Staff.StaffInfo.TypeLogin,
+                RoleID = a.Staff.StaffInfo.RoleID
+
+
+            },
+
             ServiceId = a.ServiceId,
+            Service = a.Service == null ? null : new ServiceDto
+            {
+                ServiceId = a.Service.ServiceId,
+                Name = a.Service.Name,
+                Price = a.Service.Price,
+                Description = a.Service.Description,
+                Duration = a.Service.Duration,
+                Status = a.Service.Status,
+                Steps = a.Service.Steps,
+                CreatedDate = a.Service.CreatedDate,
+                UpdatedDate = a.Service.UpdatedDate,
+
+            },
+
             BranchId = a.BranchId,
             AppointmentsTime = a.AppointmentsTime,
             AppointmentEndTime = a.AppointmentEndTime,
@@ -453,8 +543,7 @@ public class AppointmentsService
             Feedback = a.Feedback,
             Quantity = a.Quantity,
             UnitPrice = a.UnitPrice,
-            SubTotal = a.SubTotal,
-
+            SubTotal = a.SubTotal
         }).ToList();
 
         return new GetAllAppointmentPaginationResponse

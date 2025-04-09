@@ -141,24 +141,56 @@ namespace Server.Business.Services
             };
         }
 
+        //public async Task<List<ServiceModel>> GetListImagesOfServices(List<Data.Entities.Service> listService)
+        //{
+        //    var serviceModels = _mapper.Map<List<ServiceModel>>(listService);
+        //    // chạy lặp qua services và lấy hình của chúng ra trong service_images
+        //    foreach (var service in serviceModels)
+        //    {
+        //        var serviceImages = await _unitOfWorks.ServiceImageRepository.GetAll()
+        //            .Where(si => si.ServiceId == service.ServiceId)
+        //            .Select(si => si.image)
+        //            .ToArrayAsync();
+
+        //        service.images = serviceImages;
+        //    }
+
+        //    return serviceModels;
+        //}
+
         public async Task<List<ServiceModel>> GetListImagesOfServices(List<Data.Entities.Service> listService)
         {
+            var serviceIds = listService.Select(s => s.ServiceId).ToList();
+
+            // Lấy toàn bộ hình ảnh trong 1 truy vấn
+            var serviceImagesDict = await _unitOfWorks.ServiceImageRepository.GetAll()
+                .Where(si => serviceIds.Contains(si.ServiceId))
+                .GroupBy(si => si.ServiceId)
+                .ToDictionaryAsync(
+                    g => g.Key,
+                    g => g.Select(i => i.image).ToArray()
+                );
+
             var serviceModels = _mapper.Map<List<ServiceModel>>(listService);
-            // chạy lặp qua services và lấy hình của chúng ra trong service_images
+
+            // Gắn hình ảnh tương ứng vào từng serviceModel
             foreach (var service in serviceModels)
             {
-                var serviceImages = await _unitOfWorks.ServiceImageRepository.GetAll()
-                    .Where(si => si.ServiceId == service.ServiceId)
-                    .Select(si => si.image)
-                    .ToArrayAsync();
-
-                service.images = serviceImages;
+                if (serviceImagesDict.TryGetValue(service.ServiceId, out var images))
+                {
+                    service.images = images;
+                }
+                else
+                {
+                    service.images = Array.Empty<string>();
+                }
             }
 
             return serviceModels;
         }
 
-      
+
+
 
         public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId, int? serviceCategoryId)
         {

@@ -44,32 +44,32 @@ public class VoucherService
     {
         var user = await _unitOfWork.UserRepository
                        .FirstOrDefaultAsync(x => x.UserId == userId)
-                   ?? throw new BadRequestException("User not found!");
+                   ?? throw new BadRequestException("Không tìm thấy thông tin người dùng!");
 
         var voucher = await _unitOfWork.VoucherRepository
                           .FirstOrDefaultAsync(x => x.VoucherId == voucherId)
-                      ?? throw new BadRequestException("Voucher not found!");
+                      ?? throw new BadRequestException("Không tìm thấy thông tin phiếu giảm giá!");
 
         if (point <= 0)
         {
-            throw new BadRequestException("Point of user must be larger than 0");
+            throw new BadRequestException("Điểm của người dùng cần lớn hơn 0");
         }
 
         if (voucher.RequirePoint > point)
         {
-            throw new BadRequestException($"Point of user must be larger than {voucher.RequirePoint} to exchange");
+            throw new BadRequestException($"Điểm của người dùng cần lớn hơn {voucher.RequirePoint} để chuyển đổi");
         }
 
         // Kiểm tra số điểm thực tế của user
         if (user.BonusPoint < voucher.RequirePoint)
         {
-            throw new BadRequestException("User does not have enough points to exchange for this voucher");
+            throw new BadRequestException("Không đủ điểm để đổi phiếu giảm giá");
         }
 
         // Kiểm tra số lượng voucher còn lại
         if (voucher.RemainQuantity <= 0)
         {
-            throw new BadRequestException("This voucher is out of stock");
+            throw new BadRequestException("Phiếu giảm giá đã hết hạn sử dụng");
         }
 
         var userVoucher = await _unitOfWork.UserVoucherRepository
@@ -104,7 +104,7 @@ public class VoucherService
         voucher.RemainQuantity -= 1;
         if (voucher.RemainQuantity < 0)
         {
-            throw new BadRequestException("Invalid voucher quantity after update");
+            throw new BadRequestException("Số lượng phiếu giảm giá không hợp lệ");
         }
 
         _unitOfWork.VoucherRepository.Update(voucher);
@@ -116,12 +116,77 @@ public class VoucherService
     {
         var user = await _unitOfWork.UserRepository
                        .FirstOrDefaultAsync(x => x.UserId == userId && x.Status == ObjectStatus.Active.ToString())
-                   ?? throw new BadRequestException("User not found!");
+                   ?? throw new BadRequestException("Không tìm thấy thông tin người dùng!");
         var listUserVoucher = await _unitOfWork.UserVoucherRepository
             .FindByCondition(x => x.UserId == user.UserId)
             .Include(x => x.Voucher)
             .ToListAsync();
 
         return _mapper.Map<List<UserVoucher>>(listUserVoucher);
+    }
+    
+    public async Task<bool> CreateVoucher(CreateVoucherRequest request)
+    {
+        var voucher = new Voucher()
+        {
+            Code = request.Code,
+            Quantity = request.Quantity,
+            RemainQuantity = request.RemainQuantity > 0 ? request.RemainQuantity : request.Quantity,
+            Status = request.Status,
+            Description = request.Description,
+            DiscountAmount = request.DiscountAmount,
+            RequirePoint = request.RequirePoint,
+            MinOrderAmount = request.MinOrderAmount,
+            ValidFrom = request.ValidFrom,
+            ValidTo = request.ValidTo
+        };
+        await _unitOfWork.VoucherRepository.AddAsync(voucher);
+        return await _unitOfWork.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> UpdateVoucher(UpdateVoucherRequest request)
+    {
+        var voucher = await _unitOfWork.VoucherRepository.GetByIdAsync(request.VoucherId);
+        if(voucher == null)
+        {
+            throw new BadRequestException("Không tìm thấy thông tin phiếu giảm giá");
+        }
+        
+        if(request.RemainQuantity < 0)
+        {
+            throw new BadRequestException("Số lượng phiếu giảm giá không hợp lệ");
+        }
+        
+        if(request.ValidFrom > request.ValidTo)
+        {
+            throw new BadRequestException("Thời gian sử dụng phiếu giảm giá không hợp lệ");
+        }
+
+        voucher.Code = request.Code ?? voucher.Code;
+        voucher.Quantity = request.Quantity < 0 ? request.Quantity : voucher.Quantity;
+        voucher.RemainQuantity = request.RemainQuantity;
+        voucher.Status = request.Status;
+        voucher.Description = request.Description;
+        voucher.DiscountAmount = request.DiscountAmount;
+        voucher.RequirePoint = request.RequirePoint;
+        voucher.MinOrderAmount = request.MinOrderAmount;
+        voucher.ValidFrom = request.ValidFrom;
+        voucher.ValidTo = request.ValidTo;
+        
+        _unitOfWork.VoucherRepository.Update(voucher);
+        return await _unitOfWork.SaveChangesAsync() > 0;
+    }
+    
+    public async Task<bool> DeleteVoucher(int voucherId)
+    {
+        var voucher = await _unitOfWork.VoucherRepository.GetByIdAsync(voucherId);
+        if (voucher == null)
+        {
+            throw new BadRequestException("Không tìm thấy thông tin phiếu giảm giá");
+        }
+
+        voucher.Status = ObjectStatus.InActive.ToString();
+        _unitOfWork.VoucherRepository.Update(voucher);
+        return await _unitOfWork.SaveChangesAsync() > 0;
     }
 }

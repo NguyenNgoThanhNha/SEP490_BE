@@ -1,4 +1,5 @@
-﻿using Server.Data.Base;
+﻿using Microsoft.EntityFrameworkCore;
+using Server.Data.Base;
 using Server.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -8,10 +9,22 @@ using System.Threading.Tasks;
 
 namespace Server.Data.Repositories
 {
-    public class Brand_ProductRepository : GenericRepository<Branch_Product, int>
+    public class Branch_ProductRepository : GenericRepository<Branch_Product, int>
     {
-        public Brand_ProductRepository(AppDbContext dbContext) : base(dbContext)
+        private readonly AppDbContext _context;
+        public Branch_ProductRepository(AppDbContext dbContext) : base(dbContext)
         {
+            _context = dbContext;
         }
+        public async Task<Branch_Product?> GetByIdWithIncludesAsync(int id)
+        {
+            return await _context.Branch_Products
+                .Include(x => x.Product)
+                .Include(x => x.Branch)
+                .Include(x => x.Promotion)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+
     }
 }

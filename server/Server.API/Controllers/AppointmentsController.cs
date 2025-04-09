@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
@@ -20,18 +20,22 @@ namespace Server.API.Controllers
         private readonly AuthService _authService;
         private readonly IMapper _mapper;
         private readonly MailService _mailService;
+        private readonly UserService _userService;
         private readonly UnitOfWorks _unitOfWorks;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public AppointmentsController(AppointmentsService appointmentsService, AuthService authService, IMapper mapper, MailService mailService, UnitOfWorks unitOfWorks)
+        public AppointmentsController(AppointmentsService appointmentsService, AuthService authService, IMapper mapper, 
+            MailService mailService, UserService userService, UnitOfWorks unitOfWorks)
         {
             _appointmentsService = appointmentsService;
             _authService = authService;
             _mapper = mapper;
             _mailService = mailService;
+            _userService = userService;
             _unitOfWorks = unitOfWorks;
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAllAppointment([FromQuery] int page = 1, int pageSize = 5)
         {
@@ -51,7 +55,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetByAppointmentId([FromRoute] int id)
         {
@@ -70,7 +74,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpPost("create")]
         public async Task<IActionResult> CreateAppointment([FromBody] ApointmentRequest request)
         {
@@ -84,21 +88,8 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
 
-            // Lấy token từ header
-            if (!Request.Headers.TryGetValue("Authorization", out var token))
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Authorization header is missing."
-                }));
-            }
-
-            // Chia tách token
-            var tokenValue = token.ToString().Split(' ')[1];
-            // Lấy thông tin user từ token
-            var currentUser = await _authService.GetUserInToken(tokenValue);
-
-            if (currentUser == null)
+            var customer = await _userService.GetCustomerById(request.UserId);
+            if(customer == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
@@ -107,7 +98,7 @@ namespace Server.API.Controllers
             }
 
             // Tạo appointments và lấy order tương ứng
-            var appointmentsList = await _appointmentsService.CreateAppointments(currentUser.UserId, request);
+            var appointmentsList = await _appointmentsService.CreateAppointments(customer.UserId, request);
             if (appointmentsList == null || !appointmentsList.Any())
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -128,7 +119,7 @@ namespace Server.API.Controllers
             }
 
             // Chuẩn bị thông tin cho email
-            var customerName = currentUser.FullName ?? "Customer";
+            var customerName = customer.FullName ?? "Customer";
             var appointmentDate = firstAppointment.AppointmentsTime.ToString("dd/MM/yyyy");
             var appointmentTime = firstAppointment.AppointmentsTime.ToString(@"hh\:mm tt");
             var servicesDetails = string.Join("", appointmentsList.Select(a =>
@@ -140,7 +131,7 @@ namespace Server.API.Controllers
 
             var mailData = new MailData()
             {
-                EmailToId = currentUser.Email,
+                EmailToId = customer.Email,
                 EmailToName = customerName,
                 EmailSubject = "Order & Appointment Confirmation",
                 EmailBody = $@"
@@ -185,7 +176,7 @@ namespace Server.API.Controllers
 
 
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateAppointment([FromRoute] int id, [FromBody] AppointmentUpdateRequest request)
         {
@@ -246,7 +237,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpPut("delete/{id}")]
         public async Task<IActionResult> DeleteAppointment([FromRoute] int id)
         {
@@ -285,7 +276,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize]
+        [Microsoft.AspNetCore.Authorization.Authorize]
         [HttpPut("cancel-booking/{id}")]
         public async Task<IActionResult> CancleBooking([FromRoute] int id)
         {

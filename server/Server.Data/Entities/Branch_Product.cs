@@ -24,4 +24,7 @@ public class Branch_Product
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
     
     public ICollection<ProductCart> ProductCarts { get; set; }
+
+    public int? PromotionId { get; set; }
+    public Promotion? Promotion { get; set; }
 }

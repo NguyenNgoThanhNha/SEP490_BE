@@ -210,4 +210,51 @@ public class RepositoryMongoDb<T> : IRepositoryMongoDB<T> where T : class
 
         return channel;
     }
+    
+    public async Task<ChannelsDTO> GetChannelByAppointmentIdAsync(int appointmentId)
+    {
+        var filter = Builders<T>.Filter.Eq("appointmentId", appointmentId);
+
+        var channelDoc = await _collection
+            .Aggregate()
+            .Match(filter)
+            .Lookup("Customers", "admin", "_id", "AdminDetails")
+            .Lookup("Customers", "members", "_id", "MemberDetails")
+            .FirstOrDefaultAsync();
+
+        if (channelDoc == null)
+            return null;
+
+        var channel = new ChannelsDTO
+        {
+            Id = channelDoc["_id"].ToString(),
+            Name = channelDoc["name"].ToString(),
+            AppointmentId = channelDoc["appointmentId"].AsInt32,
+            Members = channelDoc["members"].AsBsonArray.Select(m => m.ToString()).ToList(),
+            Messages = channelDoc["messages"].AsBsonArray.Select(m => m.ToString()).ToList(),
+            CreateAt = channelDoc["createAt"].ToUniversalTime(),
+            UpdateAt = channelDoc["updateAt"].ToUniversalTime(),
+            Admin = channelDoc["admin"].ToString(),
+            AdminDetails = channelDoc["AdminDetails"].AsBsonArray.Select(c => new CustomerDTO
+            {
+                Id = c["_id"].ToString(),
+                Email = c["email"].ToString(),
+                FullName = c["fullName"].ToString(),
+                Password = c["password"].ToString(),
+                UserId = c["userId"].ToString(),
+                Image = c["image"].ToString()
+            }).FirstOrDefault(),
+            MemberDetails = channelDoc["MemberDetails"].AsBsonArray.Select(c => new CustomerDTO
+            {
+                Id = c["_id"].ToString(),
+                Email = c["email"].ToString(),
+                FullName = c["fullName"].ToString(),
+                Password = c["password"].ToString(),
+                UserId = c["userId"].ToString(),
+                Image = c["image"].ToString()
+            }).ToList()
+        };
+
+        return channel;
+    }
 }

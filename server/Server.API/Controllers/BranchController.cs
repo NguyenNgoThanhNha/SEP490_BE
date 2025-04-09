@@ -6,6 +6,7 @@ using Server.Business.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Nest;
+using Server.Business.Commons.Request;
 using Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
@@ -99,5 +100,70 @@ namespace Server.API.Controllers
             }));
         }
         
+        [Authorize]
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateBranch([FromBody] CreateBranchRequest request)
+        {
+            // Gọi service để tạo chi nhánh
+            var branch = await _branchService.CreateBranch(request);
+
+            if (branch == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Tạo chi nhánh thất bại!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Tạo chi nhánh thành công!",
+                data = branch
+            }));
+        }
+        
+        [Authorize]
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateBranch([FromBody] UpdateBranchRequest request)
+        {
+            // Gọi service để cập nhật chi nhánh
+            var branch = await _branchService.UpdateBranch(request);
+
+            if (branch == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Cập nhật chi nhánh thất bại!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Cập nhật chi nhánh thành công!",
+                data = branch
+            }));
+        }
+
+        [Authorize]
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteBranch(int id)
+        {
+            // Gọi service để xóa chi nhánh
+            var result = await _branchService.DeleteBranch(id);
+
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Xóa chi nhánh thất bại!"
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Xóa chi nhánh thành công!"
+            }));
+        }
+
     }
 }

@@ -33,15 +33,34 @@ namespace Server.API.Controllers
             return BadRequest(response);
         }
 
-        [HttpDelete("{userId}/{productBranchId}")]
-        public async Task<IActionResult> RemoveProductFromCart(int userId,int productBranchId)
+       
+        //public async Task<IActionResult> RemoveProductFromCart(int userId,int productBranchId)
+        //{
+        //    var response = await _cartService.DeleteProductFromCart(productBranchId, userId);
+        //    if (response.Success)
+        //    {
+        //        return Ok(response);
+        //    }
+        //    return BadRequest(response);
+        //}
+
+        [HttpDelete("{userId}/{productBranchIds}")]
+        public async Task<IActionResult> RemoveProductsFromCart(int userId, string productBranchIds)
         {
-            var response = await _cartService.DeleteProductFromCart(productBranchId, userId);
+            var ids = productBranchIds
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(id => int.Parse(id.Trim()))
+                .ToList();
+
+            var response = await _cartService.DeleteProductsFromCart(ids, userId);
             if (response.Success)
             {
                 return Ok(response);
             }
             return BadRequest(response);
         }
+
+
+
     }
 }

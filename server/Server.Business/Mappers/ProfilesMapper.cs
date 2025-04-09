@@ -32,7 +32,11 @@ namespace Server.Business.Mappers
             CreateMap<Branch_Promotion, BranchPromotionModel>().ReverseMap();
             CreateMap<Branch_Promotion, BranchPromotionDTO>().ReverseMap();
             CreateMap<BranchPromotionModel, BranchPromotionDTO>().ReverseMap();
-           
+
+            CreateMap<Branch_Product, BranchProductDto>().ReverseMap();
+            CreateMap<CreateBranchProductDto, Branch_Product>();
+            CreateMap<UpdateBranchProductDto, Branch_Product>();
+
             CreateMap<Staff, StaffModel>().ReverseMap();
             CreateMap<Staff, StaffDTO>().ReverseMap();
             CreateMap<StaffModel, StaffDTO>().ReverseMap();
@@ -41,7 +45,24 @@ namespace Server.Business.Mappers
             CreateMap<ProductModel, ProductDto>().ReverseMap();
             CreateMap<Product, ProductDto>().ReverseMap();
             CreateMap<Product, ProductDetailDto>().ReverseMap();
-            
+
+            CreateMap<Product, ProductModel>()
+      .ForMember(dest => dest.images, opt => opt.MapFrom(src =>
+          src.ProductImages.Select(i => i.image)
+      ))
+      .ForMember(dest => dest.Branches, opt => opt.MapFrom(src =>
+          src.Branch_Products != null && src.Branch_Products.Any()
+              ? src.Branch_Products.First().Branch
+              : null
+      ));
+
+
+
+
+
+
+
+
             CreateMap<Category, CategoryModel>().ReverseMap();
             CreateMap<Category, CategoryDetailDto>().ReverseMap();
             CreateMap<Category, CategoryDto>().ReverseMap();
@@ -99,8 +120,15 @@ namespace Server.Business.Mappers
             
             CreateMap<UserRoutine, UserRoutineModel>();
             CreateMap<UserRoutineStep, UserRoutineStepModel>();
-            
-            
+
+
+            CreateMap<Promotion, PromotionDTO>();
+
+            CreateMap<Branch_Service, BranchServiceDto>();
+            CreateMap<CreateBranchServiceDto, Branch_Service>();
+            CreateMap<UpdateBranchServiceDto, Branch_Service>();
+           
+
         }
     }
 }

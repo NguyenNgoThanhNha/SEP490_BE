@@ -133,7 +133,7 @@ namespace Server.API.Controllers
         }
 
         // Đồng bộ tất cả khách hàng từ MySQL lên MongoDB
-        [HttpPost("sync-customers")]
+        /*[HttpPost("sync-customers")]
         public async Task<IActionResult> SyncAllCustomersAsync(List<User> customers)
         {
             await _mongoDbService.SyncAllCustomersAsync(customers);
@@ -141,7 +141,7 @@ namespace Server.API.Controllers
             {
                 message = "Đồng bộ hóa tất cả khách hàng thành công",
             }));
-        }
+        }*/
 
         // Upload file
         [HttpPost("upload-file")]
@@ -190,6 +190,23 @@ namespace Server.API.Controllers
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Kênh tồn tại",
+                data = channel
+            }));
+        }
+
+        [HttpGet("get-channel-appointment/{appointmentId}")]
+        public async Task<IActionResult> GetChannelAppointmentAsync(int appointmentId)
+        {
+            var channel = await _mongoDbService.GetChannelByAppointmentIdAsync(appointmentId);
+            if (channel == null)
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy kênh",
+                }));
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy kênh thành công",
                 data = channel
             }));
         }

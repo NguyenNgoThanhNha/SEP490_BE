@@ -1,4 +1,5 @@
-﻿using Server.Data;
+﻿using Server.Business.Dtos;
+using Server.Data;
 using Server.Data.Entities;
 
 namespace Server.Business.Models;
@@ -31,6 +32,7 @@ public class OrderModel
     public virtual ICollection<OrderDetailModels> OrderDetails { get; set; }
     public virtual ICollection<AppointmentsModel> Appointments { get; set; }
     public ShipmentModel Shipment { get; set; }
+    public string? PaymentMethod { get; set; }
 }
 
 public class OrderInfoModel
@@ -57,4 +59,5 @@ public class OrderInfoModel
     public string? Note { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
+    public string? PaymentMethod { get; set; } 
 }

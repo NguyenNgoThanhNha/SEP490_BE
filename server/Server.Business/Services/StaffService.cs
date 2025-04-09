@@ -575,6 +575,41 @@ namespace Server.Business.Services
             return busyTimes;
         }
 
+        public async Task<List<StaffBusyTimeDto>> GetMultipleStaffBusyTimesAsync(List<int> staffIds, DateTime date)
+        {
+            var appointments = await _unitOfWorks.AppointmentsRepository
+                .FindByCondition(a => staffIds.Contains(a.StaffId) &&
+                                      a.AppointmentsTime.Date == date.Date &&
+                                      a.Status == OrderStatusEnum.Pending.ToString())
+                .Include(a => a.Service)
+                .ToListAsync();
+
+            var result = appointments
+                .Where(a => a.Service != null)
+                .GroupBy(a => a.StaffId)
+                .Select(g => new StaffBusyTimeDto
+                {
+                    StaffId = g.Key,
+                    BusyTimes = g.Select(a =>
+                    {
+                        var durationParts = a.Service.Duration.Split(' ');
+                        int durationMinutes = int.TryParse(durationParts[0], out var minutes) ? minutes : 0;
+
+                        return new BusyTimeDto
+                        {
+                            StartTime = a.AppointmentsTime,
+                            EndTime = a.AppointmentsTime.AddMinutes(durationMinutes)
+                        };
+                    })
+                    .OrderBy(bt => bt.StartTime)
+                    .ToList()
+                })
+                .ToList();
+
+            return result;
+        }
+
+
 
         public async Task<StaffModel> GetStaffById(int staffId)
         {

@@ -22,7 +22,7 @@ namespace Server.Data.UnitOfWorks
         private AppointmentsRepository _apointmentRepo;
         private StaffRepository _staffRepo;
         private BlogRepository _blogRepo;
-        private Brand_ProductRepository _branchProductRepository;
+        private Branch_ProductRepository _branchProductRepository;
         private VoucherRepository _voucherRepo;
         private CompanyRepository _companyRepo;
         private OrderRepository _orderRepo;
@@ -50,6 +50,7 @@ namespace Server.Data.UnitOfWorks
         private SkinCareRoutineStepRepository _skinCareRoutineStepRepository;
         private UserRoutineStepRepository _userRoutineStepRepository;
         private ShipmentRepository _shipmentRepository;
+        private NotificationRepository _notificationRepository;
 
         public UnitOfWorks(AppDbContext dbContext)
         {
@@ -117,9 +118,9 @@ namespace Server.Data.UnitOfWorks
             get { return _blogRepo ??= new BlogRepository(_dbContext); }
         }
 
-        public Brand_ProductRepository Brand_ProductRepository
+        public Branch_ProductRepository Branch_ProductRepository
         {
-            get { return _branchProductRepository ??= new Brand_ProductRepository(_dbContext); }
+            get { return _branchProductRepository ??= new Branch_ProductRepository(_dbContext); }
         }
 
         public VoucherRepository VoucherRepository
@@ -258,7 +259,11 @@ namespace Server.Data.UnitOfWorks
             get { return _shipmentRepository ??= new ShipmentRepository(_dbContext); }
         }
 
-
+        public NotificationRepository NotificationRepository
+        {
+            get { return _notificationRepository ??= new NotificationRepository(_dbContext); }
+        }
+        
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             _transaction = await _dbContext.Database.BeginTransactionAsync();

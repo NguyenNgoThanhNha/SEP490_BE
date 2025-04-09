@@ -1,7 +1,4 @@
-using System.Runtime.InteropServices.JavaScript;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
 using Server.Business.Commons.Request;
@@ -22,7 +19,7 @@ namespace Server.API.Controllers
             _voucherService = voucherService;
             _authService = authService;
         }
-        
+
         [Authorize]
         [HttpGet("get-all-vouchers")]
         public async Task<IActionResult> GetAllVouchers([FromQuery] VoucherRequest request)
@@ -34,7 +31,7 @@ namespace Server.API.Controllers
                 data = vouchers
             }));
         }
-        
+
         [Authorize]
         [HttpGet("get-voucher-by-date")]
         public async Task<IActionResult> GetVoucherByDate([FromQuery] DateTime dateTime)
@@ -87,6 +84,69 @@ namespace Server.API.Controllers
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Lấy danh sách phiếu giảm giá thành công!",
+                data = result
+            }));
+        }
+
+        [Authorize]
+        [HttpPost("create-voucher")]
+        public async Task<IActionResult> CreateVoucher(CreateVoucherRequest request)
+        {
+            var result = await _voucherService.CreateVoucher(request);
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Tạo phiếu giảm giá thất bại!",
+                    data = result
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Tạo phiếu giảm giá thành công!",
+                data = result
+            }));
+        }
+
+        [Authorize]
+        [HttpPut("update-voucher")]
+        public async Task<IActionResult> UpdateVoucher(UpdateVoucherRequest request)
+        {
+            var result = await _voucherService.UpdateVoucher(request);
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Cập nhật phiếu giảm giá thất bại!",
+                    data = result
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Cập nhật phiếu giảm giá thành công!",
+                data = result
+            }));
+        }
+
+        [Authorize]
+        [HttpDelete("delete-voucher/{voucherId}")]
+        public async Task<IActionResult> DeleteVoucher(int voucherId)
+        {
+            var result = await _voucherService.DeleteVoucher(voucherId);
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Xóa phiếu giảm giá thất bại!",
+                    data = result
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Xóa phiếu giảm giá thành công!",
                 data = result
             }));
         }

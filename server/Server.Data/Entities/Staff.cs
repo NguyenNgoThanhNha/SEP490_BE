@@ -26,5 +26,5 @@ public class Staff
     
     public virtual StaffRole Role { get; set; }
     public virtual ICollection<WorkSchedule> WorkSchedules { get; set; }
-
+   
 }

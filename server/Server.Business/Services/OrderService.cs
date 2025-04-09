@@ -204,13 +204,17 @@ namespace Server.Business.Services
             }
 
             // Tính tổng tiền của tất cả các OrderDetail
-            var totalAmount = orderDetails.Sum(od => od.Quantity * od.UnitPrice);
+            var totalAmount = Convert.ToDecimal(req.totalAmount);
 
-            // Xác minh tổng tiền với giá trị từ request (nếu cần)
-            if (Convert.ToDecimal(req.totalAmount) != totalAmount)
-            {
-                throw new BadRequestException("Total amount mismatch!");
-            }
+            //// Xác minh tổng tiền với giá trị từ request (nếu cần)
+            //var requestedAmount = Convert.ToDecimal(req.totalAmount);
+            //var epsilon = 0.01m;
+
+            //if (Math.Abs(requestedAmount - totalAmount) > epsilon)
+            //{
+            //    throw new BadRequestException("Total amount mismatch!");
+            //}
+
 
             // Khởi tạo PayOS
             var payOS = new PayOS(_payOsSetting.ClientId, _payOsSetting.ApiKey, _payOsSetting.ChecksumKey);
@@ -271,14 +275,18 @@ namespace Server.Business.Services
                 throw new BadRequestException("No appointments found for the given Order ID!");
             }
 
-            // Tính tổng tiền của tất cả các Appointments
-            var totalAmount = appointments.Sum(ap => ap.Quantity * ap.UnitPrice);
+           
 
-            // Xác minh tổng tiền với giá trị từ request (nếu cần)
-            if (Convert.ToDecimal(req.totalAmount) != totalAmount)
-            {
-                throw new BadRequestException("Total amount mismatch!");
-            }
+            // Tính tổng tiền của tất cả các Appointments
+            //var totalAmount = appointments.Sum(ap => ap.Quantity * ap.UnitPrice);
+
+            var totalAmount = Convert.ToDecimal(req.totalAmount);
+
+            //// Xác minh tổng tiền với giá trị từ request (nếu cần)
+            //if (Convert.ToDecimal(req.totalAmount) != totalAmount)
+            //{
+            //    throw new BadRequestException("Total amount mismatch!");
+            //}
 
             // Khởi tạo PayOS
             var payOS = new PayOS(_payOsSetting.ClientId, _payOsSetting.ApiKey, _payOsSetting.ChecksumKey);
@@ -393,18 +401,33 @@ namespace Server.Business.Services
             }
         }
 
+        
+
         public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType, int page = 1,
             int pageSize = 5)
         {
-            var listOrders = await _unitOfWorks.OrderRepository.FindByCondition(x => x.CustomerId == userId)
-                .Include(x => x.Customer)
-                .Include(x => x.Voucher)
-                .Include(x => x.Appointments)
-                .ThenInclude(x => x.Service)
-                .Include(x => x.OrderDetails)
-                .ThenInclude(x => x.Product)
-                .Where(x => x.Status == status && x.OrderType == orderType)
-                .ToListAsync();
+
+            var listOrders = await _unitOfWorks.OrderRepository
+      .FindByCondition(x => x.CustomerId == userId)
+      .Include(x => x.Customer)
+      .Include(x => x.Voucher)
+      .Include(x => x.Shipment) // ✅ Thêm Include Shipment
+      .Include(x => x.Appointments)
+          .ThenInclude(x => x.Service)
+      .Include(x => x.OrderDetails)
+          .ThenInclude(od => od.Product)
+              .ThenInclude(p => p.ProductImages) // ✅ Hình ảnh sản phẩm
+      .Include(x => x.OrderDetails)
+          .ThenInclude(od => od.Product)
+              .ThenInclude(p => p.Branch_Products)
+                  .ThenInclude(bp => bp.Branch) // ✅ Chi nhánh của sản phẩm
+      .Where(x => x.Status == status && x.OrderType == orderType)
+      .OrderByDescending(x => x.CreatedDate)
+      .ToListAsync();
+
+
+
+
             if (listOrders.Equals(null))
             {
                 return null;
@@ -512,33 +535,115 @@ namespace Server.Business.Services
         //    };
         //}
 
+        //public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
+        //{
+        //    var order = await _unitOfWorks.OrderRepository
+        //        .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+        //        .Include(x => x.Customer)
+        //        .Include(x => x.Shipment)
+        //        .Include(x => x.Voucher)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //                .ThenInclude(p => p.ProductImages)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //                .ThenInclude(p => p.Branch_Products)
+        //                    .ThenInclude(bp => bp.Branch)
+        //        .Include(x => x.Appointments)
+        //        .FirstOrDefaultAsync();
+
+        //    if (order == null)
+        //        return null;
+
+        //    var listService = new List<Data.Entities.Service>();
+        //    var listProduct = new List<Product>();
+        //    var listServiceModels = new List<ServiceModel>();
+        //    var listProductModels = new List<ProductModel>();
+
+        //    if (order.OrderType == "Appointment")
+        //    {
+        //        var orderAppointments = await _unitOfWorks.AppointmentsRepository
+        //            .FindByCondition(x => x.OrderId == orderId)
+        //            .Include(x => x.Branch)
+        //            .Include(x => x.Service)
+        //            .Include(x => x.Staff)
+        //                .ThenInclude(x => x.StaffInfo)
+        //            .ToListAsync();
+
+        //        order.Appointments = orderAppointments;
+
+        //        listService = orderAppointments.Select(a => a.Service).ToList();
+        //        listServiceModels = await _serviceService.GetListImagesOfServices(listService);
+        //    }
+        //    else if (order.OrderType == "Product")
+        //    {
+        //        var orderDetails = order.OrderDetails.ToList(); // đã include sẵn Product + ProductImages
+        //        listProduct = orderDetails.Select(od => od.Product).ToList();
+
+        //        listProductModels = await _productService.GetListImagesOfProduct(listProduct);
+        //    }
+
+        //    // Mapping
+        //    var orderModel = _mapper.Map<OrderModel>(order);
+
+        //    // Gắn images cho service
+        //    if (orderModel.Appointments.Any())
+        //    {
+        //        foreach (var appointment in orderModel.Appointments)
+        //        {
+        //            var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+        //            if (matchedService != null)
+        //            {
+        //                appointment.Service.images = matchedService.images;
+        //            }
+        //        }
+        //    }
+        //    // Gắn images và branch cho product
+        //    else if (orderModel.OrderDetails.Any())
+        //    {
+        //        foreach (var orderDetail in orderModel.OrderDetails)
+        //        {
+        //            var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.ProductId);
+        //            if (matchedProduct != null)
+        //            {
+        //                orderDetail.Product.images = matchedProduct.images;
+        //                orderDetail.Product.Branches = matchedProduct.Branches; // ✅ gán chi nhánh
+        //            }
+        //        }
+        //    }
+
+        //    return new DetailOrderResponse()
+        //    {
+        //        message = "Get detail order success",
+        //        data = orderModel
+        //    };
+        //}
+
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
         {
-            // Include full thông tin
-            //var order = await _unitOfWorks.OrderRepository
-            //    .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
-            //    .Include(x => x.Customer) // Customer
-            //    .Include(x => x.Shipment) // Shipment
-            //    .Include(x => x.Voucher)  // Voucher
-
-            //    .FirstOrDefaultAsync();
-
             var order = await _unitOfWorks.OrderRepository
-    .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
-    .Include(x => x.Customer)
-    .Include(x => x.Shipment) // CHẮC CHẮN PHẢI CÓ
-    .Include(x => x.Voucher)
-    .Include(x => x.OrderDetails).ThenInclude(x => x.Product)
-    .Include(x => x.Appointments)
-    .FirstOrDefaultAsync();
-
+                .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+                .Include(x => x.Customer)
+                .Include(x => x.Shipment)
+                .Include(x => x.Voucher)
+                .Include(x => x.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.ProductImages)
+                .Include(x => x.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.Branch_Products)
+                            .ThenInclude(bp => bp.Branch)
+                .Include(x => x.Appointments)
+                .FirstOrDefaultAsync();
 
             if (order == null)
-                return null;
+            {
+                return null; // Controller xử lý lỗi
+            }
 
             var listService = new List<Data.Entities.Service>();
             var listProduct = new List<Product>();
-            var listSerivceModels = new List<ServiceModel>();
+            var listServiceModels = new List<ServiceModel>();
             var listProductModels = new List<ProductModel>();
 
             if (order.OrderType == "Appointment")
@@ -552,71 +657,52 @@ namespace Server.Business.Services
                     .ToListAsync();
 
                 order.Appointments = orderAppointments;
-
-                // get list service images
-                foreach (var appointment in orderAppointments)
-                {
-                    listService.Add(appointment.Service);
-                }
-
-                listSerivceModels = await _serviceService.GetListImagesOfServices(listService);
+                listService = orderAppointments.Select(a => a.Service).ToList();
+                listServiceModels = await _serviceService.GetListImagesOfServices(listService);
             }
             else if (order.OrderType == "Product")
             {
-                var orderDetails = await _unitOfWorks.OrderDetailRepository
-                    .FindByCondition(x => x.OrderId == orderId)
-                    .Include(x => x.Product)
-                    .ToListAsync();
-
-                order.OrderDetails = orderDetails;
-
-                // get list order images
-                foreach (var orderDetail in orderDetails)
-                {
-                    listProduct.Add(orderDetail.Product);
-                }
-
+                var orderDetails = order.OrderDetails.ToList();
+                listProduct = orderDetails.Select(od => od.Product).ToList();
                 listProductModels = await _productService.GetListImagesOfProduct(listProduct);
             }
 
-            // Mapping
             var orderModel = _mapper.Map<OrderModel>(order);
 
-            // Gắn images cho service
             if (orderModel.Appointments.Any())
             {
                 foreach (var appointment in orderModel.Appointments)
                 {
-                    foreach (var serviceModel in listSerivceModels)
+                    var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+                    if (matchedService != null)
                     {
-                        if (appointment.ServiceId == serviceModel.ServiceId)
-                        {
-                            appointment.Service.images = serviceModel.images;
-                        }
+                        appointment.Service.images = matchedService.images;
                     }
                 }
             }
-            // Gắn images cho product
             else if (orderModel.OrderDetails.Any())
             {
                 foreach (var orderDetail in orderModel.OrderDetails)
                 {
-                    foreach (var productModel in listProductModels)
+                    var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.ProductId);
+                    if (matchedProduct != null)
                     {
-                        if (orderDetail.ProductId == productModel.ProductId)
-                        {
-                            orderDetail.Product.images = productModel.images;
-                        }
+                        orderDetail.Product.images = matchedProduct.images;
+                        orderDetail.Product.Branches = matchedProduct.Branches;
                     }
                 }
             }
 
-            return new DetailOrderResponse()
+            return new DetailOrderResponse
             {
                 message = "Get detail order success",
-                data = orderModel
+                data = orderModel // ✅ Là 1 object, không phải list
             };
         }
+
+
+
+
 
 
         public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
@@ -692,10 +778,22 @@ namespace Server.Business.Services
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
             if (order == null) throw new BadRequestException("Order not found!");
+
+            if (order.Status == OrderStatusEnum.Completed.ToString())
+            {
+                throw new BadRequestException("Đơn hàng đã hoàn thành không thể thay đổi trạng thái!");
+            }
+            
             order.Status = orderStatus;
             order.UpdatedDate = DateTime.Now;
+
+            var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+            customer.BonusPoint += 200;
+            _unitOfWorks.UserRepository.Update(customer);
+            _unitOfWorks.UserRepository.Commit();               
+            
             _unitOfWorks.OrderRepository.Update(order);
-            return await _unitOfWorks.OrderRepository.Commit() > 0;
+            return await _unitOfWorks.OrderRepository.Commit() > 0;     
         }
 
         public async Task<bool> CancelOrder(int orderId, string reasonCancel)
@@ -748,17 +846,167 @@ namespace Server.Business.Services
 
 
 
+        //    public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
+        //    {
+        //        if (request == null
+        //|| request.Products == null
+        //|| !request.Products.Any()
+        //|| request.TotalAmount <= 0
+        //|| string.IsNullOrWhiteSpace(request.PaymentMethod))
+        //        {
+        //            return ApiResult<object>.Error(null, "Vui lòng nhập đầy đủ thông tin đơn hàng.");
+        //        }
+        //        using var transaction = await _unitOfWorks.BeginTransactionAsync();
+        //        try
+        //        {
+        //            // 1. Lấy user
+        //            var user = await _unitOfWorks.UserRepository
+        //                .FindByCondition(x => x.UserId == request.UserId && x.Status == "Active")
+        //                .FirstOrDefaultAsync();
+
+        //            if (user == null)
+        //                return ApiResult<object>.Error(null, "User not found or inactive.");
+
+        //            // 2. Kiểm tra voucher
+        //            int? voucherId = null;
+        //            if (request.VoucherId.HasValue)
+        //            {
+        //                var voucher = await _unitOfWorks.VoucherRepository
+        //                    .FindByCondition(x => x.VoucherId == request.VoucherId && x.Status == "Active")
+        //                    .FirstOrDefaultAsync();
+
+        //                if (voucher == null)
+        //                {
+        //                    return ApiResult<object>.Succeed(new ApiResponse
+        //                    {
+        //                        message = "Invalid voucher.",
+        //                        data = null
+        //                    });
+        //                }
+        //                voucherId = voucher.VoucherId;
+        //            }
+
+        //            // 3. Tạo OrderCode ngẫu nhiên
+        //            int orderCode;
+        //            var random = new Random();
+        //            do
+        //            {
+        //                orderCode = random.Next(1000, 10000);
+        //            } while (await _unitOfWorks.OrderRepository
+        //                .FindByCondition(x => x.OrderCode == orderCode)
+        //                .AnyAsync());
+
+        //            // 4. Tạo Order
+        //            var order = new Order
+        //            {
+        //                OrderCode = orderCode,
+        //                CustomerId = request.UserId,
+        //                VoucherId = voucherId,
+        //                TotalAmount = request.TotalAmount,
+        //                OrderType = "Product",
+        //                PaymentMethod = request.PaymentMethod,
+        //                Status = OrderStatusEnum.Pending.ToString(),
+        //                StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+        //                CreatedDate = DateTime.UtcNow,
+        //                UpdatedDate = DateTime.UtcNow
+        //            };
+        //            await _unitOfWorks.OrderRepository.AddAsync(order);
+        //            await _unitOfWorks.OrderRepository.Commit();
+
+        //            // 5. Tạo OrderDetail và cập nhật tồn kho
+        //            foreach (var item in request.Products)
+        //            {
+        //                if (item.Quantity <= 0)
+        //                    throw new BadRequestException($"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
+        //                var branchProduct = await _unitOfWorks.Brand_ProductRepository.GetByIdAsync(item.ProductBranchId);
+        //                if (branchProduct == null)
+        //                    throw new BadRequestException($"BranchProduct ID {item.ProductBranchId} not found.");
+
+        //                if (branchProduct.StockQuantity < item.Quantity)
+        //                    throw new BadRequestException($"Product ID {branchProduct.ProductId} in branch không đủ tồn kho.");
+
+        //                var product = await _unitOfWorks.ProductRepository.GetByIdAsync(branchProduct.ProductId);
+        //                if (product == null)
+        //                    throw new BadRequestException($"Product ID {branchProduct.ProductId} not found.");
+
+        //                var orderDetail = new OrderDetail
+        //                {
+        //                    OrderId = order.OrderId,
+        //                    ProductId = product.ProductId,
+        //                    Quantity = item.Quantity,
+        //                    UnitPrice = product.Price,
+        //                    SubTotal = product.Price * item.Quantity,
+        //                    Status = OrderStatusEnum.Pending.ToString(),
+        //                    StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+        //                    PaymentMethod = request.PaymentMethod,
+        //                    CreatedDate = DateTime.Now,
+        //                    UpdatedDate = DateTime.Now
+        //                };
+
+        //                await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+
+        //                // Cập nhật tồn kho
+        //                branchProduct.StockQuantity -= item.Quantity;
+        //                branchProduct.UpdatedDate = DateTime.Now;
+        //                _unitOfWorks.Brand_ProductRepository.Update(branchProduct);
+        //            }
+
+        //            // 6. Chuẩn hóa thông tin giao hàng
+        //            var recipientName = string.IsNullOrWhiteSpace(request.RecipientName) ? user.FullName : request.RecipientName;
+        //            var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress) ? user.Address : request.RecipientAddress;
+        //            var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone) ? user.PhoneNumber : request.RecipientPhone;
+
+        //            // 7. Tạo Shipment
+        //            var shipment = new Shipment
+        //            {
+        //                OrderId = order.OrderId,
+        //                EstimatedDeliveryDate = request.EstimatedDeliveryDate,
+        //                ShippingCost = request.ShippingCost,
+        //                RecipientName = recipientName,
+        //                RecipientAddress = recipientAddress,
+        //                RecipientPhone = recipientPhone,
+        //                ShippingStatus = ShippingStatusEnum.Pending.ToString(),
+        //                ShippingCarrier = "Unknown",
+        //                TrackingNumber = "Unknown",
+        //                CreatedDate = DateTime.Now,
+        //                UpdatedDate = DateTime.Now
+        //            };
+        //            await _unitOfWorks.ShipmentRepository.AddAsync(shipment);
+
+        //            // 8. Commit transaction
+        //            await _unitOfWorks.OrderDetailRepository.Commit();
+        //            await _unitOfWorks.ShipmentRepository.Commit();
+        //            await _unitOfWorks.Brand_ProductRepository.Commit();
+        //            await transaction.CommitAsync();
+
+        //            return ApiResult<object>.Succeed(new
+        //            {
+        //                //OrderId = order.OrderId,
+        //                //OrderCode = order.OrderCode,
+        //                //Message = "Order created successfully."
+        //                message = "Tạo đơn hàng thành công.",
+        //                data = order.OrderId
+        //            });
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await transaction.RollbackAsync();
+        //            return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
+        //        }
+        //    }
+
         public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
         {
             if (request == null
-    || request.Products == null
-    || !request.Products.Any()
-    || request.TotalAmount <= 0
-    || string.IsNullOrWhiteSpace(request.PaymentMethod))
+                || request.Products == null
+                || !request.Products.Any()
+                || string.IsNullOrWhiteSpace(request.PaymentMethod))
             {
                 return ApiResult<object>.Error(null, "Vui lòng nhập đầy đủ thông tin đơn hàng.");
             }
+
             using var transaction = await _unitOfWorks.BeginTransactionAsync();
+
             try
             {
                 // 1. Lấy user
@@ -767,7 +1015,7 @@ namespace Server.Business.Services
                     .FirstOrDefaultAsync();
 
                 if (user == null)
-                    return ApiResult<object>.Error(null, "User not found or inactive.");
+                    return ApiResult<object>.Error(null, "User không tồn tại hoặc đang bị vô hiệu hóa.");
 
                 // 2. Kiểm tra voucher
                 int? voucherId = null;
@@ -781,10 +1029,11 @@ namespace Server.Business.Services
                     {
                         return ApiResult<object>.Succeed(new ApiResponse
                         {
-                            message = "Invalid voucher.",
+                            message = "Mã giảm giá không hợp lệ.",
                             data = null
                         });
                     }
+
                     voucherId = voucher.VoucherId;
                 }
 
@@ -798,13 +1047,13 @@ namespace Server.Business.Services
                     .FindByCondition(x => x.OrderCode == orderCode)
                     .AnyAsync());
 
-                // 4. Tạo Order
+                // 4. Tạo Order (chưa có TotalAmount)
                 var order = new Order
                 {
                     OrderCode = orderCode,
                     CustomerId = request.UserId,
                     VoucherId = voucherId,
-                    TotalAmount = request.TotalAmount,
+                    TotalAmount = 0, // Tạm thời
                     OrderType = "Product",
                     PaymentMethod = request.PaymentMethod,
                     Status = OrderStatusEnum.Pending.ToString(),
@@ -812,24 +1061,31 @@ namespace Server.Business.Services
                     CreatedDate = DateTime.UtcNow,
                     UpdatedDate = DateTime.UtcNow
                 };
+
                 await _unitOfWorks.OrderRepository.AddAsync(order);
                 await _unitOfWorks.OrderRepository.Commit();
+
+                decimal calculatedTotal = 0;
 
                 // 5. Tạo OrderDetail và cập nhật tồn kho
                 foreach (var item in request.Products)
                 {
                     if (item.Quantity <= 0)
                         throw new BadRequestException($"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
-                    var branchProduct = await _unitOfWorks.Brand_ProductRepository.GetByIdAsync(item.ProductBranchId);
+
+                    var branchProduct = await _unitOfWorks.Branch_ProductRepository.GetByIdAsync(item.ProductBranchId);
                     if (branchProduct == null)
-                        throw new BadRequestException($"BranchProduct ID {item.ProductBranchId} not found.");
+                        throw new BadRequestException($"Không tìm thấy BranchProduct với ID = {item.ProductBranchId}.");
 
                     if (branchProduct.StockQuantity < item.Quantity)
-                        throw new BadRequestException($"Product ID {branchProduct.ProductId} in branch không đủ tồn kho.");
+                        throw new BadRequestException($"Sản phẩm ID {branchProduct.ProductId} không đủ tồn kho.");
 
                     var product = await _unitOfWorks.ProductRepository.GetByIdAsync(branchProduct.ProductId);
                     if (product == null)
-                        throw new BadRequestException($"Product ID {branchProduct.ProductId} not found.");
+                        throw new BadRequestException($"Không tìm thấy Product với ID = {branchProduct.ProductId}.");
+
+                    decimal subTotal = product.Price * item.Quantity;
+                    calculatedTotal += subTotal;
 
                     var orderDetail = new OrderDetail
                     {
@@ -837,7 +1093,7 @@ namespace Server.Business.Services
                         ProductId = product.ProductId,
                         Quantity = item.Quantity,
                         UnitPrice = product.Price,
-                        SubTotal = product.Price * item.Quantity,
+                        SubTotal = subTotal,
                         Status = OrderStatusEnum.Pending.ToString(),
                         StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
                         PaymentMethod = request.PaymentMethod,
@@ -850,7 +1106,7 @@ namespace Server.Business.Services
                     // Cập nhật tồn kho
                     branchProduct.StockQuantity -= item.Quantity;
                     branchProduct.UpdatedDate = DateTime.Now;
-                    _unitOfWorks.Brand_ProductRepository.Update(branchProduct);
+                    _unitOfWorks.Branch_ProductRepository.Update(branchProduct);
                 }
 
                 // 6. Chuẩn hóa thông tin giao hàng
@@ -873,33 +1129,37 @@ namespace Server.Business.Services
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 };
+
                 await _unitOfWorks.ShipmentRepository.AddAsync(shipment);
 
-                // 8. Commit transaction
+                // 8. Cộng ship cost vào tổng
+                calculatedTotal += shipment.ShippingCost;
+
+                // 9. Cập nhật TotalAmount vào bảng Order
+                order.TotalAmount = calculatedTotal;
+                order.UpdatedDate = DateTime.Now;
+                _unitOfWorks.OrderRepository.Update(order);
+                await _unitOfWorks.OrderRepository.Commit();
+
+                // 10. Commit tất cả
                 await _unitOfWorks.OrderDetailRepository.Commit();
                 await _unitOfWorks.ShipmentRepository.Commit();
-                await _unitOfWorks.Brand_ProductRepository.Commit();
+                await _unitOfWorks.Branch_ProductRepository.Commit();
                 await transaction.CommitAsync();
 
                 return ApiResult<object>.Succeed(new
                 {
-                    //OrderId = order.OrderId,
-                    //OrderCode = order.OrderCode,
-                    //Message = "Order created successfully."
-                    message = "Order created successfully.",
-                    data = new
-                    {
-                        OrderId = order.OrderId,
-                        OrderCode = order.OrderCode
-                    }
+                    message = "Tạo đơn hàng thành công.",
+                    data = order.OrderId
                 });
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return ApiResult<object>.Error(null, $"Failed to create order: {ex.Message}");
+                return ApiResult<object>.Error(null, $"Lỗi tạo đơn hàng: {ex.Message}");
             }
         }
+
 
 
 

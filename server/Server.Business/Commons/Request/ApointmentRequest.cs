@@ -4,6 +4,9 @@ namespace Server.Business.Commons.Request;
 
 public class ApointmentRequest
 {
+    [Required(ErrorMessage = "UserId is required!")]
+    public int UserId { get; set; }
+    
     [Required(ErrorMessage = "StaffId is required!")]
     public int[] StaffId { get; set; }
     
