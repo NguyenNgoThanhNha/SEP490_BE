@@ -51,7 +51,7 @@ namespace Server.Data.UnitOfWorks
         private UserRoutineStepRepository _userRoutineStepRepository;
         private ShipmentRepository _shipmentRepository;
         private NotificationRepository _notificationRepository;
-
+        private AppointmentFeedbackRepository _appointmentFeedbackRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -263,7 +263,12 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _notificationRepository ??= new NotificationRepository(_dbContext); }
         }
-        
+
+        public AppointmentFeedbackRepository AppointmentFeedbackRepository
+        {
+            get { return _appointmentFeedbackRepository ??= new AppointmentFeedbackRepository(_dbContext); }
+        }
+
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
             _transaction = await _dbContext.Database.BeginTransactionAsync();

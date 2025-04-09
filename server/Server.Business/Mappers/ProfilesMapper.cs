@@ -127,7 +127,8 @@ namespace Server.Business.Mappers
             CreateMap<Branch_Service, BranchServiceDto>();
             CreateMap<CreateBranchServiceDto, Branch_Service>();
             CreateMap<UpdateBranchServiceDto, Branch_Service>();
-           
+
+            CreateMap<AppointmentFeedback, AppointmentFeedbackDetailDto>();
 
         }
     }
