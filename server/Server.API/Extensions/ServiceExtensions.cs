@@ -165,6 +165,7 @@ namespace Server.API.Extensions
             services.AddScoped<CartService>();
             services.AddScoped<OrderStatusUpdateService>();
             services.AddScoped<AppointmentFeedbackService>();
+            services.AddScoped<ProductFeedbackService>();
             return services;
         }
     };
