@@ -179,7 +179,7 @@ public class AppointmentsService
                     var lastAppointmentEndTime = staffAppointments[staffId];
                     if (appointmentTime < lastAppointmentEndTime)
                     {
-                        throw new BadRequestException($"Staff is busy during this time!");
+                        throw new BadRequestException($"Staff is busy during this time: {lastAppointmentEndTime}!");
                     }
                 }
 
