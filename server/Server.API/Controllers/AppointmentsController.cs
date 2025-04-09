@@ -89,6 +89,13 @@ namespace Server.API.Controllers
             }
 
             var customer = await _userService.GetCustomerById(request.UserId);
+            if(customer == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy thông tin khách hàng!"
+                }));
+            }
 
             // Tạo appointments và lấy order tương ứng
             var appointmentsList = await _appointmentsService.CreateAppointments(customer.UserId, request);

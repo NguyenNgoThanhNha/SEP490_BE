@@ -133,7 +133,7 @@ namespace Server.API.Controllers
         }
 
         // Đồng bộ tất cả khách hàng từ MySQL lên MongoDB
-        [HttpPost("sync-customers")]
+        /*[HttpPost("sync-customers")]
         public async Task<IActionResult> SyncAllCustomersAsync(List<User> customers)
         {
             await _mongoDbService.SyncAllCustomersAsync(customers);
@@ -141,7 +141,7 @@ namespace Server.API.Controllers
             {
                 message = "Đồng bộ hóa tất cả khách hàng thành công",
             }));
-        }
+        }*/
 
         // Upload file
         [HttpPost("upload-file")]
