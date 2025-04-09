@@ -102,7 +102,7 @@ namespace Server.API.Controllers
             var routine = await _routineService.GetInfoRoutineOfUserNew(userId);
             if (routine == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
             {
-                message = "Không tìm thấy li?u trình!"
+                message = "Không tìm thấy liệu trình!"
             }));
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
@@ -121,7 +121,7 @@ namespace Server.API.Controllers
             }));
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "L?y thành công chi tiết đơn hàng!",
+                message = "Lấy thành công chi tiết đơn hàng!",
                 data = routine
             }));
         }
