@@ -161,7 +161,7 @@ public class SkinAnalyzeService
             {
                 var existingRoutine = existingUserRoutines.FirstOrDefault(ur => ur.RoutineId == routine.SkincareRoutineId);
     
-                if (existingRoutine != null)
+                if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Suitable.ToString())
                 {
                     // Nếu đã tồn tại, cập nhật thông tin
                     existingRoutine.Status = ObjectStatus.Suitable.ToString();
@@ -169,6 +169,11 @@ public class SkinAnalyzeService
                     existingRoutine.UpdatedDate = DateTime.Now;
 
                     userRoutinesToUpdate.Add(existingRoutine);
+                }
+                else if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Active.ToString())
+                {
+                    // Nếu đã tồn tại đang sử dụng, cập nhật thông tin
+                    continue;
                 }
                 else
                 {
@@ -282,13 +287,19 @@ public class SkinAnalyzeService
                 var existingRoutine = await _unitOfWorks.UserRoutineRepository
                     .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoutineId == routine.SkincareRoutineId);
 
-                if (existingRoutine != null)
+                if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Suitable.ToString())
                 {
                     // Nếu đã tồn tại, cập nhật thông tin
                     existingRoutine.Status = ObjectStatus.Suitable.ToString();
-                    existingRoutine.ProgressNotes = "Suitable for your skin";
+                    existingRoutine.ProgressNotes = "Updated routine for your skin";
                     existingRoutine.UpdatedDate = DateTime.Now;
                     _unitOfWorks.UserRoutineRepository.Update(existingRoutine);
+                    await _unitOfWorks.UserRoutineRepository.Commit();
+                }
+                else if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Active.ToString())
+                {
+                    // Nếu đã tồn tại đang sử dụng, cập nhật thông tin
+                    continue;
                 }
                 else
                 {
