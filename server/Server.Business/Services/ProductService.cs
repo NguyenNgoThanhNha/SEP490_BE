@@ -724,20 +724,21 @@ namespace Server.Business.Services
             }
 
             IQueryable<Product> query = _unitOfWorks.ProductRepository
-                .FindByCondition(p => p.Status == "Active")
+                .FindByCondition(p => p.Status == "Active" &&
+                                      p.Branch_Products.Any(bp => bp.BranchId == req.BranchId)) // Thêm điều kiện này
                 .Include(p => p.Company)
                 .Include(p => p.Category)
                 .Include(p => p.ProductImages)
-                .Include(p => p.Branch_Products)
-                    .ThenInclude(bp => bp.Branch);
-
-            var productIdsInBranch = await _unitOfWorks.Branch_ProductRepository
+                .Include(p => p.Branch_Products.Where(bp => bp.BranchId == req.BranchId)) // Chỉ include branch này
+                .ThenInclude(bp => bp.Branch);
+            
+            /*var productIdsInBranch = await _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(bp => bp.BranchId == req.BranchId)
                 .Select(bp => bp.ProductId)
                 .Distinct()
                 .ToListAsync();
 
-            query = query.Where(p => productIdsInBranch.Contains(p.ProductId));
+            query = query.Where(p => productIdsInBranch.Contains(p.ProductId));*/
 
             if (!string.IsNullOrEmpty(req.Brand))
             {
