@@ -178,9 +178,8 @@ public class AuthService
         userRegister.RefreshToken = handler.WriteToken(refreshToken);
 
         await _unitOfWorks.UserRepository.AddAsync(userRegister);
-        await _mongoDbService.CreateCustomerAsync(userRegister.UserId);
         int result = await _unitOfWorks.UserRepository.Commit();
-
+        await _mongoDbService.CreateCustomerAsync(userRegister.UserId);
         if (result > 0)
         {
             // Generate JWT or another token here if needed.
@@ -243,8 +242,8 @@ public class AuthService
         userRegister.RefreshToken = handler.WriteToken(refreshToken);
 
         await _unitOfWorks.UserRepository.AddAsync(userRegister);
-        await _mongoDbService.CreateCustomerAsync(userRegister.UserId);
         int result = await _unitOfWorks.UserRepository.Commit();
+        await _mongoDbService.CreateCustomerAsync(userRegister.UserId);
 
         if (result > 0)
         {
