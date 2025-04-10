@@ -13,6 +13,9 @@ public class OrderModel
     public int CustomerId { get; set; }
     public virtual UserInfoModel Customer { get; set; }
     
+    public int? RoutineId { get; set; }
+    public virtual SkincareRoutineModel? Routine { get; set; }
+    
     public int? VoucherId { get; set; }
     public virtual Voucher? Voucher { get; set; }
 

@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250401161525_Updated-Database")]
+    [Migration("20250410011737_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -592,6 +592,9 @@ namespace Server.Data.Migrations
                     b.Property<string>("PaymentMethod")
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("RoutineId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -612,6 +615,8 @@ namespace Server.Data.Migrations
                     b.HasKey("OrderId");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("RoutineId");
 
                     b.HasIndex("VoucherId");
 
@@ -1220,7 +1225,8 @@ namespace Server.Data.Migrations
 
                     b.HasKey("ShipmentId");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("OrderId")
+                        .IsUnique();
 
                     b.ToTable("Shipment");
                 });
@@ -2069,13 +2075,15 @@ namespace Server.Data.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Branch_Product_Product");
 
-                    b.HasOne("Server.Data.Entities.Promotion", null)
+                    b.HasOne("Server.Data.Entities.Promotion", "Promotion")
                         .WithMany("Branch_Promotions")
                         .HasForeignKey("PromotionId");
 
                     b.Navigation("Branch");
 
                     b.Navigation("Product");
+
+                    b.Navigation("Promotion");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Branch_Promotion", b =>
@@ -2148,11 +2156,17 @@ namespace Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Server.Data.Entities.SkincareRoutine", "Routine")
+                        .WithMany()
+                        .HasForeignKey("RoutineId");
+
                     b.HasOne("Server.Data.Entities.Voucher", "Voucher")
                         .WithMany()
                         .HasForeignKey("VoucherId");
 
                     b.Navigation("Customer");
+
+                    b.Navigation("Routine");
 
                     b.Navigation("Voucher");
                 });
@@ -2374,8 +2388,8 @@ namespace Server.Data.Migrations
             modelBuilder.Entity("Server.Data.Entities.Shipment", b =>
                 {
                     b.HasOne("Server.Data.Entities.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
+                        .WithOne("Shipment")
+                        .HasForeignKey("Server.Data.Entities.Shipment", "OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2624,6 +2638,9 @@ namespace Server.Data.Migrations
                     b.Navigation("Appointments");
 
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("Shipment")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Product", b =>

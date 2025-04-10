@@ -19,6 +19,10 @@ public class Order
     [ForeignKey("Voucher_Order")]
     public int? VoucherId { get; set; }
     public virtual Voucher? Voucher { get; set; }
+    
+    [ForeignKey("Routine_Order")]
+    public int? RoutineId { get; set; }
+    public virtual SkincareRoutine? Routine { get; set; }
 
     public decimal TotalAmount { get; set; }
     

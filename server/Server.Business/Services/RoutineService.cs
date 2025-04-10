@@ -227,6 +227,7 @@ public class RoutineService
                 CustomerId = user.UserId,
                 TotalAmount = routine.TotalPrice ?? 0,
                 OrderType = "Routine",
+                RoutineId = routine.SkincareRoutineId,
                 VoucherId = request.VoucherId > 0 ? request.VoucherId : null,
                 DiscountAmount = voucher?.DiscountAmount ?? 0,
                 Status = OrderStatusEnum.Pending.ToString(),

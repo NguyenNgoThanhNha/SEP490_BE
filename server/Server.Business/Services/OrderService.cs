@@ -410,6 +410,7 @@ namespace Server.Business.Services
             var listOrders = await _unitOfWorks.OrderRepository
       .FindByCondition(x => x.CustomerId == userId)
       .Include(x => x.Customer)
+      .Include(x => x.Routine)
       .Include(x => x.Voucher)
       .Include(x => x.Shipment) // ✅ Thêm Include Shipment
       .Include(x => x.Appointments)
