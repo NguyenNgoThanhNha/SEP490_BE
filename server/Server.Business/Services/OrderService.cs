@@ -627,6 +627,7 @@ namespace Server.Business.Services
                 .Include(x => x.Customer)
                 .Include(x => x.Shipment)
                 .Include(x => x.Voucher)
+                .Include(x => x.Routine)
                 .Include(x => x.OrderDetails)
                     .ThenInclude(od => od.Product)
                         .ThenInclude(p => p.ProductImages)
