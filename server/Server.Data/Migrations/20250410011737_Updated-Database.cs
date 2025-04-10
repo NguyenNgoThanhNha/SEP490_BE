@@ -630,6 +630,7 @@ namespace Server.Data.Migrations
                     OrderCode = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     VoucherId = table.Column<int>(type: "int", nullable: true),
+                    RoutineId = table.Column<int>(type: "int", nullable: true),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     DiscountAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     OrderType = table.Column<string>(type: "longtext", nullable: false),
@@ -643,6 +644,11 @@ namespace Server.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Order", x => x.OrderId);
+                    table.ForeignKey(
+                        name: "FK_Order_SkincareRoutine_RoutineId",
+                        column: x => x.RoutineId,
+                        principalTable: "SkincareRoutine",
+                        principalColumn: "SkincareRoutineId");
                     table.ForeignKey(
                         name: "FK_Order_User_CustomerId",
                         column: x => x.CustomerId,
@@ -1544,6 +1550,11 @@ namespace Server.Data.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Order_RoutineId",
+                table: "Order",
+                column: "RoutineId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Order_VoucherId",
                 table: "Order",
                 column: "VoucherId");
@@ -1669,7 +1680,8 @@ namespace Server.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Shipment_OrderId",
                 table: "Shipment",
-                column: "OrderId");
+                column: "OrderId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SkinCareRoutineStep_SkincareRoutineId",
