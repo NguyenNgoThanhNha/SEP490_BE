@@ -785,14 +785,14 @@ namespace Server.Business.Services
             {
                 throw new BadRequestException("Đơn hàng đã hoàn thành không thể thay đổi trạng thái!");
             }
-            
-            order.Status = orderStatus;
-            order.UpdatedDate = DateTime.Now;
 
             var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
             customer.BonusPoint += 200;
             _unitOfWorks.UserRepository.Update(customer);
-            _unitOfWorks.UserRepository.Commit();               
+            await  _unitOfWorks.UserRepository.Commit();  
+            
+            order.Status = orderStatus;
+            order.UpdatedDate = DateTime.Now;
             
             _unitOfWorks.OrderRepository.Update(order);
             return await _unitOfWorks.OrderRepository.Commit() > 0;     
