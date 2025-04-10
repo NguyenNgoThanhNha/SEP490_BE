@@ -135,5 +135,33 @@ namespace Server.API.Controllers
                 }));
             }
         }
+        
+        [HttpGet("get-order-detail-by-branchId/{branchId}")]
+        public async Task<IActionResult> GetOrderDetailByBranchId(int branchId)
+        {
+            try
+            {
+                var orderDetails = await _orderDetailService.GetOrderDetailByBranchId(branchId);
+                if (orderDetails == null || !orderDetails.Any())
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Không tìm thấy chi tiết đơn hàng."
+                    }));
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Đã lấy chi tiết đơn hàng thành công.",
+                    data = orderDetails
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Đã xảy ra lỗi: {ex.Message}"
+                }));
+            }
+        }
+        
     }
 }

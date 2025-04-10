@@ -78,7 +78,7 @@ namespace Server.API.Controllers
             {
                 return Ok(new
                 {
-                    success = true,
+                    success = false,
                     message = "Số lượng tồn kho phải lớn hơn 0"
                 });
             }
@@ -88,7 +88,7 @@ namespace Server.API.Controllers
             {
                 return Ok(new
                 {
-                    success = true,
+                    success = false,
                     message = $"Không tìm thấy sản phẩm với ID = {dto.ProductId}"
                 });
             }
@@ -123,7 +123,7 @@ namespace Server.API.Controllers
             {
                 return Ok(new
                 {
-                    success = true,
+                    success = false,
                     message = $"Không tìm thấy sản phẩm chi nhánh với ID = {ProductbranchId}"
                 });
             }
@@ -144,7 +144,7 @@ namespace Server.API.Controllers
             {
                 return Ok(new
                 {
-                    success = true,
+                    success = false,
                     message = $"Không tìm thấy sản phẩm chi nhánh với ID = {ProductbranchId}"
                 });
             }

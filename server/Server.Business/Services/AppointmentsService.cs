@@ -132,6 +132,11 @@ public class AppointmentsService
                     throw new BadRequestException("Voucher is out of stock!");
                 }
 
+                order.DiscountAmount = voucher.DiscountAmount;
+                order.VoucherId = voucher.VoucherId;
+                _unitOfWorks.OrderRepository.Update(order);
+                await _unitOfWorks.OrderRepository.Commit();
+
                 _unitOfWorks.VoucherRepository.Update(voucher);
                 await _unitOfWorks.VoucherRepository.Commit();
             }

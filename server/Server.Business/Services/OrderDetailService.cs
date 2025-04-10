@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons;
 using Server.Business.Dtos;
+using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 
@@ -11,11 +12,13 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+        private readonly ProductService _productService;
 
-        public OrderDetailService(UnitOfWorks unitOfWorks, IMapper mapper)
+        public OrderDetailService(UnitOfWorks unitOfWorks, IMapper mapper, ProductService productService)
         {
             this._unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _productService = productService;
         }
 
         public async Task<ApiResult<OrderDetail>> CreateOrderDetailAsync(CUOrderDetailDto model)
@@ -78,6 +81,36 @@ namespace Server.Business.Services
             {
                 return ApiResult<OrderDetail>.Error(null, ex.Message);
             }
+        }
+
+        public async Task<List<OrderDetailModels>> GetOrderDetailByBranchId(int branchId)
+        {
+            var orderDetails = await _unitOfWorks.OrderDetailRepository
+                .FindByCondition(x => x.BranchId == branchId)
+                .Include(x => x.Product)
+                .ThenInclude(x => x.ProductImages)
+                .Include(x => x.Product)
+                .ThenInclude(x => x.Category)
+                .Include(x => x.Promotion)
+                .Include(x => x.Order)
+                .ToListAsync();
+            
+            var listProduct = new List<Product>();
+            var listProductModels = new List<ProductModel>();
+            listProduct = orderDetails.Select(od => od.Product).ToList();
+            listProductModels = await _productService.GetListImagesOfProduct(listProduct);
+            var orderDetailModels = _mapper.Map<List<OrderDetailModels>>(orderDetails);
+            
+            foreach (var orderDetail in orderDetailModels)
+            {
+                var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.ProductId);
+                if (matchedProduct != null)
+                {
+                    orderDetail.Product.images = matchedProduct.images;
+                    orderDetail.Product.Branches = matchedProduct.Branches;
+                }
+            }
+            return _mapper.Map<List<OrderDetailModels>>(orderDetails);
         }
 
     }

@@ -105,7 +105,7 @@ namespace Server.Business.Services
 
                 if (isOrderCodeExists)
                 {
-                    return ApiResult<object>.Error(null, "Order code already exists.");
+                    throw new BadRequestException("Order code already exists.");
                 }
 
                 // Kiểm tra tồn tại khách hàng
@@ -117,23 +117,23 @@ namespace Server.Business.Services
 
                 if (!isCustomerExists)
                 {
-                    return ApiResult<object>.Error(null, "Customer not found.");
+                    throw new BadRequestException("Customer not found.");
                 }
 
                 // Kiểm tra tồn tại voucher (nếu có)
-                int? voucherId = null;
+                Voucher voucher = null;
                 if (model.VoucherId.HasValue && model.VoucherId.Value > 0)
                 {
                     var isVoucherExists = await _unitOfWorks.VoucherRepository
                         .FindByCondition(x => x.VoucherId == model.VoucherId && x.Status == "Active")
-                        .AnyAsync();
+                        .FirstOrDefaultAsync();
 
-                    if (!isVoucherExists)
+                    if (isVoucherExists == null)
                     {
-                        return ApiResult<object>.Error(null, "Voucher not found.");
+                        throw new BadRequestException("Voucher not found.");
                     }
 
-                    voucherId = model.VoucherId; // Chỉ gán nếu voucher hợp lệ
+                    voucher = isVoucherExists; // Chỉ gán nếu voucher hợp lệ
                 }
 
                 // Tạo đơn hàng mới
@@ -141,7 +141,9 @@ namespace Server.Business.Services
                 {
                     OrderCode = model.OrderCode,
                     CustomerId = model.CustomerId,
-                    VoucherId = voucherId ?? 0,
+                    OrderType = "Product",
+                    VoucherId = voucher?.VoucherId > 0 ? voucher.VoucherId : null,
+                    DiscountAmount = voucher?.VoucherId > 0 ? voucher.DiscountAmount : 0,
                     TotalAmount = model.TotalAmount,
                     Status = OrderStatusEnum.Pending.ToString(),
                     CreatedDate = DateTime.UtcNow,
@@ -162,7 +164,7 @@ namespace Server.Business.Services
 
                 if (createdOrder == null)
                 {
-                    return ApiResult<object>.Error(null, "Failed to fetch created order details.");
+                    throw new BadRequestException("Failed to retrieve created order.");
                 }
 
                 // Trả về dữ liệu
@@ -180,7 +182,7 @@ namespace Server.Business.Services
             }
             catch (Exception ex)
             {
-                return ApiResult<object>.Error(null, $"An error occurred: {ex.Message}");
+                throw new BadRequestException("Error creating order: " + ex.Message);
             }
         }
 
