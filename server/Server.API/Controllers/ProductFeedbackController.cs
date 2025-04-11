@@ -49,6 +49,39 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpGet("get-by-product/{productId}")]
+        public async Task<IActionResult> GetByProductId(int productId)
+        {
+            try
+            {
+                var result = await _productFeedbackService.GetByProductIdAsync(productId);
+
+                if (result == null || !result.Any())
+                {
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Không tìm thấy phản hồi nào cho sản phẩm này.",
+                        data = new List<object>()
+                    }));
+                }
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Lấy danh sách phản hồi sản phẩm theo ProductId thành công!",
+                    data = result
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
+            }
+        }
+
+
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {

@@ -55,6 +55,39 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpGet("get-by-appointment/{appointmentId}")]
+        public async Task<IActionResult> GetByAppointmentId(int appointmentId)
+        {
+            try
+            {
+                var result = await _appointmentFeedbackService.GetByAppointmentIdAsync(appointmentId);
+
+                if (result == null || !result.Any())
+                {
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Không tìm thấy phản hồi nào cho cuộc hẹn này.",
+                        data = new List<object>()
+                    }));
+                }
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Lấy danh sách phản hồi theo AppointmentId thành công!",
+                    data = result
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
+            }
+        }
+
+
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {

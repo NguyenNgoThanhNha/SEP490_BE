@@ -88,5 +88,20 @@ namespace Server.Business.Services
             await _unitOfWorks.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<ServiceFeedbackDetailDto>> GetByServiceIdAsync(int serviceId)
+        {
+            if (serviceId <= 0)
+                throw new ArgumentException("ServiceId không hợp lệ.");
+
+            var feedbacks = await _unitOfWorks.ServiceFeedbackRepository
+                .FindByCondition(f => f.ServiceId == serviceId)
+                .Include(f => f.Service)
+                .Include(f => f.User)
+                .ToListAsync();
+
+            return _mapper.Map<List<ServiceFeedbackDetailDto>>(feedbacks);
+        }
+
     }
 }
