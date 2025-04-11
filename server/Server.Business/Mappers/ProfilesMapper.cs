@@ -149,6 +149,10 @@ namespace Server.Business.Mappers
             CreateMap<CreateSkincareRoutineDto, SkincareRoutine>();
             CreateMap<UpdateSkincareRoutineDto, SkincareRoutine>();
 
+            CreateMap<SkinCareRoutineStep, SkinCareRoutineStepDto>();
+            CreateMap<CreateSkinCareRoutineStepDto, SkinCareRoutineStep>();
+            CreateMap<UpdateSkinCareRoutineStepDto, SkinCareRoutineStep>();
+
 
 
 
