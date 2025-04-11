@@ -144,7 +144,12 @@ namespace Server.Business.Mappers
             CreateMap<ServiceFeedbackCreateDto, ServiceFeedback>();
 
             CreateMap<ServiceFeedbackUpdateDto, ServiceFeedback>();
-              
+
+            CreateMap<SkincareRoutine, SkincareRoutineDto>();
+            CreateMap<CreateSkincareRoutineDto, SkincareRoutine>();
+            CreateMap<UpdateSkincareRoutineDto, SkincareRoutine>();
+
+
 
 
         }

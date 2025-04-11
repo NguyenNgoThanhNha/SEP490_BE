@@ -40,18 +40,17 @@ namespace Server.API.Controllers
                 data = result
             });
         }
-        
-        [HttpGet("get-all-product-in-branch/{branchId}")]
-        public async Task<IActionResult> GetAllProductInBranch(int branchId)
-        {
-            var result = await _branchProductservice.GetAllProductInBranchAsync(branchId);
 
-            if (result == null || !result.Any())
+        [HttpGet("get-all-product-in-branch/{branchId}")]
+        public async Task<IActionResult> GetAllProductInBranch(int branchId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _branchProductservice.GetAllProductInBranchPaginationAsync(branchId, page, pageSize);
+
+            if (result == null || result.data == null || !result.data.Any())
             {
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Không có sản phẩm nào trong chi nhánh này",
-                    data = new List<object>()
+                    message = "Không có sản phẩm nào trong chi nhánh này"
                 }));
             }
 

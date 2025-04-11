@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Ultils;
 using Server.Data.Entities;
@@ -35,18 +36,40 @@ namespace Server.Business.Services
 
             return _mapper.Map<List<BranchProductDto>>(entities);
         }
-        
-        public async Task<List<BranchProductDto>> GetAllProductInBranchAsync(int branchId)
+
+        public async Task<GetAllBranchProductPaginationResponse> GetAllProductInBranchPaginationAsync(int branchId, int page, int pageSize)
         {
-            var entities = await _unitOfWorks.Branch_ProductRepository
+            var query = _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(x => x.BranchId == branchId)
                 .Include(x => x.Product)
                 .Include(x => x.Branch)
                 .Include(x => x.Promotion)
+                .OrderByDescending(x => x.ProductId);
+
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return _mapper.Map<List<BranchProductDto>>(entities);
+            var result = _mapper.Map<List<BranchProductDto>>(items);
+
+            return new GetAllBranchProductPaginationResponse
+            {
+                message = "Lấy danh sách sản phẩm trong chi nhánh thành công",
+                data = result,
+                pagination = new Pagination
+                {
+                    page = page,
+                    totalPage = totalPages,
+                    totalCount = totalCount
+                }
+            };
         }
+
+
 
 
         public async Task<BranchProductDto?> GetByIdAsync(int id)
