@@ -54,6 +54,7 @@ namespace Server.Data.UnitOfWorks
         private AppointmentFeedbackRepository _appointmentFeedbackRepository;
         private ProductFeedbackRepository _productFeedbackRepository;
         private ServiceFeedbackRepository _serviceFeedbackRepository;
+        private ServiceRoutineRepository _serviceRoutineRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -280,6 +281,12 @@ namespace Server.Data.UnitOfWorks
         {
             get { return _serviceFeedbackRepository ??= new ServiceFeedbackRepository(_dbContext); }
         }
+
+        public ServiceRoutineRepository ServiceRoutineRepository
+        {
+            get { return _serviceRoutineRepository ??= new ServiceRoutineRepository(_dbContext); }
+        }
+
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {

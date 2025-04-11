@@ -169,6 +169,7 @@ namespace Server.API.Extensions
             services.AddScoped<ServiceFeedbackService>();
             services.AddScoped<SkincareRoutineService>();
             services.AddScoped<SkinCareRoutineStepService>();
+            services.AddScoped<ServiceRoutineService>();
             return services;
         }
     };
