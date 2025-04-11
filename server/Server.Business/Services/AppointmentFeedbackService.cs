@@ -89,5 +89,20 @@ namespace Server.Business.Services
             return true;
         }
 
+        public async Task<List<AppointmentFeedbackDetailDto>> GetByAppointmentIdAsync(int appointmentId)
+        {
+            if (appointmentId <= 0)
+                throw new ArgumentException("AppointmentId không hợp lệ.");
+
+            var feedbacks = await _unitOfWorks.AppointmentFeedbackRepository
+                .FindByCondition(f => f.AppointmentId == appointmentId)
+                .Include(f => f.Appointment)
+                .Include(f => f.User)
+                .ToListAsync();
+
+            return _mapper.Map<List<AppointmentFeedbackDetailDto>>(feedbacks);
+        }
+
+
     }
 }

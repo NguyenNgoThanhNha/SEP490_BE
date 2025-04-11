@@ -93,6 +93,21 @@ namespace Server.Business.Services
             return true;
         }
 
+        public async Task<List<ProductFeedbackDetailDto>> GetByProductIdAsync(int productId)
+        {
+            if (productId <= 0)
+                throw new ArgumentException("ProductId không hợp lệ.");
+
+            var feedbacks = await _unitOfWorks.ProductFeedbackRepository
+                .FindByCondition(f => f.ProductId == productId)
+                .Include(f => f.User)
+                .Include(f => f.Product)
+                .ToListAsync();
+
+            return _mapper.Map<List<ProductFeedbackDetailDto>>(feedbacks);
+        }
+
+
     }
 
 }

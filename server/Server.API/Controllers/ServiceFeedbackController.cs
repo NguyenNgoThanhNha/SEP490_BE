@@ -52,6 +52,39 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpGet("get-by-service/{serviceId}")]
+        public async Task<IActionResult> GetByServiceId(int serviceId)
+        {
+            try
+            {
+                var result = await _serviceFeedbackService.GetByServiceIdAsync(serviceId);
+
+                if (result == null || !result.Any())
+                {
+                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Không tìm thấy phản hồi nào cho dịch vụ này.",
+                        data = new List<object>()
+                    }));
+                }
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Lấy danh sách phản hồi theo ServiceId thành công!",
+                    data = result
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi hệ thống: {ex.Message}",
+                    data = new List<object>()
+                }));
+            }
+        }
+
+
         [HttpGet("get-all")]
 public async Task<IActionResult> GetAll()
 {
