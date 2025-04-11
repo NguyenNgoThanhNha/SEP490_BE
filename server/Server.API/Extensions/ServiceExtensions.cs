@@ -171,6 +171,7 @@ namespace Server.API.Extensions
             services.AddScoped<SkinCareRoutineStepService>();
             services.AddScoped<ServiceRoutineService>();
             services.AddScoped<ServiceRoutineStepService>();
+            services.AddScoped<ProductRoutineService>();
 
             return services;
         }

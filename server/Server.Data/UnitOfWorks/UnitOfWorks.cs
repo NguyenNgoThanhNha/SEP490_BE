@@ -55,6 +55,7 @@ namespace Server.Data.UnitOfWorks
         private ProductFeedbackRepository _productFeedbackRepository;
         private ServiceFeedbackRepository _serviceFeedbackRepository;
         private ServiceRoutineRepository _serviceRoutineRepository;
+        private ProductRoutineRepository _productRoutineRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -285,6 +286,11 @@ namespace Server.Data.UnitOfWorks
         public ServiceRoutineRepository ServiceRoutineRepository
         {
             get { return _serviceRoutineRepository ??= new ServiceRoutineRepository(_dbContext); }
+        }
+
+        public ProductRoutineRepository ProductRoutineRepository
+        {
+            get { return _productRoutineRepository ??= new ProductRoutineRepository(_dbContext); }
         }
 
 

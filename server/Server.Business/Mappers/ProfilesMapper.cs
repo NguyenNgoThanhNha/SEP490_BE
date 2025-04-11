@@ -158,7 +158,12 @@ namespace Server.Business.Mappers
 
 
             CreateMap<ServiceRoutineStep, ServiceRoutineStepDto>();
-          
+
+            CreateMap<ProductRoutine, ProductRoutineDto>()
+    .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Products))
+    .ForMember(dest => dest.Routine, opt => opt.MapFrom(src => src.Routine));
+
+
 
 
         }
