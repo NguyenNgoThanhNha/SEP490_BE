@@ -2,6 +2,7 @@
 using Org.BouncyCastle.Asn1.Crmf;
 using Server.Business.Commons.Request;
 using Server.Business.Dtos;
+using Server.Business.Dtos.Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
 
@@ -163,7 +164,7 @@ namespace Server.Business.Mappers
     .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Products))
     .ForMember(dest => dest.Routine, opt => opt.MapFrom(src => src.Routine));
 
-
+            CreateMap<ProductRoutineStep, ProductRoutineStepDto>();
 
 
         }
