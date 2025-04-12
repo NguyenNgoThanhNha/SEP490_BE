@@ -40,35 +40,52 @@ namespace Server.API.Controllers
                 data = result
             });
         }
-        
-        [HttpGet("get-all-product-in-branch/{branchId}")]
-        public async Task<IActionResult> GetAllProductInBranch(int branchId)
-        {
-            var result = await _branchProductservice.GetAllProductInBranchAsync(branchId);
 
-            if (result == null || !result.Any())
+        
+        
+
+        [HttpGet("get-all-product-in-branch/{branchId}")]
+        public async Task<IActionResult> GetAllProductInBranch(int branchId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var result = await _branchProductservice.GetAllProductInBranchPaginationAsync(branchId, page, pageSize);
+
+            if (result == null || result.data == null || !result.data.Any())
             {
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                return BadRequest(ApiResult<GetAllBranchProductPaginationResponse>.Error(new GetAllBranchProductPaginationResponse
                 {
-                    message = "Không có sản phẩm nào trong chi nhánh này",
-                    data = new List<object>()
+                    message = "Không có sản phẩm nào trong chi nhánh này"
                 }));
             }
 
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            return Ok(ApiResult<GetAllBranchProductPaginationResponse>.Succeed(result));
+        }
+
+
+
+        
+        [HttpGet("get-by-id/{productBranchId}")]
+        public async Task<IActionResult> GetById(int productBranchId)
+        {
+            var result = await _branchProductservice.GetByIdAsync(productBranchId);
+
+            if (result == null)
             {
-                message = "Lấy danh sách sản phẩm trong chi nhánh thành công",
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không tìm thấy sản phẩm trong chi nhánh.",
+                    data = null
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy sản phẩm trong chi nhánh thành công.",
                 data = result
             }));
         }
 
 
-        [HttpGet("get-by-id/{ProductbranchId}")]
-        public async Task<IActionResult> GetById(int ProductbranchId)
-        {
-            var result = await _branchProductservice.GetByIdAsync(ProductbranchId);
-            return result == null ? NotFound() : Ok(result);
-        }
+
 
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateBranchProductDto dto)

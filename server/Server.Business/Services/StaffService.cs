@@ -1185,5 +1185,84 @@ namespace Server.Business.Services
             });
         }
 
+        public async Task<StaffAppointmentResponse> GetSingleStaffAppointmentsAsync(
+    int staffId, DateTime startDate, DateTime endDate)
+        {
+            var appointments = await _unitOfWorks.AppointmentsRepository
+    .FindByCondition(a => a.StaffId == staffId &&
+                          a.AppointmentsTime >= startDate &&
+                          a.AppointmentsTime <= endDate)
+    .Include(a => a.Customer)
+    .Include(a => a.Staff)
+        .ThenInclude(s => s.StaffInfo) // ✅ Bổ sung dòng này
+    .Include(a => a.Service)
+        .ThenInclude(s => s.ServiceCategory)
+    .Include(a => a.Branch)
+    .Include(a => a.Order)
+    .ToListAsync();
+
+
+            var appointmentDtos = appointments.Select(a => new AppointmentsInfoModel
+            {
+                AppointmentId = a.AppointmentId,
+                OrderId = a.OrderId,
+                Order = _mapper.Map<OrderInfoModel>(a.Order),
+                CustomerId = a.CustomerId,
+                Customer = _mapper.Map<UserInfoModel>(a.Customer),
+                StaffId = a.StaffId,
+                Staff = _mapper.Map<StaffModel>(a.Staff),
+                ServiceId = a.ServiceId,
+                Service = _mapper.Map<ServiceModel>(a.Service),
+                BranchId = a.BranchId,
+                Branch = _mapper.Map<BranchModel>(a.Branch),
+                AppointmentsTime = a.AppointmentsTime,
+                AppointmentEndTime = a.AppointmentEndTime,
+                Status = a.Status,
+                Notes = a.Notes,
+                Feedback = a.Feedback,
+                Quantity = a.Quantity,
+                UnitPrice = a.UnitPrice,
+                SubTotal = a.Quantity * a.UnitPrice,
+                StatusPayment = a.StatusPayment,
+                CreatedDate = a.CreatedDate,
+                UpdatedDate = a.UpdatedDate
+            }).ToList();
+
+            // Lấy ảnh dịch vụ
+            var services = appointmentDtos.Select(a => _mapper.Map<Data.Entities.Service>(a.Service)).ToList();
+            var servicesWithImages = await _serviceService.GetListImagesOfServices(services);
+
+            foreach (var appointment in appointmentDtos)
+            {
+                var matchedService = servicesWithImages.FirstOrDefault(s => s.ServiceId == appointment.Service.ServiceId);
+                if (matchedService != null)
+                {
+                    appointment.Service.images = matchedService.images;
+                }
+            }
+
+            return new StaffAppointmentResponse
+            {
+                StaffId = staffId,
+                Staff = _mapper.Map<StaffModel>(appointments.FirstOrDefault()?.Staff),
+                Appointments = appointmentDtos
+            };
+        }
+
+        public async Task<StaffModel> GetStaffInfoFromUserIdAsync(int userId)
+        {
+            var staff = await _unitOfWorks.StaffRepository
+                .FindByCondition(s => s.UserId == userId)
+                .Include(s => s.Branch) 
+                .Include(s=>s.StaffInfo)
+                .FirstOrDefaultAsync();
+
+            if (staff == null)
+                throw new BadRequestException("Không tìm thấy thông tin Staff từ token.");
+
+            return _mapper.Map<StaffModel>(staff);
+        }
+
+
     }
 }

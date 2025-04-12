@@ -2,6 +2,7 @@
 using Org.BouncyCastle.Asn1.Crmf;
 using Server.Business.Commons.Request;
 using Server.Business.Dtos;
+using Server.Business.Dtos.Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
 
@@ -139,12 +140,32 @@ namespace Server.Business.Mappers
 
             CreateMap<ProductFeedbackUpdateDto, ProductFeedback>();
 
-            CreateMap<ServiceFeedback, ServiceFeedbackDetailDto>();
+            CreateMap<ServiceFeedback, ServiceFeedbackDetailDto>()
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.User));
 
             CreateMap<ServiceFeedbackCreateDto, ServiceFeedback>();
 
             CreateMap<ServiceFeedbackUpdateDto, ServiceFeedback>();
-              
+
+            CreateMap<SkincareRoutine, SkincareRoutineDto>();
+            CreateMap<CreateSkincareRoutineDto, SkincareRoutine>();
+            CreateMap<UpdateSkincareRoutineDto, SkincareRoutine>();
+
+            CreateMap<SkinCareRoutineStep, SkinCareRoutineStepDto>();
+            CreateMap<CreateSkinCareRoutineStepDto, SkinCareRoutineStep>();
+            CreateMap<UpdateSkinCareRoutineStepDto, SkinCareRoutineStep>();
+
+            CreateMap<ServiceRoutine, ServiceRoutineDto>();           
+            CreateMap<SkincareRoutine, SkincareRoutineDto>();
+
+
+            CreateMap<ServiceRoutineStep, ServiceRoutineStepDto>();
+
+            CreateMap<ProductRoutine, ProductRoutineDto>()
+    .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Products))
+    .ForMember(dest => dest.Routine, opt => opt.MapFrom(src => src.Routine));
+
+            CreateMap<ProductRoutineStep, ProductRoutineStepDto>();
 
 
         }

@@ -60,8 +60,15 @@ namespace Server.Business.Services
             await _unitOfWorks.ServiceFeedbackRepository.AddAsync(entity);
             await _unitOfWorks.SaveChangesAsync();
 
-            return _mapper.Map<ServiceFeedbackDetailDto>(entity);
+            // 👉 Load lại entity có include User (customer)
+            var createdEntity = await _unitOfWorks.ServiceFeedbackRepository
+                .FindByCondition(x => x.ServiceFeedbackId == entity.ServiceFeedbackId)
+                .Include(x => x.User) // Include User
+                .FirstOrDefaultAsync();
+
+            return _mapper.Map<ServiceFeedbackDetailDto>(createdEntity);
         }
+
 
         public async Task<ServiceFeedbackDetailDto?> UpdateAsync(int id, ServiceFeedbackUpdateDto dto)
         {
@@ -88,5 +95,20 @@ namespace Server.Business.Services
             await _unitOfWorks.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<ServiceFeedbackDetailDto>> GetByServiceIdAsync(int serviceId)
+        {
+            if (serviceId <= 0)
+                throw new ArgumentException("ServiceId không hợp lệ.");
+
+            var feedbacks = await _unitOfWorks.ServiceFeedbackRepository
+                .FindByCondition(f => f.ServiceId == serviceId)
+                .Include(f => f.Service)
+                .Include(f => f.User)
+                .ToListAsync();
+
+            return _mapper.Map<List<ServiceFeedbackDetailDto>>(feedbacks);
+        }
+
     }
 }

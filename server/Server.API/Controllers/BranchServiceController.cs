@@ -37,25 +37,27 @@ namespace Server.API.Controllers
             }
         }
         
+      
+       
         [HttpGet("get-all-service-in-branch/{branchId}")]
-        public async Task<IActionResult> GetAllServiceInBranch(int branchId)
+        public async Task<IActionResult> GetAllServiceInBranch(int branchId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var data = await _branchServiceservice.GetAllServiceInBranchAsync(branchId);
-            if (data == null || !data.Any())
+            var result = await _branchServiceservice.GetAllServiceInBranchAsync(branchId, page, pageSize);
+
+            if (result == null || result.data == null || !result.data.Any())
             {
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                return Ok(ApiResult<GetAllBranchServicePaginationResponse>.Succeed(new GetAllBranchServicePaginationResponse
                 {
                     message = "Không có dịch vụ nào trong chi nhánh này",
-                    data = new List<object>()
+                    data = new List<BranchServiceDto>(),
+                    pagination = new Pagination()
                 }));
             }
-            
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-            {
-                message = "Lấy danh sách dịch vụ trong chi nhánh thành công",
-                data = data
-            }));
+
+            return Ok(ApiResult<GetAllBranchServicePaginationResponse>.Succeed(result));
         }
+
+
 
         [HttpGet("get-by-id/{branchServiceId}")]
         public async Task<IActionResult> GetById(int branchServiceId)
