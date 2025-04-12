@@ -62,12 +62,30 @@ namespace Server.API.Controllers
 
 
 
-        [HttpGet("get-by-id/{ProductbranchId}")]
-        public async Task<IActionResult> GetById(int ProductbranchId)
+        
+        [HttpGet("get-by-id/{productBranchId}")]
+        public async Task<IActionResult> GetById(int productBranchId)
         {
-            var result = await _branchProductservice.GetByIdAsync(ProductbranchId);
-            return result == null ? NotFound() : Ok(result);
+            var result = await _branchProductservice.GetByIdAsync(productBranchId);
+
+            if (result == null)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không tìm thấy sản phẩm trong chi nhánh.",
+                    data = null
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy sản phẩm trong chi nhánh thành công.",
+                data = result
+            }));
         }
+
+
+
 
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] CreateBranchProductDto dto)
