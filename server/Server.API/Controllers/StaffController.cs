@@ -6,6 +6,7 @@ using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
 using Server.Data.Entities;
+using Server.Data.UnitOfWorks;
 
 namespace Server.API.Controllers
 {
@@ -795,6 +796,61 @@ namespace Server.API.Controllers
             var result = await _staffService.GetStaffAppointmentsAsync(request.StaffIds, request.StartDate, request.EndDate);
             return Ok(ApiResult<List<StaffAppointmentResponse>>.Succeed(result));
         }
+
+       
+        
+        [HttpPost("get-staff-appointments")]
+        [Authorize]
+        public async Task<IActionResult> GetStaffAppointments([FromBody] GetMyAppointmentsRequest request)
+        {
+            // 1. Lấy token từ header
+            var tokenHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrWhiteSpace(tokenHeader) || !tokenHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Token không hợp lệ hoặc không tồn tại.",
+                    data = new List<object>()
+                }));
+            }
+
+            // 2. Lấy user từ token thông qua authService
+            var token = tokenHeader.Split(" ")[1]; // Lấy phần JWT
+            var user = await _authService.GetUserInToken(token);
+            if (user == null)
+            {
+                return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không tìm thấy thông tin người dùng từ token.",
+                    data = new List<object>()
+                }));
+            }
+
+            // 3. Lấy Staff từ UserId
+            var staffModel = await _staffService.GetStaffByUserId(user.UserId);
+            if (staffModel == null)
+            {
+                return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Người dùng hiện tại không phải là nhân viên.",
+                    data = new List<object>()
+                }));
+            }
+
+            // 4. Lấy lịch hẹn
+            var result = await _staffService.GetSingleStaffAppointmentsAsync(
+                staffModel.StaffId,
+                request.StartDate,
+                request.EndDate);
+
+            // 5. Trả kết quả
+            return Ok(ApiResult<StaffAppointmentResponse>.Succeed(result));
+        }
+
+
+
+
+
 
         [HttpGet("working-slots")]
         public async Task<IActionResult> GetStaffWorkingSlots([FromQuery] int branchId, [FromQuery] int month, [FromQuery] int year)
