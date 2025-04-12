@@ -60,8 +60,15 @@ namespace Server.Business.Services
             await _unitOfWorks.ServiceFeedbackRepository.AddAsync(entity);
             await _unitOfWorks.SaveChangesAsync();
 
-            return _mapper.Map<ServiceFeedbackDetailDto>(entity);
+            // 👉 Load lại entity có include User (customer)
+            var createdEntity = await _unitOfWorks.ServiceFeedbackRepository
+                .FindByCondition(x => x.ServiceFeedbackId == entity.ServiceFeedbackId)
+                .Include(x => x.User) // Include User
+                .FirstOrDefaultAsync();
+
+            return _mapper.Map<ServiceFeedbackDetailDto>(createdEntity);
         }
+
 
         public async Task<ServiceFeedbackDetailDto?> UpdateAsync(int id, ServiceFeedbackUpdateDto dto)
         {

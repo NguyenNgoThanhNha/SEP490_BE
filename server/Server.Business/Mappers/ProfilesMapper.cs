@@ -140,7 +140,8 @@ namespace Server.Business.Mappers
 
             CreateMap<ProductFeedbackUpdateDto, ProductFeedback>();
 
-            CreateMap<ServiceFeedback, ServiceFeedbackDetailDto>();
+            CreateMap<ServiceFeedback, ServiceFeedbackDetailDto>()
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.User));
 
             CreateMap<ServiceFeedbackCreateDto, ServiceFeedback>();
 
