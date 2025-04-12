@@ -14,6 +14,8 @@ using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+
 namespace Server.Business.Services;
 
 public class SkinAnalyzeService
@@ -84,45 +86,47 @@ public class SkinAnalyzeService
             response.EnsureSuccessStatusCode();
 
             var responseData = await response.Content.ReadAsStringAsync();
-            var apiResult = JsonConvert.DeserializeObject<dynamic>(responseData);
+            // Lấy phần "result" ra dưới dạng JSON string
+            var resultJson = JObject.Parse(responseData)["result"]?.ToString();
 
-
-            var test = apiResult.result.skin_type;
+            // Deserialize phần "result" thành SkinHealthFormRequest
+            var apiResult = JsonConvert.DeserializeObject<SkinHealthFormRequest>(resultJson);
+            
             // Map API response to SkinHealth entity
             var skinHealth = new SkinHealth
             {
                 UserId = userId,
-                Acne = GetApiResponseValue(apiResult.result.acne),
-                SkinColor = GetApiResponseValue(apiResult.result.skin_color),
-                SkinToneIta = GetApiResponseValue(apiResult.result.skintone_ita),
-                SkinTone = GetApiResponseValue(apiResult.result.skin_tone),
-                SkinHueHa = GetApiResponseValue(apiResult.result.skin_hue_ha),
-                SkinAge = GetApiResponseValue(apiResult.result.skin_age),
-                SkinType = GetApiResponseValue(apiResult.result.skin_type),
-                LeftEyelids = GetApiResponseValue(apiResult.result.left_eyelids),
-                RightEyelids = GetApiResponseValue(apiResult.result.right_eyelids),
-                EyePouch = GetApiResponseValue(apiResult.result.eye_pouch),
-                EyePouchSeverity = GetApiResponseValue(apiResult.result.eye_pouch_severity),
-                DarkCircle = GetApiResponseValue(apiResult.result.dark_circle),
-                ForeheadWrinkle = GetApiResponseValue(apiResult.result.forehead_wrinkle),
-                CrowsFeet = GetApiResponseValue(apiResult.result.crows_feet),
-                GlabellaWrinkle = GetApiResponseValue(apiResult.result.glabella_wrinkle),
-                NasolabialFold = GetApiResponseValue(apiResult.result.nasolabial_fold),
-                NasolabialFoldSeverity = GetApiResponseValue(apiResult.result.nasolabial_fold_severity),
-                PoresForehead = GetApiResponseValue(apiResult.result.pores_forehead),
-                PoresLeftCheek = GetApiResponseValue(apiResult.result.pores_left_cheek),
-                PoresRightCheek = GetApiResponseValue(apiResult.result.pores_right_cheek),
-                PoresJaw = GetApiResponseValue(apiResult.result.pores_jaw),
-                BlackHead = GetApiResponseValue(apiResult.result.blackhead),
-                Rectangle = GetApiResponseValue(apiResult.result.rectangle),
-                Mole = GetApiResponseValue(apiResult.result.mole),
-                ClosedComedones = GetApiResponseValue(apiResult.result.closed_comedones),
-                SkinSpot = GetApiResponseValue(apiResult.result.skin_spot),
-                FaceMaps = GetApiResponseValue(apiResult.result.face_maps),
-                Sensitivity = GetApiResponseValue(apiResult.result.sensitivity),
-                SensitivityArea = GetApiResponseValue(apiResult.result.sensitivity_area),
-                SensitivityIntensity = GetApiResponseValue(apiResult.result.sensitivity_intensity),
-                EyeFineLines = GetApiResponseValue(apiResult.result.eye_finelines),
+                Acne = GetApiResponseValue(apiResult?.acne),
+                SkinColor = GetApiResponseValue(apiResult?.skin_color),
+                SkinToneIta = GetApiResponseValue(apiResult?.skintone_ita),
+                SkinTone = GetApiResponseValue(apiResult?.skin_tone),
+                SkinHueHa = GetApiResponseValue(apiResult?.skin_hue_ha),
+                SkinAge = GetApiResponseValue(apiResult?.skin_age),
+                SkinType = GetApiResponseValue(apiResult?.skin_type),
+                LeftEyelids = GetApiResponseValue(apiResult?.left_eyelids),
+                RightEyelids = GetApiResponseValue(apiResult?.right_eyelids),
+                EyePouch = GetApiResponseValue(apiResult?.eye_pouch),
+                EyePouchSeverity = GetApiResponseValue(apiResult?.eye_pouch_severity),
+                DarkCircle = GetApiResponseValue(apiResult?.dark_circle),
+                ForeheadWrinkle = GetApiResponseValue(apiResult?.forehead_wrinkle),
+                CrowsFeet = GetApiResponseValue(apiResult?.crows_feet),
+                GlabellaWrinkle = GetApiResponseValue(apiResult?.glabella_wrinkle),
+                NasolabialFold = GetApiResponseValue(apiResult?.nasolabial_fold),
+                NasolabialFoldSeverity = GetApiResponseValue(apiResult?.nasolabial_fold_severity),
+                PoresForehead = GetApiResponseValue(apiResult?.pores_forehead),
+                PoresLeftCheek = GetApiResponseValue(apiResult?.pores_left_cheek),
+                PoresRightCheek = GetApiResponseValue(apiResult?.pores_right_cheek),
+                PoresJaw = GetApiResponseValue(apiResult?.pores_jaw),
+                BlackHead = GetApiResponseValue(apiResult?.blackhead),
+                Rectangle = GetApiResponseValue(apiResult?.rectangle),
+                Mole = GetApiResponseValue(apiResult?.mole),
+                ClosedComedones = GetApiResponseValue(apiResult?.closed_comedones),
+                SkinSpot = GetApiResponseValue(apiResult?.skin_spot),
+                FaceMaps = GetApiResponseValue(apiResult?.face_maps),
+                Sensitivity = GetApiResponseValue(apiResult?.sensitivity),
+                SensitivityArea = GetApiResponseValue(apiResult?.sensitivity_area),
+                SensitivityIntensity = GetApiResponseValue(apiResult?.sensitivity_intensity),
+                EyeFineLines = GetApiResponseValue(apiResult?.eye_finelines),
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
@@ -146,7 +150,7 @@ public class SkinAnalyzeService
             await _unitOfWorks.SkinHealthImageRepository.Commit();
 
             // Process skin concerns
-            var skinConcerns = GetSkinConcerns(apiResult);
+            var skinConcerns = await GetSkinConcernsAsync(apiResult);
 
             // Retrieve skincare routines based on concerns
             var routines = await GetSkincareRoutinesAsync(skinConcerns);
@@ -193,7 +197,7 @@ public class SkinAnalyzeService
                 }
             }
 
-// Cập nhật và thêm mới dữ liệu
+            // Cập nhật và thêm mới dữ liệu
             if (userRoutinesToUpdate.Any())
             {
               await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToUpdate);
@@ -204,14 +208,14 @@ public class SkinAnalyzeService
                 await _unitOfWorks.UserRoutineRepository.AddRangeAsync(userRoutinesToAdd);
             }
 
-// Lưu thay đổi vào database
+            // Lưu thay đổi vào database
             await _unitOfWorks.UserRoutineRepository.Commit();
 
 
             
             var result = new ApiSkinAnalyzeResponse()
             {
-                skinhealth = apiResult.result,
+                skinhealth = apiResult ?? new SkinHealthFormRequest(),
                 routines = _mapper.Map<List<SkincareRoutineModel>>(routines)
             };
 
@@ -278,7 +282,7 @@ public class SkinAnalyzeService
             await _unitOfWorks.SkinHealthRepository.Commit();
 
             // Process skin concerns
-            var skinConcerns = GetSkinConcernsFromForm(request);
+            var skinConcerns = await GetSkinConcernsAsync(request);
             var routines = await GetSkincareRoutinesAsync(skinConcerns);
 
             List<UserRoutine> userRoutines = new List<UserRoutine>();
@@ -352,57 +356,66 @@ public class SkinAnalyzeService
     {
         return JsonConvert.SerializeObject(apiResponse);
     }
-
-
-
-    private List<(string Concern, double Confidence)> GetSkinConcerns(dynamic apiResult)
+    
+    
+    private async Task<List<(string Concern, double Confidence)>> GetSkinConcernsAsync(dynamic apiResult)
     {
-        return new List<(string Concern, double Confidence)>
+        var skinConcerns = await _unitOfWorks.SkinConcernRepository.GetAll().ToListAsync(); 
+        var result = new List<(string Concern, double Confidence)>();
+
+        foreach (var skinConcern in skinConcerns)
         {
-            ("Da dầu", (double)(apiResult.result.skin_type?.details[0]?.confidence ?? 0)),
-            ("Da khô", (double)(apiResult.result.skin_type?.details[1]?.confidence ?? 0)),
-            ("Da trung tính", (double)(apiResult.result.skin_type?.details[2]?.confidence ?? 0)),
-            ("Da hỗn hợp", (double)(apiResult.result.skin_type?.details[3]?.confidence ?? 0)),
-            ("Mụn đầu đen", (double)(apiResult.result.blackhead?.confidence ?? 0)),
-            ("Mụn trứng cá", (double)(apiResult.result.acne?.confidence ?? 0)),
-            ("Quầng thâm mắt", (double)(apiResult.result.dark_circle?.confidence ?? 0)),
-            ("Mụn có nhân đóng", (double)(apiResult.result.closed_comedones?.confidence ?? 0)),
-            ("Nếp nhăn Glabella", (double)(apiResult.result.glabella_wrinkle?.confidence ?? 0))
-        };
+            double confidence = 0;
+
+            if (skinConcern.Code.StartsWith("skin_type_"))
+            {
+                int index = int.Parse(skinConcern.Code.Replace("skin_type_", ""));
+                try
+                {
+                    var detail = apiResult.skin_type?.details?[index];
+                    confidence = detail?.confidence ?? 0;
+                }
+                catch
+                {
+                    continue; // Bỏ qua nếu lỗi
+                }
+            }
+            else
+            {
+                confidence = ExtractConfidence(apiResult, skinConcern.Code);
+            }
+
+            if (confidence > 0)
+            {
+                result.Add((skinConcern.Name, confidence));
+            }
+        }
+
+        return result;
     }
     
-    private List<(string Concern, double Confidence)> GetSkinConcernsFromForm(dynamic apiResult)
-    {
-        return new List<(string Concern, double Confidence)>
-        {
-            ("Da dầu", (double)(apiResult.skin_type?.details[0]?.confidence ?? 0)),
-            ("Da khô", (double)(apiResult.skin_type?.details[1]?.confidence ?? 0)),
-            ("Da trung tính", (double)(apiResult.skin_type?.details[2]?.confidence ?? 0)),
-            ("Da hỗn hợp", (double)(apiResult.skin_type?.details[3]?.confidence ?? 0)),
-            ("Mụn đầu đen", (double)(apiResult.blackhead?.confidence ?? 0)),
-            ("Mụn trứng cá", (double)(apiResult.acne != null ? apiResult.acne.confidence ?? 0 : 0)),
-            ("Quầng thâm mắt", (double)(apiResult.dark_circle?.confidence ?? 0)),
-            ("Mụn có nhân đóng", (double)(apiResult.closed_comedones?.confidence ?? 0)),
-            ("Nếp nhăn Glabella", (double)(apiResult.glabella_wrinkle?.confidence ?? 0))
-        };
-    }
-
     private async Task<List<SkincareRoutine>> GetSkincareRoutinesAsync(List<(string Concern, double Confidence)> skinConcerns)
     {
+        // Lọc các concern có độ tin cậy > 0
         var prioritizedConcerns = skinConcerns
             .Where(c => c.Confidence > 0)
             .OrderByDescending(c => c.Confidence)
             .ToList();
 
         var routines = new List<SkincareRoutine>();
+
         foreach (var concern in prioritizedConcerns)
         {
-            var matchingRoutines = await _unitOfWorks.SkincareRoutineRepository
-                .FindByCondition(r => r.TargetSkinTypes.Contains(concern.Concern))
+            // Tìm các SkinCareRoutine có concern liên quan
+            var matchingRoutines = await _unitOfWorks.SkinCareConcernRepository
+                .FindByCondition(sc => sc.SkinConcern.Name == concern.Concern) // Giả sử bạn có bảng quan hệ với tên 'Concern'
+                .Select(sc => sc.SkincareRoutine)
                 .ToListAsync();
+
             routines.AddRange(matchingRoutines);
         }
 
+        // Trả về danh sách routine duy nhất theo độ ưu tiên của concern
         return routines
             .GroupBy(r => r.SkincareRoutineId)
             .Select(g => g.First())
@@ -420,6 +433,38 @@ public class SkinAnalyzeService
 
         return skinHealthImages;
     }
+    
+    
+    private double ExtractConfidence(dynamic apiResult, string key)
+    {
+        try
+        {
+            var data = apiResult?.GetType().GetProperty(key)?.GetValue(apiResult, null);
+            if (data == null) return 0;
 
+            // Trường hợp có property "confidence"
+            if (data.confidence != null)
+            {
+                double confidence = data.confidence ?? 0;
+                if (confidence != 0)
+                {
+                    return Convert.ToDouble(data.value);
+                }
+            }
 
+            // Trường hợp có property "rectangle" (đếm số lượng)
+            if (data.rectangle != null)
+            {
+                var rectangles = data.rectangle as IEnumerable<dynamic>;
+                return rectangles != null ? rectangles.Count() : 0;
+            }
+        }
+        catch
+        {
+            // Ignore and return 0 if anything goes wrong
+        }
+
+        return 0;
+    }
+    
 }

@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250410011737_Updated-Database")]
+    [Migration("20250412073132_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -1266,6 +1266,25 @@ namespace Server.Data.Migrations
                     b.ToTable("SkinCareRoutineStep");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.SkinConcern", b =>
+                {
+                    b.Property<int>("SkinConcernId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("SkinConcernId");
+
+                    b.ToTable("SkinConcern");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.SkinHealth", b =>
                 {
                     b.Property<int>("SkinHealthId")
@@ -1419,13 +1438,7 @@ namespace Server.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Frequency")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Name")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Steps")
                         .HasColumnType("longtext");
 
                     b.Property<string>("TargetSkinTypes")
@@ -1434,12 +1447,37 @@ namespace Server.Data.Migrations
                     b.Property<decimal?>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("TotalSteps")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("SkincareRoutineId");
 
                     b.ToTable("SkincareRoutine");
+                });
+
+            modelBuilder.Entity("Server.Data.Entities.SkincareRoutineConcern", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("SkinConcernId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SkincareRoutineId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SkinConcernId");
+
+                    b.HasIndex("SkincareRoutineId", "SkinConcernId")
+                        .IsUnique();
+
+                    b.ToTable("SkincareRoutineConcern", (string)null);
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Staff", b =>
@@ -2429,6 +2467,27 @@ namespace Server.Data.Migrations
                     b.Navigation("SkinHealth");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.SkincareRoutineConcern", b =>
+                {
+                    b.HasOne("Server.Data.Entities.SkinConcern", "SkinConcern")
+                        .WithMany("SkincareRoutineConcerns")
+                        .HasForeignKey("SkinConcernId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Routine_Concern_Concern");
+
+                    b.HasOne("Server.Data.Entities.SkincareRoutine", "SkincareRoutine")
+                        .WithMany("SkincareRoutineConcerns")
+                        .HasForeignKey("SkincareRoutineId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Routine_Concern_Routine");
+
+                    b.Navigation("SkinConcern");
+
+                    b.Navigation("SkincareRoutine");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.Staff", b =>
                 {
                     b.HasOne("Server.Data.Entities.Branch", "Branch")
@@ -2678,6 +2737,11 @@ namespace Server.Data.Migrations
                     b.Navigation("ServiceRoutineSteps");
                 });
 
+            modelBuilder.Entity("Server.Data.Entities.SkinConcern", b =>
+                {
+                    b.Navigation("SkincareRoutineConcerns");
+                });
+
             modelBuilder.Entity("Server.Data.Entities.SkincareRoutine", b =>
                 {
                     b.Navigation("ProductRoutines");
@@ -2685,6 +2749,8 @@ namespace Server.Data.Migrations
                     b.Navigation("ServiceRoutines");
 
                     b.Navigation("SkinCareRoutineSteps");
+
+                    b.Navigation("SkincareRoutineConcerns");
 
                     b.Navigation("UserRoutines");
                 });

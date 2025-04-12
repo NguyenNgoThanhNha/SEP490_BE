@@ -139,8 +139,7 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: true),
                     Description = table.Column<string>(type: "longtext", nullable: true),
-                    Steps = table.Column<string>(type: "longtext", nullable: true),
-                    Frequency = table.Column<string>(type: "longtext", nullable: true),
+                    TotalSteps = table.Column<int>(type: "int", nullable: true),
                     TargetSkinTypes = table.Column<string>(type: "longtext", nullable: true),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -149,6 +148,21 @@ namespace Server.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SkincareRoutine", x => x.SkincareRoutineId);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SkinConcern",
+                columns: table => new
+                {
+                    SkinConcernId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: false),
+                    Code = table.Column<string>(type: "longtext", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkinConcern", x => x.SkinConcernId);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -294,6 +308,33 @@ namespace Server.Data.Migrations
                     table.PrimaryKey("PK_SkinCareRoutineStep", x => x.SkinCareRoutineStepId);
                     table.ForeignKey(
                         name: "FK_SkinCareRoutineStep_SkincareRoutine_SkincareRoutineId",
+                        column: x => x.SkincareRoutineId,
+                        principalTable: "SkincareRoutine",
+                        principalColumn: "SkincareRoutineId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SkincareRoutineConcern",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    SkincareRoutineId = table.Column<int>(type: "int", nullable: false),
+                    SkinConcernId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SkincareRoutineConcern", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Routine_Concern_Concern",
+                        column: x => x.SkinConcernId,
+                        principalTable: "SkinConcern",
+                        principalColumn: "SkinConcernId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Routine_Concern_Routine",
                         column: x => x.SkincareRoutineId,
                         principalTable: "SkincareRoutine",
                         principalColumn: "SkincareRoutineId",
@@ -1684,6 +1725,17 @@ namespace Server.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_SkincareRoutineConcern_SkincareRoutineId_SkinConcernId",
+                table: "SkincareRoutineConcern",
+                columns: new[] { "SkincareRoutineId", "SkinConcernId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SkincareRoutineConcern_SkinConcernId",
+                table: "SkincareRoutineConcern",
+                column: "SkinConcernId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SkinCareRoutineStep_SkincareRoutineId",
                 table: "SkinCareRoutineStep",
                 column: "SkincareRoutineId");
@@ -1850,6 +1902,9 @@ namespace Server.Data.Migrations
                 name: "Shipment");
 
             migrationBuilder.DropTable(
+                name: "SkincareRoutineConcern");
+
+            migrationBuilder.DropTable(
                 name: "SkinHealthImage");
 
             migrationBuilder.DropTable(
@@ -1878,6 +1933,9 @@ namespace Server.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Branch_Product");
+
+            migrationBuilder.DropTable(
+                name: "SkinConcern");
 
             migrationBuilder.DropTable(
                 name: "SkinHealth");

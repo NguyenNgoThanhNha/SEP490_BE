@@ -197,6 +197,16 @@ namespace Server.Data.SeedData
                 {
                     await SeedStaffServiceCategory();
                 }
+                
+                if (!_context.SkinConcern.Any())
+                {
+                    await SeedConcerns();
+                }
+                
+                if (!_context.SkincareRoutineConcern.Any())
+                {
+                    await SeedSkincareRoutineConcerns();
+                }
             }
             catch (Exception ex)
             {
@@ -6202,8 +6212,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Da dầu",
                     Description = "Chăm sóc da dầu và giảm bã nhờn dư thừa.",
-                    Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
-                    Frequency = "Hàng ngày",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Da dầu",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -6211,8 +6220,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Da khô",
                     Description = "Dưỡng ẩm và nuôi dưỡng làn da khô.",
-                    Steps = "Làm sạch, cấp nước, dưỡng ẩm, bảo vệ",
-                    Frequency = "Hàng ngày",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Da khô",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -6220,8 +6228,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Da trung tính",
                     Description = "Duy trì sự cân bằng trung tính cho da.",
-                    Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
-                    Frequency = "Hàng ngày",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Da trung tính",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -6229,8 +6236,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Da hỗn hợp",
                     Description = "Chăm sóc cho cả vùng da khô và da dầu.",
-                    Steps = "Làm sạch, Làm săn chắc, Dưỡng ẩm, Bảo vệ",
-                    Frequency = "Hàng ngày",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Da hỗn hợp",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -6238,8 +6244,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Mụn đầu đen",
                     Description = "Giúp làm sạch và ngăn ngừa mụn đầu đen.",
-                    Steps = "Làm sạch, Tẩy tế bào chết, Làm săn chắc, Bảo vệ",
-                    Frequency = "Hàng tuần",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Mụn đầu đen",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -6247,8 +6252,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Mụn trứng cá",
                     Description = "Liệu trình chăm sóc da giảm mụn trứng cá.",
-                    Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
-                    Frequency = "Hàng ngày",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Mụn trứng cá",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -6256,8 +6260,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Quầng thâm mắt",
                     Description = "Giúp giảm quầng thâm dưới mắt.",
-                    Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
-                    Frequency = "Hàng ngày",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Quầng thâm mắt",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -6265,8 +6268,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Mụn có nhân đóng",
                     Description = "Liệu trình kiểm soát mụn có nhân đóng.",
-                    Steps = "Làm sạch, Tẩy tế bào chết, Dưỡng ẩm, Bảo vệ",
-                    Frequency = "Hàng tuần",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Mụn có nhân đóng",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -6274,8 +6276,7 @@ namespace Server.Data.SeedData
                 {
                     Name = "Nếp nhăn Glabella",
                     Description = "Giúp giảm nếp nhăn vùng giữa hai lông mày.",
-                    Steps = "Làm sạch, Điều trị, Dưỡng ẩm, Bảo vệ",
-                    Frequency = "Hằng ngày",
+                    TotalSteps = 4,
                     TargetSkinTypes = "Nếp nhăn Glabella",
                     TotalPrice = random.Next(500000, 5000000)
                 }
@@ -6346,58 +6347,27 @@ namespace Server.Data.SeedData
             }
         }
 
-        /*public async Task SeedSkincareRoutineSteps()
-        {
-            var skincareRoutines = _context.SkincareRoutines.ToList();
-            var skincareSteps = new List<SkinCareRoutineStep>();
-
-            foreach (var routine in skincareRoutines)
-            {
-                var steps = routine.Steps.Split(", "); // Tách các bước từ chuỗi Steps
-                for (int i = 0; i < steps.Length; i++)
-                {
-                    skincareSteps.Add(new SkinCareRoutineStep
-                    {
-                        SkincareRoutineId = routine.SkincareRoutineId,
-                        Name = steps[i],
-                        Step = i + 1,
-                        IntervalBeforeNextStep = i < steps.Length - 1 ? TimeSpan.FromDays(2) : null
-                    });
-                }
-            }
-
-            foreach (var step in skincareSteps)
-            {
-                if (!_context.SkinCareRoutineStep.Any(s =>
-                        s.SkincareRoutineId == step.SkincareRoutineId && s.Step == step.Step))
-                {
-                    _context.SkinCareRoutineStep.Add(step);
-                }
-            }
-
-            await _context.SaveChangesAsync();
-        }*/
 
         public async Task SeedSkincareRoutineSteps()
         {
             var skincareRoutines = _context.SkincareRoutines.ToList();
-            var skincareSteps = new List<SkinCareRoutineStep>();
             var productRoutineSteps = new List<ProductRoutineStep>();
             var serviceRoutineSteps = new List<ServiceRoutineStep>();
             var random = new Random();
 
+            // Danh sách tên các bước phổ biến
+            var defaultSteps = new List<string> { "Rửa mặt", "Tẩy tế bào chết", "Dưỡng ẩm", "Bôi serum", "Chống nắng" };
+
             foreach (var routine in skincareRoutines)
             {
-                var steps = routine.Steps.Split(", "); // Tách các bước từ chuỗi Steps
-                var totalSteps = steps.Length;
+                var totalSteps = routine.TotalSteps ?? 1;
 
-                // **Lấy danh sách sản phẩm từ ProductRoutine**
+                // Lấy sản phẩm & dịch vụ liên quan đến routine
                 var routineProducts = _context.ProductRoutines
                     .Where(p => p.RoutineId == routine.SkincareRoutineId)
                     .Select(p => p.ProductId)
                     .ToList();
 
-                // **Lấy danh sách dịch vụ từ ServiceRoutine**
                 var routineServices = _context.ServiceRoutine
                     .Where(s => s.RoutineId == routine.SkincareRoutineId)
                     .Select(s => s.ServiceId)
@@ -6405,14 +6375,16 @@ namespace Server.Data.SeedData
 
                 for (int i = 0; i < totalSteps; i++)
                 {
-                    var stepEntity = new SkinCareRoutineStep
+                    var stepName = i < defaultSteps.Count ? defaultSteps[i] : $"Bước {i + 1}";
+
+                    var  stepEntity = new SkinCareRoutineStep
                     {
                         SkincareRoutineId = routine.SkincareRoutineId,
-                        Name = steps[i],
+                        Name = stepName,
                         Step = i + 1,
                         IntervalBeforeNextStep = i < totalSteps - 1 ? TimeSpan.FromDays(2) : null
                     };
-
+                    
                     var existingStep = _context.SkinCareRoutineStep
                         .FirstOrDefault(s =>
                             s.SkincareRoutineId == stepEntity.SkincareRoutineId && s.Step == stepEntity.Step);
@@ -6427,22 +6399,16 @@ namespace Server.Data.SeedData
                         stepEntity = existingStep;
                     }
 
-                    // **Chia đều hoặc chọn ngẫu nhiên sản phẩm & dịch vụ**
+                    // Lựa chọn ngẫu nhiên sản phẩm
+                    var productTakeCount = Math.Max(1, routineProducts.Count / Math.Max(1, totalSteps));
                     var selectedProducts = routineProducts
-                        .OrderBy(x => random.Next()) // Xáo trộn danh sách
-                        .Take(Math.Max(2, routineProducts.Count / totalSteps)) // Chia đều hoặc chọn ít nhất 1
+                        .OrderBy(_ => random.Next())
+                        .Take(productTakeCount)
                         .ToList();
 
-                    var selectedServices = routineServices
-                        .OrderBy(x => random.Next()) // Xáo trộn danh sách
-                        .Take(Math.Max(1, routineServices.Count / totalSteps)) // Chia đều hoặc chọn ít nhất 1
-                        .ToList();
-
-                    // **Thêm vào bảng ProductRoutineStep**
                     foreach (var productId in selectedProducts)
                     {
-                        if (!_context.ProductRoutineSteps.Any(s =>
-                                s.StepId == stepEntity.SkinCareRoutineStepId && s.ProductId == productId))
+                        if (!_context.ProductRoutineSteps.Any(s => s.StepId == stepEntity.SkinCareRoutineStepId && s.ProductId == productId))
                         {
                             productRoutineSteps.Add(new ProductRoutineStep
                             {
@@ -6454,11 +6420,16 @@ namespace Server.Data.SeedData
                         }
                     }
 
-                    // **Thêm vào bảng ServiceRoutineStep**
+                    // Lựa chọn ngẫu nhiên dịch vụ
+                    var serviceTakeCount = Math.Max(1, routineServices.Count / Math.Max(1, totalSteps));
+                    var selectedServices = routineServices
+                        .OrderBy(_ => random.Next())
+                        .Take(serviceTakeCount)
+                        .ToList();
+
                     foreach (var serviceId in selectedServices)
                     {
-                        if (!_context.ServiceRoutineSteps.Any(s =>
-                                s.StepId == stepEntity.SkinCareRoutineStepId && s.ServiceId == serviceId))
+                        if (!_context.ServiceRoutineSteps.Any(s => s.StepId == stepEntity.SkinCareRoutineStepId && s.ServiceId == serviceId))
                         {
                             serviceRoutineSteps.Add(new ServiceRoutineStep
                             {
@@ -6471,20 +6442,95 @@ namespace Server.Data.SeedData
                     }
                 }
             }
-
-            // **Lưu dữ liệu vào DB**
+            
             if (productRoutineSteps.Any())
-            {
                 _context.ProductRoutineSteps.AddRange(productRoutineSteps);
-            }
 
             if (serviceRoutineSteps.Any())
-            {
                 _context.ServiceRoutineSteps.AddRange(serviceRoutineSteps);
+
+            await _context.SaveChangesAsync();
+        }
+
+        
+        private async Task SeedConcerns()
+        {
+            var concerns = new List<SkinConcern>
+            {
+                new SkinConcern { Code = "skin_type_0", Name = "Da dầu" },
+                new SkinConcern { Code = "skin_type_1", Name = "Da khô"},
+                new SkinConcern { Code = "skin_type_2", Name = "Da trung tính"},
+                new SkinConcern { Code = "skin_type_3", Name = "Da hỗn hợp"},
+                new SkinConcern { Code = "blackhead", Name = "Mụn đầu đen"},
+                new SkinConcern { Code = "acne", Name = "Mụn trứng cá"},
+                new SkinConcern { Code = "dark_circle", Name = "Quầng thâm mắt"},
+                new SkinConcern { Code = "closed_comedones", Name = "Mụn có nhân đóng" },
+                new SkinConcern { Code = "glabella_wrinkle", Name = "Nếp nhăn giữa hai chân mày" },
+
+                // Concerns mới dựa theo dữ liệu JSON
+                new SkinConcern { Code = "eye_pouch", Name = "Bọng mắt" },
+                new SkinConcern { Code = "crows_feet", Name = "Nếp nhăn đuôi mắt" },
+                new SkinConcern { Code = "eye_finelines", Name = "Vết nhăn quanh mắt" },
+                new SkinConcern { Code = "forehead_wrinkle", Name = "Nếp nhăn trán" },
+                new SkinConcern { Code = "nasolabial_fold", Name = "Nếp nhăn rãnh cười" },
+                new SkinConcern { Code = "skin_spot", Name = "Đốm sắc tố" },
+                new SkinConcern { Code = "mole", Name = "Nốt ruồi" },
+                new SkinConcern { Code = "enlarged_pores", Name = "Lỗ chân lông to" },
+                new SkinConcern { Code = "skin_age", Name = "Tuổi da" },
+                new SkinConcern { Code = "skin_color", Name = "Màu da" },
+                new SkinConcern { Code = "skin_type", Name = "Loại da" }
+            };
+
+            // Kiểm tra nếu chưa có concern nào mới thêm vào
+            if (!_context.SkinConcern.Any())
+            {
+                await _context.SkinConcern.AddRangeAsync(concerns);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        
+        public async Task SeedSkincareRoutineConcerns()
+        {
+            var routineConcernMapping = new Dictionary<string, string>
+            {
+                { "Da dầu", "skin_type_0" },
+                { "Da khô", "skin_type_1" },
+                { "Da trung tính", "skin_type_2" },
+                { "Da hỗn hợp", "skin_type_3" },
+                { "Mụn đầu đen", "blackhead" },
+                { "Mụn trứng cá", "acne" },
+                { "Quầng thâm mắt", "dark_circle" },
+                { "Mụn có nhân đóng", "closed_comedones" },
+                { "Nếp nhăn Glabella", "glabella_wrinkle" }
+            };
+
+            foreach (var pair in routineConcernMapping)
+            {
+                var routine = await _context.SkincareRoutines.FirstOrDefaultAsync(r => r.Name == pair.Key);
+                var concern = await _context.SkinConcern.FirstOrDefaultAsync(c => c.Code == pair.Value);
+
+                if (routine != null && concern != null)
+                {
+                    // Kiểm tra nếu chưa tồn tại liên kết thì mới thêm
+                    var exists = await _context.SkincareRoutineConcern
+                        .AnyAsync(rc => rc.SkincareRoutineId == routine.SkincareRoutineId && rc.SkinConcernId == concern.SkinConcernId);
+
+                    if (!exists)
+                    {
+                        _context.SkincareRoutineConcern.Add(new SkincareRoutineConcern
+                        {
+                            SkincareRoutineId = routine.SkincareRoutineId,
+                            SkinConcernId = concern.SkinConcernId
+                        });
+                    }
+                }
             }
 
             await _context.SaveChangesAsync();
         }
+
+
     }
 
 

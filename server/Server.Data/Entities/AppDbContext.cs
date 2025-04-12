@@ -63,6 +63,8 @@ namespace Server.Data.Entities
         public DbSet<ProductRoutineStep> ProductRoutineSteps { get; set; }
         
         public DbSet<Shipment> Shipments { get; set; }
+        public DbSet<SkinConcern> SkinConcern { get; set; }
+        public DbSet<SkincareRoutineConcern> SkincareRoutineConcern { get; set; }
         
       
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -210,6 +212,25 @@ namespace Server.Data.Entities
                     .WithMany(e => e.UserVoucher)
                     .HasForeignKey(e => e.VoucherId)
                     .HasConstraintName("FK_User_Voucher_Voucher");
+            });
+            
+            
+            // SkincareRoutineConcern
+            modelBuilder.Entity<SkincareRoutineConcern>(e =>
+            {
+                e.ToTable("SkincareRoutineConcern");
+                e.HasKey(e => e.Id);
+                e.HasIndex(e => new { e.SkincareRoutineId, e.SkinConcernId }).IsUnique();
+
+                e.HasOne(e => e.SkincareRoutine)
+                    .WithMany(e => e.SkincareRoutineConcerns)
+                    .HasForeignKey(e => e.SkincareRoutineId)
+                    .HasConstraintName("FK_Routine_Concern_Routine");
+
+                e.HasOne(e => e.SkinConcern)
+                    .WithMany(e => e.SkincareRoutineConcerns)
+                    .HasForeignKey(e => e.SkinConcernId)
+                    .HasConstraintName("FK_Routine_Concern_Concern");
             });
         }
     }

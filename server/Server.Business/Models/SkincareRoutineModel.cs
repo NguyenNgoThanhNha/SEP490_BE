@@ -5,8 +5,7 @@ public class SkincareRoutineModel
     public int SkincareRoutineId { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
-    public string? Steps { get; set; }
-    public string? Frequency { get; set; }
+    public int? TotalSteps { get; set; }
     public string? TargetSkinTypes { get; set; }
     public decimal? TotalPrice { get; set; }
     public ICollection<UserRoutineModel> UserRoutines { get; set; }
