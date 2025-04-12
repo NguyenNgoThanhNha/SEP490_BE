@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
@@ -32,16 +33,35 @@ namespace Server.Business.Services
 
             return _mapper.Map<List<BranchServiceDto>>(entities);
         }
-        
-        public async Task<List<BranchServiceDto>> GetAllServiceInBranchAsync(int branchId)
+
+        public async Task<GetAllBranchServicePaginationResponse> GetAllServiceInBranchAsync(int branchId, int page, int pageSize)
         {
-            var entities = await _unitOfWorks.Branch_ServiceRepository
+            var query = _unitOfWorks.Branch_ServiceRepository
                 .FindByCondition(x => x.BranchId == branchId)
                 .Include(x => x.Branch)
-                .Include(x => x.Service)
+                .Include(x => x.Service);
+
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return _mapper.Map<List<BranchServiceDto>>(entities);
+            var dtos = _mapper.Map<List<BranchServiceDto>>(items);
+
+            return new GetAllBranchServicePaginationResponse
+            {
+                message = "Lấy danh sách dịch vụ trong chi nhánh thành công",
+                data = dtos,
+                pagination = new Pagination
+                {
+                    page = page,
+                    totalPage = totalPages,
+                    totalCount = totalCount
+                }
+            };
         }
 
         public async Task<BranchServiceDto?> GetByIdAsync(int id)
