@@ -21,6 +21,7 @@ namespace Server.Business.Dtos
         public string? ImageAfter { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public UserDTO? Customer { get; set; }
     }
 
 }
