@@ -41,6 +41,9 @@ namespace Server.API.Controllers
             });
         }
 
+        
+        
+
         [HttpGet("get-all-product-in-branch/{branchId}")]
         public async Task<IActionResult> GetAllProductInBranch(int branchId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
@@ -48,18 +51,15 @@ namespace Server.API.Controllers
 
             if (result == null || result.data == null || !result.data.Any())
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return BadRequest(ApiResult<GetAllBranchProductPaginationResponse>.Error(new GetAllBranchProductPaginationResponse
                 {
                     message = "Không có sản phẩm nào trong chi nhánh này"
                 }));
             }
 
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-            {
-                message = "Lấy danh sách sản phẩm trong chi nhánh thành công",
-                data = result
-            }));
+            return Ok(ApiResult<GetAllBranchProductPaginationResponse>.Succeed(result));
         }
+
 
 
         [HttpGet("get-by-id/{ProductbranchId}")]
