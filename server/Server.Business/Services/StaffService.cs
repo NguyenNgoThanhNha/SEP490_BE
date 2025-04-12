@@ -1249,5 +1249,20 @@ namespace Server.Business.Services
             };
         }
 
+        public async Task<StaffModel> GetStaffInfoFromUserIdAsync(int userId)
+        {
+            var staff = await _unitOfWorks.StaffRepository
+                .FindByCondition(s => s.UserId == userId)
+                .Include(s => s.Branch) 
+                .Include(s=>s.StaffInfo)
+                .FirstOrDefaultAsync();
+
+            if (staff == null)
+                throw new BadRequestException("Không tìm thấy thông tin Staff từ token.");
+
+            return _mapper.Map<StaffModel>(staff);
+        }
+
+
     }
 }

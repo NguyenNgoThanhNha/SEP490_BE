@@ -927,7 +927,54 @@ namespace Server.API.Controllers
                     data = new List<object>()
                 }));
             }
+
+
         }
+
+        [HttpGet("get-staff-info")]
+        public async Task<IActionResult> GetStaffInfoFromToken()
+        {
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            try
+            {
+                // Lấy token (cắt "Bearer ")
+                var tokenValue = token.ToString().Split(' ')[1];
+
+                // Lấy thông tin user từ token
+                var currentUser = await _authService.GetUserInToken(tokenValue);
+                if (currentUser == null)
+                {
+                    return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Không tìm thấy thông tin người dùng từ token."
+                    }));
+                }
+
+                // Lấy thông tin staff từ UserId
+                var staffInfo = await _staffService.GetStaffInfoFromUserIdAsync(currentUser.UserId);
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Lấy thông tin nhân viên thành công!",
+                    data = staffInfo
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi hệ thống: {ex.Message}"
+                }));
+            }
+        }
+
 
 
 
