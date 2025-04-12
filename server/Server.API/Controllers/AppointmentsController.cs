@@ -353,5 +353,16 @@ namespace Server.API.Controllers
             });
         }
 
+        [HttpPatch("update-status-appointment")]
+        public async Task<IActionResult> UpdateStatusAppointment(int appointmentId, string status)
+        {
+            var result = await _appointmentsService.UpdateStatusAppointment(appointmentId, status);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Cập nhật trạng thái lịch hẹn thành công",
+                data = result
+            }));
+        }
+
     }
 }

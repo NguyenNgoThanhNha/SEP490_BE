@@ -408,7 +408,7 @@ public class SkinAnalyzeService
         {
             // Tìm các SkinCareRoutine có concern liên quan
             var matchingRoutines = await _unitOfWorks.SkinCareConcernRepository
-                .FindByCondition(sc => sc.SkinConcern.Name == concern.Concern) // Giả sử bạn có bảng quan hệ với tên 'Concern'
+                .FindByCondition(sc => sc.SkinConcern.Name.ToLower().Contains(concern.Concern.ToLower()))
                 .Select(sc => sc.SkincareRoutine)
                 .ToListAsync();
 
@@ -419,7 +419,8 @@ public class SkinAnalyzeService
         return routines
             .GroupBy(r => r.SkincareRoutineId)
             .Select(g => g.First())
-            .OrderByDescending(r => prioritizedConcerns.FirstOrDefault(c => r.TargetSkinTypes!.Contains(c.Concern)).Confidence)
+            .OrderByDescending(r => prioritizedConcerns
+                .FirstOrDefault(c => r.TargetSkinTypes!.ToLower().Contains(c.Concern.ToLower())).Confidence) // map skin_concern.Name with skin_routine.TargetSkinTypes
             .ToList();
     }
 

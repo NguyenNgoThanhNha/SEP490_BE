@@ -562,4 +562,17 @@ public class AppointmentsService
             }
         };
     }
+
+    public async Task<AppointmentsModel> UpdateStatusAppointment(int appointmentId, string status)
+    {
+        var appointment = await _unitOfWorks.AppointmentsRepository
+                              .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId)
+                          ?? throw new BadRequestException("Không tìm thấy thông tin lịch hẹn");
+
+        appointment.Status = status;
+        appointment.UpdatedDate = DateTime.Now;
+        appointment = _unitOfWorks.AppointmentsRepository.Update(appointment);
+        var result = await _unitOfWorks.AppointmentsRepository.Commit();
+        return result > 0 ? _mapper.Map<AppointmentsModel>(appointment) : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
+    }
 }
