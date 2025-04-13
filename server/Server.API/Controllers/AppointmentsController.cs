@@ -364,5 +364,37 @@ namespace Server.API.Controllers
             }));
         }
 
+        [HttpGet("get-all-appointments")]
+        public async Task<IActionResult> GetAllAppointmentsOfCustomer([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            var tokenValue = token.ToString().Split(' ')[1];
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không tìm thấy thông tin khách hàng!"
+                }));
+            }
+
+            var result = await _appointmentsService.GetAppointmentsByCustomer(currentUser.UserId, page, pageSize);
+
+            return Ok(ApiResult<GetAllAppointmentResponse>.Succeed(new GetAllAppointmentResponse
+            {
+                message = "Lấy danh sách lịch hẹn thành công!",
+                data = result.data,
+                pagination = result.pagination
+            }));
+        }
+
     }
 }

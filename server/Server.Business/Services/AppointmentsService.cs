@@ -575,4 +575,39 @@ public class AppointmentsService
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
         return result > 0 ? _mapper.Map<AppointmentsModel>(appointment) : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
     }
+
+    public async Task<GetAllAppointmentResponse> GetAppointmentsByCustomer(int customerId, int page = 1, int pageSize = 5)
+    {
+        var query = _unitOfWorks.AppointmentsRepository
+            .FindByCondition(x => x.CustomerId == customerId)
+            .Include(x => x.Order)
+            .Include(x => x.Service)
+            .Include(x => x.Staff)
+            .Include(x => x.Branch)
+            .Include(x => x.Customer)
+            .OrderByDescending(x => x.AppointmentsTime);
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var appointments = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var mappedAppointments = _mapper.Map<List<AppointmentsModel>>(appointments);
+
+        return new GetAllAppointmentResponse
+        {
+            message = "Lấy danh sách lịch hẹn của khách hàng thành công!",
+            data = mappedAppointments,
+            pagination = new Pagination
+            {
+                page = page,
+                totalPage = totalPages,
+                totalCount = totalCount
+            }
+        };
+    }
+
 }
