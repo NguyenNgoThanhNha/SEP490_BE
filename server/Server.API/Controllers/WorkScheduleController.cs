@@ -45,6 +45,19 @@ namespace Server.API.Controllers
             }));
         }
 
+        [Authorize]
+        [HttpPost("create-work-schedule-multi-shift")]
+        public async Task<IActionResult> CreateWorkScheduleMultiShiftAsync(MultiShiftWorkScheduleRequest request)
+        {
+            await _workScheduleService.CreateWorkScheduleMultiShiftAsync(request);
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Tạo lịch làm việc nhiều ca thành công!"
+            }));
+        }
+
+
 
         [Authorize]
         [HttpPatch("update-work-schedules-for-staff-leave")]
