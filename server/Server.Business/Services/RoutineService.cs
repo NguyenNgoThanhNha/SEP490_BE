@@ -267,7 +267,7 @@ public class RoutineService
                         CreatedDate = DateTime.Now
                     };
                     listAppointment.Add(_mapper.Map<Appointments>(newAppointment));
-                    appointmentTime = endTime.AddMinutes(step.IntervalBeforeNextStep?.TotalMinutes ?? 5);
+                    appointmentTime = endTime.AddMinutes((step.IntervalBeforeNextStep * 24 * 60) ?? 5);
                 }
 
                 foreach (var productStep in step.ProductRoutineSteps)

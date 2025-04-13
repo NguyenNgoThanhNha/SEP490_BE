@@ -299,7 +299,7 @@ namespace Server.Data.Migrations
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     Description = table.Column<string>(type: "longtext", nullable: true),
                     Step = table.Column<int>(type: "int", nullable: false),
-                    IntervalBeforeNextStep = table.Column<TimeSpan>(type: "time(6)", nullable: true),
+                    IntervalBeforeNextStep = table.Column<int>(type: "int", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },

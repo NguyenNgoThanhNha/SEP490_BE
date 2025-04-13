@@ -20,7 +20,10 @@ namespace Server.Business.Dtos
         [Range(1, 10, ErrorMessage = "Step phải nằm trong khoảng từ 1 đến 10")]
         public int Step { get; set; }
 
-        public TimeSpan? IntervalBeforeNextStep { get; set; }
+        public int? IntervalBeforeNextStep { get; set; }
+        
+        public List<int> ProductIds { get; set; } = new List<int>();
+        public List<int> ServiceIds { get; set; } = new List<int>();
     }  
 
 }

@@ -1240,8 +1240,8 @@ namespace Server.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
-                    b.Property<TimeSpan?>("IntervalBeforeNextStep")
-                        .HasColumnType("time(6)");
+                    b.Property<int?>("IntervalBeforeNextStep")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()

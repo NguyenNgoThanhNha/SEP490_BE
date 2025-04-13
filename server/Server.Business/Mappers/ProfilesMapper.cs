@@ -124,61 +124,61 @@ namespace Server.Business.Mappers
             CreateMap<Order, OrderInfoModel>().ReverseMap();
             CreateMap<OrderDetail, OrderDetailModels>().ReverseMap();
 
-            CreateMap<CartRequest, ProductCart>();
-            CreateMap<ProductCart, CartDTO>();
-            CreateMap<Voucher, VoucherDto>();
+            CreateMap<CartRequest, ProductCart>().ReverseMap();
+            CreateMap<ProductCart, CartDTO>().ReverseMap();
+            CreateMap<Voucher, VoucherDto>().ReverseMap();
             
-            CreateMap<SkinCareRoutineStep, SkinCareRoutineStepModel>();
-            CreateMap<ServiceRoutineStep, ServiceRoutineStepModel>();
-            CreateMap<ProductRoutineStep, ProductRoutineStepModel>();
+            CreateMap<SkinCareRoutineStep, SkinCareRoutineStepModel>().ReverseMap();
+            CreateMap<ServiceRoutineStep, ServiceRoutineStepModel>().ReverseMap();
+            CreateMap<ProductRoutineStep, ProductRoutineStepModel>().ReverseMap();
             
-            CreateMap<UserRoutine, UserRoutineModel>();
-            CreateMap<UserRoutineStep, UserRoutineStepModel>();
+            CreateMap<UserRoutine, UserRoutineModel>().ReverseMap();
+            CreateMap<UserRoutineStep, UserRoutineStepModel>().ReverseMap();
 
 
-            CreateMap<Promotion, PromotionDTO>();
+            CreateMap<Promotion, PromotionDTO>().ReverseMap();
 
-            CreateMap<Branch_Service, BranchServiceDto>();
-            CreateMap<CreateBranchServiceDto, Branch_Service>();
-            CreateMap<UpdateBranchServiceDto, Branch_Service>();
+            CreateMap<Branch_Service, BranchServiceDto>().ReverseMap();
+            CreateMap<CreateBranchServiceDto, Branch_Service>().ReverseMap();
+            CreateMap<UpdateBranchServiceDto, Branch_Service>().ReverseMap();
 
-            CreateMap<AppointmentFeedback, AppointmentFeedbackDetailDto>();
-            CreateMap<AppointmentFeedbackCreateDto, AppointmentFeedback>();
-            CreateMap<AppointmentFeedbackUpdateDto, AppointmentFeedback>();
+            CreateMap<AppointmentFeedback, AppointmentFeedbackDetailDto>().ReverseMap();
+            CreateMap<AppointmentFeedbackCreateDto, AppointmentFeedback>().ReverseMap();
+            CreateMap<AppointmentFeedbackUpdateDto, AppointmentFeedback>().ReverseMap();
 
-            CreateMap<ProductFeedback, ProductFeedbackDetailDto>();     
-            CreateMap<ProductFeedbackCreateDto, ProductFeedback>();
+            CreateMap<ProductFeedback, ProductFeedbackDetailDto>().ReverseMap();     
+            CreateMap<ProductFeedbackCreateDto, ProductFeedback>().ReverseMap();
        
 
 
-            CreateMap<ProductFeedbackUpdateDto, ProductFeedback>();
+            CreateMap<ProductFeedbackUpdateDto, ProductFeedback>().ReverseMap();
 
             CreateMap<ServiceFeedback, ServiceFeedbackDetailDto>()
                 .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.User));
 
-            CreateMap<ServiceFeedbackCreateDto, ServiceFeedback>();
+            CreateMap<ServiceFeedbackCreateDto, ServiceFeedback>().ReverseMap();
 
-            CreateMap<ServiceFeedbackUpdateDto, ServiceFeedback>();
+            CreateMap<ServiceFeedbackUpdateDto, ServiceFeedback>().ReverseMap();
 
-            CreateMap<SkincareRoutine, SkincareRoutineDto>();
-            CreateMap<CreateSkincareRoutineDto, SkincareRoutine>();
-            CreateMap<UpdateSkincareRoutineDto, SkincareRoutine>();
+            CreateMap<SkincareRoutine, SkincareRoutineDto>().ReverseMap();
+            CreateMap<CreateSkincareRoutineDto, SkincareRoutine>().ReverseMap();
+            CreateMap<UpdateSkincareRoutineDto, SkincareRoutine>().ReverseMap();
 
-            CreateMap<SkinCareRoutineStep, SkinCareRoutineStepDto>();
-            CreateMap<CreateSkinCareRoutineStepDto, SkinCareRoutineStep>();
-            CreateMap<UpdateSkinCareRoutineStepDto, SkinCareRoutineStep>();
+            CreateMap<SkinCareRoutineStep, SkinCareRoutineStepDto>().ReverseMap();
+            CreateMap<CreateSkinCareRoutineStepDto, SkinCareRoutineStep>().ReverseMap();
+            CreateMap<UpdateSkinCareRoutineStepDto, SkinCareRoutineStep>().ReverseMap();
 
-            CreateMap<ServiceRoutine, ServiceRoutineDto>();           
-            CreateMap<SkincareRoutine, SkincareRoutineDto>();
+            CreateMap<ServiceRoutine, ServiceRoutineDto>().ReverseMap();           
+            CreateMap<SkincareRoutine, SkincareRoutineDto>().ReverseMap();
 
 
-            CreateMap<ServiceRoutineStep, ServiceRoutineStepDto>();
+            CreateMap<ServiceRoutineStep, ServiceRoutineStepDto>().ReverseMap();
 
             CreateMap<ProductRoutine, ProductRoutineDto>()
     .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Products))
     .ForMember(dest => dest.Routine, opt => opt.MapFrom(src => src.Routine));
 
-            CreateMap<ProductRoutineStep, ProductRoutineStepDto>();
+            CreateMap<ProductRoutineStep, ProductRoutineStepDto>().ReverseMap();
 
 
         }

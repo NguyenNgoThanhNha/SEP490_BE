@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Server.Business.Commons;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
 using Server.Data.Entities;
@@ -23,27 +25,31 @@ namespace Server.API.Controllers
             try
             {
                 var result = await _skinCareRoutineStep.GetAllPaginationAsync(page, pageSize);
-                return Ok(new
-                {
-                    success = true,
-                    message = result.message,
-                    data = result.data,
-                    pagination = result.pagination
-                });
+                return Ok(ApiResult<GetAllSkinCareRoutineStepPaginationResponse>.Succeed(result));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = $"Lỗi: {ex.Message}" });
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Lỗi: " + ex.Message,
+                }));
             }
         }
 
         [HttpGet("get-by-id/{skincareRoutineStepId}")]
         public async Task<IActionResult> GetById(int skincareRoutineStepId)
         {
-            var result = await _skinCareRoutineStep.GetByIdAsync(skincareRoutineStepId);
+            var result = await _skinCareRoutineStep.GetDetailAsync(skincareRoutineStepId);
             return result == null
-                ? BadRequest(new { success = false, message = "Không tìm thấy bước skincare" })
-                : Ok(new { success = true, message = "Lấy chi tiết thành công", data = result });
+                ? BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy bước skincare",
+                }))
+                : Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Lấy thông tin bước skincare thành công",
+                    data = result
+                }));
         }
 
         [HttpPost("create")]      
@@ -56,30 +62,27 @@ namespace Server.API.Controllers
                     .SelectMany(kv => kv.Value.Errors.Select(e => $"{kv.Key}: {e.ErrorMessage}"))
                     .ToList();
 
-                return BadRequest(new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    message = string.Join(" | ", errors)
-                });
+                    message = errors.Count > 0 ? string.Join(" | ", errors) : "Có lỗi xảy ra",
+                }));
             }
 
             try
             {
                 var result = await _skinCareRoutineStep.CreateAsync(dto);
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    success = true,
-                    message = "Tạo thành công",
+                    message = $"Tạo bước {result.Step} thành công",
                     data = result
-                });
+                }));
             }
             catch (Exception ex)
             {
-                return BadRequest(new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    message = ex.Message
-                });
+                    message = $"Lỗi: {ex.Message}",
+                }));
             }
         }
 
@@ -91,27 +94,29 @@ namespace Server.API.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
-                    .SelectMany(x => x.Value.Errors.Select(e => $"{x.Key}: {e.ErrorMessage}"));
-                return BadRequest(new { success = false, message = string.Join(" | ", errors) });
+                    .SelectMany(kv => kv.Value.Errors.Select(e => $"{kv.Key}: {e.ErrorMessage}"))
+                    .ToList();
+
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = errors.Count > 0 ? string.Join(" | ", errors) : "Có lỗi xảy ra",
+                }));
             }
 
             try
             {
                 var result = await _skinCareRoutineStep.UpdateAsync(skincareRoutineStepId, dto);
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    success = true,
-                    message = "Cập nhật thành công",
-                    data = result
-                });
+                    message = $"Cập nhật bước {result.Step} thành công",
+                }));
             }
             catch (Exception ex)
             {
-                return BadRequest(new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    message = ex.Message
-                });
+                    message = $"Lỗi: {ex.Message}",
+                }));
             }
         }
 
@@ -121,8 +126,14 @@ namespace Server.API.Controllers
         {
             var deleted = await _skinCareRoutineStep.DeleteAsync(skincareRoutineStepId);
             return deleted
-                ? Ok(new { success = true, message = "Xoá bước skincare thành công" })
-                : BadRequest(new { success = false, message = "Không tìm thấy để xoá" });
+                ? Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Xoá bước skincare thành công",
+                }))
+                : BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy bước skincare để xoá",
+                }));
         }
     }
 }

@@ -20,7 +20,7 @@ public class SkinCareRoutineStep
     
     public int Step { get; set; } // Thứ tự thực hiện bước
     
-    public TimeSpan? IntervalBeforeNextStep { get; set; } // Khoảng thời gian chờ trước bước tiếp theo
+    public int? IntervalBeforeNextStep { get; set; } // Khoảng thời gian chờ trước bước tiếp theo
     
     public ICollection<ServiceRoutineStep> ServiceRoutineSteps { get; set; } = new List<ServiceRoutineStep>();
     public ICollection<ProductRoutineStep> ProductRoutineSteps { get; set; } = new List<ProductRoutineStep>();
