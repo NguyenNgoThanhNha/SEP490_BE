@@ -466,6 +466,27 @@ namespace Server.API.Controllers
             return Ok(ApiResult<object>.Succeed(result.Result));
         }
 
+      
+        [HttpGet("routine-history")]
+        public async Task<IActionResult> GetRoutineHistory(int userId)
+        {
+            var result = await _orderService.GetRoutineHistoryByCustomerIdAsync(userId);
+
+            if (result == null || !result.Any())
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không có lịch sử gói liệu trình nào được tìm thấy."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy lịch sử gói liệu trình thành công!",
+                data = result
+            }));
+        }
+
 
     }
 }
