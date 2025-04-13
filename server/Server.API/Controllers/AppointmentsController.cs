@@ -364,7 +364,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [HttpGet("get-all-appointments")]
+        [HttpGet("get-my-appointments")]
         public async Task<IActionResult> GetAllAppointmentsOfCustomer([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
         {
             if (!Request.Headers.TryGetValue("Authorization", out var token))

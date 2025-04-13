@@ -68,12 +68,16 @@ public class AppointmentsService
     public async Task<AppointmentsModel> GetAppointmentsById(int id)
     {
         var appointmentsExist = await _unitOfWorks.AppointmentsRepository
-            .FindByCondition(x => x.AppointmentId.Equals(id))
+            .FindByCondition(x => x.AppointmentId == id)
             .Include(x => x.Customer)
             .Include(x => x.Staff)
+                .ThenInclude(s => s.StaffInfo)
             .Include(x => x.Branch)
             .Include(x => x.Service)
+                .ThenInclude(s => s.ServiceRoutines)
+                    .ThenInclude(sr => sr.Routine) 
             .FirstOrDefaultAsync();
+
         if (appointmentsExist == null)
         {
             return null;
@@ -81,6 +85,7 @@ public class AppointmentsService
 
         return _mapper.Map<AppointmentsModel>(appointmentsExist);
     }
+
 
     public async Task<List<AppointmentsModel>> CreateAppointments(int userId, ApointmentRequest request)
     {
@@ -582,7 +587,7 @@ public class AppointmentsService
             .FindByCondition(x => x.CustomerId == customerId)
             .Include(x => x.Order)
             .Include(x => x.Service)
-            .Include(x => x.Staff)
+            .Include(x => x.Staff) .ThenInclude(s => s.StaffInfo)
             .Include(x => x.Branch)
             .Include(x => x.Customer)
             .OrderByDescending(x => x.AppointmentsTime);
