@@ -11,6 +11,7 @@ namespace Server.Business.Dtos
         public int SkincareRoutineId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
+        public string TargetSkinTypes { get; set; }
     }
 
 }

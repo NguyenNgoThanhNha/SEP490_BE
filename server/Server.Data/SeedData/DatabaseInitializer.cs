@@ -6302,7 +6302,7 @@ namespace Server.Data.SeedData
                         "Mụn trứng cá" => new[] { 6, 9, 14, 19, 31, 33, 40, 44, 45 },
                         "Quầng thâm mắt" => new[] { 1, 7, 24, 26, 28, 43, 44, 50 },
                         "Mụn có nhân đóng" => new[] { 5, 10, 11, 23, 31, 34, 45, 46 },
-                        "Nếp nhăn glabella" => new[] { 2, 6, 8, 28, 32, 41, 42, 48 },
+                        "Nếp nhăn Glabella" => new[] { 2, 6, 8, 28, 32, 41, 42, 48 },
                         _ => Array.Empty<int>()
                     };
 
@@ -6382,7 +6382,7 @@ namespace Server.Data.SeedData
                         SkincareRoutineId = routine.SkincareRoutineId,
                         Name = stepName,
                         Step = i + 1,
-                        IntervalBeforeNextStep = i < totalSteps - 1 ? TimeSpan.FromDays(2) : null
+                        IntervalBeforeNextStep = i < totalSteps - 1 ? 2 : null
                     };
                     
                     var existingStep = _context.SkinCareRoutineStep

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Server.Business.Commons;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Services;
 using Server.Data.Entities;
@@ -25,11 +27,14 @@ namespace Server.API.Controllers
             try
             {
                 var result = await _skincareRoutineService.GetAllPaginationAsync(page, pageSize);
-                return Ok(new { success = true, message = result.message, data = result.data, pagination = result.pagination });
+                return Ok(ApiResult<GetAllSkincareRoutinePaginationResponse>.Succeed(result));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = $"Lỗi: {ex.Message}" });
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Lỗi: " + ex.Message,
+                }));
             }
         }
 
@@ -41,13 +46,23 @@ namespace Server.API.Controllers
             {
                 var result = await _skincareRoutineService.GetByIdAsync(skincareRoutineId);
                 if (result == null)
-                    return BadRequest(new { success = false, message = "Không tìm thấy skincare routine" });
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "Không tìm thấy skincare routine",
+                    }));
 
-                return Ok(new { success = true, message = "Lấy chi tiết thành công", data = result });
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Lấy thông tin skincare routine thành công",
+                    data = result
+                }));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = $"Lỗi: {ex.Message}" });
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Lỗi: " + ex.Message,
+                }));
             }
         }
 
@@ -56,48 +71,47 @@ namespace Server.API.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(dto.Name))
+                if (!ModelState.IsValid)
                 {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Tên quy trình (Name) là bắt buộc."
-                    });
-                }
+                    var errors = ModelState
+                        .SelectMany(kv => kv.Value.Errors.Select(e => $"{kv.Key}: {e.ErrorMessage}"))
+                        .ToList();
 
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = errors.Count > 0 ? string.Join(" | ", errors) : "Có lỗi xảy ra",
+                    }));
+                }
+                
                 if (dto.TotalPrice.HasValue && dto.TotalPrice <= 0)
                 {
-                    return BadRequest(new
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        success = false,
-                        message = "Tổng giá (TotalPrice) phải lớn hơn 0."
-                    });
+                        message = "Giá trị tổng giá không hợp lệ.",
+                    }));
                 }
 
                 var result = await _skincareRoutineService.CreateAsync(dto);
                 if (result == null)
                 {
-                    return BadRequest(new
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                     {
-                        success = false,
-                        message = "Tạo skincare routine thất bại."
-                    });
+                        message = "Tao gói liệu trình thất bại.",
+                    }));
                 }
 
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
-                    success = true,
-                    message = "Tạo skincare routine thành công.",
+                    message = "Tạo gói liệu trình thành công",
                     data = result
-                });
+                }));
             }
             catch (Exception ex)
             {
-                return BadRequest(new
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    success = false,
-                    message = $"Lỗi: {ex.Message}"
-                });
+                    message = "Lỗi: " + ex.Message,
+                }));
             }
         }
 
@@ -107,15 +121,37 @@ namespace Server.API.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState
+                        .SelectMany(kv => kv.Value.Errors.Select(e => $"{kv.Key}: {e.ErrorMessage}"))
+                        .ToList();
+
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = errors.Count > 0 ? string.Join(" | ", errors) : "Có lỗi xảy ra",
+                    }));
+                }
+                
                 var result = await _skincareRoutineService.UpdateAsync(skincareRoutineId, dto);
                 if (result == null)
-                    return BadRequest(new { success = false, message = "Không tìm thấy skincare routine để cập nhật" });
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "Không tìm thấy gói liệu trình để cập nhật",
+                    }));
 
-                return Ok(new { success = true, message = "Cập nhật thành công", data = result });
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Cập nhật gói liệu trình thành công",
+                    data = result
+                }));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = $"Lỗi: {ex.Message}" });
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Lỗi: " + ex.Message,
+                }));
             }
         }
 
@@ -126,13 +162,43 @@ namespace Server.API.Controllers
             {
                 var deleted = await _skincareRoutineService.DeleteAsync(skincareRoutineId);
                 if (!deleted)
-                    return BadRequest(new { success = false, message = "Không tìm thấy skincare routine để xoá" });
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "Không tìm thấy gói liệu trình để xóa",
+                    }));
 
-                return Ok(new { success = true, message = "Xoá skincare routine thành công" });
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Xóa gói liệu trình thành công",
+                }));
             }
             catch (Exception ex)
             {
-                return BadRequest(new { success = false, message = $"Lỗi: {ex.Message}" });
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Lỗi: " + ex.Message,
+                }));
+            }
+        }
+
+        [HttpGet("get-target-skin-type")]
+        public async Task<IActionResult> GetTargetSkinType()
+        {
+            try
+            {
+                var result = await _skincareRoutineService.GetTargetSkinTypesAsync();
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Lấy danh sách loại da thành công",
+                    data = result
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Lỗi: " + ex.Message,
+                }));
             }
         }
     }

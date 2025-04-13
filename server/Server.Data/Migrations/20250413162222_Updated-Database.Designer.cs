@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250412073132_Updated-Database")]
+    [Migration("20250413162222_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -1243,8 +1243,8 @@ namespace Server.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
-                    b.Property<TimeSpan?>("IntervalBeforeNextStep")
-                        .HasColumnType("time(6)");
+                    b.Property<int?>("IntervalBeforeNextStep")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
