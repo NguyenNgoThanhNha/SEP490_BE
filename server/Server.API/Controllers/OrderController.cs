@@ -144,6 +144,49 @@ namespace Server.API.Controllers
             }));
         }
 
+        [HttpGet("history-booking-all")]
+        public async Task<IActionResult> HistoryBookingAllTypes([FromQuery] string status, int page = 1, int pageSize = 5)
+        {
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            // Chia tách token
+            var tokenValue = token.ToString().Split(' ')[1];
+            // Lấy thông tin người dùng từ token
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy thông tin khách hàng!"
+                }));
+            }
+
+            var orders = await _orderService.BookingHistoryAllTypes(currentUser.UserId, status, page, pageSize);
+            if (orders.data == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy lịch sử lịch hẹn!"
+                }));
+            }
+
+            return Ok(ApiResult<HistoryBookingResponse>.Succeed(new HistoryBookingResponse()
+            {
+                message = orders.message,
+                data = orders.data,
+                pagination = orders.pagination
+            }));
+        }
+
+
         [Authorize]
         [HttpGet("detail-booking")]
         public async Task<IActionResult> DetailBooking([FromQuery] int orderId)

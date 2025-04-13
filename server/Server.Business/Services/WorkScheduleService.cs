@@ -86,6 +86,70 @@ public class WorkScheduleService
         await _unitOfWork.WorkScheduleRepository.AddRangeAsync(workSchedule);
     }
 
+    public async Task CreateWorkScheduleMultiShiftAsync(MultiShiftWorkScheduleRequest request)
+    {
+        var staff = await _unitOfWork.StaffRepository
+     .FindByCondition(x => x.StaffId == request.StaffId)
+     .Include(x => x.StaffInfo)
+     .FirstOrDefaultAsync();
+
+
+        if (staff == null)
+            throw new BadRequestException("Không tìm thấy nhân viên!");
+
+        if (request.FromDate < DateTime.Today.AddDays(7))
+            throw new BadRequestException("Lịch làm việc phải được đăng ký trước ít nhất 1 tuần.");
+
+        var validShifts = await _unitOfWork.ShiftRepository
+            .FindByCondition(x => request.ShiftIds.Contains(x.ShiftId))
+            .ToListAsync();
+
+        if (validShifts.Count != request.ShiftIds.Count)
+            throw new BadRequestException("Một hoặc nhiều ca làm không tồn tại.");
+
+        var existingSchedules = await _unitOfWork.WorkScheduleRepository
+            .FindByCondition(ws => ws.StaffId == staff.StaffId
+                                && ws.WorkDate >= request.FromDate
+                                && ws.WorkDate <= request.ToDate)
+            .ToListAsync();
+
+        var scheduleListModel = new List<WorkScheduleModel>();
+        var duplicateEntries = new List<string>();
+
+        for (var date = request.FromDate; date <= request.ToDate; date = date.AddDays(1))
+        {
+            if (date.DayOfWeek == DayOfWeek.Sunday) continue;
+
+            foreach (var shift in validShifts)
+            {
+                if (existingSchedules.Any(ws => ws.WorkDate == date && ws.ShiftId == shift.ShiftId))
+                {
+                    duplicateEntries.Add($"{date:dd/MM/yyyy} (Ca: {shift.ShiftName})");
+                    continue;
+                }
+
+                scheduleListModel.Add(new WorkScheduleModel
+                {
+                    StaffId = staff.StaffId,
+                    ShiftId = shift.ShiftId,
+                    DayOfWeek = (int)date.DayOfWeek,
+                    WorkDate = date,
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
+                });
+            }
+        }
+
+        if (duplicateEntries.Any())
+        {
+            throw new BadRequestException($"Nhân viên {staff.StaffInfo.FullName} đã có lịch làm trong: {string.Join("; ", duplicateEntries)}");
+        }
+
+        var workSchedules = _mapper.Map<List<WorkSchedule>>(scheduleListModel);
+        await _unitOfWork.WorkScheduleRepository.AddRangeAsync(workSchedules);
+    }
+
+
     public async Task<bool> UpdateWorkScheduleForStaffLeaveAsync(WorkScheduleForStaffLeaveRequest workScheduleForStaffLeaveRequest)
     {
         var workSchedule = await _unitOfWork.WorkScheduleRepository

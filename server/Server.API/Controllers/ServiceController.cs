@@ -401,6 +401,28 @@ namespace Server.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("get-services-by-routine-userId")]
+        public async Task<IActionResult> GetServicesByRoutine([FromBody] GetServiceByRoutineRequest request)
+        {
+            try
+            {
+                var result = await _serviceService.GetServicesByRoutineAndUserAsync(request.RoutineId, request.UserId);
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Lấy danh sách dịch vụ theo routine thành công!",
+                    data = result
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi: {ex.Message}"
+                }));
+            }
+        }
+
 
     }
 }

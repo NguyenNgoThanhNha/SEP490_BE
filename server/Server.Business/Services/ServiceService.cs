@@ -585,6 +585,35 @@ namespace Server.Business.Services
             };
         }
 
+        public async Task<List<ServiceModel>> GetServicesByRoutineAndUserAsync(int routineId, int userId)
+        {
+            // Kiểm tra routine có thuộc user không
+            var isOwnedByUser = await _unitOfWorks.UserRoutineRepository
+                .FindByCondition(ur => ur.RoutineId == routineId && ur.UserId == userId)
+                .AnyAsync();
 
+            if (!isOwnedByUser)
+                throw new BadRequestException("Routine không tồn tại hoặc không thuộc về người dùng.");
+
+            // Lấy danh sách ServiceId liên kết với Routine
+            var serviceIds = await _unitOfWorks.ServiceRoutineRepository
+                .FindByCondition(sr => sr.RoutineId == routineId)
+                .Select(sr => sr.ServiceId)
+                .ToListAsync();
+
+            // Nếu không có dịch vụ nào => trả về rỗng
+            if (!serviceIds.Any())
+                return new List<ServiceModel>();
+
+            // Lấy danh sách dịch vụ
+            var services = await _unitOfWorks.ServiceRepository
+                .FindByCondition(s => serviceIds.Contains(s.ServiceId))
+                .Include(s => s.ServiceCategory)
+                .ToListAsync();
+
+            // Map sang model + lấy ảnh
+            var serviceModels = await GetListImagesOfServices(services);
+            return serviceModels;
+        }
     }
 }
