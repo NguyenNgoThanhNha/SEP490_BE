@@ -667,6 +667,52 @@ public class AuthService
         return revenueList;
     }
 
+    public async Task<List<BranchRevenueDto>> GetTop3RevenueBranchesAsync(int month, int year)
+    {
+        // Bước 1: Lấy danh sách Order đã Completed trong tháng/năm
+        var orders = await _unitOfWorks.OrderRepository
+            .FindByCondition(o =>
+                o.Status == "Completed" &&
+                o.CreatedDate.Month == month &&
+                o.CreatedDate.Year == year)
+            .Include(o => o.Appointments)
+            .ToListAsync();
+
+        // Bước 2: Với mỗi đơn hàng, mỗi chi nhánh trong Appointments sẽ được cộng full TotalAmount
+        var branchRevenue = orders
+            .SelectMany(order =>
+            {
+                var branchIds = order.Appointments
+                    .Select(a => a.BranchId)
+                    .Distinct();
+
+                return branchIds.Select(branchId => new
+                {
+                    BranchId = branchId,
+                    Revenue = order.TotalAmount
+                });
+            })
+            .GroupBy(x => x.BranchId)
+            .Select(g => new BranchRevenueDto
+            {
+                BranchId = g.Key,
+                BranchName = "", // gán ở bước 3
+                TotalRevenue = g.Sum(x => x.Revenue)
+            })
+            .OrderByDescending(b => b.TotalRevenue) // Sắp xếp giảm dần
+            .Take(3) // Lấy top 3
+            .ToList();
+
+        // Bước 3: Gán tên chi nhánh
+        var branches = await _unitOfWorks.BranchRepository.GetAll().ToListAsync();
+        foreach (var item in branchRevenue)
+        {
+            var branch = branches.FirstOrDefault(b => b.BranchId == item.BranchId);
+            item.BranchName = branch?.BranchName ?? "Unknown";
+        }
+
+        return branchRevenue;
+    }
 
 
 }

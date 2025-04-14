@@ -15,6 +15,7 @@ using Server.Data;
 using Server.Data.UnitOfWorks;
 using LoginRequest = Server.Business.Commons.Request.LoginRequest;
 using Token = Server.Business.Ultils.Token;
+using Server.Data.Entities;
 
 namespace Server.API.Controllers
 {
@@ -679,6 +680,27 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+
+        [HttpGet("top-3-revenue-branches")]
+        public async Task<IActionResult> GetTop3Branches([FromQuery] int month, [FromQuery] int year)
+        {
+            var result = await authService.GetTop3RevenueBranchesAsync(month, year);
+
+            if (result == null || !result.Any())
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không có dữ liệu doanh thu cho tháng/năm được chọn."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Top 3 chi nhánh có doanh thu cao nhất!",
+                data = result
+            }));
+        }
+
 
 
     }
