@@ -275,8 +275,8 @@ public class RoutineService
                     var product = productStep.Product;
                     var newOrderDetail = new OrderDetailModels()
                     {
-                        OrderId = createdOrder.OrderId,
-                        ProductId = product.ProductId,
+                        //OrderId = createdOrder.OrderId,
+                        //ProductId = product.ProductId,
                         Quantity = 1,
                         UnitPrice = product.Price,
                         SubTotal = product.Price,

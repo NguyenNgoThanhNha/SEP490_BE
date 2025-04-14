@@ -180,6 +180,9 @@ namespace Server.Business.Mappers
 
             CreateMap<ProductRoutineStep, ProductRoutineStepDto>().ReverseMap();
 
+            CreateMap<OrderDetail, OrderDetailModels>().ReverseMap();
+
+
 
         }
     }

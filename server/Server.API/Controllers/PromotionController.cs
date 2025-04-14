@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,12 +31,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Hi?n t?i kh�ng c� khuy?n m�i n�o!"
+                    message = "Hiện tại không có khuyến mãi nào!"
                 }));
             }
             return Ok(ApiResult<GetAllPromotionResponse>.Succeed(new GetAllPromotionResponse()
             {
-                message = "L?y ch??ng tr�nh khuy?n m�i th�nh c�ng!",
+                message = "Lấy chương trình khuyến mãi thành công!",
                 data = listPromotion.data,
                 pagination = listPromotion.pagination
             }));
@@ -50,12 +50,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Kh�ng t�m th?y khuy?n m�i!"
+                    message = "Không tìm thấy khuyến mãi!"
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "L?y ch??ng tr�nh khuy?n m�i th�nh c�ng!",
+                message = "Lấy chương trình khuyến mãi thành công!",
                 data = _mapper.Map<PromotionDTO>(promotionModel)
             }));
         }
@@ -79,13 +79,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "L?i khi t?o khuy?n m�i!"
+                    message = "Lỗi khi tạo khuyến mãi!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "T?o khuy?n m�i th�nh c�ng!",
+                message = "Tạo khuyến mãi thành công!",
                 data = _mapper.Map<PromotionDTO>(promotionModel)
             }));
         }
@@ -109,7 +109,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Kh�ng t�m th?y ch??ng tr�nh khuy?n m�i!"
+                    message = "Không tìm thấy chương trình khuyến mãi!"
                 }));
             }
 
@@ -118,13 +118,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "L?i khi c?p nh?t ch??ng tr�nh khuy?n m�i!"
+                    message = "Lỗi khi tạo chương trình khuyến mãi!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "C?p nh?t ch??ng tr�nh khuy?n m�i th�nh c�ng!",
+                message = "Cập nhật chương trình khuyến mãi thành công!",
                 data = _mapper.Map<PromotionDTO>(promotionModel)
             }));
         }
@@ -148,7 +148,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Kh�ng t�m th?y khuy?n m�i!"
+                    message = "Không tìm thấy khuyến mãi!"
                 }));
             }
 
@@ -157,13 +157,13 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "L?i khi x�a khuy?n m�i!"
+                    message = "Lỗi khi xóa khuyến mãi!"
                 }));
             }
             
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "X�a khuy?n m�i th�nh c�ng!",
+                message = "Xóa khuyến mãi thành công!",
                 data = _mapper.Map<PromotionDTO>(promotionModel)
             }));
         }

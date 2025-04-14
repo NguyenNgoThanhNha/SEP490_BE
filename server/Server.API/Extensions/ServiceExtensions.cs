@@ -173,6 +173,7 @@ namespace Server.API.Extensions
             services.AddScoped<ServiceRoutineStepService>();
             services.AddScoped<ProductRoutineService>();
             services.AddScoped<ProductRoutineStepService>();
+            services.AddScoped<OrderDetailService>();
 
             return services;
         }
