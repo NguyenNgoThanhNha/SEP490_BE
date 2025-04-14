@@ -457,6 +457,27 @@ namespace Server.API.Controllers
             });
         }
 
+        [HttpGet("sold-products-by-branch")]
+        public async Task<IActionResult> GetSoldProductsByBranch([FromQuery] int branchId)
+        {
+            var result = await _productService.GetSoldProductsByBranchAsync(branchId);
+
+            if (result == null || result.Items == null || !result.Items.Any())
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không có dữ liệu sản phẩm đã bán cho chi nhánh này."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy danh sách sản phẩm bán theo chi nhánh thành công!",
+                data = result
+            }));
+        }
+
+
 
     }
 }

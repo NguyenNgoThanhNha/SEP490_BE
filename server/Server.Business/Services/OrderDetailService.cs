@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons;
+using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
@@ -103,7 +104,7 @@ namespace Server.Business.Services
             
             foreach (var orderDetail in orderDetailModels)
             {
-                var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.ProductId);
+                var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
                 if (matchedProduct != null)
                 {
                     orderDetail.Product.images = matchedProduct.images;
@@ -112,6 +113,39 @@ namespace Server.Business.Services
             }
             return _mapper.Map<List<OrderDetailModels>>(orderDetails);
         }
+
+        public async Task<GetAllOrderDetailPaginationResponse> GetOrderDetailsByBranchIdAsync(int branchId, int page = 1, int pageSize = 5)
+        {
+            var query = _unitOfWorks.OrderDetailRepository
+                .FindByCondition(od => od.BranchId == branchId)
+                .Include(od => od.Product)
+                .Include(od => od.Branch)
+                .Include(od => od.Order)
+                .Include(od => od.Promotion); 
+
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var pagedOrderDetails = await query
+                .OrderByDescending(od => od.CreatedDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var mapped = _mapper.Map<List<OrderDetailModels>>(pagedOrderDetails);
+
+            return new GetAllOrderDetailPaginationResponse
+            {
+                data = mapped,
+                pagination = new Pagination
+                {
+                    page = page,
+                    totalPage = totalPages,
+                    totalCount = totalCount
+                }
+            };
+        }
+
 
     }
 }

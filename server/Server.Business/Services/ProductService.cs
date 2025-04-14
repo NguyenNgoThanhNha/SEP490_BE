@@ -9,6 +9,7 @@ using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using Service.Business.Services;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Server.Business.Services
@@ -917,6 +918,55 @@ namespace Server.Business.Services
             await _unitOfWorks.SaveChangesAsync();
             return true;
         }
+
+        public async Task<ProductSoldResponse> GetSoldProductsByBranchAsync(int branchId)
+        {
+            // B1: Lấy danh sách ProductId thuộc chi nhánh
+            var productIds = await _unitOfWorks.Branch_ProductRepository
+                .FindByCondition(bp => bp.BranchId == branchId)
+                .Select(bp => bp.ProductId)
+                .ToListAsync();
+
+            if (!productIds.Any())
+            {
+                return new ProductSoldResponse
+                {
+                    Items = new List<ProductSoldByBranchDto>(),
+                    TotalQuantitySold = 0
+                };
+            }
+
+            // B2: Lấy OrderDetail liên quan đến các sản phẩm trong chi nhánh
+            var orderDetails = await _unitOfWorks.OrderDetailRepository
+     .FindByCondition(od =>
+         od.ProductId.HasValue &&
+         productIds.Contains(od.ProductId.Value))
+     .Include(od => od.Product)
+     .ToListAsync();
+
+
+            // B3: Gom nhóm theo ProductId.Value (ép kiểu rõ ràng)
+            var grouped = orderDetails
+                .GroupBy(od => od.ProductId!.Value) // ép về int
+                .Select(g => new ProductSoldByBranchDto
+                {
+                    ProductId = g.Key,
+                    ProductName = g.First().Product?.ProductName ?? "Unknown",
+                    TotalQuantitySold = g.Sum(x => x.Quantity)
+                })
+                .ToList();
+
+            // B4: Tính tổng tất cả số lượng đã bán
+            var totalSold = grouped.Sum(x => x.TotalQuantitySold);
+
+            // B5: Trả kết quả
+            return new ProductSoldResponse
+            {
+                Items = grouped,
+                TotalQuantitySold = totalSold
+            };
+        }
+
     }
 }
 

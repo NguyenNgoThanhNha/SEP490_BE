@@ -6,15 +6,17 @@ public class OrderDetailModels
 {
     public int OrderDetailId { get; set; }
     
-    public int? OrderId { get; set; }
+    //public int? OrderId { get; set; }
     public virtual OrderModel Order { get; set; }
     
-    public int? ProductId { get; set; }
+    //public int? ProductId { get; set; }
     public virtual ProductModel Product { get; set; }
     
-    public int? PromotionId { get; set; }
+    //public int? PromotionId { get; set; }
     public virtual PromotionModel? Promotion { get; set; }
-    
+
+    public BranchModel Branch { get; set; }
+
     public int Quantity { get; set; }
     
     public decimal UnitPrice { get; set; }

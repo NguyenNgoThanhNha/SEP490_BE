@@ -578,7 +578,7 @@ namespace Server.Business.Services
             {
                 foreach (var orderDetail in orderModel.OrderDetails)
                 {
-                    var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.ProductId);
+                    var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
                     if (matchedProduct != null)
                     {
                         orderDetail.Product.images = matchedProduct.images;
