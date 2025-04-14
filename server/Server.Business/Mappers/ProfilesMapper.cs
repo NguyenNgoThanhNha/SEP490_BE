@@ -73,7 +73,7 @@ namespace Server.Business.Mappers
             CreateMap<CUOrderDetailDto, OrderDetail>();
             CreateMap<CUAppointmentDto, Appointments>();
 
-            CreateMap<Appointments, AppointmentsModel>()
+            /*CreateMap<Appointments, AppointmentsModel>()
      .ForMember(dest => dest.TotalSteps, opt => opt.MapFrom(src =>
          src.Service != null &&
          src.Service.ServiceRoutines != null &&
@@ -83,8 +83,8 @@ namespace Server.Business.Mappers
                  .Select(sr => sr.Routine.TotalSteps)
                  .FirstOrDefault()
              : (int?)null
-     ));
-
+     ));*/
+            CreateMap<Appointments, AppointmentsModel>().ReverseMap();
 
 
             CreateMap<Appointments, AppointmentsInfoModel>().ReverseMap();
