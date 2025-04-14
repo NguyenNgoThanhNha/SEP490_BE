@@ -659,5 +659,27 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+
+        [HttpGet("revenue-by-branch")]
+        public async Task<IActionResult> GetRevenueByBranch([FromQuery] int month, [FromQuery] int year)
+        {
+            var result = await authService.GetRevenueByBranchAsync(month, year);
+
+            if (result == null || !result.Any())
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không có dữ liệu doanh thu trong tháng/năm này.",
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy doanh thu các chi nhánh thành công!",
+                data = result
+            }));
+        }
+
+
     }
 }
