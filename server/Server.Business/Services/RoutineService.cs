@@ -445,7 +445,8 @@ public class RoutineService
             .ThenInclude(x => x.Category)
             .Select(x => x.Routine)
             .OrderByDescending(x => x.CreatedDate)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync()
+            ?? throw new BadRequestException("Không tìm thấy gói liệu trình!");
         var routineModel = _mapper.Map<SkincareRoutineModel>(routine);
 
         // Lấy danh sách sản phẩm từ stepModels
