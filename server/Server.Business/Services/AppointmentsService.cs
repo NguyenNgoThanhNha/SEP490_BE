@@ -9,6 +9,7 @@ using Server.Business.Models;
 using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
+using static Server.Business.Dtos.MonthlyBookingStatsDto;
 
 namespace Server.Business.Services;
 
@@ -614,5 +615,31 @@ public class AppointmentsService
             }
         };
     }
+
+    public async Task<BookingStatsDto> GetMonthlyBookingStatsAsync(int branchId, int month, int year)
+    {
+        var appointments = await _unitOfWorks.AppointmentsRepository
+            .FindByCondition(a =>
+                a.BranchId == branchId &&
+                a.AppointmentsTime.Month == month &&
+                a.AppointmentsTime.Year == year)
+            .ToListAsync();
+
+        if (appointments == null || !appointments.Any())
+        {
+            throw new BadRequestException("Không có dữ liệu đặt lịch cho chi nhánh trong tháng này.");
+        }
+
+        return new BookingStatsDto
+        {
+            BranchId = branchId,
+            Month = month,
+            Year = year,
+            TotalBookings = appointments.Count,
+            TotalServicesBooked = appointments.Sum(a => a.Quantity)
+        };
+    }
+
+
 
 }

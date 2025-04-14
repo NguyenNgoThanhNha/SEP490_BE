@@ -6,6 +6,7 @@ using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
+using Server.Business.Exceptions;
 using Server.Business.Services;
 using Server.Business.Ultils;
 using Server.Data.UnitOfWorks;
@@ -395,6 +396,31 @@ namespace Server.API.Controllers
                 pagination = result.pagination
             }));
         }
+
+        [HttpGet("booking-statistics")]
+      
+        public async Task<IActionResult> GetBookingStats([FromQuery] int branchId, [FromQuery] int month, [FromQuery] int year)
+        {
+            try
+            {
+                var result = await _appointmentsService.GetMonthlyBookingStatsAsync(branchId, month, year);
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Lấy thống kê đặt lịch thành công!",
+                    data = result
+                }));
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = ex.Message
+                }));
+            }
+        }
+
+
 
     }
 }
