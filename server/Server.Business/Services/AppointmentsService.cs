@@ -582,41 +582,72 @@ public class AppointmentsService
         return result > 0 ? _mapper.Map<AppointmentsModel>(appointment) : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
     }
 
-    public async Task<GetAllAppointmentResponseCustomer> GetAppointmentsByCustomer(int customerId, int page = 1, int pageSize = 5)
+    //public async Task<GetAllAppointmentResponseCustomer> GetAppointmentsByCustomer(int customerId, int page = 1, int pageSize = 5)
+    //{
+    //    var query = _unitOfWorks.AppointmentsRepository
+    //        .FindByCondition(x => x.CustomerId == customerId)
+    //        .Include(x => x.Order)
+    //        .Include(x => x.Service)           
+    //            .ThenInclude(s => s.ServiceRoutines)
+    //                .ThenInclude(sr => sr.Routine)
+    //        .Include(x => x.Staff) .ThenInclude(s => s.StaffInfo)
+    //        .Include(x => x.Branch)
+    //        .Include(x => x.Customer)
+    //        .OrderByDescending(x => x.AppointmentsTime);
+
+    //    var totalCount = await query.CountAsync();
+    //    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+    //    var appointments = await query
+    //        .Skip((page - 1) * pageSize)
+    //        .Take(pageSize)
+    //        .ToListAsync();
+
+    //    var mappedAppointments = _mapper.Map<List<CustomerAppointmentModel>>(appointments);
+
+    //    return new GetAllAppointmentResponseCustomer
+    //    {
+    //        message = "Lấy danh sách lịch hẹn của khách hàng thành công!",
+    //        data = mappedAppointments,
+    //        pagination = new Pagination
+    //        {
+    //            page = page,
+    //            totalPage = totalPages,
+    //            totalCount = totalCount
+    //        }
+    //    };
+    //}
+
+    public async Task<List<CustomerAppointmentModel>> GetAppointmentsByCustomer(int customerId, DateTime startDate, DateTime? endDate)
     {
-        var query = _unitOfWorks.AppointmentsRepository
-            .FindByCondition(x => x.CustomerId == customerId)
+        // Nếu không truyền hoặc truyền endDate là MinValue → mặc định cộng 7 ngày
+        var effectiveEndDate = (!endDate.HasValue || endDate == DateTime.MinValue)
+            ? startDate.AddDays(7)
+            : endDate.Value;
+
+        // Truy vấn danh sách lịch hẹn trong khoảng thời gian
+        var appointments = await _unitOfWorks.AppointmentsRepository
+            .FindByCondition(x => x.CustomerId == customerId
+                               && x.AppointmentsTime >= startDate
+                               && x.AppointmentsTime <= effectiveEndDate)
             .Include(x => x.Order)
-            .Include(x => x.Service)           
+            .Include(x => x.Service)
                 .ThenInclude(s => s.ServiceRoutines)
                     .ThenInclude(sr => sr.Routine)
-            .Include(x => x.Staff) .ThenInclude(s => s.StaffInfo)
+            .Include(x => x.Staff)
+                .ThenInclude(s => s.StaffInfo)
             .Include(x => x.Branch)
             .Include(x => x.Customer)
-            .OrderByDescending(x => x.AppointmentsTime);
-
-        var totalCount = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-        var appointments = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
+            .OrderByDescending(x => x.AppointmentsTime)
             .ToListAsync();
 
+        // Mapping kết quả sang DTO
         var mappedAppointments = _mapper.Map<List<CustomerAppointmentModel>>(appointments);
 
-        return new GetAllAppointmentResponseCustomer
-        {
-            message = "Lấy danh sách lịch hẹn của khách hàng thành công!",
-            data = mappedAppointments,
-            pagination = new Pagination
-            {
-                page = page,
-                totalPage = totalPages,
-                totalCount = totalCount
-            }
-        };
+        return mappedAppointments;
     }
+
+
 
     public async Task<BookingStatsDto> GetMonthlyBookingStatsAsync(int branchId, int month, int year)
     {

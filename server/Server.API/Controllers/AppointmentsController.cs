@@ -365,8 +365,11 @@ namespace Server.API.Controllers
             }));
         }
 
+       
         [HttpGet("get-my-appointments")]
-        public async Task<IActionResult> GetAllAppointmentsOfCustomer([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        public async Task<IActionResult> GetAllAppointmentsOfCustomer(
+    [FromQuery] DateTime startDate,
+    [FromQuery] DateTime endDate)
         {
             if (!Request.Headers.TryGetValue("Authorization", out var token))
             {
@@ -387,15 +390,15 @@ namespace Server.API.Controllers
                 }));
             }
 
-            var result = await _appointmentsService.GetAppointmentsByCustomer(currentUser.UserId, page, pageSize);
+            var result = await _appointmentsService.GetAppointmentsByCustomer(currentUser.UserId, startDate, endDate);
 
-            return Ok(ApiResult<GetAllAppointmentResponseCustomer>.Succeed(new GetAllAppointmentResponseCustomer
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Lấy danh sách lịch hẹn thành công!",
-                data = result.data,
-                pagination = result.pagination
+                data = result
             }));
         }
+
 
         [HttpGet("booking-statistics")]
       
