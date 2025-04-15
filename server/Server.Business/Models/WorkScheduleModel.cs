@@ -11,7 +11,7 @@ public class WorkScheduleModel
     public StaffModel Staff { get; set; } = null!;
     
     public int ShiftId { get; set; }
-    public Shifts Shift { get; set; } = null!;
+    public ShiftModel Shift { get; set; } = null!;
     
     [Range(1, 6)] // 1=Thứ 2, 6=Thứ 7
     public int DayOfWeek { get; set; } 

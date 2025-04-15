@@ -34,9 +34,9 @@ namespace Server.API.Controllers
 
         [Authorize(Roles = "Admin, Manager")]
         [HttpGet("get-all-order")]
-        public async Task<IActionResult> GetAllOrder([FromQuery] string orderType, int page = 1, int pageSize = 5)
+        public async Task<IActionResult> GetAllOrder([FromQuery] GetAllOrderRequest request)
         {
-            var orders = await _orderService.GetListOrderByOrderTypeAsync(orderType, page, pageSize);
+            var orders = await _orderService.GetListOrderFilterAsync(request);
             if (orders.Data == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()

@@ -10,7 +10,6 @@ using Server.Data.UnitOfWorks;
 
 namespace Server.API.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class StaffController : ControllerBase
@@ -21,7 +20,7 @@ namespace Server.API.Controllers
         private readonly AuthService _authService;
         private readonly WorkScheduleService _workScheduleService;
 
-        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService, 
+        public StaffController(StaffService staffService, UserService userService, StaffLeaveService staffLeaveService,
             AuthService authService, WorkScheduleService workScheduleService)
         {
             _staffService = staffService;
@@ -405,7 +404,7 @@ namespace Server.API.Controllers
                 data = note
             }));
         }
-        
+
 
         [HttpGet("staff-schedule")]
         public async Task<IActionResult> GetStaffScheduleAsync([FromQuery] int year, [FromQuery] int month)
@@ -444,7 +443,8 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Bạn không được phép truy cập vào lịch trình của nhân viên. Chỉ có vai trò nhân viên mới được phép."
+                    message =
+                        "Bạn không được phép truy cập vào lịch trình của nhân viên. Chỉ có vai trò nhân viên mới được phép."
                 }));
             }
 
@@ -476,10 +476,9 @@ namespace Server.API.Controllers
         }
 
 
-    
-
         [HttpGet("Manager-Admin-getstaff-schedule")]
-        public async Task<IActionResult> ManagerAdminGetStaffScheduleAsync([FromQuery] int year, [FromQuery] int month, [FromQuery] int? staffId)
+        public async Task<IActionResult> ManagerAdminGetStaffScheduleAsync([FromQuery] int year, [FromQuery] int month,
+            [FromQuery] int? staffId)
         {
             if (!ModelState.IsValid)
             {
@@ -537,7 +536,8 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Bạn không được phép truy cập vào lịch trình này. Chỉ những người có vai trò Admin hoặc Manager mới được phép."
+                    message =
+                        "Bạn không được phép truy cập vào lịch trình này. Chỉ những người có vai trò Admin hoặc Manager mới được phép."
                 }));
             }
 
@@ -561,7 +561,8 @@ namespace Server.API.Controllers
 
         //[Authorize]
         [HttpGet("cashier-schedule")]
-        public async Task<IActionResult> GetCashierScheduleAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int? month, [FromQuery] int? week)
+        public async Task<IActionResult> GetCashierScheduleAsync([FromQuery] int staffId, [FromQuery] int year,
+            [FromQuery] int? month, [FromQuery] int? week)
         {
             var schedule = await _staffService.GetCashierScheduleAsync(staffId, year, month, week);
 
@@ -642,7 +643,8 @@ namespace Server.API.Controllers
         }
 
         [HttpGet("Manager-Admin/slot-working")]
-        public async Task<IActionResult> GetStaffSlotWorkingByMonthAsync([FromQuery] int staffId, [FromQuery] int year, [FromQuery] int month)
+        public async Task<IActionResult> GetStaffSlotWorkingByMonthAsync([FromQuery] int staffId, [FromQuery] int year,
+            [FromQuery] int month)
         {
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
@@ -669,7 +671,8 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "Quyền truy cập bị từ chối. Chỉ có Admin hoặc Manager mới có thể xem vị trí nhân viên đang hoạt động."
+                    message =
+                        "Quyền truy cập bị từ chối. Chỉ có Admin hoặc Manager mới có thể xem vị trí nhân viên đang hoạt động."
                 }));
             }
 
@@ -702,8 +705,6 @@ namespace Server.API.Controllers
         }
 
 
-
-
         [HttpPost("staff-free-in-time")]
         public async Task<IActionResult> ListStaffFreeInTime(ListStaffFreeInTimeRequest request)
         {
@@ -712,14 +713,14 @@ namespace Server.API.Controllers
             return Ok(ApiResult<ListStaffFreeInTimeResponse>.Succeed(result));
         }
 
-        
+
         [HttpPost("staff-by-service-category")]
         public async Task<IActionResult> GetListStaffByServiceCategory(GetListStaffByServiceCategoryRequest request)
         {
             var result = await _staffService.GetListStaffByServiceCategory(request);
             return Ok(ApiResult<GetListStaffByServiceCategoryResponse>.Succeed(result));
         }
-        
+
         [Authorize]
         [HttpGet("work-schedules")]
         public async Task<IActionResult> GetWorkSchedulesByMonthYear([FromQuery] int month, [FromQuery] int year)
@@ -746,7 +747,7 @@ namespace Server.API.Controllers
             }
 
             var staff = await _staffService.GetStaffByCustomerId(currentUser.UserId);
-            
+
             var result = await _workScheduleService.GetWorkSchedulesByMonthYearAsync(staff.StaffId, month, year);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
@@ -781,7 +782,7 @@ namespace Server.API.Controllers
             }
 
             var staff = await _staffService.GetStaffByCustomerId(currentUser.UserId);
-            
+
             var result = await _workScheduleService.GetShiftSlotsByMonthYearAsync(staff.StaffId, month, year);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
@@ -789,16 +790,16 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
-        
+
         [HttpPost("get-staffs-appointments")]
         public async Task<IActionResult> GetStaffsAppointments([FromBody] GetStaffsAppointmentsRequest request)
         {
-            var result = await _staffService.GetStaffAppointmentsAsync(request.StaffIds, request.StartDate, request.EndDate);
+            var result =
+                await _staffService.GetStaffAppointmentsAsync(request.StaffIds, request.StartDate, request.EndDate);
             return Ok(ApiResult<List<StaffAppointmentResponse>>.Succeed(result));
         }
 
-       
-        
+
         [HttpPost("get-staff-appointments")]
         [Authorize]
         public async Task<IActionResult> GetStaffAppointments([FromBody] GetMyAppointmentsRequest request)
@@ -845,26 +846,24 @@ namespace Server.API.Controllers
 
             // 5. Trả kết quả
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-{
-    message = "Lấy danh sách lịch hẹn của nhân viên thành công!",
-    data = result
-}));
+            {
+                message = "Lấy danh sách lịch hẹn của nhân viên thành công!",
+                data = result
+            }));
         }
 
 
-
-
-
-
         [HttpGet("working-slots")]
-        public async Task<IActionResult> GetStaffWorkingSlots([FromQuery] int branchId, [FromQuery] int month, [FromQuery] int year)
+        public async Task<IActionResult> GetStaffWorkingSlots([FromQuery] int branchId, [FromQuery] int month,
+            [FromQuery] int year)
         {
             var result = await _staffService.GetStaffWorkingSlots(branchId, month, year);
             return Ok(result);
         }
 
         [HttpGet("branch-staff-appointments")]
-        public async Task<IActionResult> GetBranchStaffWorkingSlotsByAppointment([FromQuery] int branchId, [FromQuery] int month, [FromQuery] int year)
+        public async Task<IActionResult> GetBranchStaffWorkingSlotsByAppointment([FromQuery] int branchId,
+            [FromQuery] int month, [FromQuery] int year)
         {
             var result = await _staffService.GetBranchStaffWorkingSlotsByAppointment(branchId, month, year);
             return Ok(result);
@@ -931,8 +930,6 @@ namespace Server.API.Controllers
                     data = new List<object>()
                 }));
             }
-
-
         }
 
         [HttpGet("get-staff-info")]
@@ -979,10 +976,48 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpPost("get-staffs-work-schedule")]
+        public async Task<IActionResult> GetStaffWorkSchedule(GetStaffWorkScheduleRequest request)
+        {
+            var result = await _staffService.GetStaffWorkScheduleAsync(request.StaffIds, request.WorkDate);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy lịch làm việc thành công",
+                data = result
+            }));
+        }
 
+        [HttpPost("get-staff-leave-of-branch")]
+        public async Task<IActionResult> GetStaffLeaveOfBranch(GetStaffLeaveOfBranchRequest request)
+        {
+            var result = await _staffService.GetStaffLeaveOfBranch(request.BranchId, request.Month);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy danh sách nhân viên nghỉ phép thành công",
+                data = result
+            }));
+        }
 
+        [HttpGet("get-staff-leave-appointments")]
+        public async Task<IActionResult> GetStaffLeaveAppointments(int staffLeaveId)
+        {
+            var result = await _staffService.GetStaffLeaveDetail(staffLeaveId);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy danh sách lịch hẹn của nhân viên nghỉ phép thành công!",
+                data = result
+            }));
+        }
 
-
-
+        [HttpGet("get-list-shifts")]
+        public async Task<IActionResult> GetListShift()
+        {
+            var result = await _staffService.GetListShifts();
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy danh sách ca làm việc thành công",
+                data = result
+            }));
+        }
     }
 }

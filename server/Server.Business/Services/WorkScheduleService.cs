@@ -17,38 +17,39 @@ public class WorkScheduleService
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
-    
+
     public async Task<IEnumerable<WorkScheduleModel>> GetWorkSchedulesAsync()
     {
         var listWorkSchedules = await _unitOfWork.WorkScheduleRepository.GetAll().ToListAsync();
         return _mapper.Map<List<WorkScheduleModel>>(listWorkSchedules);
     }
-    
+
     public async Task<WorkScheduleModel> GetWorkScheduleByIdAsync(int id)
     {
         var workSchedule = await _unitOfWork.WorkScheduleRepository.GetByIdAsync(id);
         return _mapper.Map<WorkScheduleModel>(workSchedule);
     }
-    
+
     public async Task CreateWorkScheduleAsync(WorkSheduleRequest workSheduleRequest)
     {
-        var staff = await _unitOfWork.StaffRepository.FindByCondition(x=> x.StaffId == workSheduleRequest.StaffId).Include(x => x.StaffInfo).FirstOrDefaultAsync();
+        var staff = await _unitOfWork.StaffRepository.FindByCondition(x => x.StaffId == workSheduleRequest.StaffId)
+            .Include(x => x.StaffInfo).FirstOrDefaultAsync();
         var shift = await _unitOfWork.ShiftRepository.GetByIdAsync(workSheduleRequest.ShiftId);
         if (staff == null || shift == null)
         {
             throw new BadRequestException("Staff or Shift not found");
         }
-        
+
         // Kiểm tra nếu ngày đăng ký nhỏ hơn 7 ngày so với hôm nay
         if (workSheduleRequest.FromDate < DateTime.Today.AddDays(7))
         {
             throw new BadRequestException("Lịch làm việc phải được đăng ký trước ít nhất 1 tuần.");
         }
-        
+
         var existingSchedules = await _unitOfWork.WorkScheduleRepository
-            .FindByCondition(ws => ws.StaffId == staff.StaffId 
-                                && ws.WorkDate >= workSheduleRequest.FromDate 
-                                && ws.WorkDate <= workSheduleRequest.ToDate)
+            .FindByCondition(ws => ws.StaffId == staff.StaffId
+                                   && ws.WorkDate >= workSheduleRequest.FromDate
+                                   && ws.WorkDate <= workSheduleRequest.ToDate)
             .ToListAsync();
 
         var scheduleListModel = new List<WorkScheduleModel>();
@@ -62,7 +63,7 @@ public class WorkScheduleService
                 if (existingSchedules.Any(ws => ws.WorkDate == date && ws.ShiftId == shift.ShiftId))
                 {
                     duplicateDays.Add(date.ToShortDateString());
-                    continue; 
+                    continue;
                 }
 
                 scheduleListModel.Add(new WorkScheduleModel
@@ -79,7 +80,8 @@ public class WorkScheduleService
 
         if (duplicateDays.Any())
         {
-            throw new BadRequestException($"Nhân viên {staff.StaffInfo.FullName} đã có lịch làm việc trong ca {shift.ShiftName} vào các ngày: {string.Join(", ", duplicateDays)}.");
+            throw new BadRequestException(
+                $"Nhân viên {staff.StaffInfo.FullName} đã có lịch làm việc trong ca {shift.ShiftName} vào các ngày: {string.Join(", ", duplicateDays)}.");
         }
 
         var workSchedule = _mapper.Map<List<WorkSchedule>>(scheduleListModel);
@@ -89,9 +91,9 @@ public class WorkScheduleService
     public async Task CreateWorkScheduleMultiShiftAsync(MultiShiftWorkScheduleRequest request)
     {
         var staff = await _unitOfWork.StaffRepository
-     .FindByCondition(x => x.StaffId == request.StaffId)
-     .Include(x => x.StaffInfo)
-     .FirstOrDefaultAsync();
+            .FindByCondition(x => x.StaffId == request.StaffId)
+            .Include(x => x.StaffInfo)
+            .FirstOrDefaultAsync();
 
 
         if (staff == null)
@@ -109,8 +111,8 @@ public class WorkScheduleService
 
         var existingSchedules = await _unitOfWork.WorkScheduleRepository
             .FindByCondition(ws => ws.StaffId == staff.StaffId
-                                && ws.WorkDate >= request.FromDate
-                                && ws.WorkDate <= request.ToDate)
+                                   && ws.WorkDate >= request.FromDate
+                                   && ws.WorkDate <= request.ToDate)
             .ToListAsync();
 
         var scheduleListModel = new List<WorkScheduleModel>();
@@ -142,7 +144,8 @@ public class WorkScheduleService
 
         if (duplicateEntries.Any())
         {
-            throw new BadRequestException($"Nhân viên {staff.StaffInfo.FullName} đã có lịch làm trong: {string.Join("; ", duplicateEntries)}");
+            throw new BadRequestException(
+                $"Nhân viên {staff.StaffInfo.FullName} đã có lịch làm trong: {string.Join("; ", duplicateEntries)}");
         }
 
         var workSchedules = _mapper.Map<List<WorkSchedule>>(scheduleListModel);
@@ -150,24 +153,25 @@ public class WorkScheduleService
     }
 
 
-    public async Task<bool> UpdateWorkScheduleForStaffLeaveAsync(WorkScheduleForStaffLeaveRequest workScheduleForStaffLeaveRequest)
+    public async Task<bool> UpdateWorkScheduleForStaffLeaveAsync(
+        WorkScheduleForStaffLeaveRequest workScheduleForStaffLeaveRequest)
     {
         var workSchedule = await _unitOfWork.WorkScheduleRepository
-            .FirstOrDefaultAsync(ws => ws.StaffId == workScheduleForStaffLeaveRequest.StaffLeaveId 
+            .FirstOrDefaultAsync(ws => ws.StaffId == workScheduleForStaffLeaveRequest.StaffLeaveId
                                        && ws.ShiftId == workScheduleForStaffLeaveRequest.ShiftId
-                                    && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate
-                                    && ws.DayOfWeek == workScheduleForStaffLeaveRequest.DayOfWeek);
+                                       && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate
+                                       && ws.DayOfWeek == workScheduleForStaffLeaveRequest.DayOfWeek);
         if (workSchedule == null)
         {
             throw new BadRequestException("Work schedule not found");
         }
-        
+
         var workScheduleReplace = await _unitOfWork.WorkScheduleRepository
-            .FirstOrDefaultAsync(ws => ws.StaffId == workScheduleForStaffLeaveRequest.StaffReplaceId 
+            .FirstOrDefaultAsync(ws => ws.StaffId == workScheduleForStaffLeaveRequest.StaffReplaceId
                                        && ws.ShiftId == workScheduleForStaffLeaveRequest.ShiftId
                                        && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate
                                        && ws.DayOfWeek == workScheduleForStaffLeaveRequest.DayOfWeek);
-        
+
         if (workScheduleReplace != null)
         {
             throw new BadRequestException("Work schedule for staff replace already exists");
@@ -177,7 +181,7 @@ public class WorkScheduleService
         workSchedule.UpdatedDate = DateTime.Now;
 
         _unitOfWork.WorkScheduleRepository.Update(workSchedule);
-        
+
         var createWorkSchedule = new WorkSchedule
         {
             StaffId = workScheduleForStaffLeaveRequest.StaffReplaceId,
@@ -190,31 +194,30 @@ public class WorkScheduleService
         await _unitOfWork.WorkScheduleRepository.AddAsync(createWorkSchedule);
         return await _unitOfWork.WorkScheduleRepository.Commit() > 0;
     }
- 
+
     public async Task<IEnumerable<WorkScheduleModel>> GetWorkSchedulesByMonthYearAsync(int staffId, int month, int year)
     {
         var workSchedules = await _unitOfWork.WorkScheduleRepository
-            .FindByCondition(ws => ws.StaffId == staffId 
-                                   && ws.WorkDate.Month == month 
+            .FindByCondition(ws => ws.StaffId == staffId
+                                   && ws.WorkDate.Month == month
                                    && ws.WorkDate.Year == year)
             .Include(ws => ws.Shift) // Nạp thông tin ca làm việc
             .ToListAsync();
-    
+
         return _mapper.Map<List<WorkScheduleModel>>(workSchedules);
     }
 
     public async Task<IEnumerable<ShiftModel>> GetShiftSlotsByMonthYearAsync(int staffId, int month, int year)
     {
         var shifts = await _unitOfWork.WorkScheduleRepository
-            .FindByCondition(ws => ws.StaffId == staffId 
-                                   && ws.WorkDate.Month == month 
+            .FindByCondition(ws => ws.StaffId == staffId
+                                   && ws.WorkDate.Month == month
                                    && ws.WorkDate.Year == year)
             .Include(ws => ws.Shift) // Nạp thông tin ca làm việc
             .Select(ws => ws.Shift)
             .Distinct()
             .ToListAsync();
-    
+
         return _mapper.Map<List<ShiftModel>>(shifts);
     }
-
 }

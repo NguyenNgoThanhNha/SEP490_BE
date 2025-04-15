@@ -17,6 +17,7 @@ using Server.Business.Ultils;
 using Server.Data;
 using Server.Data.MongoDb.Models;
 using CloudinaryDotNet.Core;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Server.Business.Services
 {
@@ -277,7 +278,6 @@ namespace Server.Business.Services
                 throw new BadRequestException("No appointments found for the given Order ID!");
             }
 
-           
 
             // Tính tổng tiền của tất cả các Appointments
             //var totalAmount = appointments.Sum(ap => ap.Quantity * ap.UnitPrice);
@@ -403,32 +403,29 @@ namespace Server.Business.Services
             }
         }
 
-        
 
-        public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType, int page = 1,
+        public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType,
+            int page = 1,
             int pageSize = 5)
         {
-
             var listOrders = await _unitOfWorks.OrderRepository
-      .FindByCondition(x => x.CustomerId == userId)
-      .Include(x => x.Customer)
-      .Include(x => x.Routine)
-      .Include(x => x.Voucher)
-      .Include(x => x.Shipment) // ✅ Thêm Include Shipment
-      .Include(x => x.Appointments)
-          .ThenInclude(x => x.Service)
-      .Include(x => x.OrderDetails)
-          .ThenInclude(od => od.Product)
-              .ThenInclude(p => p.ProductImages) // ✅ Hình ảnh sản phẩm
-      .Include(x => x.OrderDetails)
-          .ThenInclude(od => od.Product)
-              .ThenInclude(p => p.Branch_Products)
-                  .ThenInclude(bp => bp.Branch) // ✅ Chi nhánh của sản phẩm
-      .Where(x => x.Status == status && x.OrderType == orderType)
-      .OrderByDescending(x => x.CreatedDate)
-      .ToListAsync();
-
-
+                .FindByCondition(x => x.CustomerId == userId)
+                .Include(x => x.Customer)
+                .Include(x => x.Routine)
+                .Include(x => x.Voucher)
+                .Include(x => x.Shipment) // ✅ Thêm Include Shipment
+                .Include(x => x.Appointments)
+                .ThenInclude(x => x.Service)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages) // ✅ Hình ảnh sản phẩm
+                .Include(x => x.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.Branch_Products)
+                .ThenInclude(bp => bp.Branch) // ✅ Chi nhánh của sản phẩm
+                .Where(x => x.Status == status && x.OrderType == orderType)
+                .OrderByDescending(x => x.CreatedDate)
+                .ToListAsync();
 
 
             if (listOrders.Equals(null))
@@ -457,7 +454,8 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
+        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1,
+            int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(x => x.CustomerId == userId && x.Status == status)
@@ -466,16 +464,16 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Shipment)
                 .Include(x => x.Appointments)
-                    .ThenInclude(x => x.Service)
-                .Include(x => x.Appointments) 
-        .ThenInclude(x => x.Branch)
+                .ThenInclude(x => x.Service)
+                .Include(x => x.Appointments)
+                .ThenInclude(x => x.Branch)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.ProductImages)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.Branch_Products)
-                            .ThenInclude(bp => bp.Branch)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.Branch_Products)
+                .ThenInclude(bp => bp.Branch)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
 
@@ -513,7 +511,6 @@ namespace Server.Business.Services
         }
 
 
-
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
         {
             var order = await _unitOfWorks.OrderRepository
@@ -523,12 +520,12 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Routine)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.ProductImages)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.Branch_Products)
-                            .ThenInclude(bp => bp.Branch)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.Branch_Products)
+                .ThenInclude(bp => bp.Branch)
                 .Include(x => x.Appointments)
                 .FirstOrDefaultAsync();
 
@@ -549,7 +546,7 @@ namespace Server.Business.Services
                     .Include(x => x.Branch)
                     .Include(x => x.Service)
                     .Include(x => x.Staff)
-                        .ThenInclude(x => x.StaffInfo)
+                    .ThenInclude(x => x.StaffInfo)
                     .ToListAsync();
 
                 order.Appointments = orderAppointments;
@@ -580,7 +577,8 @@ namespace Server.Business.Services
             {
                 foreach (var orderDetail in orderModel.OrderDetails)
                 {
-                    var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
+                    var matchedProduct =
+                        listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
                     if (matchedProduct != null)
                     {
                         orderDetail.Product.images = matchedProduct.images;
@@ -597,10 +595,6 @@ namespace Server.Business.Services
         }
 
 
-
-
-
-
         public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
@@ -612,12 +606,15 @@ namespace Server.Business.Services
             // Kiểm tra nếu Status không hợp lệ
             if (!string.IsNullOrEmpty(request.Status) && !Enum.IsDefined(typeof(OrderStatusEnum), request.Status))
             {
-                throw new BadRequestException($"Status must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusEnum)))}.");
+                throw new BadRequestException(
+                    $"Status must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusEnum)))}.");
             }
 
-            if (!string.IsNullOrEmpty(request.Status) && !Enum.IsDefined(typeof(OrderStatusPaymentEnum), request.Status))
+            if (!string.IsNullOrEmpty(request.Status) &&
+                !Enum.IsDefined(typeof(OrderStatusPaymentEnum), request.Status))
             {
-                throw new BadRequestException($"Status Order Payment must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusPaymentEnum)))}.");
+                throw new BadRequestException(
+                    $"Status Order Payment must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusPaymentEnum)))}.");
             }
 
             var appointment = new Appointments()
@@ -683,13 +680,13 @@ namespace Server.Business.Services
             var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
             customer.BonusPoint += 200;
             _unitOfWorks.UserRepository.Update(customer);
-            await  _unitOfWorks.UserRepository.Commit();  
-            
+            await _unitOfWorks.UserRepository.Commit();
+
             order.Status = orderStatus;
             order.UpdatedDate = DateTime.Now;
-            
+
             _unitOfWorks.OrderRepository.Update(order);
-            return await _unitOfWorks.OrderRepository.Commit() > 0;     
+            return await _unitOfWorks.OrderRepository.Commit() > 0;
         }
 
         public async Task<bool> CancelOrder(int orderId, string reasonCancel)
@@ -703,25 +700,120 @@ namespace Server.Business.Services
             return await _unitOfWorks.OrderRepository.Commit() > 0;
         }
 
-        public async Task<Pagination<OrderModel>> GetListOrderByOrderTypeAsync(string orderType, int pageIndex = 1, int pageSize = 10)
+        public async Task<Pagination<OrderModel>> GetListOrderFilterAsync(GetAllOrderRequest request)
         {
-            var query = _unitOfWorks.OrderRepository.FindByCondition(x => x.OrderType == orderType);
+            IQueryable<Order> query = _unitOfWorks.OrderRepository.FindByCondition(x =>
+                    (string.IsNullOrEmpty(request.OrderType) || x.OrderType == request.OrderType) &&
+                    (string.IsNullOrEmpty(request.OrderStatus) || x.Status == request.OrderStatus) &&
+                    (string.IsNullOrEmpty(request.PaymentStatus) || x.StatusPayment == request.PaymentStatus)
+                )
+                .Include(x => x.Customer)
+                .Include(x => x.Shipment)
+                .Include(x => x.Voucher)
+                .Include(x => x.Routine)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.Branch_Products)
+                .ThenInclude(bp => bp.Branch)
+                .Include(x => x.Appointments)
+                .ThenInclude(x => x.Service)
+                .ThenInclude(x => x.ServiceCategory);
+
+            if (request.BranchId.HasValue)
+            {
+                query = query.Where(order =>
+                    (order.OrderType == "Appointment" &&
+                     order.Appointments.Any(a => a.BranchId == request.BranchId.Value)) ||
+                    (order.OrderType == "Product" &&
+                     order.OrderDetails.Any(od =>
+                         od.Product.Branch_Products.Any(bp => bp.BranchId == request.BranchId.Value)))
+                );
+            }
+
+            var pageSize = request.PageSize ?? 10;
+            var pageIndex = request.PageIndex ?? 1;
+
             var totalItemsCount = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalItemsCount / (double)pageSize);
-            var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            var items = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = _mapper.Map<List<OrderModel>>(items);
+            
+            // Gán thêm images
+            foreach (var order in result)
+            {
+                if (order.OrderType == "Appointment")
+                {
+                    var services = order.Appointments.Select(a => a.Service).ToList();
+                    var serviceModels = await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(services));
+                    foreach (var appointment in order.Appointments)
+                    {
+                        var matchedService = serviceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+                        if (matchedService != null)
+                            appointment.Service.images = matchedService.images;
+                    }
+                }
+                else if (order.OrderType == "Product")
+                {
+                    var products = order.OrderDetails.Select(od => od.Product).ToList();
+                    var productModels = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(products));
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        var matchedProduct = productModels.FirstOrDefault(p => p.ProductId == detail.Product.ProductId);
+                        if (matchedProduct != null)
+                        {
+                            detail.Product.images = matchedProduct.images;
+                            detail.Product.Branches = matchedProduct.Branches;
+                        }
+                    }
+                }
+                else if(order.OrderType == "Routine")
+                {
+                    var services = order.Appointments.Select(a => a.Service).ToList();
+                    var serviceModels = await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(services));
+                    foreach (var appointment in order.Appointments)
+                    {
+                        var matchedService = serviceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+                        if (matchedService != null)
+                            appointment.Service.images = matchedService.images;
+                    }
+                    
+                    var products = order.OrderDetails.Select(od => od.Product).ToList();
+                    var productModels = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(products));
+                    foreach (var detail in order.OrderDetails)
+                    {
+                        var matchedProduct = productModels.FirstOrDefault(p => p.ProductId == detail.Product.ProductId);
+                        if (matchedProduct != null)
+                        {
+                            detail.Product.images = matchedProduct.images;
+                            detail.Product.Branches = matchedProduct.Branches;
+                        }
+                    }
+                }
+            }
+
             return new Pagination<OrderModel>
             {
                 TotalItemsCount = totalItemsCount,
                 PageSize = pageSize,
                 PageIndex = pageIndex,
-                Data = _mapper.Map<List<OrderModel>>(items)
+                Data = result
             };
         }
 
-        public async Task<Pagination<AppointmentsModel>> GetListAppointmentsByStaff(string status, int staffId, int pageIndex = 1, int pageSize = 10)
+
+        public async Task<Pagination<AppointmentsModel>> GetListAppointmentsByStaff(string status, int staffId,
+            int pageIndex = 1, int pageSize = 10)
         {
-            var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.UserId == staffId).FirstOrDefaultAsync();
-            var query = _unitOfWorks.AppointmentsRepository.FindByCondition(x => x.StaffId == staff.StaffId && x.Status == status);
+            var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.UserId == staffId)
+                .FirstOrDefaultAsync();
+            var query = _unitOfWorks.AppointmentsRepository.FindByCondition(x =>
+                x.StaffId == staff.StaffId && x.Status == status);
             var totalItemsCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalItemsCount / (double)pageSize);
             var items = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
@@ -739,8 +831,6 @@ namespace Server.Business.Services
             var timeElapsed = DateTime.UtcNow - createdDate;
             return timeElapsed.TotalHours <= allowedHours;
         }
-
-
 
 
         public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
@@ -792,8 +882,8 @@ namespace Server.Business.Services
                 {
                     orderCode = random.Next(1000, 10000);
                 } while (await _unitOfWorks.OrderRepository
-                    .FindByCondition(x => x.OrderCode == orderCode)
-                    .AnyAsync());
+                             .FindByCondition(x => x.OrderCode == orderCode)
+                             .AnyAsync());
 
                 // 4. Tạo Order (chưa có TotalAmount)
                 var order = new Order
@@ -819,7 +909,8 @@ namespace Server.Business.Services
                 foreach (var item in request.Products)
                 {
                     if (item.Quantity <= 0)
-                        throw new BadRequestException($"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
+                        throw new BadRequestException(
+                            $"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
 
                     var branchProduct = await _unitOfWorks.Branch_ProductRepository.GetByIdAsync(item.ProductBranchId);
                     if (branchProduct == null)
@@ -858,9 +949,15 @@ namespace Server.Business.Services
                 }
 
                 // 6. Chuẩn hóa thông tin giao hàng
-                var recipientName = string.IsNullOrWhiteSpace(request.RecipientName) ? user.FullName : request.RecipientName;
-                var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress) ? user.Address : request.RecipientAddress;
-                var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone) ? user.PhoneNumber : request.RecipientPhone;
+                var recipientName = string.IsNullOrWhiteSpace(request.RecipientName)
+                    ? user.FullName
+                    : request.RecipientName;
+                var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress)
+                    ? user.Address
+                    : request.RecipientAddress;
+                var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone)
+                    ? user.PhoneNumber
+                    : request.RecipientPhone;
 
                 // 7. Tạo Shipment
                 var shipment = new Shipment
@@ -909,9 +1006,6 @@ namespace Server.Business.Services
         }
 
 
-
-
-
         public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string status, string token)
         {
             var currentUser = await _authService.GetUserInToken(token);
@@ -943,31 +1037,40 @@ namespace Server.Business.Services
             // Validate chuyển trạng thái theo role
             if (currentUser.RoleID == 3) // Customer
             {
-                if (newStatus != OrderStatusEnum.Completed.ToString() && newStatus != OrderStatusEnum.Cancelled.ToString())
+                if (newStatus != OrderStatusEnum.Completed.ToString() &&
+                    newStatus != OrderStatusEnum.Cancelled.ToString())
                 {
-                    return ApiResult<object>.Error(ApiResponse.Error("Khách hàng chỉ có thể cập nhật trạng thái thành 'Completed' hoặc 'Cancelled'."));
+                    return ApiResult<object>.Error(
+                        ApiResponse.Error(
+                            "Khách hàng chỉ có thể cập nhật trạng thái thành 'Completed' hoặc 'Cancelled'."));
                 }
 
-                if (newStatus == OrderStatusEnum.Completed.ToString() && currentStatus != OrderStatusEnum.Shipping.ToString())
+                if (newStatus == OrderStatusEnum.Completed.ToString() &&
+                    currentStatus != OrderStatusEnum.Shipping.ToString())
                 {
-                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể hoàn thành đơn hàng đang ở trạng thái 'Shipping'."));
+                    return ApiResult<object>.Error(
+                        ApiResponse.Error("Chỉ có thể hoàn thành đơn hàng đang ở trạng thái 'Shipping'."));
                 }
 
-                if (newStatus == OrderStatusEnum.Cancelled.ToString() && currentStatus != OrderStatusEnum.Pending.ToString())
+                if (newStatus == OrderStatusEnum.Cancelled.ToString() &&
+                    currentStatus != OrderStatusEnum.Pending.ToString())
                 {
-                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể hủy đơn hàng đang ở trạng thái 'Pending'."));
+                    return ApiResult<object>.Error(
+                        ApiResponse.Error("Chỉ có thể hủy đơn hàng đang ở trạng thái 'Pending'."));
                 }
             }
             else if (currentUser.RoleID == 4 && staffRoleId == 1) // Cashier
             {
                 if (newStatus != OrderStatusEnum.Shipping.ToString())
                 {
-                    return ApiResult<object>.Error(ApiResponse.Error("Thu ngân chỉ được cập nhật đơn hàng sang trạng thái 'Shipping'."));
+                    return ApiResult<object>.Error(
+                        ApiResponse.Error("Thu ngân chỉ được cập nhật đơn hàng sang trạng thái 'Shipping'."));
                 }
 
                 if (currentStatus != OrderStatusEnum.Pending.ToString())
                 {
-                    return ApiResult<object>.Error(ApiResponse.Error("Chỉ có thể chuyển trạng thái từ 'Pending' sang 'Shipping'."));
+                    return ApiResult<object>.Error(
+                        ApiResponse.Error("Chỉ có thể chuyển trạng thái từ 'Pending' sang 'Shipping'."));
                 }
             }
             else
@@ -995,7 +1098,8 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<object>> UpdatePaymentMethodOrNoteAsync(UpdatePaymentMethodOrNoteRequest request, string token)
+        public async Task<ApiResult<object>> UpdatePaymentMethodOrNoteAsync(UpdatePaymentMethodOrNoteRequest request,
+            string token)
         {
             // Lấy thông tin người dùng từ token
             var currentUser = await _authService.GetUserInToken(token);
@@ -1047,7 +1151,7 @@ namespace Server.Business.Services
                 PaymentMethod = order.PaymentMethod,
                 Note = order.Note,
             });
-        }      
+        }
 
         public async Task UpdateOrderStatusBasedOnPayment()
         {
@@ -1152,11 +1256,11 @@ namespace Server.Business.Services
             // 1. Lấy các order loại Routine của customer (RoutineId != null)
             var orders = await _unitOfWorks.OrderRepository
                 .FindByCondition(o => o.CustomerId == customerId
-                                   && o.OrderType == "Appointment"
-                                   && o.RoutineId != null)
+                                      && o.OrderType == "Appointment"
+                                      && o.RoutineId != null)
                 .Include(o => o.Routine)
                 .Include(o => o.Appointments)
-                    .ThenInclude(a => a.Service)
+                .ThenInclude(a => a.Service)
                 .OrderByDescending(o => o.CreatedDate)
                 .ToListAsync();
 
@@ -1175,7 +1279,7 @@ namespace Server.Business.Services
                     AppointmentsTime = a.AppointmentsTime,
                     Notes = a.Notes,
                     Status = a.Status,
-                    Feedback = a.Feedback,                    
+                    Feedback = a.Feedback,
                     UnitPrice = a.UnitPrice,
                     Quantity = a.Quantity,
                     SubTotal = a.SubTotal
@@ -1193,8 +1297,5 @@ namespace Server.Business.Services
 
             return result;
         }
-
-
-
     }
 }

@@ -26,7 +26,8 @@ namespace Server.Business.Services
         private readonly ServiceService _serviceService;
         private readonly MongoDbService _mongoDbService;
 
-        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService, ServiceService serviceService, MongoDbService mongoDbService)
+        public StaffService(UnitOfWorks unitOfWorks, IMapper mapper, MailService mailService,
+            ServiceService serviceService, MongoDbService mongoDbService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
@@ -591,24 +592,23 @@ namespace Server.Business.Services
                 {
                     StaffId = g.Key,
                     BusyTimes = g.Select(a =>
-                    {
-                        var durationParts = a.Service.Duration.Split(' ');
-                        int durationMinutes = int.TryParse(durationParts[0], out var minutes) ? minutes : 0;
-
-                        return new BusyTimeDto
                         {
-                            StartTime = a.AppointmentsTime,
-                            EndTime = a.AppointmentsTime.AddMinutes(durationMinutes)
-                        };
-                    })
-                    .OrderBy(bt => bt.StartTime)
-                    .ToList()
+                            var durationParts = a.Service.Duration.Split(' ');
+                            int durationMinutes = int.TryParse(durationParts[0], out var minutes) ? minutes : 0;
+
+                            return new BusyTimeDto
+                            {
+                                StartTime = a.AppointmentsTime,
+                                EndTime = a.AppointmentsTime.AddMinutes(durationMinutes)
+                            };
+                        })
+                        .OrderBy(bt => bt.StartTime)
+                        .ToList()
                 })
                 .ToList();
 
             return result;
         }
-
 
 
         public async Task<StaffModel> GetStaffById(int staffId)
@@ -778,7 +778,10 @@ namespace Server.Business.Services
                                       s.WorkDate.Month == month)
                 .ToListAsync();
 
-
+            if (schedules == null)
+            {
+                throw new BadRequestException("Không tìm thấy lịch làm việc cho nhân viên này trong tháng này.");
+            }
             var result = new StaffScheduleDto
             {
                 StaffId = staffId,
@@ -1004,8 +1007,8 @@ namespace Server.Business.Services
                     }).ToList()
                 })
                 .ToList();
-            
-            
+
+
             // get image of service
             var listStaffAppointments = result.Select(x => x.Appointments).ToList();
             var listService = new List<Data.Entities.Service>();
@@ -1018,8 +1021,8 @@ namespace Server.Business.Services
             }
 
             var listServiceModel = await _serviceService.GetListImagesOfServices(listService);
-        
-        
+
+
             // map images
             foreach (var listAppointment in listStaffAppointments)
             {
@@ -1186,20 +1189,20 @@ namespace Server.Business.Services
         }
 
         public async Task<StaffAppointmentResponse> GetSingleStaffAppointmentsAsync(
-    int staffId, DateTime startDate, DateTime endDate)
+            int staffId, DateTime startDate, DateTime endDate)
         {
             var appointments = await _unitOfWorks.AppointmentsRepository
-    .FindByCondition(a => a.StaffId == staffId &&
-                          a.AppointmentsTime >= startDate &&
-                          a.AppointmentsTime <= endDate)
-    .Include(a => a.Customer)
-    .Include(a => a.Staff)
-        .ThenInclude(s => s.StaffInfo) // ✅ Bổ sung dòng này
-    .Include(a => a.Service)
-        .ThenInclude(s => s.ServiceCategory)
-    .Include(a => a.Branch)
-    .Include(a => a.Order)
-    .ToListAsync();
+                .FindByCondition(a => a.StaffId == staffId &&
+                                      a.AppointmentsTime >= startDate &&
+                                      a.AppointmentsTime <= endDate)
+                .Include(a => a.Customer)
+                .Include(a => a.Staff)
+                .ThenInclude(s => s.StaffInfo) // ✅ Bổ sung dòng này
+                .Include(a => a.Service)
+                .ThenInclude(s => s.ServiceCategory)
+                .Include(a => a.Branch)
+                .Include(a => a.Order)
+                .ToListAsync();
 
 
             var appointmentDtos = appointments.Select(a => new AppointmentsInfoModel
@@ -1234,7 +1237,8 @@ namespace Server.Business.Services
 
             foreach (var appointment in appointmentDtos)
             {
-                var matchedService = servicesWithImages.FirstOrDefault(s => s.ServiceId == appointment.Service.ServiceId);
+                var matchedService =
+                    servicesWithImages.FirstOrDefault(s => s.ServiceId == appointment.Service.ServiceId);
                 if (matchedService != null)
                 {
                     appointment.Service.images = matchedService.images;
@@ -1253,8 +1257,8 @@ namespace Server.Business.Services
         {
             var staff = await _unitOfWorks.StaffRepository
                 .FindByCondition(s => s.UserId == userId)
-                .Include(s => s.Branch) 
-                .Include(s=>s.StaffInfo)
+                .Include(s => s.Branch)
+                .Include(s => s.StaffInfo)
                 .FirstOrDefaultAsync();
 
             if (staff == null)
@@ -1263,6 +1267,113 @@ namespace Server.Business.Services
             return _mapper.Map<StaffModel>(staff);
         }
 
+        public async Task<List<StaffWorkScheduleResponse>> GetStaffWorkScheduleAsync(int[] staffIds, DateTime date)
+        {
+            var workSchedules = await _unitOfWorks.WorkScheduleRepository
+                .FindByCondition(ws => staffIds.Contains(ws.StaffId) && ws.WorkDate.Date == date.Date)
+                .Include(ws => ws.Shift)
+                .Include(ws => ws.Staff)
+                .ThenInclude(s => s.StaffInfo)
+                .ToListAsync();
 
+            if (!workSchedules.Any())
+                return new List<StaffWorkScheduleResponse>();
+
+            var groupedSchedules = workSchedules
+                .GroupBy(ws => ws.StaffId)
+                .Select(g => new StaffWorkScheduleResponse
+                {
+                    StaffId = g.Key,
+                    WorkSchedules = g.Select(ws => new WorkScheduleModel
+                    {
+                        Id = ws.Id,
+                        WorkDate = ws.WorkDate,
+                        DayOfWeek = ws.DayOfWeek,
+                        StaffId = ws.StaffId,
+                        Staff = _mapper.Map<StaffModel>(ws.Staff),
+                        ShiftId = ws.ShiftId,
+                        Shift = _mapper.Map<ShiftModel>(ws.Shift),
+                        CreatedDate = ws.CreatedDate,
+                        UpdatedDate = ws.UpdatedDate,
+                    }).ToList()
+                })
+                .ToList();
+
+            return groupedSchedules;
+        }
+
+        public async Task<GetStaffLeaveOfBranchResponse> GetStaffLeaveOfBranch(int branchId, int month)
+        {
+            var listStaff = await _unitOfWorks.StaffRepository
+                .FindByCondition(x => x.BranchId == branchId)
+                .ToListAsync();
+
+            if (!listStaff.Any())
+                throw new BadRequestException("Không tìm thấy nhân viên trong chi nhánh này!");
+
+            var staffIds = listStaff.Select(x => x.StaffId).ToList();
+
+            var staffLeaves = await _unitOfWorks.StaffLeaveRepository
+                .FindByCondition(x => staffIds.Contains(x.StaffId) && x.LeaveDate.Month == month)
+                .Include(x => x.Staff)
+                .ThenInclude(x => x.StaffInfo)
+                .ToListAsync();
+
+            var response = new GetStaffLeaveOfBranchResponse
+            {
+                BranchId = branchId,
+                Month = month,
+                StaffLeaves = staffLeaves.Select(x => new StaffLeaveModel
+                {
+                    StaffLeaveId = x.StaffLeaveId,
+                    StaffId = x.StaffId,
+                    Staff = _mapper.Map<StaffModel>(x.Staff),
+                    LeaveDate = x.LeaveDate,
+                    Reason = x.Reason,
+                    CreatedDate = x.CreatedDate,
+                    UpdatedDate = x.UpdatedDate
+                }).ToList()
+            };
+
+            return response;
+        }
+
+        public async Task<GetStaffLeaveDetailResponse> GetStaffLeaveDetail(int staffLeaveId)
+        {
+            var staffLeave = await _unitOfWorks.StaffLeaveRepository
+                .FindByCondition(x => x.StaffLeaveId == staffLeaveId)
+                .Include(x => x.Staff)
+                .ThenInclude(x => x.StaffInfo)
+                .FirstOrDefaultAsync();
+
+            if (staffLeave == null)
+                throw new BadRequestException("Không tìm thấy thông tin nghỉ phép!");
+
+            // Kiểm tra lịch hẹn trong ngày nghỉ
+            var staffAppointments = await _unitOfWorks.AppointmentsRepository
+                .FindByCondition(x =>
+                    x.StaffId == staffLeave.StaffId &&
+                    x.AppointmentsTime.Date == staffLeave.LeaveDate.Date)
+                .Include(x => x.Service)
+                .ThenInclude(x => x.ServiceCategory)
+                .Include(x=> x.Customer)
+                .Include(x => x.Staff)
+                .ThenInclude(x => x.StaffInfo)
+                .ToListAsync();
+
+            var response = new GetStaffLeaveDetailResponse
+            {
+                StaffLeave = _mapper.Map<StaffLeaveModel>(staffLeave),
+                Appointments = _mapper.Map<List<AppointmentsModel>>(staffAppointments)
+            };
+
+            return response;
+        }
+
+        public async Task<List<ShiftModel>> GetListShifts()
+        {
+            var listShift =  _unitOfWorks.ShiftRepository.GetAll();
+            return  _mapper.Map<List<ShiftModel>>(listShift);
+        }
     }
 }
