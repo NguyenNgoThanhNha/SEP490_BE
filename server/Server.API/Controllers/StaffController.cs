@@ -845,11 +845,10 @@ namespace Server.API.Controllers
 
             // 5. Trả kết quả
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-            {
-                message = "Lấy danh sách lịch hẹn của nhân viên thành công!",
-                data = result
-            }));
-fix 
+{
+    message = "Lấy danh sách lịch hẹn của nhân viên thành công!",
+    data = result
+}));
         }
 
 
