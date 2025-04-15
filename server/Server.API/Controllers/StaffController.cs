@@ -844,7 +844,12 @@ namespace Server.API.Controllers
                 request.EndDate);
 
             // 5. Trả kết quả
-            return Ok(ApiResult<StaffAppointmentResponse>.Succeed(result));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy danh sách lịch hẹn của nhân viên thành công!",
+                data = result
+            }));
+fix 
         }
 
 
