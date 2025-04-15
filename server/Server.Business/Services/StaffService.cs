@@ -762,45 +762,44 @@ namespace Server.Business.Services
 
         public async Task<StaffScheduleDto> GetStaffScheduleByMonthAsync(int staffId, int year, int month)
         {
-            var staff = await _unitOfWorks.StaffRepository.FindByCondition(s => s.StaffId == staffId)
-                .Include(s => s.StaffInfo)
-                .FirstOrDefaultAsync();
-
-            if (staff == null)
-                return null;
-
-            var startDate = new DateTime(year, month, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
-
             var schedules = await _unitOfWorks.WorkScheduleRepository
                 .FindByCondition(s => s.StaffId == staffId &&
                                       s.WorkDate.Year == year &&
                                       s.WorkDate.Month == month)
+                .Include(s => s.Shift)
                 .ToListAsync();
 
-            if (schedules == null)
+            if (schedules == null || !schedules.Any())
             {
                 throw new BadRequestException("Không tìm thấy lịch làm việc cho nhân viên này trong tháng này.");
             }
+
             var result = new StaffScheduleDto
             {
                 StaffId = staffId,
-                //FullName = staff.StaffInfo?.FullName,
                 SlotWorkings = schedules.Select(s => new SlotWorkingDto
                 {
                     ScheduleId = s.Id,
-                    BranchId = s.Staff.BranchId,
-                    ShiftName = s.Shift.ShiftName,
-                    StartTime = s.Shift.StartTime,
-                    EndTime = s.Shift.EndTime,
+                    StaffId = s.StaffId,
+                    ShiftId = s.ShiftId,
+                    DayOfWeek = s.DayOfWeek,
                     WorkDate = s.WorkDate,
+                    Status = s.Status,
                     CreatedDate = s.CreatedDate,
-                    UpdatedDate = s.UpdatedDate
+                    UpdatedDate = s.UpdatedDate,
+                    Shift = new ShiftDto
+                    {
+                        ShiftId = s.Shift.ShiftId,
+                        ShiftName = s.Shift.ShiftName,
+                        StartTime = s.Shift.StartTime,
+                        EndTime = s.Shift.EndTime
+                    }
                 }).ToList()
             };
 
             return result;
         }
+
 
         public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
         {
