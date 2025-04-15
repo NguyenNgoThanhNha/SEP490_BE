@@ -27,7 +27,7 @@ namespace Server.Business.Services
             var feedback = await _unitOfWorks.AppointmentFeedbackRepository
                 .FindByCondition(f => f.AppointmentFeedbackId == id)
                 .Include(f => f.Appointment)
-                .Include(f => f.User)
+                .Include(f => f.Customer)
                 .FirstOrDefaultAsync();
 
             if (feedback == null) return null;
@@ -40,7 +40,7 @@ namespace Server.Business.Services
             var feedbacks = await _unitOfWorks.AppointmentFeedbackRepository
                 .GetAll()
                 .Include(f => f.Appointment)
-                .Include(f => f.User)
+                .Include(f => f.Customer)
                 .ToListAsync();
 
             return _mapper.Map<List<AppointmentFeedbackDetailDto>>(feedbacks);
@@ -97,7 +97,7 @@ namespace Server.Business.Services
             var feedbacks = await _unitOfWorks.AppointmentFeedbackRepository
                 .FindByCondition(f => f.AppointmentId == appointmentId)
                 .Include(f => f.Appointment)
-                .Include(f => f.User)
+                .Include(f => f.Customer)
                 .ToListAsync();
 
             return _mapper.Map<List<AppointmentFeedbackDetailDto>>(feedbacks);

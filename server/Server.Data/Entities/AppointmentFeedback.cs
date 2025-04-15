@@ -15,8 +15,11 @@ public class AppointmentFeedback
     
     [ForeignKey("Appointment_Feedback_Customer")]
     public int? CustomerId { get; set; }
-    public virtual User? User { get; set; }
+    public virtual User? Customer { get; set; }
     
+    public int? StaffId { get; set; }
+    
+    public virtual Staff? Staff { get; set; }
     public string? Comment { get; set; }
     
     public int? Rating { get; set; }

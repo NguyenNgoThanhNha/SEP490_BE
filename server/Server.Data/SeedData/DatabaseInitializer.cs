@@ -420,8 +420,8 @@ namespace Server.Data.SeedData
             var scheduleList = new List<WorkSchedule>();
             var random = new Random();
 
-            var startDate = new DateTime(2024, 3, 3); // Bắt đầu từ tuần đầu tiên của tháng (Thứ 2)
-            var endDate = new DateTime(2024, 3, 30); // Kết thúc vào thứ 7 của tuần cuối cùng
+            var startDate = new DateTime(2025, 3, 3); // Bắt đầu từ tuần đầu tiên của tháng (Thứ 2)
+            var endDate = new DateTime(2025, 3, 30); // Kết thúc vào thứ 7 của tuần cuối cùng
 
             foreach (var staff in staffs)
             {

@@ -275,8 +275,8 @@ public class RoutineService
                     var product = productStep.Product;
                     var newOrderDetail = new OrderDetailModels()
                     {
-                        //OrderId = createdOrder.OrderId,
-                        //ProductId = product.ProductId,
+                        OrderId = createdOrder.OrderId,
+                        ProductId = product.ProductId,
                         Quantity = 1,
                         UnitPrice = product.Price,
                         SubTotal = product.Price,
@@ -290,6 +290,11 @@ public class RoutineService
                 .FirstOrDefaultAsync(x => x.UserId == request.UserId && x.RoutineId == routine.SkincareRoutineId);
             if (userRoutine != null)
             {
+                if(userRoutine.Status == ObjectStatus.Active.ToString())
+                {
+                    throw new BadRequestException("Bạn đã đặt liệu trình này rồi!");
+                }
+                
                 userRoutine.Status = ObjectStatus.Active.ToString();
                 userRoutine.UpdatedDate = DateTime.Now;
                 _unitOfWorks.UserRoutineRepository.Update(userRoutine);

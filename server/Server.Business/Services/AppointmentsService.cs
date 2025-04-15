@@ -205,6 +205,34 @@ public class AppointmentsService
                 {
                     throw new BadRequestException($"Staff is busy during in: {appointmentTime}!");
                 }
+                
+                // Lấy ngày và thứ trong tuần từ appointmentTime
+                var appointmentDate = appointmentTime.Date;
+                var dayOfWeek = (int)appointmentDate.DayOfWeek;
+                dayOfWeek = dayOfWeek == 0 ? 7 : dayOfWeek; // Chủ nhật là 0, ta cần 1-7 nên gán 7 cho CN
+
+                var workSchedule = await _unitOfWorks.WorkScheduleRepository
+                    .FindByCondition(ws => ws.StaffId == staffId &&
+                                           ws.WorkDate.Date == appointmentDate &&
+                                           ws.DayOfWeek == dayOfWeek &&
+                                           ws.Status == ObjectStatus.Active.ToString())
+                    .Include(ws => ws.Shift)
+                    .FirstOrDefaultAsync();
+
+                if (workSchedule == null)
+                {
+                    throw new BadRequestException($"Staff không có ca làm việc vào ngày {appointmentDate:dd/MM/yyyy}.");
+                }
+
+                // Kiểm tra xem thời gian hẹn có nằm trong khoảng ca làm không
+                var shiftStartDateTime = appointmentDate.Add(workSchedule.Shift.StartTime);
+                var shiftEndDateTime = appointmentDate.Add(workSchedule.Shift.EndTime);
+
+                if (appointmentTime < shiftStartDateTime || endTime > shiftEndDateTime)
+                {
+                    throw new BadRequestException($"Thời gian đặt lịch {appointmentTime:HH:mm} không nằm trong ca làm việc ({workSchedule.Shift.ShiftName}) của nhân viên.");
+                }
+
 
                 var newAppointment = new AppointmentsModel
                 {
@@ -254,6 +282,7 @@ public class AppointmentsService
                         Content = $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
                         Type = "Appointment",
                         isRead = false,
+                        ObjectId = appointmentEntity.AppointmentId,
                         CreatedDate = DateTime.Now,
                     };
                     await _unitOfWorks.NotificationRepository.AddAsync(notification);
@@ -569,7 +598,7 @@ public class AppointmentsService
         };
     }
 
-    public async Task<AppointmentsModel> UpdateStatusAppointment(int appointmentId, string status)
+    public async Task<int> UpdateStatusAppointment(int appointmentId, string status)
     {
         var appointment = await _unitOfWorks.AppointmentsRepository
                               .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId)
@@ -579,7 +608,7 @@ public class AppointmentsService
         appointment.UpdatedDate = DateTime.Now;
         appointment = _unitOfWorks.AppointmentsRepository.Update(appointment);
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
-        return result > 0 ? _mapper.Map<AppointmentsModel>(appointment) : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
+        return result > 0 ? appointment.AppointmentId : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
     }
 
     //public async Task<GetAllAppointmentResponseCustomer> GetAppointmentsByCustomer(int customerId, int page = 1, int pageSize = 5)

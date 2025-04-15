@@ -20,6 +20,8 @@ public class Notifications
     
     public bool? isRead { get; set; }
     
+    public int? ObjectId { get; set; }
+    
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

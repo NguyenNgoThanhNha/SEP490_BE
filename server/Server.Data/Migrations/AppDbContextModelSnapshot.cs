@@ -49,6 +49,9 @@ namespace Server.Data.Migrations
                     b.Property<int?>("Rating")
                         .HasColumnType("int");
 
+                    b.Property<int?>("StaffId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -59,14 +62,13 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("AppointmentFeedbackId");
 
                     b.HasIndex("AppointmentId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("StaffId");
 
                     b.ToTable("AppointmentFeedback");
                 });
@@ -539,6 +541,9 @@ namespace Server.Data.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ObjectId")
                         .HasColumnType("int");
 
                     b.Property<string>("Type")
@@ -1976,13 +1981,19 @@ namespace Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Server.Data.Entities.User", "User")
+                    b.HasOne("Server.Data.Entities.User", "Customer")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("CustomerId");
+
+                    b.HasOne("Server.Data.Entities.Staff", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
 
                     b.Navigation("Appointment");
 
-                    b.Navigation("User");
+                    b.Navigation("Customer");
+
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.Appointments", b =>
