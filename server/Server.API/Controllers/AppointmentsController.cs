@@ -389,7 +389,7 @@ namespace Server.API.Controllers
 
             var result = await _appointmentsService.GetAppointmentsByCustomer(currentUser.UserId, page, pageSize);
 
-            return Ok(ApiResult<GetAllAppointmentResponse>.Succeed(new GetAllAppointmentResponse
+            return Ok(ApiResult<GetAllAppointmentResponseCustomer>.Succeed(new GetAllAppointmentResponseCustomer
             {
                 message = "Lấy danh sách lịch hẹn thành công!",
                 data = result.data,
