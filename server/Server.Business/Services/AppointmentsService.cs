@@ -582,12 +582,14 @@ public class AppointmentsService
         return result > 0 ? _mapper.Map<AppointmentsModel>(appointment) : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
     }
 
-    public async Task<GetAllAppointmentResponse> GetAppointmentsByCustomer(int customerId, int page = 1, int pageSize = 5)
+    public async Task<GetAllAppointmentResponseCustomer> GetAppointmentsByCustomer(int customerId, int page = 1, int pageSize = 5)
     {
         var query = _unitOfWorks.AppointmentsRepository
             .FindByCondition(x => x.CustomerId == customerId)
             .Include(x => x.Order)
-            .Include(x => x.Service)
+            .Include(x => x.Service)           
+                .ThenInclude(s => s.ServiceRoutines)
+                    .ThenInclude(sr => sr.Routine)
             .Include(x => x.Staff) .ThenInclude(s => s.StaffInfo)
             .Include(x => x.Branch)
             .Include(x => x.Customer)
@@ -601,9 +603,9 @@ public class AppointmentsService
             .Take(pageSize)
             .ToListAsync();
 
-        var mappedAppointments = _mapper.Map<List<AppointmentsModel>>(appointments);
+        var mappedAppointments = _mapper.Map<List<CustomerAppointmentModel>>(appointments);
 
-        return new GetAllAppointmentResponse
+        return new GetAllAppointmentResponseCustomer
         {
             message = "Lấy danh sách lịch hẹn của khách hàng thành công!",
             data = mappedAppointments,

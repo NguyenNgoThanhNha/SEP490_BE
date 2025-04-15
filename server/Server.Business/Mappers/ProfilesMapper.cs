@@ -85,6 +85,16 @@ namespace Server.Business.Mappers
              : (int?)null
      ));*/
             CreateMap<Appointments, AppointmentsModel>().ReverseMap();
+            CreateMap<Appointments, CustomerAppointmentModel>().ForMember(dest => dest.TotalSteps, opt => opt.MapFrom(src =>
+         src.Service != null &&
+         src.Service.ServiceRoutines != null &&
+         src.Service.ServiceRoutines.Any()
+             ? src.Service.ServiceRoutines
+                 .Where(sr => sr.Status == "Active" && sr.Routine != null)
+                 .Select(sr => sr.Routine.TotalSteps)
+                 .FirstOrDefault()
+             : (int?)null
+     ));
 
 
             CreateMap<Appointments, AppointmentsInfoModel>().ReverseMap();
