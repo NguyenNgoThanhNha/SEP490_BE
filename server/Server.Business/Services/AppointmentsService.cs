@@ -673,6 +673,31 @@ public class AppointmentsService
         };
     }
 
+    public async Task<List<CustomerAppointmentModel>> GetAppointmentsByRoutine(int customerId, int routineId)
+    {
+        // Bước 1: Lấy order mới nhất theo routine + customer
+        var latestOrder = await _unitOfWorks.OrderRepository
+            .FindByCondition(x => x.CustomerId == customerId && x.RoutineId == routineId)
+            .OrderByDescending(x => x.CreatedDate)
+            .FirstOrDefaultAsync();
+
+        if (latestOrder == null)
+            return new List<CustomerAppointmentModel>();
+
+        // Bước 2: Lấy danh sách lịch hẹn theo OrderId
+        var appointments = await _unitOfWorks.AppointmentsRepository
+            .FindByCondition(x => x.OrderId == latestOrder.OrderId)
+            .Include(x => x.Service)
+            .Include(x => x.Staff).ThenInclude(s => s.StaffInfo)
+            .Include(x => x.Branch)
+            .Include(x => x.Customer)
+            .ToListAsync();
+
+        return _mapper.Map<List<CustomerAppointmentModel>>(appointments);
+    }
+
+
+
 
 
 }

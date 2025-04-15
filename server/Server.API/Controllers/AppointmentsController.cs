@@ -423,6 +423,38 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpGet("get-appointments-by-routine")]
+        public async Task<IActionResult> GetAppointmentsByRoutine([FromQuery] int routineId)
+        {
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
+
+            var tokenValue = token.ToString().Split(' ')[1];
+            var currentUser = await _authService.GetUserInToken(tokenValue);
+
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không tìm thấy thông tin khách hàng!"
+                }));
+            }
+
+            var result = await _appointmentsService.GetAppointmentsByRoutine(currentUser.UserId, routineId);
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy danh sách lịch hẹn theo routine thành công!",
+                data = result
+            }));
+        }
+
+
 
 
     }
