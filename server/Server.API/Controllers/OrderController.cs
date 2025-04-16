@@ -170,11 +170,15 @@ namespace Server.API.Controllers
             }
 
             var orders = await _orderService.BookingHistoryAllTypes(currentUser.UserId, status, page, pageSize);
-            if (orders.data == null)
+
+            // Trường hợp tìm thấy nhưng không có đơn hàng nào
+            if (orders.data == null || !orders.data.Any())
             {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                return Ok(ApiResult<HistoryBookingResponse>.Succeed(new HistoryBookingResponse()
                 {
-                    message = "Không tìm thấy lịch sử lịch hẹn!"
+                    message = "Không có lịch sử lịch hẹn nào.",
+                    data = new List<OrderModel>(),
+                    pagination = orders.pagination
                 }));
             }
 
@@ -185,6 +189,7 @@ namespace Server.API.Controllers
                 pagination = orders.pagination
             }));
         }
+
 
 
         [Authorize]

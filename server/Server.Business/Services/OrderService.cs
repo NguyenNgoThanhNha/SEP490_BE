@@ -454,8 +454,7 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1,
-            int pageSize = 5)
+        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(x => x.CustomerId == userId && x.Status == status)
@@ -464,16 +463,16 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Shipment)
                 .Include(x => x.Appointments)
-                .ThenInclude(x => x.Service)
+                    .ThenInclude(x => x.Service)
                 .Include(x => x.Appointments)
-                .ThenInclude(x => x.Branch)
+                    .ThenInclude(x => x.Branch)
                 .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.ProductImages)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.ProductImages)
                 .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.Branch_Products)
-                .ThenInclude(bp => bp.Branch)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.Branch_Products)
+                            .ThenInclude(bp => bp.Branch)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
 
@@ -481,7 +480,7 @@ namespace Server.Business.Services
             {
                 return new HistoryBookingResponse()
                 {
-                    data = null,
+                    data = new List<OrderModel>(),
                     pagination = new Pagination
                     {
                         page = page,
@@ -497,6 +496,30 @@ namespace Server.Business.Services
 
             var orderModels = _mapper.Map<List<OrderModel>>(pagedOrders);
 
+            // Gán branch cho từng product detail nếu chưa có
+            foreach (var order in orderModels)
+            {
+                foreach (var detail in order.OrderDetails)
+                {
+                    if (detail.Product != null && detail.Branch == null)
+                    {
+                        // Nếu Product chưa có thông tin Branch và vẫn có Branch_Products từ DB
+                        var firstBranchEntity = pagedOrders
+                            .FirstOrDefault(o => o.OrderId == order.OrderId)?
+                            .OrderDetails
+                            .FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId)?
+                            .Product?
+                            .Branch_Products?
+                            .FirstOrDefault()?.Branch;
+
+                        if (firstBranchEntity != null)
+                        {
+                            detail.Branch = _mapper.Map<BranchModel>(firstBranchEntity);
+                        }
+                    }
+                }
+            }
+
             return new HistoryBookingResponse()
             {
                 message = "Lấy lịch sử tất cả loại đơn thành công!",
@@ -509,6 +532,8 @@ namespace Server.Business.Services
                 }
             };
         }
+
+
 
 
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
