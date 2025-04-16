@@ -581,7 +581,8 @@ namespace Server.Business.Services
             var appointments = await _unitOfWorks.AppointmentsRepository
                 .FindByCondition(a => staffIds.Contains(a.StaffId) &&
                                       a.AppointmentsTime.Date == date.Date &&
-                                      a.Status != OrderStatusEnum.Completed.ToString())
+                                      a.Status != OrderStatusEnum.Completed.ToString() &&
+                                      a.Status != OrderStatusEnum.Cancelled.ToString())
                 .Include(a => a.Service)
                 .ToListAsync();
 
@@ -1278,7 +1279,7 @@ namespace Server.Business.Services
         public async Task<List<StaffWorkScheduleResponse>> GetStaffWorkScheduleAsync(int[] staffIds, DateTime date)
         {
             var workSchedules = await _unitOfWorks.WorkScheduleRepository
-                .FindByCondition(ws => staffIds.Contains(ws.StaffId) && ws.WorkDate.Date == date.Date)
+                .FindByCondition(ws => staffIds.Contains(ws.StaffId) && ws.WorkDate.Date == date.Date && ws.Status == ObjectStatus.Active.ToString())
                 .Include(ws => ws.Shift)
                 .Include(ws => ws.Staff)
                 .ThenInclude(s => s.StaffInfo)
