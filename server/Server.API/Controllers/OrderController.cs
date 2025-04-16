@@ -48,28 +48,50 @@ namespace Server.API.Controllers
             return Ok(ApiResult<GetListOrderFilterResponse>.Succeed(orders));
         }
 
-        [HttpPost("confirm-order-appointment")]
-        public async Task<IActionResult> ConfirmOrderAppointment([FromBody] ConfirmOrderRequest req)
-        {
-            var checkoutUrl = await _orderService.ConfirmOrderAppointmentAsync(req);
-            if (checkoutUrl == null)
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Lỗi khi tạo liên kết thanh toán"
-                }));
-            }
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-            {
-                message = "Tạo liên kết thanh toán thành công",
-                data = checkoutUrl
-            }));
-        }
+        #region old confirm order
 
-        [HttpPost("confirm-order-product")]
-        public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderRequest req)
+        /*[HttpPost("confirm-order-appointment")]
+public async Task<IActionResult> ConfirmOrderAppointment([FromBody] ConfirmOrderRequest req)
+{
+    var checkoutUrl = await _orderService.ConfirmOrderAppointmentAsync(req);
+    if (checkoutUrl == null)
+    {
+        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
         {
-            var checkoutUrl = await _orderService.ConfirmOrderDetailAsync(req);
+            message = "Lỗi khi tạo liên kết thanh toán"
+        }));
+    }
+    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+    {
+        message = "Tạo liên kết thanh toán thành công",
+        data = checkoutUrl
+    }));
+}
+
+[HttpPost("confirm-order-product")]
+public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderRequest req)
+{
+    var checkoutUrl = await _orderService.ConfirmOrderDetailAsync(req);
+    if (checkoutUrl == null)
+    {
+        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+        {
+            message = "Lỗi khi tạo liên kết thanh toán"
+        }));
+    }
+    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+    {
+        message = "Tạo liên kết thanh toán thành công",
+        data = checkoutUrl
+    }));
+}*/
+
+        #endregion
+        
+        [HttpPost("confirm-order")]
+        public async Task<IActionResult> ConfirmOrder([FromBody] ConfirmOrderRequest req)
+        {
+            var checkoutUrl = await _orderService.ConfirmOrderAsync(req);
             if (checkoutUrl == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -83,6 +105,7 @@ namespace Server.API.Controllers
                 data = checkoutUrl
             }));
         }
+        
 
         [HttpPost("confirm-order-deposit")]
         public async Task<IActionResult> ConfirmOrderDeposit([FromBody] DepositRequest req)

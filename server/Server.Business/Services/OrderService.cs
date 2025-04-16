@@ -329,6 +329,84 @@ namespace Server.Business.Services
             }
         }
 
+        public async Task<string> ConfirmOrderAsync(ConfirmOrderRequest req)
+        {
+            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(req.orderId);
+            if (order == null)
+                throw new BadRequestException("Order not found!");
+
+            var totalAmount = Convert.ToDecimal(req.totalAmount);
+            var itemsList = new List<ItemData>();
+
+            if (order.OrderType == "Product" || order.OrderType == "Routine")
+            {
+                var orderDetails = await _unitOfWorks.OrderDetailRepository
+                    .FindByCondition(x => x.OrderId == req.orderId)
+                    .Include(x => x.Product)
+                    .ToListAsync();
+
+                if (order.OrderType == "Product" && !orderDetails.Any())
+                    throw new BadRequestException("No order details found for the given Order ID!");
+
+                itemsList.AddRange(orderDetails.Select(od => new ItemData(
+                    name: od.Product.ProductName,
+                    quantity: od.Quantity,
+                    price: Convert.ToInt32(od.UnitPrice)
+                )));
+            }
+
+            if (order.OrderType == "Appointment" || order.OrderType == "Routine")
+            {
+                var appointments = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(x => x.OrderId == req.orderId)
+                    .Include(x => x.Service)
+                    .Include(x => x.Branch)
+                    .ToListAsync();
+
+                if (order.OrderType == "Appointment" && !appointments.Any())
+                    throw new BadRequestException("No appointments found for the given Order ID!");
+
+                itemsList.AddRange(appointments.Select(ap => new ItemData(
+                    name: ap.Service.Name,
+                    quantity: ap.Quantity,
+                    price: Convert.ToInt32(ap.UnitPrice)
+                )));
+            }
+
+            if (!itemsList.Any())
+                throw new BadRequestException("No items found to process payment!");
+
+            // Tạo OrderCode duy nhất
+            var orderCode = int.Parse(DateTimeOffset.Now.ToString("ffffff"));
+            order.OrderCode = orderCode;
+            _unitOfWorks.OrderRepository.Update(order);
+            await _unitOfWorks.OrderRepository.Commit();
+
+            // Khởi tạo PayOS
+            var payOS = new PayOS(_payOsSetting.ClientId, _payOsSetting.ApiKey, _payOsSetting.ChecksumKey);
+            var domain = _payOsSetting.Domain;
+
+            var paymentLinkRequest = new PaymentData(
+                orderCode: orderCode,
+                amount: Convert.ToInt32(totalAmount),
+                description: $"Order {order.OrderCode} - {order.OrderType}",
+                items: itemsList,
+                returnUrl: $"{domain}/{req.Request.returnUrl}",
+                cancelUrl: $"{domain}/{req.Request.cancelUrl}"
+            );
+
+            try
+            {
+                var response = await payOS.createPaymentLink(paymentLinkRequest);
+                return response.checkoutUrl;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Failed to create payment link.", ex);
+            }
+        }
+
+
         public async Task<string> DepositAppointmentAsync(DepositRequest req)
         {
             // Tìm Order theo OrderId từ yêu cầu
@@ -454,7 +532,8 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
+        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1,
+            int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(x => x.CustomerId == userId && x.Status == status)
@@ -463,16 +542,16 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Shipment)
                 .Include(x => x.Appointments)
-                    .ThenInclude(x => x.Service)
+                .ThenInclude(x => x.Service)
                 .Include(x => x.Appointments)
-                    .ThenInclude(x => x.Branch)
+                .ThenInclude(x => x.Branch)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.ProductImages)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.Branch_Products)
-                            .ThenInclude(bp => bp.Branch)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.Branch_Products)
+                .ThenInclude(bp => bp.Branch)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
 
@@ -532,8 +611,6 @@ namespace Server.Business.Services
                 }
             };
         }
-
-
 
 
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
@@ -768,14 +845,16 @@ namespace Server.Business.Services
                 .ToListAsync();
 
             var result = _mapper.Map<List<OrderModel>>(items);
-            
+
             // Gán thêm images
             foreach (var order in result)
             {
                 if (order.OrderType == "Appointment")
                 {
                     var services = order.Appointments.Select(a => a.Service).ToList();
-                    var serviceModels = await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(services));
+                    var serviceModels =
+                        await _serviceService.GetListImagesOfServices(
+                            _mapper.Map<List<Data.Entities.Service>>(services));
                     foreach (var appointment in order.Appointments)
                     {
                         var matchedService = serviceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
@@ -786,7 +865,8 @@ namespace Server.Business.Services
                 else if (order.OrderType == "Product")
                 {
                     var products = order.OrderDetails.Select(od => od.Product).ToList();
-                    var productModels = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(products));
+                    var productModels =
+                        await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(products));
                     foreach (var detail in order.OrderDetails)
                     {
                         var matchedProduct = productModels.FirstOrDefault(p => p.ProductId == detail.Product.ProductId);
@@ -797,19 +877,22 @@ namespace Server.Business.Services
                         }
                     }
                 }
-                else if(order.OrderType == "Routine")
+                else if (order.OrderType == "Routine")
                 {
                     var services = order.Appointments.Select(a => a.Service).ToList();
-                    var serviceModels = await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(services));
+                    var serviceModels =
+                        await _serviceService.GetListImagesOfServices(
+                            _mapper.Map<List<Data.Entities.Service>>(services));
                     foreach (var appointment in order.Appointments)
                     {
                         var matchedService = serviceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
                         if (matchedService != null)
                             appointment.Service.images = matchedService.images;
                     }
-                    
+
                     var products = order.OrderDetails.Select(od => od.Product).ToList();
-                    var productModels = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(products));
+                    var productModels =
+                        await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(products));
                     foreach (var detail in order.OrderDetails)
                     {
                         var matchedProduct = productModels.FirstOrDefault(p => p.ProductId == detail.Product.ProductId);

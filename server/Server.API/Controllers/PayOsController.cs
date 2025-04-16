@@ -22,16 +22,17 @@ namespace Server.API.Controllers
         private readonly UnitOfWorks _unitOfWorks;
         private readonly OrderDetailService _orderDetailService;
 
-        public PayOsController(PayOSSetting payOSSetting, UnitOfWorks unitOfWorks, OrderDetailService orderDetailService)
+        public PayOsController(PayOSSetting payOSSetting, UnitOfWorks unitOfWorks,
+            OrderDetailService orderDetailService)
         {
             this.payOSSetting = payOSSetting;
             _unitOfWorks = unitOfWorks;
             _orderDetailService = orderDetailService;
         }
+
         [HttpPost("create-payment-link")]
         public async Task<IActionResult> Create([FromBody] PayOsRequest req)
         {
-
             var payOS = new PayOS(payOSSetting.ClientId, payOSSetting.ApiKey, payOSSetting.ChecksumKey);
 
             var domain = payOSSetting.Domain;
@@ -49,8 +50,9 @@ namespace Server.API.Controllers
             Response.Headers.Append("Location", response.checkoutUrl);
             return Ok(response.checkoutUrl);
         }
-        
-        [HttpPost("receive-webhook")]
+
+        #region old receive-webhook
+        /*[HttpPost("receive-webhook")]
         public async Task<IActionResult> GetResultPayOsOrder([FromBody] WebhookRequest req)
         {
             if (req.success)
@@ -166,7 +168,129 @@ namespace Server.API.Controllers
             {
                 message = "Lỗi khi cập nhật trạng thái đơn hàng."
             }));
-        }
+        }*/
+        
+        #endregion
 
+        [HttpPost("receive-webhook")]
+        public async Task<IActionResult> GetResultPayOsOrder([FromBody] WebhookRequest req)
+        {
+            if (req.success)
+            {
+                var data = req.data;
+
+                // Lấy OrderCode từ description
+                string[] descriptionParts = data.description.Split(' ');
+                if (descriptionParts.Length < 3 || !int.TryParse(descriptionParts[2], out int orderCode))
+                {
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "Định dạng mã đơn hàng trong phần mô tả không hợp lệ!"
+                    }));
+                }
+
+                var order = await _unitOfWorks.OrderRepository
+                    .FindByCondition(o => o.OrderCode == orderCode)
+                    .FirstOrDefaultAsync();
+
+                if (order == null)
+                {
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "Không tìm thấy đơn hàng!"
+                    }));
+                }
+
+                var deposit = order.StatusPayment;
+
+                // Cập nhật dữ liệu tương ứng theo OrderType
+                if (order.OrderType == "Appointment" || order.OrderType == "Routine")
+                {
+                    var appointments = await _unitOfWorks.AppointmentsRepository
+                        .FindByCondition(a => a.OrderId == order.OrderId)
+                        .ToListAsync();
+
+                    foreach (var appointment in appointments)
+                    {
+                        if (deposit == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                        {
+                            appointment.StatusPayment = OrderStatusPaymentEnum.PaidDeposit.ToString();
+                        }
+                        else
+                        {
+                            appointment.StatusPayment = OrderStatusPaymentEnum.Paid.ToString();
+                        }
+
+                        appointment.UpdatedDate = DateTime.Now;
+                        _unitOfWorks.AppointmentsRepository.Update(appointment);
+                    }
+
+                    await _unitOfWorks.AppointmentsRepository.Commit();
+                }
+
+                if (order.OrderType == "Product" || order.OrderType == "Routine")
+                {
+                    var orderDetails = await _unitOfWorks.OrderDetailRepository
+                        .FindByCondition(od => od.OrderId == order.OrderId)
+                        .ToListAsync();
+
+                    foreach (var orderDetail in orderDetails)
+                    {
+                        if (deposit == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                        {
+                            orderDetail.StatusPayment = OrderStatusPaymentEnum.PaidDeposit.ToString();
+                        }
+                        else
+                        {
+                            orderDetail.StatusPayment = OrderStatusPaymentEnum.Paid.ToString();
+                        }
+
+                        orderDetail.UpdatedDate = DateTime.Now;
+                        _unitOfWorks.OrderDetailRepository.Update(orderDetail);
+                    }
+
+                    await _unitOfWorks.OrderDetailRepository.Commit();
+                }
+
+                // Cập nhật ghi chú
+                var percentPaidMatch = Regex.Match(order.Note ?? string.Empty, @"Đặt cọc (\d+)%");
+                if (percentPaidMatch.Success && int.TryParse(percentPaidMatch.Groups[1].Value, out int percent))
+                {
+                    order.Note = $"Đã thanh toán thành công {percent}%";
+                }
+                else
+                {
+                    order.Note = "Đã thanh toán thành công";
+                }
+
+                // Cập nhật trạng thái Order
+                if (order.StatusPayment == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                {
+                    order.StatusPayment = OrderStatusPaymentEnum.PaidDeposit.ToString();
+                }
+                else
+                {
+                    order.StatusPayment = OrderStatusPaymentEnum.Paid.ToString();
+                }
+
+                order.UpdatedDate = DateTime.Now;
+
+                _unitOfWorks.OrderRepository.Update(order);
+                var result = await _unitOfWorks.OrderRepository.Commit();
+
+                if (result > 0)
+                {
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                    {
+                        message = $"Thanh toán thành công cho mã đơn hàng: {order.OrderCode}"
+                    }));
+                }
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lỗi khi cập nhật trạng thái đơn hàng."
+            }));
+        }
     }
 }
