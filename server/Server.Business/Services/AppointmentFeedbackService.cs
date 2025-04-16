@@ -62,7 +62,7 @@ namespace Server.Business.Services
 
 
         // Cập nhật phản hồi
-        public async Task<AppointmentFeedbackDetailDto?> UpdateAsync(int id, AppointmentFeedbackUpdateDto dto)
+        public async Task<AppointmentFeedbackDetailDto?> PatchUpdateAsync(int id, AppointmentFeedbackUpdateDto dto)
         {
             var feedback = await _unitOfWorks.AppointmentFeedbackRepository
                 .FindByCondition(f => f.AppointmentFeedbackId == id)
@@ -70,7 +70,23 @@ namespace Server.Business.Services
 
             if (feedback == null) return null;
 
-            _mapper.Map(dto, feedback);
+           
+            if (dto.Comment != null)
+                feedback.Comment = dto.Comment;
+
+           
+            if (dto.Rating.HasValue)
+                feedback.Rating = dto.Rating;
+
+            if (dto.ImageBefore != null)
+                feedback.ImageBefore = dto.ImageBefore;
+
+            if (dto.ImageAfter != null)
+                feedback.ImageAfter = dto.ImageAfter;
+
+            if (dto.Status != null)
+                feedback.Status = dto.Status;
+
             feedback.UpdatedDate = DateTime.UtcNow;
 
             _unitOfWorks.AppointmentFeedbackRepository.Update(feedback);
@@ -78,6 +94,7 @@ namespace Server.Business.Services
 
             return _mapper.Map<AppointmentFeedbackDetailDto>(feedback);
         }
+
 
         // Xóa phản hồi
         public async Task<bool> DeleteAsync(int id)
