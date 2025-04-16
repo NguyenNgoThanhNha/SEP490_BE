@@ -6,6 +6,7 @@ using Server.Business.Services;
 using Server.Data.UnitOfWorks;
 using Server.Business.Dtos;
 using Server.Data.Entities;
+using static Server.Business.Dtos.AppointmentFeedbackCreateDto;
 
 namespace Server.API.Controllers
 {
@@ -13,14 +14,16 @@ namespace Server.API.Controllers
     [ApiController]
     public class AppointmentFeedbackController : Controller
     {
-        private readonly AppointmentFeedbackService _appointmentFeedbackService;      
-      
+        private readonly AppointmentFeedbackService _appointmentFeedbackService;
+        private readonly CloudianryService _cloudinaryService;
 
 
-        public AppointmentFeedbackController(AppointmentFeedbackService appointmentFeedbackService)
+
+        public AppointmentFeedbackController(AppointmentFeedbackService appointmentFeedbackService, CloudianryService cloudinaryService)
         {
-            _appointmentFeedbackService = appointmentFeedbackService;         
-           
+            _appointmentFeedbackService = appointmentFeedbackService;
+            _cloudinaryService = cloudinaryService;
+
         }
 
         [HttpGet("get-by-id/{appointmentFeedbackId}")]
@@ -99,25 +102,64 @@ namespace Server.API.Controllers
             }));
         }
 
-        [HttpPost("create")]        
-        public async Task<IActionResult> Create([FromBody] AppointmentFeedbackCreateDto dto)
+
+        [HttpPost("create")]
+        public async Task<IActionResult> Create([FromForm] AppointmentFeedbackCreateFormDto dto)
         {
-            if (dto.AppointmentId <= 0 || dto.CustomerId <= 0 || dto.StaffId <= 0 || dto.Rating <= 0)
+            if (dto.AppointmentId <= 0 || dto.CustomerId <= 0 || dto.StaffId <= 0)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "AppointmentId, CustomerId, StaffId và Rating phải lớn hơn 0.",
+                    message = "AppointmentId, CustomerId, StaffId là bắt buộc và phải lớn hơn 0.",
                     data = new List<object>()
                 }));
             }
 
-            var result = await _appointmentFeedbackService.CreateAsync(dto);
+            if (dto.ImageBefore == null || dto.ImageAfter == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Vui lòng cung cấp cả ảnh trước và sau.",
+                    data = new List<object>()
+                }));
+            }
+
+           
+            var imageBeforeUpload = await _cloudinaryService.UploadImageAsync(dto.ImageBefore);
+            var imageAfterUpload = await _cloudinaryService.UploadImageAsync(dto.ImageAfter);
+
+            if (imageBeforeUpload == null || imageAfterUpload == null)
+            {
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Tải ảnh lên thất bại."
+                }));
+            }
+
+          
+            var createDto = new AppointmentFeedbackCreateDto
+            {
+                AppointmentId = dto.AppointmentId,
+                CustomerId = dto.CustomerId,
+                StaffId = dto.StaffId,
+                Comment = dto.Comment,
+                Rating = dto.Rating ?? 0,
+                ImageBefore = imageBeforeUpload.SecureUrl.ToString(), 
+                ImageAfter = imageAfterUpload.SecureUrl.ToString(),
+                CreatedBy = "Customer"
+            };
+
+            var result = await _appointmentFeedbackService.CreateAsync(createDto);
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Tạo phản hồi thành công!",
                 data = result
             }));
         }
+
+
+
 
 
         [HttpPatch("update/{appointmentFeedbackId}")]
