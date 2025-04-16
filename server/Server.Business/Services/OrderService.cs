@@ -725,7 +725,7 @@ namespace Server.Business.Services
             return await _unitOfWorks.OrderRepository.Commit() > 0;
         }
 
-        public async Task<Pagination<OrderModel>> GetListOrderFilterAsync(GetAllOrderRequest request)
+        public async Task<GetListOrderFilterResponse> GetListOrderFilterAsync(GetAllOrderRequest request)
         {
             IQueryable<Order> query = _unitOfWorks.OrderRepository.FindByCondition(x =>
                     (string.IsNullOrEmpty(request.OrderType) || x.OrderType == request.OrderType) &&
@@ -822,12 +822,16 @@ namespace Server.Business.Services
                 }
             }
 
-            return new Pagination<OrderModel>
+            return new GetListOrderFilterResponse
             {
-                TotalItemsCount = totalItemsCount,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
-                Data = result
+                message = "Lấy danh sách đơn hàng thành công!",
+                data = result,
+                pagination = new Pagination
+                {
+                    page = pageIndex,
+                    totalPage = (int)Math.Ceiling(totalItemsCount / (double)pageSize),
+                    totalCount = totalItemsCount
+                }
             };
         }
 

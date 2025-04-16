@@ -37,7 +37,7 @@ namespace Server.API.Controllers
         public async Task<IActionResult> GetAllOrder([FromQuery] GetAllOrderRequest request)
         {
             var orders = await _orderService.GetListOrderFilterAsync(request);
-            if (orders.Data == null)
+            if (orders.data == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
@@ -45,7 +45,7 @@ namespace Server.API.Controllers
                 }));
             }
 
-            return Ok(ApiResult<Pagination<OrderModel>>.Succeed(orders));
+            return Ok(ApiResult<GetListOrderFilterResponse>.Succeed(orders));
         }
 
         [HttpPost("confirm-order-appointment")]
