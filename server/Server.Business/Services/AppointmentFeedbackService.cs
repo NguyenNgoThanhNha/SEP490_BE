@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Dtos;
+using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System;
@@ -47,18 +48,20 @@ namespace Server.Business.Services
         }
 
         // Tạo phản hồi mới
-        public async Task<AppointmentFeedbackDetailDto> CreateAsync(AppointmentFeedbackCreateDto dto)
+        public async Task<object> CreateAsync(AppointmentFeedbackCreateDto dto)
         {
             var entity = _mapper.Map<AppointmentFeedback>(dto);
             entity.CreatedDate = DateTime.UtcNow;
-            entity.UpdatedDate = DateTime.UtcNow; // Cập nhật luôn nếu muốn đồng bộ
-            entity.UpdatedBy = entity.CreatedBy;  // Gán giống CreatedBy nếu cần
+            entity.UpdatedDate = DateTime.UtcNow;
+            entity.UpdatedBy = entity.CreatedBy;
+            entity.Status = "Pending";
 
             await _unitOfWorks.AppointmentFeedbackRepository.AddAsync(entity);
             await _unitOfWorks.SaveChangesAsync();
 
-            return _mapper.Map<AppointmentFeedbackDetailDto>(entity);
+            return new { Id = entity.AppointmentFeedbackId };
         }
+
 
 
         // Cập nhật phản hồi

@@ -20,6 +20,7 @@ public class AppointmentsDTO
     public virtual BranchDTO Branch { get; set; }
 
     public DateTime AppointmentsTime { get; set; }
+    public DateTime AppointmentEndTime { get; set; }
 
     public string Status { get; set; }
 
