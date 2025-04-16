@@ -163,13 +163,13 @@ namespace Server.API.Controllers
 
 
         [HttpPatch("update/{appointmentFeedbackId}")]
-        public async Task<IActionResult> PatchUpdate(int appointmentFeedbackId, [FromBody] AppointmentFeedbackUpdateDto dto)
+        public async Task<IActionResult> PatchUpdate(int appointmentFeedbackId, [FromForm] AppointmentFeedbackUpdateFormDto dto)
         {
             var result = await _appointmentFeedbackService.PatchUpdateAsync(appointmentFeedbackId, dto);
 
             if (result == null)
             {
-                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                return Ok(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
                     message = "Không tìm thấy phản hồi để cập nhật!",
                     data = new List<object>()
@@ -179,9 +179,10 @@ namespace Server.API.Controllers
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Cập nhật phản hồi thành công!",
-                data = result
+                data = result 
             }));
         }
+
 
         [HttpDelete("delete/{appointmentFeedbackId}")]
         public async Task<IActionResult> Delete(int appointmentFeedbackId)
@@ -190,7 +191,7 @@ namespace Server.API.Controllers
 
             if (!success)
             {
-                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                return Ok(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
                     message = "Không tìm thấy phản hồi để xóa!",
                     data = new List<object>()

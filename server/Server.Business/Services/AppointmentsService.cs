@@ -572,6 +572,7 @@ public class AppointmentsService
                 Steps = a.Service.Steps,
                 CreatedDate = a.Service.CreatedDate,
                 UpdatedDate = a.Service.UpdatedDate,
+                ServiceCategoryId = a.Service.ServiceCategoryId
 
             },
 

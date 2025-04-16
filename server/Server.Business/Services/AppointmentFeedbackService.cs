@@ -16,11 +16,13 @@ namespace Server.Business.Services
     {
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+        private readonly CloudianryService _cloudinaryService;
 
-        public AppointmentFeedbackService(UnitOfWorks unitOfWorks, IMapper mapper)
+        public AppointmentFeedbackService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudinaryService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<AppointmentFeedbackDetailDto?> GetByIdAsync(int id)
@@ -65,7 +67,7 @@ namespace Server.Business.Services
 
 
         // Cập nhật phản hồi
-        public async Task<AppointmentFeedbackDetailDto?> PatchUpdateAsync(int id, AppointmentFeedbackUpdateDto dto)
+        public async Task<object?> PatchUpdateAsync(int id, AppointmentFeedbackUpdateFormDto dto)
         {
             var feedback = await _unitOfWorks.AppointmentFeedbackRepository
                 .FindByCondition(f => f.AppointmentFeedbackId == id)
@@ -73,30 +75,37 @@ namespace Server.Business.Services
 
             if (feedback == null) return null;
 
-           
-            if (dto.Comment != null)
+            if (!string.IsNullOrEmpty(dto.Comment))
                 feedback.Comment = dto.Comment;
 
-           
             if (dto.Rating.HasValue)
-                feedback.Rating = dto.Rating;
+                feedback.Rating = dto.Rating.Value;
+
+            if (!string.IsNullOrEmpty(dto.Status))
+                feedback.Status = dto.Status;
 
             if (dto.ImageBefore != null)
-                feedback.ImageBefore = dto.ImageBefore;
+            {
+                var imageBeforeUpload = await _cloudinaryService.UploadImageAsync(dto.ImageBefore);
+                if (imageBeforeUpload != null)
+                    feedback.ImageBefore = imageBeforeUpload.SecureUrl.ToString();
+            }
 
             if (dto.ImageAfter != null)
-                feedback.ImageAfter = dto.ImageAfter;
-
-            if (dto.Status != null)
-                feedback.Status = dto.Status;
+            {
+                var imageAfterUpload = await _cloudinaryService.UploadImageAsync(dto.ImageAfter);
+                if (imageAfterUpload != null)
+                    feedback.ImageAfter = imageAfterUpload.SecureUrl.ToString();
+            }
 
             feedback.UpdatedDate = DateTime.UtcNow;
 
             _unitOfWorks.AppointmentFeedbackRepository.Update(feedback);
             await _unitOfWorks.SaveChangesAsync();
 
-            return _mapper.Map<AppointmentFeedbackDetailDto>(feedback);
+            return new { AppointmentFeedbackId = feedback.AppointmentFeedbackId };
         }
+
 
 
         // Xóa phản hồi
