@@ -6,18 +6,14 @@ using System.Threading.Tasks;
 
 namespace Server.Business.Dtos
 {
-    public class SlotWorkingDto
+    public class ShiftDto
     {
-        public int ScheduleId { get; set; }
-        public int StaffId { get; set; }
         public int ShiftId { get; set; }
-        public int DayOfWeek { get; set; }
-        public DateTime WorkDate { get; set; }
-        public string Status { get; set; }
+        public string ShiftName { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-
-        public ShiftDto Shift { get; set; }
     }
 
 }
