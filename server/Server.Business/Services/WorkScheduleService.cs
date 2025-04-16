@@ -57,25 +57,21 @@ public class WorkScheduleService
 
         for (var date = workSheduleRequest.FromDate; date <= workSheduleRequest.ToDate; date = date.AddDays(1))
         {
-            if (date.DayOfWeek != DayOfWeek.Sunday) // Chỉ làm từ Thứ 2 - Thứ 7
+            if (existingSchedules.Any(ws => ws.WorkDate == date && ws.ShiftId == shift.ShiftId))
             {
-                // Kiểm tra trong danh sách đã truy vấn thay vì gọi DB từng ngày
-                if (existingSchedules.Any(ws => ws.WorkDate == date && ws.ShiftId == shift.ShiftId))
-                {
-                    duplicateDays.Add(date.ToShortDateString());
-                    continue;
-                }
-
-                scheduleListModel.Add(new WorkScheduleModel
-                {
-                    StaffId = staff.StaffId,
-                    ShiftId = shift.ShiftId,
-                    DayOfWeek = (int)date.DayOfWeek,
-                    WorkDate = date,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                });
+                duplicateDays.Add(date.ToShortDateString());
+                continue;
             }
+
+            scheduleListModel.Add(new WorkScheduleModel
+            {
+                StaffId = staff.StaffId,
+                ShiftId = shift.ShiftId,
+                DayOfWeek = (int)date.DayOfWeek,
+                WorkDate = date,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            });
         }
 
         if (duplicateDays.Any())
@@ -120,8 +116,6 @@ public class WorkScheduleService
 
         for (var date = request.FromDate; date <= request.ToDate; date = date.AddDays(1))
         {
-            if (date.DayOfWeek == DayOfWeek.Sunday) continue;
-
             foreach (var shift in validShifts)
             {
                 if (existingSchedules.Any(ws => ws.WorkDate == date && ws.ShiftId == shift.ShiftId))
