@@ -102,11 +102,11 @@ namespace Server.API.Controllers
         [HttpPost("create")]        
         public async Task<IActionResult> Create([FromBody] AppointmentFeedbackCreateDto dto)
         {
-            if (dto.AppointmentId <= 0 || dto.CustomerId <= 0 || dto.UserId <= 0 || dto.Rating <= 0)
+            if (dto.AppointmentId <= 0 || dto.CustomerId <= 0 || dto.StaffId <= 0 || dto.Rating <= 0)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "AppointmentId, CustomerId, UserId và Rating phải lớn hơn 0.",
+                    message = "AppointmentId, CustomerId, StaffId và Rating phải lớn hơn 0.",
                     data = new List<object>()
                 }));
             }
@@ -120,10 +120,10 @@ namespace Server.API.Controllers
         }
 
 
-        [HttpPut("update/{appointmentFeedbackId}")]
-        public async Task<IActionResult> Update(int appointmentFeedbackId, [FromBody] AppointmentFeedbackUpdateDto dto)
+        [HttpPatch("update/{appointmentFeedbackId}")]
+        public async Task<IActionResult> PatchUpdate(int appointmentFeedbackId, [FromBody] AppointmentFeedbackUpdateDto dto)
         {
-            var result = await _appointmentFeedbackService.UpdateAsync(appointmentFeedbackId, dto);
+            var result = await _appointmentFeedbackService.PatchUpdateAsync(appointmentFeedbackId, dto);
 
             if (result == null)
             {

@@ -583,64 +583,62 @@ namespace Server.API.Controllers
 
         // [Authorize]
         [HttpGet("slot-working")]
-        public async Task<IActionResult> GetStaffScheduleByMonthAsync([FromQuery] int year, [FromQuery] int month)
+public async Task<IActionResult> GetStaffScheduleByDateRangeAsync([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
+{
+    // Lấy token từ header
+    if (!Request.Headers.TryGetValue("Authorization", out var token))
+    {
+        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
         {
-            // Lấy token từ header
-            if (!Request.Headers.TryGetValue("Authorization", out var token))
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Authorization header is missing."
-                }));
-            }
+            message = "Authorization header is missing."
+        }));
+    }
 
-            var tokenValue = token.ToString().Split(' ')[1];
-            var currentUser = await _authService.GetUserInToken(tokenValue);
+    var tokenValue = token.ToString().Split(' ')[1];
+    var currentUser = await _authService.GetUserInToken(tokenValue);
 
-            if (currentUser == null)
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Không tìm thấy thông tin người dùng!"
-                }));
-            }
+    if (currentUser == null)
+    {
+        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+        {
+            message = "Không tìm thấy thông tin người dùng!"
+        }));
+    }
 
-            // Kiểm tra RoleID – chỉ Staff được phép
-            if (currentUser.RoleID != 4)
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Không thể truy cập. Chỉ nhân viên mới có thể xem lịch trình của họ."
-                }));
-            }
+    if (currentUser.RoleID != 4)
+    {
+        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+        {
+            message = "Không thể truy cập. Chỉ nhân viên mới có thể xem lịch trình của họ."
+        }));
+    }
 
-            // Lấy Staff theo UserId
-            var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
-            if (staff == null)
-            {
-                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Không tìm thấy thông tin nhân viên!"
-                }));
-            }
+    var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
+    if (staff == null)
+    {
+        return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+        {
+            message = "Không tìm thấy thông tin nhân viên!"
+        }));
+    }
 
-            // Gọi hàm Service để lấy lịch theo tháng
-            var schedule = await _staffService.GetStaffScheduleByMonthAsync(staff.StaffId, year, month);
+    var schedule = await _staffService.GetStaffScheduleByDateRangeAsync(staff.StaffId, fromDate, toDate);
 
-            if (schedule == null || schedule.SlotWorkings == null || !schedule.SlotWorkings.Any())
-            {
-                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Không tìm thấy lịch làm việc nào của nhân viên này trong tháng đã chọn."
-                }));
-            }
+    if (schedule == null || schedule.SlotWorkings == null || !schedule.SlotWorkings.Any())
+    {
+        return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+        {
+            message = "Không tìm thấy lịch làm việc nào của nhân viên trong khoảng thời gian này."
+        }));
+    }
 
-            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-            {
-                message = "Lấy thành công lịch trình nhân viên làm việc trong tháng!",
-                data = schedule
-            }));
-        }
+    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+    {
+        message = "Lấy thành công lịch trình nhân viên làm việc theo khoảng thời gian!",
+        data = schedule
+    }));
+}
+
 
         [HttpGet("Manager-Admin/slot-working")]
         public async Task<IActionResult> GetStaffSlotWorkingByMonthAsync([FromQuery] int staffId, [FromQuery] int year,
