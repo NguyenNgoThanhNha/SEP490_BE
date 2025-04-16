@@ -729,36 +729,7 @@ namespace Server.Business.Services
             return new List<CashierScheduleDto> { result };
         }
 
-        //public async Task<StaffScheduleDto> GetStaffScheduleByDayAsync(int staffId, DateTime workDate)
-        //{
-        //    var staff = await _unitOfWorks.StaffRepository.GetByIdAsync(staffId);
-        //    if (staff == null)
-        //    {
-        //        return null; // Không tìm thấy nhân viên
-        //    }
-
-        //    var schedules = await _unitOfWorks.WorkScheduleRepository.GetAllAsync(
-        //        ws => ws.StaffId == staffId && ws.WorkDate.Date == workDate.Date
-        //    );
-
-        //    var result = new StaffScheduleDto
-        //    {
-        //        StaffId = staffId,
-        //        //FullName = staff.StaffInfo.FullName,
-        //        Schedules = schedules.Select(s => new WorkScheduleDto
-        //        {
-        //            ScheduleId = s.Id,
-        //            WorkDate = s.WorkDate,
-        //            DayOfWeek = s.DayOfWeek,
-        //            ShiftName = s.Shift.ShiftName,
-        //            StartTime = s.Shift.StartTime,
-        //            EndTime = s.Shift.EndTime,
-        //            Status = s.Status
-        //        }).ToList()
-        //    };
-
-        //    return result;
-        //}
+       
 
         public async Task<StaffScheduleDto> GetStaffScheduleByMonthAsync(int staffId, int year, int month)
         {
@@ -799,6 +770,47 @@ namespace Server.Business.Services
 
             return result;
         }
+
+        public async Task<StaffScheduleDto> GetStaffScheduleByDateRangeAsync(int staffId, DateTime fromDate, DateTime toDate)
+        {
+            var schedules = await _unitOfWorks.WorkScheduleRepository
+                .FindByCondition(s => s.StaffId == staffId &&
+                                      s.WorkDate.Date >= fromDate.Date &&
+                                      s.WorkDate.Date <= toDate.Date)
+                .Include(s => s.Shift)
+                .ToListAsync();
+
+            if (schedules == null || !schedules.Any())
+            {
+                throw new BadRequestException("Không tìm thấy lịch làm việc cho nhân viên trong khoảng thời gian này.");
+            }
+
+            var result = new StaffScheduleDto
+            {
+                StaffId = staffId,
+                SlotWorkings = schedules.Select(s => new SlotWorkingDto
+                {
+                    ScheduleId = s.Id,
+                    StaffId = s.StaffId,
+                    ShiftId = s.ShiftId,
+                    DayOfWeek = s.DayOfWeek,
+                    WorkDate = s.WorkDate,
+                    Status = s.Status,
+                    CreatedDate = s.CreatedDate,
+                    UpdatedDate = s.UpdatedDate,
+                    Shift = new ShiftDto
+                    {
+                        ShiftId = s.Shift.ShiftId,
+                        ShiftName = s.Shift.ShiftName,
+                        StartTime = s.Shift.StartTime,
+                        EndTime = s.Shift.EndTime
+                    }
+                }).ToList()
+            };
+
+            return result;
+        }
+
 
 
         public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
