@@ -780,10 +780,7 @@ namespace Server.Business.Services
                 .Include(s => s.Shift)
                 .ToListAsync();
 
-            if (schedules == null || !schedules.Any())
-            {
-                throw new BadRequestException("Không tìm thấy lịch làm việc cho nhân viên trong khoảng thời gian này.");
-            }
+          
 
             var result = new StaffScheduleDto
             {

@@ -626,10 +626,11 @@ public async Task<IActionResult> GetStaffScheduleByDateRangeAsync([FromQuery] Da
 
     if (schedule == null || schedule.SlotWorkings == null || !schedule.SlotWorkings.Any())
     {
-        return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
-        {
-            message = "Không tìm thấy lịch làm việc nào của nhân viên trong khoảng thời gian này."
-        }));
+                return Ok(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy lịch làm việc nào của nhân viên trong khoảng thời gian này.",
+                    data = new List<object>()
+                }));
     }
 
     return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
