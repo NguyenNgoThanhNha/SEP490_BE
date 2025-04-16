@@ -581,7 +581,7 @@ namespace Server.Business.Services
             var appointments = await _unitOfWorks.AppointmentsRepository
                 .FindByCondition(a => staffIds.Contains(a.StaffId) &&
                                       a.AppointmentsTime.Date == date.Date &&
-                                      a.Status == OrderStatusEnum.Pending.ToString())
+                                      a.Status != OrderStatusEnum.Completed.ToString())
                 .Include(a => a.Service)
                 .ToListAsync();
 
