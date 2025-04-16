@@ -52,7 +52,7 @@ public class UserInfoModel
     public DateTimeOffset? ModifyDate { get; set; }
 
     public string? Status { get; set; }
-    
+    public int RoleId { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 }

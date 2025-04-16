@@ -9,6 +9,7 @@ namespace Server.Business.Dtos
     public class ServiceDto
     {
         public int ServiceId { get; set; }
+        public int ServiceCategoryId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
