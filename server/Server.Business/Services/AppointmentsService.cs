@@ -154,7 +154,7 @@ public class AppointmentsService
             {
                 var serviceId = request.ServiceId[i];
                 var staffId = request.StaffId[i];
-                var appointmentTime = request.AppointmentsTime[i].AddHours(7);
+                var appointmentTime = request.AppointmentsTime[i];
 
                 var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == serviceId);
                 if (service == null)
