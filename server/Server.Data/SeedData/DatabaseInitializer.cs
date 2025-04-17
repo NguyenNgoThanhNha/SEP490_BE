@@ -420,8 +420,8 @@ namespace Server.Data.SeedData
             var scheduleList = new List<WorkSchedule>();
             var random = new Random();
 
-            var startDate = new DateTime(2025, 3, 3); // Bắt đầu từ tuần đầu tiên của tháng (Thứ 2)
-            var endDate = new DateTime(2025, 3, 30); // Kết thúc vào thứ 7 của tuần cuối cùng
+            var startDate = new DateTime(2025, 4, 2); // Bắt đầu từ tuần đầu tiên của tháng (Thứ 2)
+            var endDate = new DateTime(2025, 4, 30); // Kết thúc vào thứ 7 của tuần cuối cùng
 
             foreach (var staff in staffs)
             {
@@ -430,18 +430,15 @@ namespace Server.Data.SeedData
 
                 for (var date = startDate; date <= endDate; date = date.AddDays(1))
                 {
-                    if (date.DayOfWeek != DayOfWeek.Sunday) // Chỉ làm từ Thứ 2 - Thứ 7
+                    scheduleList.Add(new WorkSchedule
                     {
-                        scheduleList.Add(new WorkSchedule
-                        {
-                            StaffId = staff.StaffId,
-                            ShiftId = assignedShift.ShiftId,
-                            DayOfWeek = (int)date.DayOfWeek, // Chuyển thành số (Monday = 1, ..., Saturday = 6)
-                            WorkDate = date, // Ngày làm việc cụ thể
-                            CreatedDate = DateTime.Now,
-                            UpdatedDate = DateTime.Now
-                        });
-                    }
+                        StaffId = staff.StaffId,
+                        ShiftId = assignedShift.ShiftId,
+                        DayOfWeek = (int)date.DayOfWeek, // Chuyển thành số (Monday = 1, ..., Saturday = 6)
+                        WorkDate = date, // Ngày làm việc cụ thể
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    });
                 }
             }
 
