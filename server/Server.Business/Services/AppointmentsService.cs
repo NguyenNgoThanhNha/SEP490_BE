@@ -101,11 +101,11 @@ public class AppointmentsService
             {
                 voucher = await _unitOfWorks.VoucherRepository
                               .FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
-                          ?? throw new BadRequestException("Voucher not found!");
+                          ?? throw new BadRequestException("Không tìm thấy voucher!");
             }
 
-            if (customer == null) throw new BadRequestException("Customer not found!");
-            if (branch == null) throw new BadRequestException("Branch not found!");
+            if (customer == null) throw new BadRequestException("Không tìm thấy thông tin khách hàng!");
+            if (branch == null) throw new BadRequestException("Không tìm thấy thông tin chi nhánh!");
             if (request.ServiceId.Length != request.StaffId.Length ||
                 request.ServiceId.Length != request.AppointmentsTime.Length)
             {
@@ -135,7 +135,7 @@ public class AppointmentsService
                 voucher.RemainQuantity -= 1;
                 if (voucher.RemainQuantity < 0)
                 {
-                    throw new BadRequestException("Voucher is out of stock!");
+                    throw new BadRequestException("Voucher đã hết hạn!");
                 }
 
                 order.DiscountAmount = voucher.DiscountAmount;
@@ -154,19 +154,19 @@ public class AppointmentsService
             {
                 var serviceId = request.ServiceId[i];
                 var staffId = request.StaffId[i];
-                var appointmentTime = request.AppointmentsTime[i];
+                var appointmentTime = request.AppointmentsTime[i].AddHours(7);
 
                 var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == serviceId);
                 if (service == null)
                 {
-                    throw new BadRequestException($"Service not found!");
+                    throw new BadRequestException($"Không tìm thấy thông tin dịch vụ!");
                 }
 
                 var serviceInBranch = await _unitOfWorks.Branch_ServiceRepository
                     .FirstOrDefaultAsync(sb => sb.ServiceId == serviceId && sb.BranchId == request.BranchId);
                 if (serviceInBranch == null)
                 {
-                    throw new BadRequestException($"Service is not available in this branch!");
+                    throw new BadRequestException($"Trong chi nhánh hiện tại không tồn tại dịch vụ này!");
                 }
 
                 var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId)
@@ -174,12 +174,12 @@ public class AppointmentsService
                     .FirstOrDefaultAsync();
                 if (staff == null)
                 {
-                    throw new BadRequestException($"Staff not found!");
+                    throw new BadRequestException($"Không tìm thấy thông tin nhân viên!");
                 }
 
                 if (staff.BranchId != request.BranchId)
                 {
-                    throw new BadRequestException($"Staff does not belong to branch ID {request.BranchId}!");
+                    throw new BadRequestException($"Staff hiện đang không trực ở chi nhánh {request.BranchId}!");
                 }
 
                 var totalDuration = int.Parse(service.Duration) + 5; // Thời gian dịch vụ + thời gian nghỉ
@@ -190,7 +190,7 @@ public class AppointmentsService
                     var lastAppointmentEndTime = staffAppointments[staffId];
                     if (appointmentTime < lastAppointmentEndTime)
                     {
-                        throw new BadRequestException($"Staff is busy during in: {appointmentTime}!");
+                        throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
                     }
                 }
 
@@ -203,7 +203,7 @@ public class AppointmentsService
                                               a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
                 if (isStaffBusy)
                 {
-                    throw new BadRequestException($"Staff is busy during in: {appointmentTime}!");
+                    throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
                 }
                 
                 // Lấy ngày và thứ trong tuần từ appointmentTime
@@ -222,6 +222,22 @@ public class AppointmentsService
                 if (workSchedule == null)
                 {
                     throw new BadRequestException($"Staff không có ca làm việc vào ngày {appointmentDate:dd/MM/yyyy}.");
+                }
+                else
+                {
+                    if (workSchedule != null)
+                    {
+                        var appointmentTimeOfDay = appointmentTime.TimeOfDay;
+                        var shift = workSchedule.Shift;
+
+                        var isWithinShiftTime = appointmentTimeOfDay >= shift.StartTime &&
+                                                appointmentTimeOfDay <= shift.EndTime;
+
+                        if (!isWithinShiftTime)
+                        {
+                            throw new BadRequestException("Thời gian đặt lịch không nằm trong ca làm việc của nhân viên.");
+                        }
+                    }
                 }
 
                 // Kiểm tra xem thời gian hẹn có nằm trong khoảng ca làm không
@@ -341,42 +357,42 @@ public class AppointmentsService
             throw new BadRequestException("Staff does not in branch!");
         }
 
-        if (!request.CustomerId.Equals(null))
+        if (request.CustomerId != null)
         {
             appointmentsModel.CustomerId = request.CustomerId;
         }
 
-        if (!request.StaffId.Equals(null))
+        if (request.StaffId != null)
         {
             appointmentsModel.StaffId = request.StaffId;
         }
 
-        if (!request.ServiceId.Equals(null))
+        if (request.ServiceId != null)
         {
             appointmentsModel.ServiceId = request.ServiceId;
         }
 
-        if (!request.BranchId.Equals(null))
+        if (request.BranchId != null)
         {
             appointmentsModel.BranchId = request.BranchId;
         }
 
-        if (!request.AppointmentsTime.Equals(null))
+        if (request.AppointmentsTime != null)
         {
             appointmentsModel.AppointmentsTime = request.AppointmentsTime;
         }
 
-        if (!request.Status.Equals(null))
+        if (request.Status != null)
         {
             appointmentsModel.Status = request.Status;
         }
 
-        if (!request.Notes.Equals(null))
+        if (request.Notes != null)
         {
             appointmentsModel.Notes = request.Notes;
         }
 
-        if (!request.Feedback.Equals(null))
+        if (request.Feedback != null)
         {
             appointmentsModel.Feedback = request.Feedback;
         }
@@ -389,7 +405,7 @@ public class AppointmentsService
             return _mapper.Map<AppointmentsModel>(appointmentsEntity);
         }
 
-        return null;
+        return null;    
     }
 
     public async Task<AppointmentsModel> DeleteAppointments(AppointmentsModel appointmentsModel)
