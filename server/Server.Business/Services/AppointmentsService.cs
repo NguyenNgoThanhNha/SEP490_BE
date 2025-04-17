@@ -324,7 +324,7 @@ public class AppointmentsService
     }
 
 
-    public async Task<AppointmentsModel> UpdateAppointments(AppointmentsModel appointmentsModel,
+    public async Task<AppointmentsModel> UpdateAppointments(int appointmentId,
         AppointmentUpdateRequest request)
     {
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId);
@@ -332,6 +332,9 @@ public class AppointmentsService
         var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == request.ServiceId);
         var branch = await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId);
 
+        var appointmentEntity = await _unitOfWorks.AppointmentsRepository
+            .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);
+        
         if (customer == null)
         {
             throw new BadRequestException("Customer not found!");
@@ -359,50 +362,53 @@ public class AppointmentsService
 
         if (request.CustomerId != null)
         {
-            appointmentsModel.CustomerId = request.CustomerId;
+            appointmentEntity.CustomerId = request.CustomerId;
         }
 
         if (request.StaffId != null)
         {
-            appointmentsModel.StaffId = request.StaffId;
+            appointmentEntity.StaffId = request.StaffId;
         }
 
         if (request.ServiceId != null)
         {
-            appointmentsModel.ServiceId = request.ServiceId;
+            appointmentEntity.ServiceId = request.ServiceId;
         }
 
         if (request.BranchId != null)
         {
-            appointmentsModel.BranchId = request.BranchId;
+            appointmentEntity.BranchId = request.BranchId;
         }
 
         if (request.AppointmentsTime != null)
         {
-            appointmentsModel.AppointmentsTime = request.AppointmentsTime;
+            appointmentEntity.AppointmentsTime = request.AppointmentsTime;
         }
 
         if (request.Status != null)
         {
-            appointmentsModel.Status = request.Status;
+            appointmentEntity.Status = request.Status;
         }
 
         if (request.Notes != null)
         {
-            appointmentsModel.Notes = request.Notes;
+            appointmentEntity.Notes = request.Notes;
         }
 
         if (request.Feedback != null)
         {
-            appointmentsModel.Feedback = request.Feedback;
+            appointmentEntity.Feedback = request.Feedback;
         }
 
-        var appointmentsEntity =
-            _unitOfWorks.AppointmentsRepository.Update(_mapper.Map<Appointments>(appointmentsModel));
+        var appointmentUpdated =
+            _unitOfWorks.AppointmentsRepository.Update(appointmentEntity);
+
+        var appointmentResponse = await GetAppointmentsById(appointmentUpdated.AppointmentId);
+        
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
         if (result > 0)
         {
-            return _mapper.Map<AppointmentsModel>(appointmentsEntity);
+            return appointmentResponse;
         }
 
         return null;    
