@@ -209,7 +209,6 @@ public class AppointmentsService
                 // Lấy ngày và thứ trong tuần từ appointmentTime
                 var appointmentDate = appointmentTime.Date;
                 var dayOfWeek = (int)appointmentDate.DayOfWeek;
-                dayOfWeek = dayOfWeek == 0 ? 7 : dayOfWeek; // Chủ nhật là 0, ta cần 1-7 nên gán 7 cho CN
 
                 var workSchedule = await _unitOfWorks.WorkScheduleRepository
                     .FindByCondition(ws => ws.StaffId == staffId &&
