@@ -15,8 +15,7 @@ public class ProductFeedback
     
     [ForeignKey("Product_Feedback_Customer")]
     public int? CustomerId { get; set; }
-    public int? UserId { get; set; }
-    public virtual User? User { get; set; }
+    public virtual User? Customer { get; set; }
     
     public string? Comment { get; set; }
     

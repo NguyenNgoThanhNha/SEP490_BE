@@ -713,7 +713,6 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: true),
                     Comment = table.Column<string>(type: "longtext", nullable: true),
                     Rating = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<string>(type: "longtext", nullable: false),
@@ -734,8 +733,8 @@ namespace Server.Data.Migrations
                         principalColumn: "ProductId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductFeedback_User_UserId",
-                        column: x => x.UserId,
+                        name: "FK_ProductFeedback_User_CustomerId",
+                        column: x => x.CustomerId,
                         principalTable: "User",
                         principalColumn: "UserId");
                 })
@@ -749,7 +748,6 @@ namespace Server.Data.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     ServiceId = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: true),
                     Comment = table.Column<string>(type: "longtext", nullable: true),
                     Rating = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<string>(type: "longtext", nullable: false),
@@ -770,8 +768,8 @@ namespace Server.Data.Migrations
                         principalColumn: "ServiceId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ServiceFeedback_User_UserId",
-                        column: x => x.UserId,
+                        name: "FK_ServiceFeedback_User_CustomerId",
+                        column: x => x.CustomerId,
                         principalTable: "User",
                         principalColumn: "UserId");
                 })
@@ -1653,14 +1651,14 @@ namespace Server.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductFeedback_CustomerId",
+                table: "ProductFeedback",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ProductFeedback_ProductId",
                 table: "ProductFeedback",
                 column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductFeedback_UserId",
-                table: "ProductFeedback",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductImages_ProductId",
@@ -1694,14 +1692,14 @@ namespace Server.Data.Migrations
                 column: "ServiceCategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ServiceFeedback_CustomerId",
+                table: "ServiceFeedback",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ServiceFeedback_ServiceId",
                 table: "ServiceFeedback",
                 column: "ServiceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceFeedback_UserId",
-                table: "ServiceFeedback",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceImages_ServiceId",

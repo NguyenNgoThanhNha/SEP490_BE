@@ -584,6 +584,8 @@ namespace Server.Business.Services
                                       a.Status != OrderStatusEnum.Completed.ToString() &&
                                       a.Status != OrderStatusEnum.Cancelled.ToString())
                 .Include(a => a.Service)
+                .Include(a => a.Staff)
+                .Where(x => x.Staff.RoleId == 2)
                 .ToListAsync();
 
             var result = appointments
@@ -828,7 +830,7 @@ namespace Server.Business.Services
 
             // Lấy danh sách tất cả nhân viên thuộc branch
             var listStaff = await _unitOfWorks.StaffRepository
-                .FindByCondition(x => x.BranchId == request.BranchId)
+                .FindByCondition(x => x.BranchId == request.BranchId && x.RoleId == 2)
                 .Include(x => x.StaffInfo)
                 .ToListAsync();
 
@@ -934,7 +936,7 @@ namespace Server.Business.Services
                     .FindByCondition(x => x.ServiceCategoryId == serviceCategoryId)
                     .Include(x => x.StaffInfo)
                     .ThenInclude(x => x.StaffInfo)
-                    .Where(x => x.StaffInfo.BranchId == request.BranchId)
+                    .Where(x => x.StaffInfo.BranchId == request.BranchId && x.StaffInfo.RoleId == 2)
                     .ToListAsync();
 
                 var listStaff = new List<Staff>();
@@ -1161,7 +1163,7 @@ namespace Server.Business.Services
             foreach (var staffId in staffIds)
             {
                 var staff = await _unitOfWorks.StaffRepository
-                    .FindByCondition(x => x.StaffId == staffId)
+                    .FindByCondition(x => x.StaffId == staffId && x.RoleId == 2)
                     .Include(x => x.StaffInfo)
                     .FirstOrDefaultAsync();
 
