@@ -732,7 +732,6 @@ namespace Server.Business.Services
             return new List<CashierScheduleDto> { result };
         }
 
-       
 
         public async Task<StaffScheduleDto> GetStaffScheduleByMonthAsync(int staffId, int year, int month)
         {
@@ -774,7 +773,8 @@ namespace Server.Business.Services
             return result;
         }
 
-        public async Task<StaffScheduleDto> GetStaffScheduleByDateRangeAsync(int staffId, DateTime fromDate, DateTime toDate)
+        public async Task<StaffScheduleDto> GetStaffScheduleByDateRangeAsync(int staffId, DateTime fromDate,
+            DateTime toDate)
         {
             var schedules = await _unitOfWorks.WorkScheduleRepository
                 .FindByCondition(s => s.StaffId == staffId &&
@@ -783,7 +783,6 @@ namespace Server.Business.Services
                 .Include(s => s.Shift)
                 .ToListAsync();
 
-          
 
             var result = new StaffScheduleDto
             {
@@ -810,7 +809,6 @@ namespace Server.Business.Services
 
             return result;
         }
-
 
 
         public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
@@ -1281,7 +1279,9 @@ namespace Server.Business.Services
         public async Task<List<StaffWorkScheduleResponse>> GetStaffWorkScheduleAsync(int[] staffIds, DateTime date)
         {
             var workSchedules = await _unitOfWorks.WorkScheduleRepository
-                .FindByCondition(ws => staffIds.Contains(ws.StaffId) && ws.WorkDate.Date == date.Date && ws.Status == ObjectStatus.Active.ToString())
+                .FindByCondition(ws =>
+                    staffIds.Contains(ws.StaffId) && ws.WorkDate.Date == date.Date &&
+                    ws.Status == ObjectStatus.Active.ToString())
                 .Include(ws => ws.Shift)
                 .Include(ws => ws.Staff)
                 .ThenInclude(s => s.StaffInfo)
@@ -1367,7 +1367,7 @@ namespace Server.Business.Services
                     x.AppointmentsTime.Date == staffLeave.LeaveDate.Date)
                 .Include(x => x.Service)
                 .ThenInclude(x => x.ServiceCategory)
-                .Include(x=> x.Customer)
+                .Include(x => x.Customer)
                 .Include(x => x.Staff)
                 .ThenInclude(x => x.StaffInfo)
                 .ToListAsync();
@@ -1383,8 +1383,77 @@ namespace Server.Business.Services
 
         public async Task<List<ShiftModel>> GetListShifts()
         {
-            var listShift =  _unitOfWorks.ShiftRepository.GetAll();
-            return  _mapper.Map<List<ShiftModel>>(listShift);
+            var listShift = _unitOfWorks.ShiftRepository.GetAll();
+            return _mapper.Map<List<ShiftModel>>(listShift);
+        }
+
+        public async Task<List<GetListShiftWithServiceOfStaffResponse>> GetListShiftWithServiceOfStaff(
+            int[] serviceIds, int branchId, DateTime workDate)
+        {
+            var branch = await _unitOfWorks.BranchRepository
+                .FindByCondition(x => x.BranchId == branchId)
+                .FirstOrDefaultAsync() ?? throw new BadRequestException("Không tìm thấy thông tin chi nhánh");
+
+            var result = new List<GetListShiftWithServiceOfStaffResponse>();
+
+            foreach (var serviceId in serviceIds)
+            {
+                var service = await _unitOfWorks.ServiceRepository
+                    .FindByCondition(x => x.ServiceId == serviceId)
+                    .FirstOrDefaultAsync() ?? throw new BadRequestException("Không tìm thấy thông tin dịch vụ");
+
+                var branchService = await _unitOfWorks.Branch_ServiceRepository
+                    .FindByCondition(x => x.BranchId == branch.BranchId && x.ServiceId == serviceId)
+                    .FirstOrDefaultAsync() ?? throw new BadRequestException(
+                    $"Không tìm thấy thông tin dịch vụ {service.Name} trong chi nhánh này");
+
+                // Lấy danh sách nhân viên trong chi nhánh
+                var staffList = await _unitOfWorks.StaffRepository
+                    .FindByCondition(x => x.BranchId == branchId)
+                    .Include(x => x.StaffInfo)
+                    .ToListAsync();
+
+                var staffIds = staffList.Select(s => s.StaffId).ToList();
+
+                // Lấy các nhân viên có ServiceCategoryId phù hợp với service
+                var staffServiceCategories = await _unitOfWorks.Staff_ServiceCategoryRepository
+                    .FindByCondition(x =>
+                        staffIds.Contains(x.StaffId) && x.ServiceCategoryId == service.ServiceCategoryId)
+                    .ToListAsync();
+
+                var qualifiedStaffIds = staffServiceCategories.Select(x => x.StaffId).Distinct().ToList();
+
+                var workingStaffs = new List<StaffWithMultipleShift>();
+
+                foreach (var staffId in qualifiedStaffIds)
+                {
+                    var staff = staffList.First(s => s.StaffId == staffId);
+
+                    var workSchedules = await _unitOfWorks.WorkScheduleRepository
+                        .FindByCondition(x => x.StaffId == staffId && x.WorkDate.Date == workDate.Date)
+                        .Include(x => x.Shift)
+                        .ToListAsync();
+
+                    var shifts = workSchedules
+                        .Where(ws => ws.Shift != null)
+                        .Select(ws => _mapper.Map<ShiftModel>(ws.Shift))
+                        .ToList();
+
+                    workingStaffs.Add(new StaffWithMultipleShift
+                    {
+                        Staff = _mapper.Map<StaffModel>(staff),
+                        Shifts = shifts
+                    });
+                }
+
+                result.Add(new GetListShiftWithServiceOfStaffResponse
+                {
+                    ServiceId = serviceId,
+                    WorkingStaffs = workingStaffs
+                });
+            }
+
+            return result;
         }
     }
 }
