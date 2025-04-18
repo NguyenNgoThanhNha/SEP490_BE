@@ -1018,5 +1018,26 @@ public async Task<IActionResult> GetStaffScheduleByDateRangeAsync([FromQuery] Da
                 data = result
             }));
         }
+
+
+        [HttpPost("get-list-shifts-with-service")]
+        public async Task<IActionResult> GetListShiftWithServiceOfStaff(
+            [FromBody] GetListShiftWithServiceOfStaffRequest request)
+        {
+            var result = await _staffService.GetListShiftWithServiceOfStaff(request.ServiceIds, request.BranchId,
+                request.WorkDate);
+            if (result == null || result.Count == 0)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không tìm thấy dữ liệu ca làm việc của nhân viên."
+                }));
+            }
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy danh sách ca làm việc của nhân viên thành công.",
+                data = result
+            }));
+        }
     }
 }

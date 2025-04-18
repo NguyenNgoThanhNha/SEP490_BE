@@ -11,7 +11,6 @@ namespace Server.Business.Dtos
         public int ServiceFeedbackId { get; set; }
         public int ServiceId { get; set; }
         public int? CustomerId { get; set; }
-        public int? UserId { get; set; }
         public string? Comment { get; set; }
         public int? Rating { get; set; }
         public string Status { get; set; }

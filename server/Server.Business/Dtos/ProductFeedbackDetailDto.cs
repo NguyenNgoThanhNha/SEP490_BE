@@ -14,8 +14,6 @@ namespace Server.Business.Dtos
         public int ProductId { get; set; }
         [ForeignKey("Customer")]
         public int? CustomerId { get; set; }
-        public virtual User Customer { get; set; }
-        public int? UserId { get; set; }
         public string? Comment { get; set; }
         public int? Rating { get; set; }
         public string Status { get; set; }

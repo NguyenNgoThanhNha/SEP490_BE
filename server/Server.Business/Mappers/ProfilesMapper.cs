@@ -164,7 +164,7 @@ namespace Server.Business.Mappers
             CreateMap<ProductFeedbackUpdateDto, ProductFeedback>().ReverseMap();
 
             CreateMap<ServiceFeedback, ServiceFeedbackDetailDto>()
-                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.User));
+                .ForMember(dest => dest.Customer, opt => opt.MapFrom(src => src.Customer));
 
             CreateMap<ServiceFeedbackCreateDto, ServiceFeedback>().ReverseMap();
 

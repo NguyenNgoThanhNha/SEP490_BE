@@ -16,11 +16,7 @@ public class ProductFeedback
     //[ForeignKey("Product_Feedback_Customer")]
     [ForeignKey("CustomerId")]
     public int? CustomerId { get; set; }
-    public virtual User? Customer { get; set; } // ✅ Navigation property mới
-
-    public int? UserId { get; set; }
-    public virtual User? User { get; set; }
-
+    public virtual User? Customer { get; set; }
     
     public string? Comment { get; set; }
     

@@ -26,7 +26,7 @@ namespace Server.Business.Services
         {
             var feedback = await _unitOfWorks.FeedbackServiceRepository
                 .FindByCondition(f => f.ServiceFeedbackId == id)
-                .Include(f => f.User)
+                .Include(f => f.Customer)
                 .Include(f => f.Service)
                 .FirstOrDefaultAsync();
 
@@ -38,7 +38,7 @@ namespace Server.Business.Services
             var feedbacks = await _unitOfWorks.ServiceFeedbackRepository
                 .GetAll()
                 .Include(f => f.Service)
-                .Include(f => f.User)
+                .Include(f => f.Customer)
                 .ToListAsync();
 
             return _mapper.Map<List<ServiceFeedbackDetailDto>>(feedbacks);
@@ -63,7 +63,7 @@ namespace Server.Business.Services
             // 👉 Load lại entity có include User (customer)
             var createdEntity = await _unitOfWorks.ServiceFeedbackRepository
                 .FindByCondition(x => x.ServiceFeedbackId == entity.ServiceFeedbackId)
-                .Include(x => x.User) // Include User
+                .Include(x => x.Customer) // Include User
                 .FirstOrDefaultAsync();
 
             return _mapper.Map<ServiceFeedbackDetailDto>(createdEntity);
@@ -104,7 +104,7 @@ namespace Server.Business.Services
             var feedbacks = await _unitOfWorks.ServiceFeedbackRepository
                 .FindByCondition(f => f.ServiceId == serviceId)
                 .Include(f => f.Service)
-                .Include(f => f.User)
+                .Include(f => f.Customer)
                 .ToListAsync();
 
             return _mapper.Map<List<ServiceFeedbackDetailDto>>(feedbacks);

@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250415133837_Updated-Database")]
+    [Migration("20250418011909_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -818,14 +818,11 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("ProductFeedbackId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("CustomerId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("ProductFeedback");
                 });
@@ -1061,14 +1058,11 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("ServiceFeedbackId");
 
-                    b.HasIndex("ServiceId");
+                    b.HasIndex("CustomerId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ServiceId");
 
                     b.ToTable("ServiceFeedback");
                 });
@@ -2289,19 +2283,19 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.ProductFeedback", b =>
                 {
+                    b.HasOne("Server.Data.Entities.User", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("Server.Data.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Server.Data.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                    b.Navigation("Customer");
 
                     b.Navigation("Product");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.ProductImages", b =>
@@ -2368,19 +2362,19 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.ServiceFeedback", b =>
                 {
+                    b.HasOne("Server.Data.Entities.User", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("Server.Data.Entities.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Server.Data.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                    b.Navigation("Customer");
 
                     b.Navigation("Service");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Server.Data.Entities.ServiceImages", b =>

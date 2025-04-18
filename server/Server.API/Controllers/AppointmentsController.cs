@@ -214,7 +214,7 @@ namespace Server.API.Controllers
             }
 
             var appointmentsExist = await _appointmentsService.GetAppointmentsById(id);
-            if (appointmentsExist.Equals(null))
+            if (appointmentsExist == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
@@ -222,7 +222,7 @@ namespace Server.API.Controllers
                 }));
             }
 
-            var appointmentsModel = await _appointmentsService.UpdateAppointments(appointmentsExist, request);
+            var appointmentsModel = await _appointmentsService.UpdateAppointments(appointmentsExist.AppointmentId, request);
             if (appointmentsModel.Equals(null))
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
