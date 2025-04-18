@@ -16,8 +16,8 @@ namespace Server.Business.Dtos
         public string? Comment { get; set; }
         public int? Rating { get; set; }
 
-        public IFormFile ImageBefore { get; set; } = null!;
-        public IFormFile ImageAfter { get; set; } = null!;
+        public IFormFile? ImageBefore { get; set; } 
+       // public IFormFile? ImageAfter { get; set; } 
     }
 
 }

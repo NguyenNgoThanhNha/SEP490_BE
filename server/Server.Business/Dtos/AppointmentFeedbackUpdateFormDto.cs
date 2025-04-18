@@ -9,11 +9,11 @@ namespace Server.Business.Dtos
 {
     public class AppointmentFeedbackUpdateFormDto
     {
-        public string? Comment { get; set; }
-        public int? Rating { get; set; }
-        public string? Status { get; set; }
+        //public string? Comment { get; set; }
+        //public int? Rating { get; set; }
+        //public string? Status { get; set; }
 
-        public IFormFile? ImageBefore { get; set; }
+        //public IFormFile? ImageBefore { get; set; }
         public IFormFile? ImageAfter { get; set; }
     }
 

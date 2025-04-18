@@ -75,21 +75,21 @@ namespace Server.Business.Services
 
             if (feedback == null) return null;
 
-            if (!string.IsNullOrEmpty(dto.Comment))
-                feedback.Comment = dto.Comment;
+            //if (!string.IsNullOrEmpty(dto.Comment))
+            //    feedback.Comment = dto.Comment;
 
-            if (dto.Rating.HasValue)
-                feedback.Rating = dto.Rating.Value;
+            //if (dto.Rating.HasValue)
+            //    feedback.Rating = dto.Rating.Value;
 
-            if (!string.IsNullOrEmpty(dto.Status))
-                feedback.Status = dto.Status;
+            //if (!string.IsNullOrEmpty(dto.Status))
+            //    feedback.Status = dto.Status;
 
-            if (dto.ImageBefore != null)
-            {
-                var imageBeforeUpload = await _cloudinaryService.UploadImageAsync(dto.ImageBefore);
-                if (imageBeforeUpload != null)
-                    feedback.ImageBefore = imageBeforeUpload.SecureUrl.ToString();
-            }
+            //if (dto.ImageBefore != null)
+            //{
+            //    var imageBeforeUpload = await _cloudinaryService.UploadImageAsync(dto.ImageBefore);
+            //    if (imageBeforeUpload != null)
+            //        feedback.ImageBefore = imageBeforeUpload.SecureUrl.ToString();
+            //}
 
             if (dto.ImageAfter != null)
             {
