@@ -13,10 +13,14 @@ public class ProductFeedback
     public int ProductId { get; set; }
     public virtual Product Product { get; set; }
     
-    [ForeignKey("Product_Feedback_Customer")]
+    //[ForeignKey("Product_Feedback_Customer")]
+    [ForeignKey("CustomerId")]
     public int? CustomerId { get; set; }
+    public virtual User? Customer { get; set; } // ✅ Navigation property mới
+
     public int? UserId { get; set; }
     public virtual User? User { get; set; }
+
     
     public string? Comment { get; set; }
     

@@ -100,7 +100,7 @@ namespace Server.Business.Services
 
             var feedbacks = await _unitOfWorks.ProductFeedbackRepository
                 .FindByCondition(f => f.ProductId == productId)
-                .Include(f => f.User)
+                .Include(f => f.Customer) // ✅ lấy thông tin người phản hồi (là Customer)
                 .Include(f => f.Product)
                 .ToListAsync();
 
