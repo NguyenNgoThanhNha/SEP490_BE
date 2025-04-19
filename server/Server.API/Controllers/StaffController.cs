@@ -579,62 +579,63 @@ namespace Server.API.Controllers
 
         // [Authorize]
         [HttpGet("slot-working")]
-public async Task<IActionResult> GetStaffScheduleByDateRangeAsync([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate)
-{
-    // Lấy token từ header
-    if (!Request.Headers.TryGetValue("Authorization", out var token))
-    {
-        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+        public async Task<IActionResult> GetStaffScheduleByDateRangeAsync([FromQuery] DateTime fromDate,
+            [FromQuery] DateTime toDate)
         {
-            message = "Authorization header is missing."
-        }));
-    }
+            // Lấy token từ header
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Authorization header is missing."
+                }));
+            }
 
-    var tokenValue = token.ToString().Split(' ')[1];
-    var currentUser = await _authService.GetUserInToken(tokenValue);
+            var tokenValue = token.ToString().Split(' ')[1];
+            var currentUser = await _authService.GetUserInToken(tokenValue);
 
-    if (currentUser == null)
-    {
-        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-        {
-            message = "Không tìm thấy thông tin người dùng!"
-        }));
-    }
+            if (currentUser == null)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy thông tin người dùng!"
+                }));
+            }
 
-    if (currentUser.RoleID != 4)
-    {
-        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-        {
-            message = "Không thể truy cập. Chỉ nhân viên mới có thể xem lịch trình của họ."
-        }));
-    }
+            if (currentUser.RoleID != 4)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không thể truy cập. Chỉ nhân viên mới có thể xem lịch trình của họ."
+                }));
+            }
 
-    var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
-    if (staff == null)
-    {
-        return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
-        {
-            message = "Không tìm thấy thông tin nhân viên!"
-        }));
-    }
+            var staff = await _staffService.GetStaffByUserId(currentUser.UserId);
+            if (staff == null)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy thông tin nhân viên!"
+                }));
+            }
 
-    var schedule = await _staffService.GetStaffScheduleByDateRangeAsync(staff.StaffId, fromDate, toDate);
+            var schedule = await _staffService.GetStaffScheduleByDateRangeAsync(staff.StaffId, fromDate, toDate);
 
-    if (schedule == null || schedule.SlotWorkings == null || !schedule.SlotWorkings.Any())
-    {
+            if (schedule == null || schedule.SlotWorkings == null || !schedule.SlotWorkings.Any())
+            {
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
                     message = "Không tìm thấy lịch làm việc nào của nhân viên trong khoảng thời gian này.",
                     data = new List<object>()
                 }));
-    }
+            }
 
-    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-    {
-        message = "Lấy thành công lịch trình nhân viên làm việc theo khoảng thời gian!",
-        data = schedule
-    }));
-}
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy thành công lịch trình nhân viên làm việc theo khoảng thời gian!",
+                data = schedule
+            }));
+        }
 
 
         [HttpGet("Manager-Admin/slot-working")]
@@ -1029,9 +1030,31 @@ public async Task<IActionResult> GetStaffScheduleByDateRangeAsync([FromQuery] Da
                     message = "Không tìm thấy dữ liệu ca làm việc của nhân viên."
                 }));
             }
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Lấy danh sách ca làm việc của nhân viên thành công.",
+                data = result
+            }));
+        }
+
+        [HttpPost("get-list-staff-available-by-service-and-time")]
+        public async Task<IActionResult> GetListStaffAvailableByServiceAndTime(
+            [FromBody] GetListStaffAvailableByServiceAndTimeRequest request)
+        {
+            var result = await _staffService.GetListAvailableStaffByServiceAndTime(request.BranchId, request.WorkDate,
+                request.ServiceId, request.StartTime);
+            if (result == null || result.Count == 0)
+            {
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Không tìm thấy dữ liệu nhân viên khả dụng."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Lấy danh sách nhân viên khả dụng thành công.",
                 data = result
             }));
         }

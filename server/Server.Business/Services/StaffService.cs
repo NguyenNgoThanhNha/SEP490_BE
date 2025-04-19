@@ -1624,5 +1624,86 @@ namespace Server.Business.Services
 
             return result;
         }
+
+        public async Task<List<StaffModel>> GetListAvailableStaffByServiceAndTime(
+            int branchId, DateTime workDate, int serviceId, TimeSpan time)
+        {
+            var branch = await _unitOfWorks.BranchRepository
+                .FindByCondition(x => x.BranchId == branchId)
+                .FirstOrDefaultAsync() ?? throw new BadRequestException("Không tìm thấy chi nhánh");
+
+            var service = await _unitOfWorks.ServiceRepository
+                .FindByCondition(x => x.ServiceId == serviceId)
+                .FirstOrDefaultAsync() ?? throw new BadRequestException("Không tìm thấy dịch vụ");
+
+            var branchService = await _unitOfWorks.Branch_ServiceRepository
+                .FindByCondition(x => x.BranchId == branchId && x.ServiceId == serviceId)
+                .FirstOrDefaultAsync() ?? throw new BadRequestException("Dịch vụ không thuộc chi nhánh này");
+
+            var staffList = await _unitOfWorks.StaffRepository
+                .FindByCondition(x => x.BranchId == branchId)
+                .Include(x => x.StaffInfo)
+                .ToListAsync();
+
+            var staffIds = staffList.Select(s => s.StaffId).ToList();
+
+            var staffServiceCategories = await _unitOfWorks.Staff_ServiceCategoryRepository
+                .FindByCondition(x =>
+                    staffIds.Contains(x.StaffId) && x.ServiceCategoryId == service.ServiceCategoryId)
+                .ToListAsync();
+
+            var qualifiedStaffIds = staffServiceCategories.Select(x => x.StaffId).Distinct().ToList();
+
+            var availableStaffs = new List<StaffModel>();
+
+            foreach (var staffId in qualifiedStaffIds)
+            {
+                var staff = staffList.First(s => s.StaffId == staffId);
+
+                var workSchedules = await _unitOfWorks.WorkScheduleRepository
+                    .FindByCondition(x => x.StaffId == staffId && x.WorkDate.Date == workDate.Date)
+                    .Include(x => x.Shift)
+                    .ToListAsync();
+
+                foreach (var schedule in workSchedules)
+                {
+                    var shift = schedule.Shift;
+                    if (shift == null) continue;
+
+                    var shiftStart = shift.StartTime;
+                    var shiftEnd = shift.EndTime;
+                    var serviceDuration = service.Duration;
+
+                    var timeEnd = time + TimeSpan.FromMinutes(int.Parse(serviceDuration));
+
+                    // Check xem thời gian yêu cầu có nằm trong ca
+                    if (time >= shiftStart && timeEnd <= shiftEnd)
+                    {
+                        // Check không có appointment trùng thời gian đó
+                        var hasConflictAppointment = await _unitOfWorks.AppointmentsRepository
+                            .FindByCondition(a =>
+                                a.StaffId == staffId &&
+                                a.AppointmentsTime.Date == workDate.Date &&
+                                (
+                                    // bắt đầu nằm trong khoảng appointment
+                                    (time >= a.AppointmentsTime.TimeOfDay && time < a.AppointmentEndTime.TimeOfDay) ||
+                                    // kết thúc nằm trong khoảng appointment
+                                    (timeEnd > a.AppointmentsTime.TimeOfDay && timeEnd <= a.AppointmentEndTime.TimeOfDay) ||
+                                    // appointment nằm trọn trong khoảng thời gian yêu cầu
+                                    (a.AppointmentsTime.TimeOfDay <= time && a.AppointmentEndTime.TimeOfDay >= timeEnd)
+                                ))
+                            .AnyAsync();
+
+                        if (!hasConflictAppointment)
+                        {
+                            availableStaffs.Add(_mapper.Map<StaffModel>(staff));
+                            break; // chỉ cần 1 ca phù hợp là được
+                        }
+                    }
+                }
+            }
+
+            return availableStaffs;
+        }
     }
 }
