@@ -361,7 +361,7 @@ namespace Server.API.Controllers
             }));
         }
 
-        [Authorize("Admin, Manager")]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpPut("approve-staff-leave/{staffLeaveId}")]
         public async Task<IActionResult> ApproveStaffLeaveAsync(int staffLeaveId, [FromBody] string note)
         {
