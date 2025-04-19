@@ -219,26 +219,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
         [HttpGet("detail-booking")]
         public async Task<IActionResult> DetailBooking([FromQuery] int orderId)
         {
-            if (!Request.Headers.TryGetValue("Authorization", out var token))
-            {
-                return Unauthorized(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Authorization header is missing."
-                }));
-            }
-
-            var tokenValue = token.ToString().Split(' ')[1];
-            var currentUser = await _authService.GetUserInToken(tokenValue);
-
-            if (currentUser == null)
-            {
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {
-                    message = "Không tìm thấy thông tin khách hàng!"
-                }));
-            }
-
-            var order = await _orderService.GetDetailOrder(orderId, currentUser.UserId);
+            var order = await _orderService.GetDetailOrder(orderId);
 
             if (order == null || order.data == null)
             {

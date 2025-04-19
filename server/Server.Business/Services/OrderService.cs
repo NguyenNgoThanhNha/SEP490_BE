@@ -613,10 +613,10 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
+        public async Task<DetailOrderResponse> GetDetailOrder(int orderId)
         {
             var order = await _unitOfWorks.OrderRepository
-                .FindByCondition(x => x.OrderId == orderId && x.CustomerId == userId)
+                .FindByCondition(x => x.OrderId == orderId)
                 .Include(x => x.Customer)
                 .Include(x => x.Shipment)
                 .Include(x => x.Voucher)
