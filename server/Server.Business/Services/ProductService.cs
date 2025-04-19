@@ -620,33 +620,50 @@ namespace Server.Business.Services
 
 
 
-        public async Task<List<Product>> GetTop5BestSellersAsync()
+
+        public async Task<List<BranchProductDto>> GetTop5BestSellersByBranchAsync(int branchId)
         {
-            // Lấy danh sách OrderDetail hoàn thành
+            // 1. Lấy danh sách OrderDetail có trạng thái Completed
             var orderDetails = await _unitOfWorks.OrderDetailRepository
-     .FindByCondition(od => od.Status == "Completed")
-     .Include(od => od.Product)
-         .ThenInclude(p => p.Category) // Bao gồm Category
-     .Include(od => od.Product)
-         .ThenInclude(p => p.Company) // Bao gồm Company
-     .ToListAsync();
+                .FindByCondition(od => od.Status == "Completed")
+                .Include(od => od.Product)
+                    .ThenInclude(p => p.Branch_Products)
+                        .ThenInclude(bp => bp.Branch)
+                .Include(od => od.Product)
+                    .ThenInclude(p => p.Company)
+                .Include(od => od.Product)
+                    .ThenInclude(p => p.Category)
+                .ToListAsync();
 
-
-            // Nhóm và tính toán
-            var bestSellers = orderDetails
-                .GroupBy(od => od.ProductId)
-                .Select(g => new
-                {
-                    Product = g.First().Product, // Lấy toàn bộ object Product
-                    QuantitySold = g.Sum(od => od.Quantity)
-                })
-                .OrderByDescending(p => p.QuantitySold)
-                .Take(5)
-                .Select(p => p.Product) // Lấy danh sách object Product
+            // 2. Lọc các OrderDetail mà Product có liên kết với BranchId cần tìm
+            var filteredOrderDetails = orderDetails
+                .Where(od => od.Product.Branch_Products.Any(bp => bp.BranchId == branchId))
                 .ToList();
 
-            return bestSellers;
+            // 3. Gom nhóm theo ProductId và tính tổng số lượng đã bán tại chi nhánh
+            var topSelling = filteredOrderDetails
+                .GroupBy(od => od.ProductId)
+                .Select(g =>
+                {
+                    var branchProduct = g.First().Product.Branch_Products
+                        .FirstOrDefault(bp => bp.BranchId == branchId);
+
+                    return new
+                    {
+                        BranchProduct = branchProduct,
+                        TotalQuantity = g.Sum(od => od.Quantity)
+                    };
+                })
+                .Where(x => x.BranchProduct != null)
+                .OrderByDescending(x => x.TotalQuantity)
+                .Take(5)
+                .Select(x => _mapper.Map<BranchProductDto>(x.BranchProduct))
+                .ToList();
+
+            return topSelling;
         }
+
+
 
         public async Task<GrossDTO> CheckInputHasGross(string name)
         {
