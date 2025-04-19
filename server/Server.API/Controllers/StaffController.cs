@@ -112,26 +112,22 @@ namespace Server.API.Controllers
         }
 
         [HttpGet("{staffId}")]
-        public async Task<ApiResult<ApiResponse>> GetStaffById(int staffId)
+        public async Task<IActionResult> GetStaffById(int staffId)
         {
             var response = await _staffService.GetStaffByIdAsync(staffId);
 
             // Kiểm tra nếu response không null thì coi như thành công
             if (response != null)
             {
-                return ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    message = "Lấy danh sách nhân viên thành công",
-                    data = response
-                });
+                return Ok(ApiResult<ApiResponse>.Succeed(response));
             }
 
             // Trường hợp thất bại, trả về lỗi
-            return ApiResult<ApiResponse>.Error(new ApiResponse
+            return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
             {
-                message = $"Nhân viên với ID {staffId} không tìm thấy.",
+                message = "Không tìm thấy nhân viên với ID đã cho.",
                 data = null
-            });
+            }));
         }
 
         [HttpPut("update/{staffId}")]

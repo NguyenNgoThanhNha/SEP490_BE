@@ -706,9 +706,6 @@ namespace Server.Data.Migrations
                     b.Property<string>("Dimension")
                         .HasColumnType("longtext");
 
-                    b.Property<decimal?>("Discount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -723,17 +720,11 @@ namespace Server.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<string>("SkinTypeSuitable")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Status")
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<decimal?>("Volume")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ProductId");
 

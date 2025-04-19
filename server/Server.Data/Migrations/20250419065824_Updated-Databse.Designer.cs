@@ -11,8 +11,8 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250418011909_Updated-Database")]
-    partial class UpdatedDatabase
+    [Migration("20250419065824_Updated-Databse")]
+    partial class UpdatedDatabse
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -709,9 +709,6 @@ namespace Server.Data.Migrations
                     b.Property<string>("Dimension")
                         .HasColumnType("longtext");
 
-                    b.Property<decimal?>("Discount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
@@ -726,17 +723,11 @@ namespace Server.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<string>("SkinTypeSuitable")
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Status")
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<decimal?>("Volume")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ProductId");
 

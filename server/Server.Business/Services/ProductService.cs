@@ -11,6 +11,7 @@ using Server.Data.UnitOfWorks;
 using Service.Business.Services;
 using System.Linq;
 using System.Linq.Expressions;
+using Server.Data;
 
 namespace Server.Business.Services
 {
@@ -91,12 +92,9 @@ namespace Server.Business.Services
                     ProductName = p.ProductName,
                     ProductDescription = p.ProductDescription,
                     Price = p.Price,
-                    Volume = p.Volume,
                     Dimension = p.Dimension,
                     Quantity = p.Quantity,
-                    Discount = p.Discount,
                     Status = p.Status,
-                    SkinTypeSuitable = p.SkinTypeSuitable,
                     CompanyId = p.Company != null ? p.Company.CompanyId : 0, // Kiểm tra null
                     CompanyName = p.Company != null ? p.Company.Name : string.Empty, // Kiểm tra null
                     CreatedDate = p.CreatedDate,
@@ -315,14 +313,13 @@ namespace Server.Business.Services
                     ProductDescription = productCreateDto.ProductDescription,
                     Price = productCreateDto.Price,
                     Quantity = productCreateDto.Quantity,
-                    Discount = productCreateDto.Discount,
                     CategoryId = productCreateDto.CategoryId,
                     CompanyId = productCreateDto.CompanyId,
+                    Brand = productCreateDto.Brand,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now,
-                    Volume = productCreateDto.Volume,
                     Dimension = productCreateDto.Dimension,
-                    Status = "Active"
+                    Status = ObjectStatus.Active.ToString()
                 };
 
                 await _unitOfWorks.ProductRepository.AddAsync(newProduct);
@@ -365,13 +362,11 @@ namespace Server.Business.Services
                         createdProduct.ProductDescription,
                         createdProduct.Price,
                         createdProduct.Quantity,
-                        createdProduct.Discount,
                         createdProduct.Status,
                         createdProduct.CategoryId,
                         CategoryName = createdProduct.Category?.Name,
                         createdProduct.CompanyId,
                         CompanyName = createdProduct.Company?.Name,
-                        createdProduct.Volume,
                         createdProduct.Dimension,
                         createdProduct.CreatedDate,
                         createdProduct.UpdatedDate,
@@ -395,7 +390,7 @@ namespace Server.Business.Services
             {
                 // Lấy sản phẩm có trạng thái "Active"
                 var product = await _unitOfWorks.ProductRepository
-                    .FindByCondition(p => p.ProductId == productId && p.Status == "Active")
+                    .FindByCondition(p => p.ProductId == productId && p.Status == ObjectStatus.Active.ToString())
                     .Include(d => d.Category)
                     .Include(d => d.Company)
                     .FirstOrDefaultAsync();
@@ -539,7 +534,6 @@ namespace Server.Business.Services
                 existingProduct.ProductDescription = productUpdateDto.ProductDescription;
                 existingProduct.Price = productUpdateDto.Price;
                 existingProduct.Quantity = productUpdateDto.Quantity;
-                existingProduct.Discount = productUpdateDto.Discount;
                 existingProduct.CategoryId = productUpdateDto.CategoryId;
                 existingProduct.CompanyId = productUpdateDto.CompanyId;
                 existingProduct.UpdatedDate = DateTime.Now;
@@ -567,7 +561,6 @@ namespace Server.Business.Services
                         updatedProduct.ProductDescription,
                         updatedProduct.Price,
                         updatedProduct.Quantity,
-                        updatedProduct.Discount,
                         updatedProduct.Status,
                         updatedProduct.CategoryId,
                         CategoryName = updatedProduct.Category?.Name,
@@ -615,7 +608,7 @@ namespace Server.Business.Services
                 }*/
 
                 // Cập nhật trạng thái sản phẩm thành "Inactive"
-                product.Status = "Inactive";
+                product.Status = ObjectStatus.InActive.ToString();
 
                 // Cập nhật sản phẩm thông qua UnitOfWork
                 _unitOfWorks.ProductRepository.Update(product);
@@ -797,14 +790,11 @@ namespace Server.Business.Services
                 Quantity = p.Quantity,
                 StockQuantity = p.Branch_Products?
     .FirstOrDefault(bp => bp.BranchId == req.BranchId)?.StockQuantity ?? 0,
-                Discount = p.Discount ?? 0,
                 CategoryId = p.CategoryId,
                 Dimension = p.Dimension,
-                Volume = p.Volume,
                 Status = p.Status,
                 CategoryName = p.Category?.Name,
                 CompanyName = p.Company?.Name,
-                SkinTypeSuitable = p.SkinTypeSuitable,
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
                 //BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
@@ -864,14 +854,11 @@ namespace Server.Business.Services
                 Brand = p.Brand,
                 Quantity = p.Quantity,
                 StockQuantity = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.StockQuantity ?? 0,
-                Discount = p.Discount ?? 0,
                 CategoryId = p.CategoryId,
                 Dimension = p.Dimension,
-                Volume = p.Volume,
                 Status = p.Status,
                 CategoryName = p.Category?.Name,
                 CompanyName = p.Company?.Name,
-                SkinTypeSuitable = p.SkinTypeSuitable,
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
                 //BrandId = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.BranchId,

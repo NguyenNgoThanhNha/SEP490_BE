@@ -17,16 +17,11 @@ public class Product
     public decimal Price { get; set; }
 
     public string? Dimension { get; set; }
-
-    public decimal? Volume { get; set; }
     public int Quantity { get; set; } // Số lượng hàng tồn kho tại công ty
 
     public string? Status { get; set; }
 
     public string? Brand { get; set; }
-
-    public string? SkinTypeSuitable { get; set; }
-    public decimal? Discount { get; set; }
 
     [ForeignKey("Product_Category")]
     public int CategoryId { get; set; }

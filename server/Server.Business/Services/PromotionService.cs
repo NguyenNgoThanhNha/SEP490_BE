@@ -5,6 +5,7 @@ using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Exceptions;
 using Server.Business.Models;
+using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 
@@ -78,7 +79,7 @@ public class PromotionService
             PromotionName = request.PromotionName,
             PromotionDescription = request.PromotionDescription,
             DiscountPercent = request.DiscountPercent,
-            Status = request.Status,
+            Status = ObjectStatus.Active.ToString(),
             Image = Image,
             StartDate = request.StartDate,
             EndDate = request.EndDate

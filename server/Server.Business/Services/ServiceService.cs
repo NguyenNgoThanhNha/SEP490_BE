@@ -11,6 +11,7 @@ using Server.Business.Exceptions;
 using Service.Business.Services;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons.Request;
+using Server.Data;
 
 namespace Server.Business.Services
 {
@@ -311,9 +312,11 @@ namespace Server.Business.Services
                     Description = serviceDto.Description,
                     Price = serviceDto.Price,
                     Duration = serviceDto.Duration,
+                    Steps = serviceDto?.Steps?.ToString() ?? string.Empty,
+                    ServiceCategoryId = serviceDto.ServiceCategoryId,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now,
-                    Status = "Active",
+                    Status = ObjectStatus.Active.ToString(),
                 };
                 
                 // Thêm service vào cơ sở dữ liệu

@@ -822,7 +822,8 @@ namespace Server.Business.Services
                 .ThenInclude(bp => bp.Branch)
                 .Include(x => x.Appointments)
                 .ThenInclude(x => x.Service)
-                .ThenInclude(x => x.ServiceCategory);
+                .ThenInclude(x => x.ServiceCategory)
+                .OrderByDescending(x => x.CreatedDate);
 
             if (request.BranchId.HasValue)
             {

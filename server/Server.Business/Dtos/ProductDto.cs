@@ -12,21 +12,18 @@ namespace Server.Business.Dtos
         public string ProductDescription { get; set; } = string.Empty;
 
         public decimal Price { get; set; }
-
-        public decimal? Volume { get; set; }
+        
 
         public string? Dimension { get; set; }
 
         public int Quantity { get; set; }
-
-        public decimal? Discount { get; set; }       
+        
 
         public int CompanyId { get; set; }
 
         public string CompanyName { get; set; } = string.Empty;
 
         public string Status { get; set; } = string.Empty;
-        public string? SkinTypeSuitable { get; set; }
         public DateTime CreatedDate { get; set; }
 
         public DateTime UpdatedDate { get; set; }

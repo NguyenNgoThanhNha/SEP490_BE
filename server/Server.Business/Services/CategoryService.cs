@@ -79,7 +79,6 @@ namespace Server.Business.Services
                     ProductDescription = p.ProductDescription,
                     Price = p.Price,
                     Quantity = p.Quantity,
-                    Discount = p.Discount,
                     Status = p.Status,
                     //CategoryId = p.CategoryId,
                     CompanyId = p.CompanyId,
@@ -183,7 +182,6 @@ namespace Server.Business.Services
                     ProductDescription = p.ProductDescription,
                     Price = p.Price,
                     Quantity = p.Quantity,
-                    Discount = p.Discount,
                     Status = p.Status,                    
                     CreatedDate = p.CreatedDate,
                     UpdatedDate = p.UpdatedDate
