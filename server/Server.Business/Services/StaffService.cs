@@ -811,6 +811,7 @@ namespace Server.Business.Services
         }
 
 
+        /*
         public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
         {
             // Kiểm tra xem tất cả dịch vụ có tồn tại trong branch không
@@ -917,6 +918,173 @@ namespace Server.Business.Services
                 Data = responseList
             };
         }
+        */
+
+        public async Task<ListStaffFreeInTimeResponse> ListStaffFreeInTimeV4(ListStaffFreeInTimeRequest request)
+        {
+            // 1. Kiểm tra dịch vụ có trong chi nhánh không
+            var branchServices = await _unitOfWorks.Branch_ServiceRepository
+                .FindByCondition(x => x.BranchId == request.BranchId && request.ServiceIds.Contains(x.ServiceId))
+                .Select(x => x.ServiceId)
+                .ToListAsync();
+
+            if (branchServices.Count != request.ServiceIds.Length)
+                return new ListStaffFreeInTimeResponse
+                {
+                    Message = "One or more services do not exist in branch",
+                    Data = new List<StaffFreeInTimeResponse>()
+                };
+
+            // 2. Lấy danh sách nhân viên trong chi nhánh
+            var listStaff = await _unitOfWorks.StaffRepository
+                .FindByCondition(x => x.BranchId == request.BranchId && x.RoleId == 2)
+                .Include(x => x.StaffInfo)
+                .ToListAsync();
+
+            if (!listStaff.Any())
+                return new ListStaffFreeInTimeResponse
+                {
+                    Message = "No staff found in branch",
+                    Data = new List<StaffFreeInTimeResponse>()
+                };
+
+            // 3. Lấy thời lượng và category của dịch vụ
+            var serviceDurations = _unitOfWorks.ServiceRepository
+                .FindByCondition(s => request.ServiceIds.Contains(s.ServiceId))
+                .AsEnumerable()
+                .Select(s => new
+                {
+                    s.ServiceId,
+                    s.ServiceCategoryId,
+                    Duration = int.TryParse(s.Duration, out int d) ? d : 0
+                })
+                .ToList();
+
+            if (serviceDurations.Any(s => s.Duration <= 0))
+                return new ListStaffFreeInTimeResponse
+                {
+                    Message = "Invalid service duration detected",
+                    Data = new List<StaffFreeInTimeResponse>()
+                };
+
+            var serviceDurationDict = serviceDurations.ToDictionary(s => s.ServiceId, s => s.Duration);
+            var serviceCategoryDict = serviceDurations.ToDictionary(s => s.ServiceId, s => s.ServiceCategoryId);
+
+            // 4. Lấy danh sách nhân viên có thể làm các category
+            var staffServiceCategories = await _unitOfWorks.Staff_ServiceCategoryRepository
+                .FindByCondition(x => serviceCategoryDict.Values.Contains(x.ServiceCategoryId))
+                .ToListAsync();
+
+            var staffServiceCategoryMap = staffServiceCategories
+                .GroupBy(x => x.StaffId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.ServiceCategoryId).ToHashSet());
+
+            // 5. Lấy WorkSchedule và Shift cho ngày làm việc
+            var workDate = request.StartTimes.Min().Date;
+
+            var workSchedules = await _unitOfWorks.WorkScheduleRepository
+                .FindByCondition(ws => ws.WorkDate.Date == workDate && ws.Staff.BranchId == request.BranchId)
+                .Include(ws => ws.Shift)
+                .ToListAsync();
+
+            // Gộp các ca liên tiếp thành 1 khoảng thời gian
+            var staffWorkingPeriodsMap = workSchedules
+                .Where(ws => ws.Shift != null)
+                .GroupBy(ws => ws.StaffId)
+                .ToDictionary(
+                    g => g.Key,
+                    g =>
+                    {
+                        var shifts = g.Select(ws => ws.Shift)
+                            .OrderBy(s => s.StartTime)
+                            .ToList();
+
+                        var merged = new List<(TimeSpan Start, TimeSpan End)>();
+                        TimeSpan? currentStart = null;
+                        TimeSpan? currentEnd = null;
+
+                        foreach (var shift in shifts)
+                        {
+                            if (currentStart == null)
+                            {
+                                currentStart = shift.StartTime;
+                                currentEnd = shift.EndTime;
+                            }
+                            else if (shift.StartTime <= currentEnd) // nếu các ca liền nhau hoặc trùng
+                            {
+                                currentEnd = TimeSpan.FromTicks(Math.Max(currentEnd.Value.Ticks, shift.EndTime.Ticks));
+                            }
+                            else
+                            {
+                                merged.Add((currentStart.Value, currentEnd.Value));
+                                currentStart = shift.StartTime;
+                                currentEnd = shift.EndTime;
+                            }
+                        }
+
+                        if (currentStart != null && currentEnd != null)
+                        {
+                            merged.Add((currentStart.Value, currentEnd.Value));
+                        }
+
+                        return merged;
+                    });
+
+
+            // 6. Kiểm tra theo từng service
+            var responseList = new List<StaffFreeInTimeResponse>();
+
+            for (int i = 0; i < request.ServiceIds.Length; i++)
+            {
+                int serviceId = request.ServiceIds[i];
+                DateTime startTime = request.StartTimes[i];
+                int duration = serviceDurationDict[serviceId];
+                int categoryId = serviceCategoryDict[serviceId];
+                DateTime expectedEndTime = startTime.AddMinutes(duration + 5);
+
+                // Lấy danh sách nhân viên đang bận
+                var busyStaffIds = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(a =>
+                        a.BranchId == request.BranchId &&
+                        a.AppointmentsTime < expectedEndTime &&
+                        a.AppointmentEndTime > startTime &&
+                        a.Status != OrderStatusEnum.Cancelled.ToString()
+                    )
+                    .Select(a => a.StaffId)
+                    .Distinct()
+                    .ToListAsync();
+
+                // Lọc nhân viên rảnh và có kỹ năng
+                var availableStaff = listStaff
+                    .Where(s =>
+                        !busyStaffIds.Contains(s.StaffId) &&
+                        staffServiceCategoryMap.ContainsKey(s.StaffId) &&
+                        staffServiceCategoryMap[s.StaffId].Contains(categoryId) &&
+                        staffWorkingPeriodsMap.ContainsKey(s.StaffId) &&
+                        staffWorkingPeriodsMap[s.StaffId].Any(period =>
+                        {
+                            var shiftStart = workDate.Add(period.Start);
+                            var shiftEnd = workDate.Add(period.End);
+                            return startTime >= shiftStart && expectedEndTime <= shiftEnd;
+                        })
+                    )
+                    .ToList();
+
+                responseList.Add(new StaffFreeInTimeResponse
+                {
+                    ServiceId = serviceId,
+                    StartTime = startTime,
+                    Staffs = _mapper.Map<List<StaffModel>>(availableStaff)
+                });
+            }
+
+            return new ListStaffFreeInTimeResponse
+            {
+                Message = "Success",
+                Data = responseList
+            };
+        }
+
 
         public async Task<GetListStaffByServiceCategoryResponse> GetListStaffByServiceCategory(
             GetListStaffByServiceCategoryRequest request)

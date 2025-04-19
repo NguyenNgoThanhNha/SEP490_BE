@@ -70,12 +70,29 @@ public class StaffLeaveService
         {
             throw new BadRequestException("Staff leave not found");
         }
+        
+        var workingSchedules = await _unitOfWorks.WorkScheduleRepository
+            .FindByCondition(ws => ws.StaffId == staffLeave.StaffId && ws.WorkDate == staffLeave.LeaveDate)
+            .ToListAsync();
+        if (workingSchedules == null || !workingSchedules.Any())
+        {
+            foreach (var workSchedule in workingSchedules)
+            {
+                workSchedule.Status = ObjectStatus.InActive.ToString();
+                workSchedule.UpdatedDate = DateTime.Now;
+                _unitOfWorks.WorkScheduleRepository.Update(workSchedule);
+            }
+        }
+        else
+        {
+            throw new BadRequestException("Không tìm thấy lịch làm việc nào trong ngày nghỉ này");
+        }
 
         staffLeave.Status = StaffLeaveStatus.Approved.ToString();
         staffLeave.UpdatedDate = DateTime.Now;
 
         _unitOfWorks.StaffLeaveRepository.Update(staffLeave);
-        var result = await _unitOfWorks.StaffLeaveRepository.Commit();
+        var result = await _unitOfWorks.SaveChangesAsync();
         return result > 0;
     }
     
