@@ -1244,9 +1244,21 @@ namespace Server.Business.Services
                     _unitOfWorks.Branch_ProductRepository.Update(branchProduct);
                 }
 
-                var recipientName = string.IsNullOrWhiteSpace(request.RecipientName) ? user.FullName : request.RecipientName;
-                var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress) ? user.Address : request.RecipientAddress;
-                var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone) ? user.PhoneNumber : request.RecipientPhone;
+                //var recipientName = string.IsNullOrWhiteSpace(request.RecipientName) ? user.FullName : request.RecipientName;
+                //var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress) ? user.Address : request.RecipientAddress;
+                //var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone) ? user.PhoneNumber : request.RecipientPhone;
+
+                var recipientName = !string.IsNullOrWhiteSpace(request.RecipientName)
+    ? request.RecipientName
+    : (!string.IsNullOrWhiteSpace(user.FullName) ? user.FullName : "");
+
+                var recipientAddress = !string.IsNullOrWhiteSpace(request.RecipientAddress)
+                    ? request.RecipientAddress
+                    : (!string.IsNullOrWhiteSpace(user.Address) ? user.Address : "");
+
+                var recipientPhone = !string.IsNullOrWhiteSpace(request.RecipientPhone)
+                    ? request.RecipientPhone
+                    : (!string.IsNullOrWhiteSpace(user.PhoneNumber) ? user.PhoneNumber : "");
 
                 var shipment = new Shipment
                 {
