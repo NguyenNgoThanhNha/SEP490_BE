@@ -21,8 +21,8 @@ public class ServiceCategoryService
         _cloudianryService = cloudianryService;
         _mapper = mapper;
     }
-    
-  public async Task<ServiceCategoryModel> CreateServiceCategoryAsync(ServiceCategoryCreateUpdateDto dto)
+
+    public async Task<ServiceCategoryModel> CreateServiceCategoryAsync(ServiceCategoryCreateUpdateDto dto)
     {
         var thumbnail = "";
         if (dto.Thumbnail != null)
@@ -44,7 +44,7 @@ public class ServiceCategoryService
             UpdatedDate = DateTime.Now
         };
 
-     var serviceCategoryCreated =   await _unitOfWorks.ServiceCategoryRepository.AddAsync(_mapper.Map<ServiceCategory>(serviceCategory));
+        var serviceCategoryCreated = await _unitOfWorks.ServiceCategoryRepository.AddAsync(_mapper.Map<ServiceCategory>(serviceCategory));
         await _unitOfWorks.ServiceCategoryRepository.Commit();
 
         return _mapper.Map<ServiceCategoryModel>(serviceCategoryCreated);
@@ -67,7 +67,7 @@ public class ServiceCategoryService
             query = query.Where(sc => sc.Name.Contains(keyword));
         }
 
-        var result = await query.OrderByDescending(x=> x.ServiceCategoryId).ToListAsync();
+        var result = await query.OrderByDescending(x => x.ServiceCategoryId).ToListAsync();
         var totalCount = result.Count();
 
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -107,15 +107,15 @@ public class ServiceCategoryService
             }
         }
 
-        if(dto.Name != null)
+        if (dto.Name != null)
         {
             existingEntity.Name = dto.Name;
         }
-        if(dto.Description != null)
+        if (dto.Description != null)
         {
             existingEntity.Description = dto.Description;
         }
-        if(dto.Status != null)
+        if (dto.Status != null)
         {
             existingEntity.Status = dto.Status;
         }
@@ -142,4 +142,15 @@ public class ServiceCategoryService
 
         return true;
     }
+
+    public async Task<List<ServiceCategoryModel>> GetAllServiceCategoriesAsync()
+    {
+        var entities = await _unitOfWorks.ServiceCategoryRepository
+            .FindByCondition(x => x.Status == ObjectStatus.Active.ToString())
+            .OrderByDescending(x => x.ServiceCategoryId)
+            .ToListAsync();
+
+        return _mapper.Map<List<ServiceCategoryModel>>(entities);
+    }
+
 }

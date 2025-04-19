@@ -316,40 +316,36 @@ namespace Server.API.Controllers
 }
 
 
-
-        [HttpGet("top5-bestsellers")]
-        public async Task<IActionResult> GetTop5BestSellers()
+        [HttpGet("top-5-best-sellers")]
+        public async Task<IActionResult> GetTop5BestSellers([FromQuery] int branchId)
         {
             try
             {
-                // Gọi Service để lấy dữ liệu
-                var bestSellers = await _productService.GetTop5BestSellersAsync();
+                var bestSellers = await _productService.GetTop5BestSellersByBranchAsync(branchId);
 
-                // Kiểm tra kết quả
                 if (bestSellers == null || !bestSellers.Any())
                 {
-                    return NotFound(new
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
-                        Message = "Không tìm thấy sản phẩm bán chạy nào."
-                    });
+                        message = "Không tìm thấy sản phẩm bán chạy nào cho chi nhánh này."
+                    }));
                 }
 
-                // Trả về dữ liệu thành công
-                return Ok(new
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    Message = "Lấy danh sách Top 5 sản phẩm bán chạy thành công!",
-                    Data = bestSellers
-                });
+                    data = bestSellers,
+                    message = "Lấy danh sách Top 5 sản phẩm bán chạy thành công!"
+                }));
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi hệ thống
-                return StatusCode(500, new
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    Message = $"Lỗi hệ thống: {ex.Message}"
-                });
+                    message = $"Lỗi hệ thống: {ex.Message}"
+                }));
             }
         }
+
 
         [HttpGet("check-input-gross")]
         public async Task<IActionResult> CheckInputGross(string input)
