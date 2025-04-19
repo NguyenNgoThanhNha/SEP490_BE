@@ -29,7 +29,7 @@ namespace Server.API.Controllers
 
                 if (result == null)
                 {
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
                         message = "Không tìm thấy phản hồi dịch vụ với ID được cung cấp.",
                         data = new List<object>()
@@ -61,7 +61,7 @@ namespace Server.API.Controllers
 
                 if (result == null || !result.Any())
                 {
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
                         message = "Không tìm thấy phản hồi nào cho dịch vụ này.",
                         data = new List<object>()
