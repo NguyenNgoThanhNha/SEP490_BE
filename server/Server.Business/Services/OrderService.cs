@@ -613,10 +613,20 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<DetailOrderResponse> GetDetailOrder(int orderId)
+        public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
         {
-            var order = await _unitOfWorks.OrderRepository
-                .FindByCondition(x => x.OrderId == orderId)
+            var user = await _unitOfWorks.UserRepository.GetByIdAsync(userId);
+            if (user == null)
+                return null;
+            
+            IQueryable<Order> query = _unitOfWorks.OrderRepository
+                .FindByCondition(x => x.OrderId == orderId);
+
+            if (user.RoleID == 3)
+            {
+                query = query.Where(x => x.CustomerId == userId);
+            }
+            var order = await query
                 .Include(x => x.Customer)
                 .Include(x => x.Shipment)
                 .Include(x => x.Voucher)
