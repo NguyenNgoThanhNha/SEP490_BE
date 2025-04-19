@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Server.Data.Entities;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ namespace Server.Business.Dtos
     {
         public int ProductFeedbackId { get; set; }
         public int ProductId { get; set; }
+        [ForeignKey("Customer")]
         public int? CustomerId { get; set; }
         public string? Comment { get; set; }
         public int? Rating { get; set; }

@@ -115,28 +115,24 @@ namespace Server.API.Controllers
                 }));
             }
 
-            if (dto.ImageBefore == null || dto.ImageAfter == null)
+            if (dto.ImageBefore == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Vui lòng cung cấp cả ảnh trước và sau.",
+                    message = "Vui lòng cung cấp ảnh trước (ImageBefore).",
                     data = new List<object>()
                 }));
             }
 
-           
             var imageBeforeUpload = await _cloudinaryService.UploadImageAsync(dto.ImageBefore);
-            var imageAfterUpload = await _cloudinaryService.UploadImageAsync(dto.ImageAfter);
-
-            if (imageBeforeUpload == null || imageAfterUpload == null)
+            if (imageBeforeUpload == null)
             {
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = "Tải ảnh lên thất bại."
+                    message = "Tải ảnh trước thất bại."
                 }));
-            }
+            }          
 
-          
             var createDto = new AppointmentFeedbackCreateDto
             {
                 AppointmentId = dto.AppointmentId,
@@ -144,9 +140,9 @@ namespace Server.API.Controllers
                 StaffId = dto.StaffId,
                 Comment = dto.Comment,
                 Rating = dto.Rating ?? 0,
-                ImageBefore = imageBeforeUpload.SecureUrl.ToString(), 
-                ImageAfter = imageAfterUpload.SecureUrl.ToString(),
-                CreatedBy = "Customer"
+                ImageBefore = imageBeforeUpload.SecureUrl.ToString(),
+                ImageAfter = "",
+                CreatedBy = ""
             };
 
             var result = await _appointmentFeedbackService.CreateAsync(createDto);
@@ -157,6 +153,7 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+
 
 
 
