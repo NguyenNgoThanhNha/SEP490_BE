@@ -715,27 +715,22 @@ namespace Server.Business.Services
 
         public async Task<GetAllProductPaginationFilter> FilterProductsAsync(ProductFilterRequest req)
         {
-            if (req.BranchId <= 0)
-            {
-                throw new ArgumentException("BrandId là bắt buộc để lọc sản phẩm.");
-            }
+            
 
             IQueryable<Product> query = _unitOfWorks.ProductRepository
-                .FindByCondition(p => p.Status == "Active" &&
-                                      p.Branch_Products.Any(bp => bp.BranchId == req.BranchId)) // Thêm điều kiện này
-                .Include(p => p.Company)
-                .Include(p => p.Category)
-                .Include(p => p.ProductImages)
-                .Include(p => p.Branch_Products.Where(bp => bp.BranchId == req.BranchId)) // Chỉ include branch này
-                .ThenInclude(bp => bp.Branch);
-            
-            /*var productIdsInBranch = await _unitOfWorks.Branch_ProductRepository
-                .FindByCondition(bp => bp.BranchId == req.BranchId)
-                .Select(bp => bp.ProductId)
-                .Distinct()
-                .ToListAsync();
+    .FindByCondition(p => p.Status == "Active")
+    .Include(p => p.Company)
+    .Include(p => p.Category)
+    .Include(p => p.ProductImages)
+    .Include(p => p.Branch_Products)
+        .ThenInclude(bp => bp.Branch);
 
-            query = query.Where(p => productIdsInBranch.Contains(p.ProductId));*/
+            // Nếu có branchId, thêm điều kiện lọc
+            if (req.BranchId.HasValue && req.BranchId.Value > 0)
+            {
+                query = query.Where(p => p.Branch_Products.Any(bp => bp.BranchId == req.BranchId.Value));
+            }
+
 
             if (!string.IsNullOrEmpty(req.Brand))
             {
@@ -745,10 +740,21 @@ namespace Server.Business.Services
                 );
             }
 
-            if (req.CategoryId.HasValue)
+            if (!string.IsNullOrEmpty(req.CategoryIds))
             {
-                query = query.Where(p => p.CategoryId == req.CategoryId.Value);
+                var categoryIdList = req.CategoryIds
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(idStr => int.TryParse(idStr, out var id) ? id : (int?)null)
+                    .Where(id => id.HasValue)
+                    .Select(id => id!.Value)
+                    .ToList();
+
+                if (categoryIdList.Any())
+                {
+                    query = query.Where(p => categoryIdList.Contains(p.CategoryId));
+                }
             }
+
 
             if (req.MinPrice.HasValue)
             {
