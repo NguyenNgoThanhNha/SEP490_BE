@@ -102,7 +102,7 @@ namespace Server.Business.Services
             var feedbacks = await _unitOfWorks.ProductFeedbackRepository
                 .FindByCondition(f => f.ProductId == productId)
                 .Include(f => f.Customer)
-                .Include(f => f.Product)
+                .Include(f => f.Product)               
                 .ToListAsync();
 
             return _mapper.Map<List<ProductFeedbackDetailDto>>(feedbacks);

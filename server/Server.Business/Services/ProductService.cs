@@ -480,11 +480,11 @@ namespace Server.Business.Services
                     });
                 }
 
-                if (productUpdateDto.Price <= 0 || productUpdateDto.Quantity <= 0 || productUpdateDto.Discount < 0)
+                if (productUpdateDto.Price <= 0 || productUpdateDto.Quantity <= 0)
                 {
                     return ApiResult<ApiResponse>.Error(new ApiResponse
                     {
-                        message = "Invalid Price, Quantity, or Discount."
+                        message = "Invalid Price, Quantity."
                     });
                 }
 

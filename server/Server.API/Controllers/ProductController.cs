@@ -132,7 +132,7 @@ namespace Server.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Manager")]
+        //[Authorize(Roles = "Admin, Manager")]
         [HttpPost("create")]       
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto productCreateDto)
         {
@@ -245,7 +245,7 @@ namespace Server.API.Controllers
         }
 
 
-        [Authorize(Roles = "Admin, Manager")]
+        //[Authorize(Roles = "Admin, Manager")]
         [HttpPut("update/{productId}")]
         public async Task<IActionResult> UpdateProduct(int productId, [FromBody] ProductUpdateDto productUpdateDto)
         {

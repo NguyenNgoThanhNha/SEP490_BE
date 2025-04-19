@@ -5,6 +5,7 @@ using Server.Business.Dtos;
 using Server.Business.Dtos.Server.Business.Dtos;
 using Server.Business.Models;
 using Server.Data.Entities;
+using Server.Data.MongoDb.Models;
 
 namespace Server.Business.Mappers
 {
@@ -17,6 +18,7 @@ namespace Server.Business.Mappers
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<UserModel, UserDTO>().ReverseMap();
             CreateMap<UserInfoModel, UserDTO>().ReverseMap();
+            CreateMap<User, CustomerDTO>();
 
             CreateMap<Server.Data.Entities.Service, ServiceModel>().ReverseMap();
             CreateMap<Server.Data.Entities.Service, ServiceDto>().ReverseMap();

@@ -1,4 +1,5 @@
 ﻿using Server.Data.Entities;
+using Server.Data.MongoDb.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,6 +15,7 @@ namespace Server.Business.Dtos
         public int ProductId { get; set; }
         [ForeignKey("Customer")]
         public int? CustomerId { get; set; }
+        public UserDTO Customer { get; set; }
         public string? Comment { get; set; }
         public int? Rating { get; set; }
         public string Status { get; set; }
