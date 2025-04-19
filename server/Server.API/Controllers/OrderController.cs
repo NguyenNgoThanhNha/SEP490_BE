@@ -410,21 +410,41 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
         }
 
 
+       
+      
+      
         [HttpPost("create-full")]
         public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
         {
             if (!ModelState.IsValid)
             {
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
                 {
-                    message = "Định dạng yêu cầu không hợp lệ",
-                    data = null
+                    message = "Định dạng yêu cầu không hợp lệ"
                 }));
             }
+
             var result = await _orderService.CreateOrderWithDetailsAsync(request);
 
-            return Ok(result);
+            // ❗ Nếu tạo thất bại
+            if (!result.Success)
+            {
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = (result.Result as ApiResponse)?.message ?? "Tạo đơn hàng thất bại."
+                }));
+            }
+
+            // ✅ Nếu thành công
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = (result.Result as ApiResponse)?.message,
+                data = (result.Result as ApiResponse)?.data
+            }));
         }
+
+
+
 
         [Authorize]
         [HttpPut("update-status")]
