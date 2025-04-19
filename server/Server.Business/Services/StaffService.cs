@@ -1073,7 +1073,7 @@ namespace Server.Business.Services
                     .FindByCondition(x => x.StaffId == staff.StaffId
                                           && x.WorkDate.Month == month
                                           && x.WorkDate.Year == year
-                                          && x.Status == "Active")
+                                          && x.Status == ObjectStatus.Active.ToString())
                     .Include(x => x.Shift)
                     .ToListAsync();
 
@@ -1083,6 +1083,7 @@ namespace Server.Business.Services
                     ws.DayOfWeek,
                     ws.ShiftId,
                     ws.Shift.ShiftName,
+                    ws.Status,
                     StartTime = ws.Shift.StartTime,
                     EndTime = ws.Shift.EndTime
                 });
