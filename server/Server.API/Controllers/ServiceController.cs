@@ -37,7 +37,7 @@ namespace Server.API.Controllers
 
                 if (services.Data == null || !services.Data.Any())
                 {
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
                         message = "Không tìm thấy dịch vụ."
                     }));
@@ -69,7 +69,7 @@ namespace Server.API.Controllers
                 // Kiểm tra nếu không có dữ liệu
                 if (services.data == null || !services.data.Any())
                 {
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
                         message = "Không tìm thấy dịch vụ."
                     }));
@@ -99,7 +99,7 @@ namespace Server.API.Controllers
 
                 if (services.data == null || !services.data.Any())
                 {
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
                         message = "Không tìm thấy dịch vụ."
                     }));
@@ -130,7 +130,7 @@ namespace Server.API.Controllers
                 // Kiểm tra nếu dịch vụ không tồn tại
                 if (service == null)
                 {
-                    return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                     {
                         message = "Không tìm thấy dịch vụ."
                     }));
@@ -322,7 +322,7 @@ namespace Server.API.Controllers
 
                 if (featuredServices == null || !featuredServices.Any())
                 {
-                    return NotFound(new
+                    return Ok(new
                     {
                         Message = "Không tìm thấy dịch vụ nổi bật nào."
                     });
