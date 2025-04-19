@@ -44,6 +44,7 @@ namespace Server.Business.Services
                 .GetAll()
                 .Include(f => f.Appointment)
                 .Include(f => f.Customer)
+                .OrderByDescending(f => f.AppointmentFeedbackId)
                 .ToListAsync();
 
             return _mapper.Map<List<AppointmentFeedbackDetailDto>>(feedbacks);

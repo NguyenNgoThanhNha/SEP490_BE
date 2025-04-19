@@ -196,8 +196,9 @@ namespace Server.Business.Services
         public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId, int? serviceCategoryId)
         {
             // Lấy danh sách ServiceId thuộc branch
-            var serviceIdsOfBranch = await _unitOfWorks.Branch_ServiceRepository.GetAll()
-                .Where(bs => bs.BranchId == branchId)
+            var serviceIdsOfBranch = await _unitOfWorks.Branch_ServiceRepository
+                .FindByCondition(bs => bs.BranchId == branchId)
+                .OrderByDescending(x=> x.Id)
                 .Select(bs => bs.ServiceId)
                 .ToListAsync();
 

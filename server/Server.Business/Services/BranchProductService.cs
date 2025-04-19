@@ -32,6 +32,7 @@ namespace Server.Business.Services
                 .Include(x => x.Product)
                 .Include(x => x.Branch)
                 .Include(x => x.Promotion)
+                .OrderByDescending(x => x.Id)
                 .ToListAsync();
 
             return _mapper.Map<List<BranchProductDto>>(entities);
@@ -44,7 +45,7 @@ namespace Server.Business.Services
                 .Include(x => x.Product)
                 .Include(x => x.Branch)
                 .Include(x => x.Promotion)
-                .OrderByDescending(x => x.ProductId);
+                .OrderByDescending(x => x.Id);
 
             var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);

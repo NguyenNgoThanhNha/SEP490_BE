@@ -30,7 +30,7 @@ namespace Server.Business.Services
         {
             var query = _unitOfWorks.SkinCareRoutineStepRepository
                 .GetAll()
-                .OrderBy(x => x.SkincareRoutineId)
+                .OrderByDescending(x => x.SkincareRoutineId)
                 .ThenBy(x => x.Step);
 
             var totalCount = await query.CountAsync();

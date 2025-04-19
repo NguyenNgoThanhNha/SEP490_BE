@@ -39,6 +39,7 @@ namespace Server.Business.Services
                 .GetAll()
                 .Include(f => f.Service)
                 .Include(f => f.Customer)
+                .OrderByDescending(f => f.ServiceFeedbackId)
                 .ToListAsync();
 
             return _mapper.Map<List<ServiceFeedbackDetailDto>>(feedbacks);

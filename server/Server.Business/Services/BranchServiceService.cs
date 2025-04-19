@@ -29,6 +29,7 @@ namespace Server.Business.Services
                 .GetAll()
                 .Include(x => x.Branch)
                 .Include(x => x.Service)
+                .OrderByDescending(x => x.Id)
                 .ToListAsync();
 
             return _mapper.Map<List<BranchServiceDto>>(entities);

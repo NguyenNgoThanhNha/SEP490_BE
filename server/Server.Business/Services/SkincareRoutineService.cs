@@ -28,7 +28,7 @@ namespace Server.Business.Services
         {
             var query = _unitOfWorks.SkincareRoutineRepository
                 .GetAll()
-                .OrderByDescending(x => x.CreatedDate);
+                .OrderByDescending(x => x.SkincareRoutineId);
 
             var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);

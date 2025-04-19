@@ -40,6 +40,7 @@ namespace Server.Business.Services
                 .GetAll()
                 .Include(f => f.Product)
                 .Include(f => f.Customer)
+                .OrderByDescending(f => f.ProductFeedbackId)
                 .ToListAsync();
 
             return _mapper.Map<List<ProductFeedbackDetailDto>>(feedbacks);

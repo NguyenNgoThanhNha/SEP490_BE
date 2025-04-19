@@ -28,6 +28,7 @@ public class VoucherService
                 (request.ValidFrom == DateTime.MinValue || x.ValidFrom >= request.ValidFrom) &&
                 (request.ValidTo == DateTime.MinValue || x.ValidTo <= request.ValidTo)
                 && x.Status == "Active" && x.RemainQuantity > 0)
+            .OrderByDescending(x=> x.VoucherId)
             .ToListAsync();
         return _mapper.Map<IEnumerable<VoucherDto>>(vouchers);
     }
