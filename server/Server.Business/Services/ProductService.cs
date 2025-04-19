@@ -584,53 +584,39 @@ namespace Server.Business.Services
         {
             try
             {
-                // Tìm sản phẩm theo ProductId
                 var product = await _unitOfWorks.ProductRepository
-    .FindByCondition(p => p.ProductId == productId)
-    .Include(p => p.Branch_Products) // Bao gồm danh sách sản phẩm chi nhánh liên kết
-    .FirstOrDefaultAsync();
+                    .FindByCondition(p => p.ProductId == productId)
+                    .Include(p => p.Branch_Products)
+                    .FirstOrDefaultAsync();
 
-
-                // Kiểm tra nếu sản phẩm không tồn tại
-                if (product == null)
+                // Nếu không tìm thấy hoặc đã không còn active
+                if (product == null || !string.Equals(product.Status, ObjectStatus.Active.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    return ApiResponse.Error("Product not found.");
+                    return ApiResponse.Error("Sản phẩm không tồn tại.");
                 }
 
-                // Kiểm tra xem danh mục của sản phẩm có liên kết với bất kỳ dịch vụ nào không
-                /*var hasLinkedServices = await _unitOfWorks.ServiceRepository
-                    .FindByCondition(s => s.CategoryId == product.CategoryId)
-                    .AnyAsync();
-
-                if (hasLinkedServices)
-                {
-                    return ApiResponse.Error("Cannot delete product as its category is linked to a service.");
-                }*/
-
-                // Cập nhật trạng thái sản phẩm thành "Inactive"
                 product.Status = ObjectStatus.InActive.ToString();
-
-                // Cập nhật sản phẩm thông qua UnitOfWork
                 _unitOfWorks.ProductRepository.Update(product);
-
-
-
-                // Lưu thay đổi vào cơ sở dữ liệu
                 var result = await _unitOfWorks.ProductRepository.Commit();
 
                 if (result > 0)
                 {
-                    return ApiResponse.Succeed("Product status updated to 'Inactive' successfully.");
+                    return new ApiResponse
+                    {
+                        message = "Sản phẩm đã được chuyển sang trạng thái Inactive.",
+                        data = product.ProductId
+                    };
                 }
 
-                return ApiResponse.Error("Failed to update product status.");
+                return ApiResponse.Error("Không thể cập nhật trạng thái sản phẩm.");
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có ngoại lệ
-                return ApiResponse.Error($"Error: {ex.Message}");
+                return ApiResponse.Error($"Lỗi khi xóa sản phẩm: {ex.Message}");
             }
         }
+
+
 
 
 
