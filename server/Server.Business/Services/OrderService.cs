@@ -956,29 +956,208 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<object>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
+        //public async Task<ApiResult<ApiResponse>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
+
+        //{
+        //    if (request == null
+        //        || request.Products == null
+        //        || !request.Products.Any()
+        //        || string.IsNullOrWhiteSpace(request.PaymentMethod))
+        //    {
+        //        return ApiResult<object>.Error(null, "Vui lòng nhập đầy đủ thông tin đơn hàng.");
+        //    }
+
+        //    using var transaction = await _unitOfWorks.BeginTransactionAsync();
+
+        //    try
+        //    {
+        //        // 1. Lấy user
+        //        var user = await _unitOfWorks.UserRepository
+        //            .FindByCondition(x => x.UserId == request.UserId && x.Status == "Active")
+        //            .FirstOrDefaultAsync();
+
+        //        if (user == null)
+        //            return ApiResult<object>.Error(null, "User không tồn tại hoặc đang bị vô hiệu hóa.");
+
+        //        // 2. Kiểm tra voucher
+        //        int? voucherId = null;
+        //        if (request.VoucherId.HasValue)
+        //        {
+        //            var voucher = await _unitOfWorks.VoucherRepository
+        //                .FindByCondition(x => x.VoucherId == request.VoucherId && x.Status == "Active")
+        //                .FirstOrDefaultAsync();
+
+        //            if (voucher == null)
+        //            {
+        //                return ApiResult<object>.Succeed(new ApiResponse
+        //                {
+        //                    message = "Mã giảm giá không hợp lệ.",
+        //                    data = null
+        //                });
+        //            }
+
+        //            voucherId = voucher.VoucherId;
+        //        }
+
+        //        // 3. Tạo OrderCode ngẫu nhiên
+        //        int orderCode;
+        //        var random = new Random();
+        //        do
+        //        {
+        //            orderCode = random.Next(1000, 10000);
+        //        } while (await _unitOfWorks.OrderRepository
+        //                     .FindByCondition(x => x.OrderCode == orderCode)
+        //                     .AnyAsync());
+
+        //        // 4. Tạo Order (chưa có TotalAmount)
+        //        var order = new Order
+        //        {
+        //            OrderCode = orderCode,
+        //            CustomerId = request.UserId,
+        //            VoucherId = voucherId,
+        //            TotalAmount = 0, // Tạm thời
+        //            OrderType = "Product",
+        //            PaymentMethod = request.PaymentMethod,
+        //            Status = OrderStatusEnum.Pending.ToString(),
+        //            StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+        //            CreatedDate = DateTime.UtcNow,
+        //            UpdatedDate = DateTime.UtcNow
+        //        };
+
+        //        await _unitOfWorks.OrderRepository.AddAsync(order);
+        //        await _unitOfWorks.OrderRepository.Commit();
+
+        //        decimal calculatedTotal = 0;
+
+        //        // 5. Tạo OrderDetail và cập nhật tồn kho
+        //        foreach (var item in request.Products)
+        //        {
+        //            if (item.Quantity <= 0)
+        //                throw new BadRequestException(
+        //                    $"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
+
+        //            var branchProduct = await _unitOfWorks.Branch_ProductRepository.GetByIdAsync(item.ProductBranchId);
+        //            if (branchProduct == null)
+        //                throw new BadRequestException($"Không tìm thấy BranchProduct với ID = {item.ProductBranchId}.");
+
+        //            if (branchProduct.StockQuantity < item.Quantity)
+        //                throw new BadRequestException($"Sản phẩm ID {branchProduct.ProductId} không đủ tồn kho.");
+
+        //            var product = await _unitOfWorks.ProductRepository.GetByIdAsync(branchProduct.ProductId);
+        //            if (product == null)
+        //                throw new BadRequestException($"Không tìm thấy Product với ID = {branchProduct.ProductId}.");
+
+        //            decimal subTotal = product.Price * item.Quantity;
+        //            calculatedTotal += subTotal;
+
+        //            var orderDetail = new OrderDetail
+        //            {
+        //                OrderId = order.OrderId,
+        //                ProductId = product.ProductId,
+        //                Quantity = item.Quantity,
+        //                UnitPrice = product.Price,
+        //                SubTotal = subTotal,
+        //                Status = OrderStatusEnum.Pending.ToString(),
+        //                StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
+        //                PaymentMethod = request.PaymentMethod,
+        //                CreatedDate = DateTime.Now,
+        //                UpdatedDate = DateTime.Now
+        //            };
+
+        //            await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+
+        //            // Cập nhật tồn kho
+        //            branchProduct.StockQuantity -= item.Quantity;
+        //            branchProduct.UpdatedDate = DateTime.Now;
+        //            _unitOfWorks.Branch_ProductRepository.Update(branchProduct);
+        //        }
+
+        //        // 6. Chuẩn hóa thông tin giao hàng
+        //        var recipientName = string.IsNullOrWhiteSpace(request.RecipientName)
+        //            ? user.FullName
+        //            : request.RecipientName;
+        //        var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress)
+        //            ? user.Address
+        //            : request.RecipientAddress;
+        //        var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone)
+        //            ? user.PhoneNumber
+        //            : request.RecipientPhone;
+
+        //        // 7. Tạo Shipment
+        //        var shipment = new Shipment
+        //        {
+        //            OrderId = order.OrderId,
+        //            EstimatedDeliveryDate = request.EstimatedDeliveryDate,
+        //            ShippingCost = request.ShippingCost,
+        //            RecipientName = recipientName,
+        //            RecipientAddress = recipientAddress,
+        //            RecipientPhone = recipientPhone,
+        //            ShippingStatus = ShippingStatusEnum.Pending.ToString(),
+        //            ShippingCarrier = "Unknown",
+        //            TrackingNumber = "Unknown",
+        //            CreatedDate = DateTime.Now,
+        //            UpdatedDate = DateTime.Now
+        //        };
+
+        //        await _unitOfWorks.ShipmentRepository.AddAsync(shipment);
+
+        //        // 8. Cộng ship cost vào tổng
+        //        calculatedTotal += shipment.ShippingCost;
+
+        //        // 9. Cập nhật TotalAmount vào bảng Order
+        //        order.TotalAmount = calculatedTotal;
+        //        order.UpdatedDate = DateTime.Now;
+        //        _unitOfWorks.OrderRepository.Update(order);
+        //        await _unitOfWorks.OrderRepository.Commit();
+
+        //        // 10. Commit tất cả
+        //        await _unitOfWorks.OrderDetailRepository.Commit();
+        //        await _unitOfWorks.ShipmentRepository.Commit();
+        //        await _unitOfWorks.Branch_ProductRepository.Commit();
+        //        await transaction.CommitAsync();
+
+        //        return ApiResult<ApiResponse>.Succeed(new ApiResponse
+        //        {
+        //            message = "Tạo đơn hàng thành công.",
+        //            data = order.OrderId
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        await transaction.RollbackAsync();
+        //        return ApiResult<object>.Error(null, $"Lỗi tạo đơn hàng: {ex.Message}");
+        //    }
+        //}
+
+        public async Task<ApiResult<ApiResponse>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
         {
             if (request == null
                 || request.Products == null
                 || !request.Products.Any()
                 || string.IsNullOrWhiteSpace(request.PaymentMethod))
             {
-                return ApiResult<object>.Error(null, "Vui lòng nhập đầy đủ thông tin đơn hàng.");
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Vui lòng nhập đầy đủ thông tin đơn hàng."
+                });
             }
 
             using var transaction = await _unitOfWorks.BeginTransactionAsync();
 
             try
             {
-                // 1. Lấy user
                 var user = await _unitOfWorks.UserRepository
                     .FindByCondition(x => x.UserId == request.UserId && x.Status == "Active")
                     .FirstOrDefaultAsync();
 
                 if (user == null)
-                    return ApiResult<object>.Error(null, "User không tồn tại hoặc đang bị vô hiệu hóa.");
+                {
+                    return ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "User không tồn tại hoặc đang bị vô hiệu hóa."
+                    });
+                }
 
-                // 2. Kiểm tra voucher
                 int? voucherId = null;
                 if (request.VoucherId.HasValue)
                 {
@@ -988,33 +1167,30 @@ namespace Server.Business.Services
 
                     if (voucher == null)
                     {
-                        return ApiResult<object>.Succeed(new ApiResponse
+                        return ApiResult<ApiResponse>.Error(new ApiResponse
                         {
-                            message = "Mã giảm giá không hợp lệ.",
-                            data = null
+                            message = "Mã giảm giá không hợp lệ."
                         });
                     }
 
                     voucherId = voucher.VoucherId;
                 }
 
-                // 3. Tạo OrderCode ngẫu nhiên
                 int orderCode;
                 var random = new Random();
                 do
                 {
                     orderCode = random.Next(1000, 10000);
                 } while (await _unitOfWorks.OrderRepository
-                             .FindByCondition(x => x.OrderCode == orderCode)
-                             .AnyAsync());
+                            .FindByCondition(x => x.OrderCode == orderCode)
+                            .AnyAsync());
 
-                // 4. Tạo Order (chưa có TotalAmount)
                 var order = new Order
                 {
                     OrderCode = orderCode,
                     CustomerId = request.UserId,
                     VoucherId = voucherId,
-                    TotalAmount = 0, // Tạm thời
+                    TotalAmount = 0,
                     OrderType = "Product",
                     PaymentMethod = request.PaymentMethod,
                     Status = OrderStatusEnum.Pending.ToString(),
@@ -1028,12 +1204,10 @@ namespace Server.Business.Services
 
                 decimal calculatedTotal = 0;
 
-                // 5. Tạo OrderDetail và cập nhật tồn kho
                 foreach (var item in request.Products)
                 {
                     if (item.Quantity <= 0)
-                        throw new BadRequestException(
-                            $"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
+                        throw new BadRequestException($"Số lượng sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
 
                     var branchProduct = await _unitOfWorks.Branch_ProductRepository.GetByIdAsync(item.ProductBranchId);
                     if (branchProduct == null)
@@ -1065,24 +1239,15 @@ namespace Server.Business.Services
 
                     await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
 
-                    // Cập nhật tồn kho
                     branchProduct.StockQuantity -= item.Quantity;
                     branchProduct.UpdatedDate = DateTime.Now;
                     _unitOfWorks.Branch_ProductRepository.Update(branchProduct);
                 }
 
-                // 6. Chuẩn hóa thông tin giao hàng
-                var recipientName = string.IsNullOrWhiteSpace(request.RecipientName)
-                    ? user.FullName
-                    : request.RecipientName;
-                var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress)
-                    ? user.Address
-                    : request.RecipientAddress;
-                var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone)
-                    ? user.PhoneNumber
-                    : request.RecipientPhone;
+                var recipientName = string.IsNullOrWhiteSpace(request.RecipientName) ? user.FullName : request.RecipientName;
+                var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress) ? user.Address : request.RecipientAddress;
+                var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone) ? user.PhoneNumber : request.RecipientPhone;
 
-                // 7. Tạo Shipment
                 var shipment = new Shipment
                 {
                     OrderId = order.OrderId,
@@ -1099,23 +1264,19 @@ namespace Server.Business.Services
                 };
 
                 await _unitOfWorks.ShipmentRepository.AddAsync(shipment);
-
-                // 8. Cộng ship cost vào tổng
                 calculatedTotal += shipment.ShippingCost;
 
-                // 9. Cập nhật TotalAmount vào bảng Order
                 order.TotalAmount = calculatedTotal;
                 order.UpdatedDate = DateTime.Now;
                 _unitOfWorks.OrderRepository.Update(order);
                 await _unitOfWorks.OrderRepository.Commit();
 
-                // 10. Commit tất cả
                 await _unitOfWorks.OrderDetailRepository.Commit();
                 await _unitOfWorks.ShipmentRepository.Commit();
                 await _unitOfWorks.Branch_ProductRepository.Commit();
                 await transaction.CommitAsync();
 
-                return ApiResult<object>.Succeed(new
+                return ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
                     message = "Tạo đơn hàng thành công.",
                     data = order.OrderId
@@ -1124,9 +1285,13 @@ namespace Server.Business.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return ApiResult<object>.Error(null, $"Lỗi tạo đơn hàng: {ex.Message}");
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi tạo đơn hàng: {ex.Message}"
+                });
             }
         }
+
 
 
         public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string status, string token)
