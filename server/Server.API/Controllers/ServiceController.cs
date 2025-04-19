@@ -163,7 +163,11 @@ namespace Server.API.Controllers
             }
             else
                 list = (await _elasticService.GetAllAsync()).ToList();
-            return Ok(ApiResponse.Succeed(list));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy danh sách dịch vụ thành công",
+                data = list
+            }));
         }
 
         [HttpPost("create-elastic")]

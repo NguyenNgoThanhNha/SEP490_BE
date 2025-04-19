@@ -127,7 +127,10 @@ namespace Server.Business.Services
             {
                 throw new Exception($"Failed to search: {response.ServerError?.Error?.Reason}");
             }
-            return response.Documents;
+            return response.Documents
+                .GroupBy(doc => doc.GetType().GetProperty("Name")?.GetValue(doc)?.ToString())
+                .Select(g => g.First())
+                .ToList();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()

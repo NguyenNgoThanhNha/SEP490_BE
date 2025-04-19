@@ -32,7 +32,7 @@ namespace Server.API.Controllers
             _payOsSetting = payOsSetting.Value;
         }
 
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize(Roles = "Admin, Manager, Staff")]
         [HttpGet("get-all-order")]
         public async Task<IActionResult> GetAllOrder([FromQuery] GetAllOrderRequest request)
         {
