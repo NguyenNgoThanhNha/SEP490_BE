@@ -284,51 +284,37 @@ namespace Server.API.Controllers
         [Authorize(Roles = "Admin, Manager")]
         [HttpDelete("{productId}")]
 
+        
         public async Task<IActionResult> DeleteProduct(int productId)
-        {
-            try
-            {
-                // Gọi service để thực hiện xóa sản phẩm
-                var result = await _productService.DeleteProductAsync(productId);
+{
+    try
+    {
+        var result = await _productService.DeleteProductAsync(productId);
 
-                // Kiểm tra kết quả
-                if (result == null || string.IsNullOrEmpty(result.message))
-                {
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Không tìm thấy sản phẩm hoặc không thể xóa."
-                    }));
-                }
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    message = "Sản phẩm đã được xóa thành công!"
-                }));
-            }
-            catch (InvalidOperationException ex)
+        var msg = result?.message?.ToLower() ?? "";
+        if (msg.Contains("not found") || msg.Contains("failed") || msg.Contains("error"))
+        {
+            return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
             {
-                // Xử lý lỗi liên quan đến ràng buộc dữ liệu
-                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = ex.Message
-                }));
-            }
-            catch (KeyNotFoundException ex)
-            {
-                // Xử lý lỗi nếu không tìm thấy sản phẩm
-                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = ex.Message
-                }));
-            }
-            catch (Exception ex)
-            {
-                // Xử lý lỗi chung
-                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = $"Đã xảy ra lỗi khi xóa sản phẩm: {ex.Message}"
-                }));
-            }
+                message = result.message
+            }));
         }
+
+        return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+        {
+            message = result.message,
+            data = productId.ToString()
+        }));
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+        {
+            message = $"Lỗi hệ thống: {ex.Message}"
+        }));
+    }
+}
+
 
 
         [HttpGet("top5-bestsellers")]
