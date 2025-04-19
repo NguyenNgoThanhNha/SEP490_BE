@@ -1674,10 +1674,11 @@ namespace Server.Business.Services
                     var shiftEnd = shift.EndTime;
                     var serviceDuration = service.Duration;
 
-                    var timeEnd = time + TimeSpan.FromMinutes(int.Parse(serviceDuration));
+                    var startDateTime = workDate.Date + time;
+                    var endDateTime = startDateTime.AddMinutes(int.Parse(serviceDuration));
 
                     // Check xem thời gian yêu cầu có nằm trong ca
-                    if (time >= shiftStart && timeEnd <= shiftEnd)
+                    if (time >= shiftStart && time + TimeSpan.FromMinutes(int.Parse(serviceDuration)) <= shiftEnd)
                     {
                         // Check không có appointment trùng thời gian đó
                         var hasConflictAppointment = await _unitOfWorks.AppointmentsRepository
@@ -1685,12 +1686,9 @@ namespace Server.Business.Services
                                 a.StaffId == staffId &&
                                 a.AppointmentsTime.Date == workDate.Date &&
                                 (
-                                    // bắt đầu nằm trong khoảng appointment
-                                    (time >= a.AppointmentsTime.TimeOfDay && time < a.AppointmentEndTime.TimeOfDay) ||
-                                    // kết thúc nằm trong khoảng appointment
-                                    (timeEnd > a.AppointmentsTime.TimeOfDay && timeEnd <= a.AppointmentEndTime.TimeOfDay) ||
-                                    // appointment nằm trọn trong khoảng thời gian yêu cầu
-                                    (a.AppointmentsTime.TimeOfDay <= time && a.AppointmentEndTime.TimeOfDay >= timeEnd)
+                                    (startDateTime >= a.AppointmentsTime && startDateTime < a.AppointmentEndTime) ||
+                                    (endDateTime > a.AppointmentsTime && endDateTime <= a.AppointmentEndTime) ||
+                                    (a.AppointmentsTime <= startDateTime && a.AppointmentEndTime >= endDateTime)
                                 ))
                             .AnyAsync();
 
