@@ -281,7 +281,7 @@ namespace Server.API.Controllers
         }
 
 
-      //  [Authorize(Roles = "Admin, Manager")]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpDelete("{productId}")]
 
         
