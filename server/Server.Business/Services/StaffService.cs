@@ -1510,6 +1510,7 @@ namespace Server.Business.Services
                     Staff = _mapper.Map<StaffModel>(x.Staff),
                     LeaveDate = x.LeaveDate,
                     Reason = x.Reason,
+                    Status = x.Status,
                     CreatedDate = x.CreatedDate,
                     UpdatedDate = x.UpdatedDate
                 }).ToList()
