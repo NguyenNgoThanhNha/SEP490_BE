@@ -495,11 +495,10 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
         [HttpPut("update-payment-method-or-note")]
         public async Task<IActionResult> UpdatePaymentMethodOrNote([FromBody] UpdatePaymentMethodOrNoteRequest request)
         {
-            // Lấy token từ header của request
-            var token = Request.Headers["Authorization"].ToString().Split(' ')[1]; // "Bearer <token>"
+            
 
             // Gọi Service để xử lý logic cập nhật
-            var result = await _orderService.UpdatePaymentMethodOrNoteAsync(request, token);
+            var result = await _orderService.UpdatePaymentMethodOrNoteAsync(request);
 
             // Trả về kết quả từ Service
             if (!result.Success)

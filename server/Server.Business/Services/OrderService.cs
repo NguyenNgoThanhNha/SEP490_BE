@@ -1398,16 +1398,9 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<ApiResult<object>> UpdatePaymentMethodOrNoteAsync(UpdatePaymentMethodOrNoteRequest request,
-            string token)
+        public async Task<ApiResult<object>> UpdatePaymentMethodOrNoteAsync(UpdatePaymentMethodOrNoteRequest request)
         {
-            // Lấy thông tin người dùng từ token
-            var currentUser = await _authService.GetUserInToken(token);
-            if (currentUser == null)
-            {
-                return ApiResult<object>.Error(null, "Token không hợp lệ hoặc người dùng không tìm thấy.");
-            }
-
+          
             // Lấy thông tin đơn hàng
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(request.OrderId);
             if (order == null)
@@ -1415,12 +1408,7 @@ namespace Server.Business.Services
                 return ApiResult<object>.Error(null, "Không tìm thấy đơn hàng.");
             }
 
-            // Kiểm tra quyền của người dùng
-            if (order.CustomerId != currentUser.UserId)
-            {
-                return ApiResult<object>.Error(null, "Bạn không có quyền cập nhật đơn hàng này.");
-            }
-
+           
             // Kiểm tra trạng thái đơn hàng
             if (order.Status != OrderStatusEnum.Pending.ToString())
             {
