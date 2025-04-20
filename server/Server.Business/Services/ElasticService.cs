@@ -19,31 +19,23 @@ namespace Server.Business.Services
         public async Task<string> ImportFromJsonFileAsync(IFormFile file)
         {
             if (file == null || file.Length == 0)
-            {
                 throw new ArgumentException("Please upload a valid JSON file.");
-            }
 
             try
             {
+                // Xóa toàn bộ dữ liệu cũ
+                await DeleteAllDocumentsAsync();
+
                 using var streamReader = new StreamReader(file.OpenReadStream());
                 var jsonData = await streamReader.ReadToEndAsync();
 
                 var documentList = JsonConvert.DeserializeObject<List<T>>(jsonData);
                 if (documentList == null || !documentList.Any())
-                {
                     return "The JSON file is empty or has an invalid format.";
-                }
-
-                var invalidDocuments = documentList.Where(doc => doc == null || !IsValid(doc)).ToList();
-
-                if (invalidDocuments.Any())
-                {
-                    return $"The JSON file contains invalid or mismatched objects. Invalid count: {invalidDocuments.Count}.";
-                }
 
                 foreach (var document in documentList)
                 {
-                    await IndexDocumentAsync(document);
+                    await _elasticClient.IndexAsync(document, i => i.Index(_indexName).Refresh(Elasticsearch.Net.Refresh.WaitFor));
                 }
 
                 return $"{documentList.Count} documents were successfully imported.";
@@ -54,6 +46,9 @@ namespace Server.Business.Services
             }
         }
 
+
+
+
         private bool IsValid(T document)
         {
             if (document is ProductDto product)
@@ -61,7 +56,7 @@ namespace Server.Business.Services
                 return !string.IsNullOrEmpty(product.ProductName)
                     && product.Price >= 0
                     && product.Quantity >= 0
-                   
+
                     && product.CompanyId > 0;
             }
             else if (document is ServiceDto service)
@@ -140,10 +135,22 @@ namespace Server.Business.Services
             {
                 throw new Exception($"Failed to retrieve documents: {response.ServerError?.Error?.Reason}");
             }
-            return response.Documents
-                .GroupBy(doc => doc.GetType().GetProperty("Name")?.GetValue(doc)?.ToString())
-                .Select(g => g.First())
-                .ToList();
+            return response.Documents;
         }
+
+        public async Task DeleteAllDocumentsAsync()
+        {
+            var response = await _elasticClient.DeleteByQueryAsync<T>(d => d
+                .Index(_indexName)
+                .Query(q => q.MatchAll())
+            );
+
+            if (!response.IsValid)
+            {
+                throw new Exception($"Xóa tất cả documents thất bại: {response.ServerError?.Error?.Reason}");
+            }
+        }
+
+
     }
 }
