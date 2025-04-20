@@ -5774,7 +5774,7 @@ namespace Server.Data.SeedData
                         ? "Active"
                         : "Inactive", // Random status (50% chance for active or inactive)
                     Description = "Phiếu giảm giá cho nhiều sản phẩm khác nhau", // Example description
-                    DiscountAmount = random.Next(5, 50), // Random discount between 5% and 50%
+                    DiscountAmount = random.Next(5, 50) * 1000, // Random discount between 5% and 50%
                     MinOrderAmount = random.Next(5, 500),
                     ValidFrom = DateTime.Now.AddDays(-random.Next(30,
                         60)), // Random start date (between 30 and 60 days ago)

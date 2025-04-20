@@ -135,12 +135,15 @@ namespace Server.Business.Services
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            var response = await _elasticClient.SearchAsync<T>(s => s.Index(_indexName).MatchAll());
+            var response = await _elasticClient.SearchAsync<T>(s => s.Index(_indexName).MatchAll().Size(1000));
             if (!response.IsValid)
             {
                 throw new Exception($"Failed to retrieve documents: {response.ServerError?.Error?.Reason}");
             }
-            return response.Documents;
+            return response.Documents
+                .GroupBy(doc => doc.GetType().GetProperty("Name")?.GetValue(doc)?.ToString())
+                .Select(g => g.First())
+                .ToList();
         }
     }
 }
