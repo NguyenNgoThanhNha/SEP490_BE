@@ -789,35 +789,68 @@ namespace Server.Business.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            var productDtos = pagedProducts.Select(p => new ProductDetailDto
+            //        var productDtos = pagedProducts.Select(p => new ProductDetailDto
+            //        {
+            //            ProductId = p.ProductId,
+            //            ProductName = p.ProductName,
+            //            ProductDescription = p.ProductDescription,
+            //            Price = p.Price,
+            //            Brand = p.Brand,
+            //            Quantity = p.Quantity,
+            //            StockQuantity = p.Branch_Products?
+            //.FirstOrDefault(bp => bp.BranchId == req.BranchId)?.StockQuantity ?? 0,
+            //            CategoryId = p.CategoryId,
+            //            Dimension = p.Dimension,
+            //            Status = p.Status,
+            //            CategoryName = p.Category?.Name,
+            //            CompanyName = p.Company?.Name,
+            //            CreatedDate = p.CreatedDate,
+            //            UpdatedDate = p.UpdatedDate,
+            //            //BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
+            //            //BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
+            //            ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id,
+            //            Category = new CategoryDetailDto
+            //            {
+            //                CategoryId = p.Category?.CategoryId ?? 0,
+            //                Name = p.Category?.Name,
+            //                Description = p.Category?.Description,
+            //                Status = p.Category?.Status
+            //            },
+            //            images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
+            //        }).ToList();
+
+            var productDtos = pagedProducts.Select(p =>
             {
-                ProductId = p.ProductId,
-                ProductName = p.ProductName,
-                ProductDescription = p.ProductDescription,
-                Price = p.Price,
-                Brand = p.Brand,
-                Quantity = p.Quantity,
-                StockQuantity = p.Branch_Products?
-    .FirstOrDefault(bp => bp.BranchId == req.BranchId)?.StockQuantity ?? 0,
-                CategoryId = p.CategoryId,
-                Dimension = p.Dimension,
-                Status = p.Status,
-                CategoryName = p.Category?.Name,
-                CompanyName = p.Company?.Name,
-                CreatedDate = p.CreatedDate,
-                UpdatedDate = p.UpdatedDate,
-                //BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
-                //BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
-                ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id,
-                Category = new CategoryDetailDto
+                var branchProduct = p.Branch_Products?.FirstOrDefault(bp => bp.BranchId == req.BranchId);
+
+                return new ProductDetailDto
                 {
-                    CategoryId = p.Category?.CategoryId ?? 0,
-                    Name = p.Category?.Name,
-                    Description = p.Category?.Description,
-                    Status = p.Category?.Status
-                },
-                images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
+                    ProductId = p.ProductId,
+                    ProductName = p.ProductName,
+                    ProductDescription = p.ProductDescription,
+                    Price = p.Price,
+                    Brand = p.Brand,
+                    Quantity = p.Quantity,
+                    StockQuantity = branchProduct?.StockQuantity ?? 0,
+                    CategoryId = p.CategoryId,
+                    Dimension = p.Dimension,
+                    Status = p.Status,
+                    CategoryName = p.Category?.Name,
+                    CompanyName = p.Company?.Name,
+                    CreatedDate = p.CreatedDate,
+                    UpdatedDate = p.UpdatedDate,
+                    ProductBranchId = branchProduct?.Id,
+                    Category = new CategoryDetailDto
+                    {
+                        CategoryId = p.Category?.CategoryId ?? 0,
+                        Name = p.Category?.Name,
+                        Description = p.Category?.Description,
+                        Status = p.Category?.Status
+                    },
+                    images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
+                };
             }).ToList();
+
 
             return new GetAllProductPaginationFilter
             {
