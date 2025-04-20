@@ -363,7 +363,7 @@ namespace Server.API.Controllers
 
         [Authorize(Roles = "Admin, Manager")]
         [HttpPut("approve-staff-leave/{staffLeaveId}")]
-        public async Task<IActionResult> ApproveStaffLeaveAsync(int staffLeaveId, [FromBody] string note)
+        public async Task<IActionResult> ApproveStaffLeaveAsync(int staffLeaveId)
         {
             var result = await _staffLeaveService.ApproveStaffLeaveAsync(staffLeaveId);
             if (!result)
@@ -376,14 +376,13 @@ namespace Server.API.Controllers
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Chấp thuận ngày nghỉ phép của nhân viên.",
-                data = note
+                message = "Chấp thuận ngày nghỉ phép của nhân viên."
             }));
         }
 
         [Authorize(Roles = "Admin, Manager")]
         [HttpPut("reject-staff-leave/{staffLeaveId}")]
-        public async Task<IActionResult> RejectStaffLeaveAsync(int staffLeaveId, [FromBody] string note)
+        public async Task<IActionResult> RejectStaffLeaveAsync(int staffLeaveId)
         {
             var result = await _staffLeaveService.RejectStaffLeaveAsync(staffLeaveId);
             if (!result)
@@ -397,7 +396,6 @@ namespace Server.API.Controllers
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Đã từ chối ngày nghỉ của nhân viên.",
-                data = note
             }));
         }
 
