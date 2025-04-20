@@ -21,6 +21,7 @@ namespace Server.API.Controllers
         private readonly ElasticService<ServiceDto> _elasticService;
 
 
+
         public ServiceController(ServiceService serviceService, IElasticClient elasticClient)
         {
             _serviceService = serviceService;
@@ -88,7 +89,7 @@ namespace Server.API.Controllers
             }
         }
 
-       
+
 
         [HttpGet("get-all-services-for-branch")]
         public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId, [FromQuery] int? serviceCategoryId, int page = 1, int pageSize = 6)
@@ -310,7 +311,7 @@ namespace Server.API.Controllers
                     message = $"Đã xảy ra lỗi khi xóa dịch vụ: {ex.Message}"
                 }));
             }
-        }      
+        }
 
 
         [HttpGet("top4-featured-services")]
@@ -353,7 +354,7 @@ namespace Server.API.Controllers
             var result = await _serviceService.CheckInputHasGross(input);
             return Ok(ApiResponse.Succeed(result));
         }
-        
+
         [HttpGet("get-branches-by-service")]
         public async Task<IActionResult> GetBranchsByService(int serviceId)
         {
@@ -372,7 +373,7 @@ namespace Server.API.Controllers
             }
         }
 
-        
+
 
         [HttpGet("get-services-by-branch")]
         public async Task<IActionResult> GetServicesByBranch(int branchId, int? serviceCategoryId)
@@ -426,6 +427,21 @@ namespace Server.API.Controllers
                 }));
             }
         }
+
+        [HttpDelete("clear-service-elastic")]
+        public async Task<IActionResult> ClearServiceElastic()
+        {
+            try
+            {
+                await _elasticService.DeleteAllDocumentsAsync();
+                return Ok(ApiResponse.Succeed("Đã xóa toàn bộ dữ liệu Elasticsearch của Service."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse.Error($"Lỗi khi xóa Service Elasticsearch: {ex.Message}"));
+            }
+        }
+
 
 
     }

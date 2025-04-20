@@ -133,7 +133,7 @@ namespace Server.API.Controllers
 
 
         //[Authorize(Roles = "Admin, Manager")]
-        [HttpPost("create")]       
+        [HttpPost("create")]
         public async Task<IActionResult> CreateProduct([FromForm] ProductCreateDto productCreateDto)
         {
             // Kiểm tra tính hợp lệ của Model
@@ -284,36 +284,36 @@ namespace Server.API.Controllers
         [Authorize(Roles = "Admin, Manager")]
         [HttpDelete("{productId}")]
 
-        
+
         public async Task<IActionResult> DeleteProduct(int productId)
-{
-    try
-    {
-        var result = await _productService.DeleteProductAsync(productId);
-
-        var msg = result?.message?.ToLower() ?? "";
-        if (msg.Contains("not found") || msg.Contains("failed") || msg.Contains("error"))
         {
-            return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+            try
             {
-                message = result.message
-            }));
-        }
+                var result = await _productService.DeleteProductAsync(productId);
 
-        return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-        {
-            message = result.message,
-            data = productId.ToString()
-        }));
-    }
-    catch (Exception ex)
-    {
-        return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-        {
-            message = $"Lỗi hệ thống: {ex.Message}"
-        }));
-    }
-}
+                var msg = result?.message?.ToLower() ?? "";
+                if (msg.Contains("not found") || msg.Contains("failed") || msg.Contains("error"))
+                {
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = result.message
+                    }));
+                }
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = result.message,
+                    data = productId.ToString()
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi hệ thống: {ex.Message}"
+                }));
+            }
+        }
 
 
         [HttpGet("top-5-best-sellers")]
@@ -458,6 +458,21 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+
+        [HttpDelete("elastic-clear")]
+        public async Task<IActionResult> ClearElasticProduct()
+        {
+            try
+            {
+                await _elasticService.DeleteAllDocumentsAsync();
+                return Ok(ApiResponse.Succeed("Đã xóa toàn bộ dữ liệu Elasticsearch của sản phẩm."));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Error($"Lỗi khi xóa dữ liệu Elasticsearch: {ex.Message}"));
+            }
+        }
+
 
 
 
