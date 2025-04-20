@@ -201,7 +201,8 @@ public class RoutineService
         await _unitOfWorks.BeginTransactionAsync();
         try
         {
-            var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId);
+            var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId)
+                ?? throw new BadRequestException("Không tìm thấy người dùng nào!");
             var voucher =
                 await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId);
 
@@ -218,7 +219,8 @@ public class RoutineService
             if (routine == null) return 0;
 
             var staff = await _unitOfWorks.StaffRepository
-                .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId);
+                .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId)
+                ?? throw new BadRequestException("Không tìm thấy nhân viên nào!");
 
             var randomOrderCode = new Random().Next(100000, 999999);
             var order = new Order
@@ -267,7 +269,7 @@ public class RoutineService
                         CreatedDate = DateTime.Now
                     };
                     listAppointment.Add(_mapper.Map<Appointments>(newAppointment));
-                    appointmentTime = endTime.AddMinutes((step.IntervalBeforeNextStep * 24 * 60) ?? 5);
+                    appointmentTime = endTime.AddDays(step.IntervalBeforeNextStep ?? 0);
                 }
 
                 foreach (var productStep in step.ProductRoutineSteps)

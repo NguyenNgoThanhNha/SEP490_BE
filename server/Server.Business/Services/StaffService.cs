@@ -1579,7 +1579,7 @@ namespace Server.Business.Services
 
                 // Lấy danh sách nhân viên trong chi nhánh
                 var staffList = await _unitOfWorks.StaffRepository
-                    .FindByCondition(x => x.BranchId == branchId)
+                    .FindByCondition(x => x.BranchId == branchId && x.RoleId == 2)
                     .Include(x => x.StaffInfo)
                     .ToListAsync();
 
@@ -1642,7 +1642,7 @@ namespace Server.Business.Services
                 .FirstOrDefaultAsync() ?? throw new BadRequestException("Dịch vụ không thuộc chi nhánh này");
 
             var staffList = await _unitOfWorks.StaffRepository
-                .FindByCondition(x => x.BranchId == branchId)
+                .FindByCondition(x => x.BranchId == branchId && x.RoleId == 2)
                 .Include(x => x.StaffInfo)
                 .ToListAsync();
 
