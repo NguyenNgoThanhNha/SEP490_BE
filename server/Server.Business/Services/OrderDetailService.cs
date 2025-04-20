@@ -108,7 +108,7 @@ namespace Server.Business.Services
                 if (matchedProduct != null)
                 {
                     orderDetail.Product.images = matchedProduct.images;
-                    orderDetail.Product.Branches = matchedProduct.Branches;
+                    orderDetail.Product.Branch = matchedProduct.Branch;
                 }
             }
             return _mapper.Map<List<OrderDetailModels>>(orderDetails);

@@ -41,7 +41,7 @@ namespace Server.Business.Models
         public DateTime CreatedDate { get; set; } = DateTime.Now;
 
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
-        public BranchDTO Branches { get; set; }
+        public BranchDTO Branch { get; set; }
     }
 
 }

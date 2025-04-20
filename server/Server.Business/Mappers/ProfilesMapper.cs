@@ -53,7 +53,7 @@ namespace Server.Business.Mappers
       .ForMember(dest => dest.images, opt => opt.MapFrom(src =>
           src.ProductImages.Select(i => i.image)
       ))
-      .ForMember(dest => dest.Branches, opt => opt.MapFrom(src =>
+      .ForMember(dest => dest.Branch, opt => opt.MapFrom(src =>
           src.Branch_Products != null && src.Branch_Products.Any()
               ? src.Branch_Products.First().Branch
               : null

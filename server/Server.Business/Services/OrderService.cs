@@ -694,7 +694,7 @@ namespace Server.Business.Services
                     if (matchedProduct != null)
                     {
                         orderDetail.Product.images = matchedProduct.images;
-                        orderDetail.Product.Branches = matchedProduct.Branches;
+                        orderDetail.Product.Branch = matchedProduct.Branch;
                     }
                 }
             }
@@ -884,7 +884,7 @@ namespace Server.Business.Services
                         if (matchedProduct != null)
                         {
                             detail.Product.images = matchedProduct.images;
-                            detail.Product.Branches = matchedProduct.Branches;
+                            detail.Product.Branch = matchedProduct.Branch;
                         }
                     }
                 }
@@ -910,7 +910,7 @@ namespace Server.Business.Services
                         if (matchedProduct != null)
                         {
                             detail.Product.images = matchedProduct.images;
-                            detail.Product.Branches = matchedProduct.Branches;
+                            detail.Product.Branch = matchedProduct.Branch;
                         }
                     }
                 }
