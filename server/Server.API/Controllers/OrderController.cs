@@ -495,8 +495,6 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
         [HttpPut("update-payment-method-or-note")]
         public async Task<IActionResult> UpdatePaymentMethodOrNote([FromBody] UpdatePaymentMethodOrNoteRequest request)
         {
-            
-
             // Gọi Service để xử lý logic cập nhật
             var result = await _orderService.UpdatePaymentMethodOrNoteAsync(request);
 
@@ -534,6 +532,31 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
             }));
         }
 
+        [HttpPut("update-order-details-status")]
+        public async Task<IActionResult> UpdateOrderDetailsStatus([FromBody] UpdateOrderDetailsStatusRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Định dạng yêu cầu không hợp lệ"
+                }));
+            }
 
+            var result = await _orderService.UpdateOrderDetailStatus(request.OrderDetailsIds, request.Status);
+
+            if (!result)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Cập nhật trạng thái chi tiết đơn hàng thất bại."
+                }));
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Cập nhật trạng thái chi tiết đơn hàng thành công.",
+            }));
+        }
     }
 }

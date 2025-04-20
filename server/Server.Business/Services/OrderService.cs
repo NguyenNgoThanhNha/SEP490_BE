@@ -1585,5 +1585,26 @@ namespace Server.Business.Services
 
             return result;
         }
+
+        public async Task<bool> UpdateOrderDetailStatus(int[] orderDetailIds, string status)
+        {
+            var orderDetails = await _unitOfWorks.OrderDetailRepository
+                .FindByCondition(x => orderDetailIds.Contains(x.OrderDetailId))
+                .ToListAsync();
+
+            if (orderDetails == null || !orderDetails.Any())
+            {
+                throw new BadRequestException("Không tìm thấy thông tin chi tiết đơn hàng");
+            }
+
+            foreach (var orderDetail in orderDetails)
+            {
+                orderDetail.Status = status;
+                _unitOfWorks.OrderDetailRepository.Update(orderDetail);
+            }
+
+            var result = await _unitOfWorks.OrderDetailRepository.Commit();
+            return result > 0;
+        }
     }
 }
