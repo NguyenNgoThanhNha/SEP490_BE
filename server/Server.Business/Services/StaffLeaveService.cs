@@ -74,7 +74,7 @@ public class StaffLeaveService
         var workingSchedules = await _unitOfWorks.WorkScheduleRepository
             .FindByCondition(ws => ws.StaffId == staffLeave.StaffId && ws.WorkDate == staffLeave.LeaveDate)
             .ToListAsync();
-        if (workingSchedules == null || !workingSchedules.Any())
+        if (workingSchedules != null)
         {
             foreach (var workSchedule in workingSchedules)
             {
@@ -82,10 +82,6 @@ public class StaffLeaveService
                 workSchedule.UpdatedDate = DateTime.Now;
                 _unitOfWorks.WorkScheduleRepository.Update(workSchedule);
             }
-        }
-        else
-        {
-            throw new BadRequestException("Không tìm thấy lịch làm việc nào trong ngày nghỉ này");
         }
 
         staffLeave.Status = StaffLeaveStatus.Approved.ToString();
