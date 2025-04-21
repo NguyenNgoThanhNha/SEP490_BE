@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
@@ -19,7 +20,7 @@ namespace Server.API.Controllers
             _serviceCategoryService = serviceCategoryService;
         }
 
-        // Create a new ServiceCategory
+        [Authorize(Roles = "Admin, Manager")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateServiceCategory([FromForm] ServiceCategoryCreateUpdateDto dto)
         {

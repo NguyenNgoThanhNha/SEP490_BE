@@ -4,6 +4,7 @@ using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Exceptions;
 using Server.Business.Models;
+using Server.Data;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 
@@ -93,11 +94,12 @@ namespace Server.Business.Services
         public async Task<BranchModel> GetBranchByIdAsync(int branchId)
         {
             
-            var branch = await _context.Branchs
+            var branch = await unitOfWorks.BranchRepository
+                .FindByCondition(b => b.BranchId == branchId && b.Status == "Active")
                 .Include(b => b.ManagerBranch)  
                 .Include(b => b.Company)       
                 .Include(b => b.Branch_Promotion) 
-                .SingleOrDefaultAsync(b => b.BranchId == branchId && b.Status == "Active");
+                .FirstOrDefaultAsync();
 
           
             if (branch == null) return null;
@@ -107,8 +109,23 @@ namespace Server.Business.Services
             return branchModel;
         }
 
-        public async Task<bool> CreateBranch(CreateBranchRequest request)
+        public async Task<BranchModel> CreateBranch(CreateBranchRequest request)
         {
+            var manager = await unitOfWorks.UserRepository
+                .FirstOrDefaultAsync(x => x.UserId == request.ManagerId && x.Status == "Active" && x.RoleID == 2)
+                ?? throw new BadRequestException("Người quản lý không tồn tại!");
+            
+            var company = await unitOfWorks.CompanyRepository.FirstOrDefaultAsync(x => x.CompanyId == request.CompanyId)
+                ?? throw new BadRequestException("Công ty không tồn tại!");
+
+            var branchExist = await unitOfWorks.BranchRepository
+                .FirstOrDefaultAsync(x =>
+                    x.BranchName == request.BranchName && x.BranchAddress == request.BranchAddress &&
+                    x.Status == "Active");
+            if(branchExist != null)
+            {
+                throw new BadRequestException("Chi nhánh đã tồn tại!");
+            }
             var branch = new Branch
             {
                 BranchName = request.BranchName,
@@ -116,15 +133,16 @@ namespace Server.Business.Services
                 BranchPhone = request.BranchPhone,
                 LongAddress = request.LongAddress,
                 LatAddress = request.LatAddress,
-                Status = request.Status,
-                ManagerId = request.ManagerId,
-                CompanyId = request.CompanyId,
+                Status = ObjectStatus.Active.ToString(),
+                ManagerId = manager.UserId,
+                CompanyId = company.CompanyId,
                 District = request.District,
                 WardCode = request.WardCode
             };
             // Thêm chi nhánh vào cơ sở dữ liệu
             await unitOfWorks.BranchRepository.AddAsync(branch);
-            return await unitOfWorks.BranchRepository.Commit() > 0;
+            var rs = await unitOfWorks.BranchRepository.Commit();
+            return rs > 0 ? _mapper.Map<BranchModel>(branch) : null;
         }
 
         public async Task<bool> UpdateBranch(UpdateBranchRequest request)

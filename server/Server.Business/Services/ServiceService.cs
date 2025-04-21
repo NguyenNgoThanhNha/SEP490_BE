@@ -303,7 +303,12 @@ namespace Server.Business.Services
                 // Kiểm tra nếu DTO bị null
                 if (serviceDto == null)
                 {
-                    throw new ArgumentNullException(nameof(serviceDto), "Service data is required.");
+                    throw new BadRequestException("Service data is required.");
+                }
+                
+                if(serviceDto.ServiceCategoryId == null)
+                {
+                    throw new BadRequestException("ServiceCategoryId is required.");
                 }
 
                 // Tạo thực thể Service từ DTO
@@ -324,30 +329,38 @@ namespace Server.Business.Services
                 await _unitOfWorks.ServiceRepository.AddAsync(service);
                 await _unitOfWorks.ServiceRepository.Commit();
 
-                // Bắt đầu tải lên hình ảnh đồng thời
-                var uploadTasks = serviceDto.images?.Select(image => _cloudianryService.UploadImageAsync(image)).ToList();
-                var imageUploadResults = await Task.WhenAll(uploadTasks);
-
-                // Xử lý kết quả tải lên
-                var listServiceImages = imageUploadResults
-                    .Where(result => result != null)
-                    .Select(result => new ServiceImages
-                    {
-                        ServiceId = service.ServiceId, // ServiceId sẽ được gán sau khi lưu Service
-                        image = result.SecureUrl.ToString(),
-                    }).ToList();
-
-                // Thêm hình ảnh vào cơ sở dữ liệu
-                if (listServiceImages.Any())
-                {
-                    await _unitOfWorks.ServiceImageRepository.AddRangeAsync(listServiceImages);
-                }
+                var result = _mapper.Map<ServiceDto>(service);
                 
-                // Lưu lại ServiceId cho hình ảnh
-                listServiceImages.ForEach(image => image.ServiceId = service.ServiceId);
-                await _unitOfWorks.ServiceImageRepository.Commit();
+                // Tạo danh sách hình ảnh từ DTO
+                if (serviceDto.images != null)
+                {
+                    // Bắt đầu tải lên hình ảnh đồng thời
+                    var uploadTasks = serviceDto.images?.Select(image => _cloudianryService.UploadImageAsync(image)).ToList();
+                    var imageUploadResults = await Task.WhenAll(uploadTasks);
 
-                return _mapper.Map<ServiceDto>(service);
+                    // Xử lý kết quả tải lên
+                    var listServiceImages = imageUploadResults
+                        .Where(result => result != null)
+                        .Select(result => new ServiceImages
+                        {
+                            ServiceId = service.ServiceId, // ServiceId sẽ được gán sau khi lưu Service
+                            image = result.SecureUrl.ToString(),
+                        }).ToList();
+
+                    // Thêm hình ảnh vào cơ sở dữ liệu
+                    if (listServiceImages.Any())
+                    {
+                        await _unitOfWorks.ServiceImageRepository.AddRangeAsync(listServiceImages);
+                    }
+                
+                    // Lưu lại ServiceId cho hình ảnh
+                    listServiceImages.ForEach(image => image.ServiceId = service.ServiceId);
+                    await _unitOfWorks.ServiceImageRepository.Commit();
+                    
+                    result.images = listServiceImages.Select(x => x.image).ToArray();
+                }
+
+                return result;
             }
             catch (Exception ex)
             {

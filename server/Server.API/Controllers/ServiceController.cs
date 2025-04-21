@@ -222,7 +222,7 @@ namespace Server.API.Controllers
                 var service = await _serviceService.CreateServiceAsync(serviceDto);
 
                 // Trả về kết quả nếu thành công
-                return CreatedAtAction(nameof(GetServiceById), new { id = service.ServiceId }, ApiResult<ApiResponse>.Succeed(new ApiResponse
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
                     message = "Tạo dịch vụ thành công.",
                     data = service
