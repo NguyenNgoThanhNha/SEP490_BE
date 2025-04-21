@@ -14,8 +14,11 @@ namespace Server.Business.Dtos
 
         public string ProductDescription { get; set; }
         public string Dimension { get; set; }
+        
+        [Range(0.01, double.MaxValue, ErrorMessage = "Giá sản phẩm phải lớn hơn 0")]
         public decimal Price { get; set; }
 
+        [Range(0, int.MaxValue, ErrorMessage = "Số lượng sản phẩm phải lớn hơn hoặc bằng 0")]
         public int Quantity { get; set; }
         
         public string? Brand { get; set; }

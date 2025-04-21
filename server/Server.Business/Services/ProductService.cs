@@ -21,19 +21,22 @@ namespace Server.Business.Services
         private readonly IMapper _mapper;
         private readonly CloudianryService _cloudianryService;
         private readonly IAIMLService _gptService;
-        public ProductService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService, IAIMLService gptService)
+
+        public ProductService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService,
+            IAIMLService gptService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
             _cloudianryService = cloudianryService;
             _gptService = gptService;
         }
+
         public async Task<Pagination<ProductDto>> GetListAsync(
-    Expression<Func<Product, bool>> filter = null,
-    Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null,
-    string includeProperties = "",
-    int? pageIndex = null,
-    int? pageSize = null)
+            Expression<Func<Product, bool>> filter = null,
+            Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = null,
+            string includeProperties = "",
+            int? pageIndex = null,
+            int? pageSize = null)
         {
             try
             {
@@ -41,7 +44,7 @@ namespace Server.Business.Services
                 IQueryable<Product> query = _unitOfWorks.ProductRepository.GetAll()
                     .Include(p => p.Category)
                     .Include(p => p.Company)
-                 .OrderByDescending(p => p.ProductId);
+                    .OrderByDescending(p => p.ProductId);
 
                 // Include các bảng bổ sung từ tham số
                 foreach (var includeProperty in includeProperties.Split(
@@ -100,16 +103,18 @@ namespace Server.Business.Services
                     CreatedDate = p.CreatedDate,
                     UpdatedDate = p.UpdatedDate,
                     CategoryId = p.CategoryId,
-                    Category = p.Category != null ? new CategoryDto
-                    {
-                        CategoryId = p.Category.CategoryId,
-                        Name = p.Category.Name,
-                        Description = p.Category.Description,
-                        Status = p.Category.Status,
-                        ImageUrl = p.Category.ImageUrl,
-                        CreatedDate = p.Category.CreatedDate,
-                        UpdatedDate = p.Category.UpdatedDate
-                    } : null, // Nếu Category null, gán null
+                    Category = p.Category != null
+                        ? new CategoryDto
+                        {
+                            CategoryId = p.Category.CategoryId,
+                            Name = p.Category.Name,
+                            Description = p.Category.Description,
+                            Status = p.Category.Status,
+                            ImageUrl = p.Category.ImageUrl,
+                            CreatedDate = p.Category.CreatedDate,
+                            UpdatedDate = p.Category.UpdatedDate
+                        }
+                        : null, // Nếu Category null, gán null
                     images = productImages.ContainsKey(p.ProductId)
                         ? productImages[p.ProductId]
                         : Array.Empty<string>() // Nếu không có hình ảnh, gán mảng rỗng
@@ -255,132 +260,123 @@ namespace Server.Business.Services
 
         public async Task<ApiResult<ApiResponse>> CreateProductAsync(ProductCreateDto productCreateDto)
         {
-            try
-            {
-                if (productCreateDto == null)
-                {
-                    return ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Please enter complete information."
-                    });
-                }
-
-                // Kiểm tra Category có tồn tại không
-                var categoryExists = await _unitOfWorks.CategoryRepository
-                    .FindByCondition(c => c.CategoryId == productCreateDto.CategoryId)
-                    .AnyAsync();
-
-                if (!categoryExists)
-                {
-                    return ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Category does not exist."
-                    });
-                }
-
-                // Kiểm tra Company có tồn tại không
-                var companyExists = await _unitOfWorks.CompanyRepository
-                    .FindByCondition(c => c.CompanyId == productCreateDto.CompanyId)
-                    .AnyAsync();
-
-                if (!companyExists)
-                {
-                    return ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Company does not exist."
-                    });
-                }
-
-                // Upload ảnh nếu có
-                string? imageUrl = null;
-                if (productCreateDto.Image != null)
-                {
-                    var imageUploadResult = await _cloudianryService.UploadImageAsync(productCreateDto.Image);
-                    if (imageUploadResult == null)
-                    {
-                        return ApiResult<ApiResponse>.Error(new ApiResponse
-                        {
-                            message = "Upload image failed!"
-                        });
-                    }
-                    imageUrl = imageUploadResult.SecureUrl.ToString();
-                }
-
-                // Tạo sản phẩm mới
-                var newProduct = new Product
-                {
-                    ProductName = productCreateDto.ProductName,
-                    ProductDescription = productCreateDto.ProductDescription,
-                    Price = productCreateDto.Price,
-                    Quantity = productCreateDto.Quantity,
-                    CategoryId = productCreateDto.CategoryId,
-                    CompanyId = productCreateDto.CompanyId,
-                    Brand = productCreateDto.Brand,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now,
-                    Dimension = productCreateDto.Dimension,
-                    Status = ObjectStatus.Active.ToString()
-                };
-
-                await _unitOfWorks.ProductRepository.AddAsync(newProduct);
-                await _unitOfWorks.ProductRepository.Commit();
-
-                // Lưu ảnh vào ProductImages nếu có ảnh
-                if (!string.IsNullOrEmpty(imageUrl))
-                {
-                    var productImage = new ProductImages
-                    {
-                        ProductId = newProduct.ProductId,
-                        image = imageUrl
-                    };
-                    await _unitOfWorks.ProductImageRepository.AddAsync(productImage);
-                    await _unitOfWorks.ProductImageRepository.Commit();
-                }
-
-                // Lấy lại sản phẩm vừa tạo từ cơ sở dữ liệu kèm theo thông tin của Category và Company
-                var createdProduct = await _unitOfWorks.ProductRepository
-                    .FindByCondition(p => p.ProductId == newProduct.ProductId)
-                    .Include(p => p.Category)
-                    .Include(p => p.Company)
-                    .FirstOrDefaultAsync();
-
-                if (createdProduct == null)
-                {
-                    return ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = "Failed to retrieve the created product."
-                    });
-                }
-
-                return ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    message = "Product created successfully.",
-                    data = new
-                    {
-                        createdProduct.ProductId,
-                        createdProduct.ProductName,
-                        createdProduct.ProductDescription,
-                        createdProduct.Price,
-                        createdProduct.Quantity,
-                        createdProduct.Status,
-                        createdProduct.CategoryId,
-                        CategoryName = createdProduct.Category?.Name,
-                        createdProduct.CompanyId,
-                        CompanyName = createdProduct.Company?.Name,
-                        createdProduct.Dimension,
-                        createdProduct.CreatedDate,
-                        createdProduct.UpdatedDate,
-                        ImageUrl = imageUrl
-                    }
-                });
-            }
-            catch (Exception ex)
+            if (productCreateDto == null)
             {
                 return ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    message = $"Error: {ex.Message}"
+                    message = "Please enter complete information."
                 });
             }
+
+            // Kiểm tra Category có tồn tại không
+            var categoryExists = await _unitOfWorks.CategoryRepository
+                .FindByCondition(c => c.CategoryId == productCreateDto.CategoryId)
+                .AnyAsync();
+
+            if (!categoryExists)
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Category does not exist."
+                });
+            }
+
+            // Kiểm tra Company có tồn tại không
+            var companyExists = await _unitOfWorks.CompanyRepository
+                .FindByCondition(c => c.CompanyId == productCreateDto.CompanyId)
+                .AnyAsync();
+
+            if (!companyExists)
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Company does not exist."
+                });
+            }
+
+            // Upload ảnh nếu có
+            string? imageUrl = null;
+            if (productCreateDto.Image != null)
+            {
+                var imageUploadResult = await _cloudianryService.UploadImageAsync(productCreateDto.Image);
+                if (imageUploadResult == null)
+                {
+                    return ApiResult<ApiResponse>.Error(new ApiResponse
+                    {
+                        message = "Upload image failed!"
+                    });
+                }
+
+                imageUrl = imageUploadResult.SecureUrl.ToString();
+            }
+
+            // Tạo sản phẩm mới
+            var newProduct = new Product
+            {
+                ProductName = productCreateDto.ProductName,
+                ProductDescription = productCreateDto.ProductDescription,
+                Price = productCreateDto.Price,
+                Quantity = productCreateDto.Quantity,
+                CategoryId = productCreateDto.CategoryId,
+                CompanyId = productCreateDto.CompanyId,
+                Brand = productCreateDto.Brand,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now,
+                Dimension = productCreateDto.Dimension,
+                Status = ObjectStatus.Active.ToString()
+            };
+
+            await _unitOfWorks.ProductRepository.AddAsync(newProduct);
+            await _unitOfWorks.ProductRepository.Commit();
+
+            // Lưu ảnh vào ProductImages nếu có ảnh
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                var productImage = new ProductImages
+                {
+                    ProductId = newProduct.ProductId,
+                    image = imageUrl
+                };
+                await _unitOfWorks.ProductImageRepository.AddAsync(productImage);
+                await _unitOfWorks.ProductImageRepository.Commit();
+            }
+
+            // Lấy lại sản phẩm vừa tạo từ cơ sở dữ liệu kèm theo thông tin của Category và Company
+            var createdProduct = await _unitOfWorks.ProductRepository
+                .FindByCondition(p => p.ProductId == newProduct.ProductId)
+                .Include(p => p.Category)
+                .Include(p => p.Company)
+                .FirstOrDefaultAsync();
+
+            if (createdProduct == null)
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Failed to retrieve the created product."
+                });
+            }
+
+            return ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Product created successfully.",
+                data = new
+                {
+                    createdProduct.ProductId,
+                    createdProduct.ProductName,
+                    createdProduct.ProductDescription,
+                    createdProduct.Price,
+                    createdProduct.Quantity,
+                    createdProduct.Status,
+                    createdProduct.CategoryId,
+                    CategoryName = createdProduct.Category?.Name,
+                    createdProduct.CompanyId,
+                    CompanyName = createdProduct.Company?.Name,
+                    createdProduct.Dimension,
+                    createdProduct.CreatedDate,
+                    createdProduct.UpdatedDate,
+                    ImageUrl = imageUrl
+                }
+            });
         }
 
 
@@ -401,7 +397,8 @@ namespace Server.Business.Services
 
                 var productModel = _mapper.Map<ProductModel>(product);
 
-                var serviceImages = await _unitOfWorks.ProductImageRepository.FindByCondition(x => x.ProductId == productModel.ProductId)
+                var serviceImages = await _unitOfWorks.ProductImageRepository
+                    .FindByCondition(x => x.ProductId == productModel.ProductId)
                     .Where(si => si.ProductId == product.ProductId)
                     .Select(si => si.image)
                     .ToArrayAsync();
@@ -423,7 +420,7 @@ namespace Server.Business.Services
             var query = _unitOfWorks.ProductRepository.GetAll()
                 .Include(p => p.Category) // Bao gồm thông tin Category
                 .Include(p => p.Company)
-                 .OrderByDescending(p => p.ProductId);
+                .OrderByDescending(p => p.ProductId);
 
             var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -449,8 +446,6 @@ namespace Server.Business.Services
                 product.images = productImages.ContainsKey(product.ProductId)
                     ? productImages[product.ProductId]
                     : Array.Empty<string>();
-
-
             }
 
             return new GetAllProductPaginationResponse
@@ -464,8 +459,6 @@ namespace Server.Business.Services
                 }
             };
         }
-
-
 
 
         public async Task<ApiResult<ApiResponse>> UpdateProductAsync(int productId, ProductUpdateDto productUpdateDto)
@@ -504,13 +497,13 @@ namespace Server.Business.Services
 
                 // Kiểm tra sự tồn tại của Category và Company
                 var categoryExists = await _unitOfWorks.CategoryRepository
-     .FindByCondition(c => c.CategoryId == productUpdateDto.CategoryId)
-     .AnyAsync();
+                    .FindByCondition(c => c.CategoryId == productUpdateDto.CategoryId)
+                    .AnyAsync();
 
 
                 var companyExists = await _unitOfWorks.CompanyRepository
-      .FindByCondition(c => c.CompanyId == productUpdateDto.CompanyId)
-      .AnyAsync();
+                    .FindByCondition(c => c.CompanyId == productUpdateDto.CompanyId)
+                    .AnyAsync();
 
 
                 if (!categoryExists)
@@ -545,10 +538,10 @@ namespace Server.Business.Services
 
                 // Lấy lại Product sau khi cập nhật kèm theo Category và Company
                 var updatedProduct = await _unitOfWorks.ProductRepository
-    .FindByCondition(p => p.ProductId == productId)
-    .Include(p => p.Category)
-    .Include(p => p.Company)
-    .FirstOrDefaultAsync();
+                    .FindByCondition(p => p.ProductId == productId)
+                    .Include(p => p.Category)
+                    .Include(p => p.Company)
+                    .FirstOrDefaultAsync();
 
 
                 return ApiResult<ApiResponse>.Succeed(new ApiResponse
@@ -590,7 +583,8 @@ namespace Server.Business.Services
                     .FirstOrDefaultAsync();
 
                 // Nếu không tìm thấy hoặc đã không còn active
-                if (product == null || !string.Equals(product.Status, ObjectStatus.Active.ToString(), StringComparison.OrdinalIgnoreCase))
+                if (product == null || !string.Equals(product.Status, ObjectStatus.Active.ToString(),
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     return ApiResponse.Error("Sản phẩm không tồn tại.");
                 }
@@ -617,22 +611,18 @@ namespace Server.Business.Services
         }
 
 
-
-
-
-
         public async Task<List<BranchProductDto>> GetTop5BestSellersByBranchAsync(int branchId)
         {
             // 1. Lấy danh sách OrderDetail có trạng thái Completed
             var orderDetails = await _unitOfWorks.OrderDetailRepository
                 .FindByCondition(od => od.Status == "Completed")
                 .Include(od => od.Product)
-                    .ThenInclude(p => p.Branch_Products)
-                        .ThenInclude(bp => bp.Branch)
+                .ThenInclude(p => p.Branch_Products)
+                .ThenInclude(bp => bp.Branch)
                 .Include(od => od.Product)
-                    .ThenInclude(p => p.Company)
+                .ThenInclude(p => p.Company)
                 .Include(od => od.Product)
-                    .ThenInclude(p => p.Category)
+                .ThenInclude(p => p.Category)
                 .ToListAsync();
 
             // 2. Lọc các OrderDetail mà Product có liên kết với BranchId cần tìm
@@ -662,7 +652,6 @@ namespace Server.Business.Services
 
             return topSelling;
         }
-
 
 
         public async Task<GrossDTO> CheckInputHasGross(string name)
@@ -715,15 +704,13 @@ namespace Server.Business.Services
 
         public async Task<GetAllProductPaginationFilter> FilterProductsAsync(ProductFilterRequest req)
         {
-            
-
             IQueryable<Product> query = _unitOfWorks.ProductRepository
-    .FindByCondition(p => p.Status == "Active")
-    .Include(p => p.Company)
-    .Include(p => p.Category)
-    .Include(p => p.ProductImages)
-    .Include(p => p.Branch_Products)
-        .ThenInclude(bp => bp.Branch);
+                .FindByCondition(p => p.Status == "Active")
+                .Include(p => p.Company)
+                .Include(p => p.Category)
+                .Include(p => p.ProductImages)
+                .Include(p => p.Branch_Products)
+                .ThenInclude(bp => bp.Branch);
 
             // Nếu có branchId, thêm điều kiện lọc
             if (req.BranchId.HasValue && req.BranchId.Value > 0)
@@ -868,15 +855,15 @@ namespace Server.Business.Services
         {
             // Tìm branch_product theo Id
             var productBranch = await _unitOfWorks.Branch_ProductRepository
-       .FindByCondition(bp => bp.Id == productBranchId)
-       .Include(bp => bp.Product)
-           .ThenInclude(p => p.Company)
-       .Include(bp => bp.Product)
-           .ThenInclude(p => p.Category)
-       .Include(bp => bp.Product)
-           .ThenInclude(p => p.ProductImages)
-       .Include(bp => bp.Branch)
-       .FirstOrDefaultAsync();
+                .FindByCondition(bp => bp.Id == productBranchId)
+                .Include(bp => bp.Product)
+                .ThenInclude(p => p.Company)
+                .Include(bp => bp.Product)
+                .ThenInclude(p => p.Category)
+                .Include(bp => bp.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(bp => bp.Branch)
+                .FirstOrDefaultAsync();
 
 
             if (productBranch == null || productBranch.Product == null)
@@ -904,7 +891,7 @@ namespace Server.Business.Services
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
                 //BrandId = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.BranchId,
-               // BrandName = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.Branch?.BranchName,
+                // BrandName = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.Branch?.BranchName,
                 ProductBranchId = productBranchId,
                 Category = new CategoryDetailDto
                 {
@@ -967,11 +954,11 @@ namespace Server.Business.Services
 
             // B2: Lấy OrderDetail liên quan đến các sản phẩm trong chi nhánh
             var orderDetails = await _unitOfWorks.OrderDetailRepository
-     .FindByCondition(od =>
-         od.ProductId.HasValue &&
-         productIds.Contains(od.ProductId.Value))
-     .Include(od => od.Product)
-     .ToListAsync();
+                .FindByCondition(od =>
+                    od.ProductId.HasValue &&
+                    productIds.Contains(od.ProductId.Value))
+                .Include(od => od.Product)
+                .ToListAsync();
 
 
             // B3: Gom nhóm theo ProductId.Value (ép kiểu rõ ràng)
@@ -995,9 +982,5 @@ namespace Server.Business.Services
                 TotalQuantitySold = totalSold
             };
         }
-
     }
 }
-
-
-
