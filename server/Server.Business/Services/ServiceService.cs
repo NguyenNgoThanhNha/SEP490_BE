@@ -22,7 +22,8 @@ namespace Server.Business.Services
         private readonly CloudianryService _cloudianryService;
         private readonly IAIMLService _gptService;
 
-        public ServiceService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService, IAIMLService gptService)
+        public ServiceService(UnitOfWorks unitOfWorks, IMapper mapper, CloudianryService cloudianryService,
+            IAIMLService gptService)
         {
             _unitOfWorks = unitOfWorks;
             _mapper = mapper;
@@ -31,11 +32,12 @@ namespace Server.Business.Services
         }
 
         public async Task<Pagination<ServiceModel>> GetListAsync(
-     Expression<Func<Server.Data.Entities.Service, bool>> filter = null,
-     Func<IQueryable<Server.Data.Entities.Service>, IOrderedQueryable<Server.Data.Entities.Service>> orderBy = null,
-     int? pageIndex = null,
-     int? pageSize = null,
-     int? serviceCategoryId = null)
+            Expression<Func<Server.Data.Entities.Service, bool>> filter = null,
+            Func<IQueryable<Server.Data.Entities.Service>, IOrderedQueryable<Server.Data.Entities.Service>> orderBy =
+                null,
+            int? pageIndex = null,
+            int? pageSize = null,
+            int? serviceCategoryId = null)
         {
             // Truy vấn dữ liệu từ repository với điều kiện ban đầu là `status == "Active"`
             IQueryable<Server.Data.Entities.Service> query = _unitOfWorks.ServiceRepository.GetAll()
@@ -81,7 +83,7 @@ namespace Server.Business.Services
 
             // Truy vấn dữ liệu sau khi áp dụng các điều kiện
             var items = await query.ToListAsync();
-            
+
             var serviceModels = _mapper.Map<List<ServiceModel>>(items);
             // chạy lặp qua services và lấy hình của chúng ra trong service_images
             foreach (var service in serviceModels)
@@ -122,6 +124,7 @@ namespace Server.Business.Services
 
                 service.images = serviceImages;
             }
+
             var totalCount = services.Count();
 
 
@@ -129,7 +132,7 @@ namespace Server.Business.Services
 
 
             var pagedServices = serviceModels.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            
+
             return new GetAllServicePaginationResponse
             {
                 data = pagedServices,
@@ -191,14 +194,13 @@ namespace Server.Business.Services
         }
 
 
-
-
-        public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId, int? serviceCategoryId)
+        public async Task<GetAllServicePaginationResponse> GetAllServiceForBranch(int page, int pageSize, int branchId,
+            int? serviceCategoryId)
         {
             // Lấy danh sách ServiceId thuộc branch
             var serviceIdsOfBranch = await _unitOfWorks.Branch_ServiceRepository
                 .FindByCondition(bs => bs.BranchId == branchId)
-                .OrderByDescending(x=> x.Id)
+                .OrderByDescending(x => x.Id)
                 .Select(bs => bs.ServiceId)
                 .ToListAsync();
 
@@ -230,7 +232,7 @@ namespace Server.Business.Services
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             var services = await servicesQuery
-              .OrderBy(s => s.ServiceId)
+                .OrderBy(s => s.ServiceId)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -271,22 +273,22 @@ namespace Server.Business.Services
         }
 
 
-
         public async Task<ServiceModel> GetServiceByIdAsync(int id)
         {
             // Truy vấn dịch vụ và bao gồm thông tin danh mục
             var service = await _unitOfWorks.ServiceRepository
-                .FindByCondition(s => s.ServiceId == id&&s.Status=="Active")
+                .FindByCondition(s => s.ServiceId == id && s.Status == "Active")
                 .Include(x => x.ServiceCategory)
                 .FirstOrDefaultAsync();
-            
+
             // Kiểm tra nếu không tìm thấy dịch vụ
             if (service == null)
                 return null;
 
             var serviceModel = _mapper.Map<ServiceModel>(service);
-            
-            var serviceImages = await _unitOfWorks.ServiceImageRepository.FindByCondition(x => x.ServiceId == serviceModel.ServiceId)
+
+            var serviceImages = await _unitOfWorks.ServiceImageRepository
+                .FindByCondition(x => x.ServiceId == serviceModel.ServiceId)
                 .Where(si => si.ServiceId == service.ServiceId)
                 .Select(si => si.image)
                 .ToArrayAsync();
@@ -298,177 +300,164 @@ namespace Server.Business.Services
 
         public async Task<ServiceDto> CreateServiceAsync(ServiceCreateDto serviceDto)
         {
-            try
+            // Kiểm tra nếu DTO bị null
+            if (serviceDto == null)
             {
-                // Kiểm tra nếu DTO bị null
-                if (serviceDto == null)
-                {
-                    throw new BadRequestException("Service data is required.");
-                }
-                
-                if(serviceDto.ServiceCategoryId == null)
-                {
-                    throw new BadRequestException("ServiceCategoryId is required.");
-                }
+                throw new BadRequestException("Service data is required.");
+            }
 
-                // Tạo thực thể Service từ DTO
-                var service = new Data.Entities.Service
-                {
-                    Name = serviceDto.Name,
-                    Description = serviceDto.Description,
-                    Price = serviceDto.Price,
-                    Duration = serviceDto.Duration,
-                    Steps = serviceDto?.Steps?.ToString() ?? string.Empty,
-                    ServiceCategoryId = serviceDto.ServiceCategoryId,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now,
-                    Status = ObjectStatus.Active.ToString(),
-                };
-                
-                // Thêm service vào cơ sở dữ liệu
-                await _unitOfWorks.ServiceRepository.AddAsync(service);
-                await _unitOfWorks.ServiceRepository.Commit();
+            if (serviceDto.ServiceCategoryId == null || serviceDto.ServiceCategoryId == 0)
+            {
+                throw new BadRequestException("ServiceCategoryId is required.");
+            }
 
-                var result = _mapper.Map<ServiceDto>(service);
-                
-                // Tạo danh sách hình ảnh từ DTO
-                if (serviceDto.images != null)
-                {
-                    // Bắt đầu tải lên hình ảnh đồng thời
-                    var uploadTasks = serviceDto.images?.Select(image => _cloudianryService.UploadImageAsync(image)).ToList();
-                    var imageUploadResults = await Task.WhenAll(uploadTasks);
+            // Tạo thực thể Service từ DTO
+            var service = new Data.Entities.Service
+            {
+                Name = serviceDto.Name,
+                Description = serviceDto.Description,
+                Price = serviceDto.Price,
+                Duration = serviceDto.Duration,
+                Steps = serviceDto?.Steps?.ToString() ?? string.Empty,
+                ServiceCategoryId = serviceDto.ServiceCategoryId,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now,
+                Status = ObjectStatus.Active.ToString(),
+            };
 
-                    // Xử lý kết quả tải lên
-                    var listServiceImages = imageUploadResults
-                        .Where(result => result != null)
-                        .Select(result => new ServiceImages
-                        {
-                            ServiceId = service.ServiceId, // ServiceId sẽ được gán sau khi lưu Service
-                            image = result.SecureUrl.ToString(),
-                        }).ToList();
+            // Thêm service vào cơ sở dữ liệu
+            await _unitOfWorks.ServiceRepository.AddAsync(service);
+            await _unitOfWorks.ServiceRepository.Commit();
 
-                    // Thêm hình ảnh vào cơ sở dữ liệu
-                    if (listServiceImages.Any())
+            var result = _mapper.Map<ServiceDto>(service);
+
+            // Tạo danh sách hình ảnh từ DTO
+            if (serviceDto.images != null)
+            {
+                // Bắt đầu tải lên hình ảnh đồng thời
+                var uploadTasks = serviceDto.images?.Select(image => _cloudianryService.UploadImageAsync(image))
+                    .ToList();
+                var imageUploadResults = await Task.WhenAll(uploadTasks);
+
+                // Xử lý kết quả tải lên
+                var listServiceImages = imageUploadResults
+                    .Where(result => result != null)
+                    .Select(result => new ServiceImages
                     {
-                        await _unitOfWorks.ServiceImageRepository.AddRangeAsync(listServiceImages);
-                    }
-                
-                    // Lưu lại ServiceId cho hình ảnh
-                    listServiceImages.ForEach(image => image.ServiceId = service.ServiceId);
-                    await _unitOfWorks.ServiceImageRepository.Commit();
-                    
-                    result.images = listServiceImages.Select(x => x.image).ToArray();
+                        ServiceId = service.ServiceId, // ServiceId sẽ được gán sau khi lưu Service
+                        image = result.SecureUrl.ToString(),
+                    }).ToList();
+
+                // Thêm hình ảnh vào cơ sở dữ liệu
+                if (listServiceImages.Any())
+                {
+                    await _unitOfWorks.ServiceImageRepository.AddRangeAsync(listServiceImages);
                 }
 
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while creating the service: {ex.Message}", ex);
-            }
-        }
+                // Lưu lại ServiceId cho hình ảnh
+                listServiceImages.ForEach(image => image.ServiceId = service.ServiceId);
+                await _unitOfWorks.ServiceImageRepository.Commit();
 
+                result.images = listServiceImages.Select(x => x.image).ToArray();
+            }
+
+            return result;
+        }
 
 
         public async Task<ServiceDto> UpdateServiceAsync(ServiceUpdateDto serviceDto, int serviceId)
         {
-                // Kiểm tra nếu DTO bị null
-                if (serviceDto == null)
-                {
-                    throw new BadRequestException("Service update data is required.");
-                }
-
-                // Tìm dịch vụ cần cập nhật thông qua UnitOfWork
-                var service = await _unitOfWorks.ServiceRepository
-                    .FirstOrDefaultAsync(s => s.ServiceId == serviceId);
-
-                if (service == null)
-                {
-                    throw new BadRequestException($"Service with ID {serviceId} not found.");
-                }
-
-                // Cập nhật thông tin dịch vụ
-                service.Name = serviceDto.Name;
-                service.Description = serviceDto.Description;
-                service.Price = serviceDto.Price;
-                service.Duration = serviceDto.Duration;
-                service.UpdatedDate = DateTime.Now;
-
-                // Lấy danh sách hình ảnh hiện tại của dịch vụ
-                var existingImages = await _unitOfWorks.ServiceImageRepository
-                    .FindByCondition(img => img.ServiceId == serviceId).ToListAsync();
-
-                // Kiểm tra số lượng hình ảnh có đồng nhất không
-                if (existingImages.Count == serviceDto.images.Count)
-                {
-                    // Cập nhật URL hình ảnh hiện tại
-                    var updateTasks = existingImages.Zip(serviceDto.images, async (existingImage, newImage) =>
-                    {
-                        var uploadResult = await _cloudianryService.UploadImageAsync(newImage);
-                        existingImage.image = uploadResult.SecureUrl.ToString();
-                    });
-
-                    await Task.WhenAll(updateTasks);
-                    await _unitOfWorks.ServiceImageRepository.UpdateRangeAsync(existingImages);
-                }
-                else
-                {
-                    // Xóa hình ảnh cũ và thêm hình ảnh mới
-                    await _unitOfWorks.ServiceImageRepository.RemoveRangeAsync(existingImages);
-
-                    var uploadTasks = serviceDto.images.Select(async image =>
-                    {
-                        var uploadResult = await _cloudianryService.UploadImageAsync(image);
-                        return new ServiceImages
-                        {
-                            ServiceId = service.ServiceId,
-                            image = uploadResult.SecureUrl.ToString(),
-                        };
-                    });
-
-                    var newImages = await Task.WhenAll(uploadTasks);
-                    await _unitOfWorks.ServiceImageRepository.AddRangeAsync(newImages);
-                }
-
-                // Lưu thay đổi qua UnitOfWork
-                await _unitOfWorks.ServiceImageRepository.Commit();
-                _unitOfWorks.ServiceRepository.Update(service);
-                await _unitOfWorks.ServiceRepository.Commit();
-
-                return _mapper.Map<ServiceDto>(service);
+            // Kiểm tra nếu DTO bị null
+            if (serviceDto == null)
+            {
+                throw new BadRequestException("Service update data is required.");
             }
+
+            // Tìm dịch vụ cần cập nhật thông qua UnitOfWork
+            var service = await _unitOfWorks.ServiceRepository
+                .FirstOrDefaultAsync(s => s.ServiceId == serviceId);
+
+            if (service == null)
+            {
+                throw new BadRequestException($"Service with ID {serviceId} not found.");
+            }
+
+            // Cập nhật thông tin dịch vụ
+            service.Name = serviceDto.Name;
+            service.Description = serviceDto.Description;
+            service.Price = serviceDto.Price;
+            service.Duration = serviceDto.Duration;
+            service.UpdatedDate = DateTime.Now;
+
+            // Lấy danh sách hình ảnh hiện tại của dịch vụ
+            var existingImages = await _unitOfWorks.ServiceImageRepository
+                .FindByCondition(img => img.ServiceId == serviceId).ToListAsync();
+
+            // Kiểm tra số lượng hình ảnh có đồng nhất không
+            if (existingImages.Count == serviceDto.images.Count)
+            {
+                // Cập nhật URL hình ảnh hiện tại
+                var updateTasks = existingImages.Zip(serviceDto.images, async (existingImage, newImage) =>
+                {
+                    var uploadResult = await _cloudianryService.UploadImageAsync(newImage);
+                    existingImage.image = uploadResult.SecureUrl.ToString();
+                });
+
+                await Task.WhenAll(updateTasks);
+                await _unitOfWorks.ServiceImageRepository.UpdateRangeAsync(existingImages);
+            }
+            else
+            {
+                // Xóa hình ảnh cũ và thêm hình ảnh mới
+                await _unitOfWorks.ServiceImageRepository.RemoveRangeAsync(existingImages);
+
+                var uploadTasks = serviceDto.images.Select(async image =>
+                {
+                    var uploadResult = await _cloudianryService.UploadImageAsync(image);
+                    return new ServiceImages
+                    {
+                        ServiceId = service.ServiceId,
+                        image = uploadResult.SecureUrl.ToString(),
+                    };
+                });
+
+                var newImages = await Task.WhenAll(uploadTasks);
+                await _unitOfWorks.ServiceImageRepository.AddRangeAsync(newImages);
+            }
+
+            // Lưu thay đổi qua UnitOfWork
+            await _unitOfWorks.ServiceImageRepository.Commit();
+            _unitOfWorks.ServiceRepository.Update(service);
+            await _unitOfWorks.ServiceRepository.Commit();
+
+            return _mapper.Map<ServiceDto>(service);
+        }
 
         public async Task<Server.Data.Entities.Service> DeleteServiceAsync(int id)
         {
-            try
+            // Tìm dịch vụ cần xóa
+            var service = await _unitOfWorks.ServiceRepository
+                .FindByCondition(s => s.ServiceId == id)
+                .FirstOrDefaultAsync();
+
+
+            // Kiểm tra nếu không tìm thấy dịch vụ
+            if (service == null)
             {
-                // Tìm dịch vụ cần xóa
-                var service = await _unitOfWorks.ServiceRepository
-    .FindByCondition(s => s.ServiceId == id)
-    .FirstOrDefaultAsync();
-
-
-                // Kiểm tra nếu không tìm thấy dịch vụ
-                if (service == null)
-                {
-                    throw new KeyNotFoundException($"Service with ID {id} not found.");
-                }
-
-                // Cập nhật trạng thái dịch vụ thành Inactive
-                service.Status = "Inactive";
-                service.UpdatedDate = DateTime.Now; // Cập nhật thời gian sửa đổi
-
-                // Lưu thay đổi
-                _unitOfWorks.ServiceRepository.Update(service); // Sử dụng DbSet trực tiếp để cập nhật
-                await _unitOfWorks.ServiceRepository.Commit();
-
-                return service;
+                throw new KeyNotFoundException($"Service with ID {id} not found.");
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while updating the status of the service: {ex.Message}", ex);
-            }
-        }      
+
+            // Cập nhật trạng thái dịch vụ thành Inactive
+            service.Status = "Inactive";
+            service.UpdatedDate = DateTime.Now; // Cập nhật thời gian sửa đổi
+
+            // Lưu thay đổi
+            _unitOfWorks.ServiceRepository.Update(service); // Sử dụng DbSet trực tiếp để cập nhật
+            await _unitOfWorks.ServiceRepository.Commit();
+
+            return service;
+        }
+
 
         public async Task<List<Server.Data.Entities.Service>> GetTop4FeaturedServicesAsync()
         {
@@ -476,9 +465,9 @@ namespace Server.Business.Services
             var appointments = await _unitOfWorks.AppointmentsRepository
                 .FindByCondition(a => a.Status == "Confirmed")
                 .Include(a => a.Service)
-                    .ThenInclude(s => s.Branch_Services) // Bao gồm Branch_Services nếu cần
+                .ThenInclude(s => s.Branch_Services) // Bao gồm Branch_Services nếu cần
                 .Include(a => a.Service)
-                    .ThenInclude(s => s.ServiceRoutines) // Bao gồm ServiceRoutines nếu cần
+                .ThenInclude(s => s.ServiceRoutines) // Bao gồm ServiceRoutines nếu cần
                 .ToListAsync();
 
             // Nhóm theo ServiceId và tính toán
@@ -510,7 +499,7 @@ namespace Server.Business.Services
             };
             return gross;
         }
-        
+
         public async Task<List<BranchDTO>> GetBranchesOfService(int serviceId)
         {
             var branchServices = await _unitOfWorks.Branch_ServiceRepository.GetAll()
@@ -521,8 +510,8 @@ namespace Server.Business.Services
 
             var branchDtos = _mapper.Map<List<BranchDTO>>(branchServices);
             return branchDtos;
-        }       
-        
+        }
+
 
         public async Task<List<ServiceModel>> GetListServiceByBranchId(int branchId, int? serviceCategoryId)
         {

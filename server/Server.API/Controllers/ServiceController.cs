@@ -21,7 +21,6 @@ namespace Server.API.Controllers
         private readonly ElasticService<ServiceDto> _elasticService;
 
 
-
         public ServiceController(ServiceService serviceService, IElasticClient elasticClient)
         {
             _serviceService = serviceService;
@@ -34,7 +33,8 @@ namespace Server.API.Controllers
         {
             try
             {
-                var services = await _serviceService.GetListAsync(pageIndex: page - 1, pageSize: pageSize, serviceCategoryId: serviceCategoryId);
+                var services = await _serviceService.GetListAsync(pageIndex: page - 1, pageSize: pageSize,
+                    serviceCategoryId: serviceCategoryId);
 
                 if (services.Data == null || !services.Data.Any())
                 {
@@ -90,13 +90,14 @@ namespace Server.API.Controllers
         }
 
 
-
         [HttpGet("get-all-services-for-branch")]
-        public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId, [FromQuery] int? serviceCategoryId, int page = 1, int pageSize = 6)
+        public async Task<IActionResult> GetAllServiceForBranch([FromQuery] int branchId,
+            [FromQuery] int? serviceCategoryId, int page = 1, int pageSize = 6)
         {
             try
             {
-                var services = await _serviceService.GetAllServiceForBranch(page, pageSize, branchId, serviceCategoryId);
+                var services =
+                    await _serviceService.GetAllServiceForBranch(page, pageSize, branchId, serviceCategoryId);
 
                 if (services.data == null || !services.data.Any())
                 {
@@ -117,7 +118,6 @@ namespace Server.API.Controllers
                 }));
             }
         }
-
 
 
         [HttpGet("get-service-by-id")]
@@ -164,6 +164,7 @@ namespace Server.API.Controllers
             }
             else
                 list = (await _elasticService.GetAllAsync()).ToList();
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
                 message = "Lấy danh sách dịch vụ thành công",
@@ -182,6 +183,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
             return Ok(model);
         }
 
@@ -202,47 +204,35 @@ namespace Server.API.Controllers
         [HttpPost("create-service")]
         public async Task<IActionResult> CreateService([FromForm] ServiceCreateDto serviceDto)
         {
-            try
+            // Kiểm tra nếu model không hợp lệ
+            if (!ModelState.IsValid)
             {
-                // Kiểm tra nếu model không hợp lệ
-                if (!ModelState.IsValid)
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
                 {
-                    var errors = ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage)
-                        .ToList();
-
-                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
-                    {
-                        message = string.Join(", ", errors)
-                    }));
-                }
-
-                // Gọi Service để tạo mới dịch vụ
-                var service = await _serviceService.CreateServiceAsync(serviceDto);
-
-                // Trả về kết quả nếu thành công
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
-                {
-                    message = "Tạo dịch vụ thành công.",
-                    data = service
+                    message = string.Join(", ", errors)
                 }));
             }
-            catch (Exception ex)
+
+            // Gọi Service để tạo mới dịch vụ
+            var service = await _serviceService.CreateServiceAsync(serviceDto);
+
+            // Trả về kết quả nếu thành công
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
-                // Xử lý lỗi ngoại lệ
-                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
-                {
-                    message = $"Đã xảy ra lỗi khi tạo dịch vụ: {ex.Message}"
-                }));
-            }
+                message = "Tạo dịch vụ thành công.",
+                data = service
+            }));
         }
 
         [Authorize(Roles = "Admin, Manager,Staff")]
         [HttpPut("update-service")]
         public async Task<IActionResult> UpdateService(int serviceId, [FromForm] ServiceUpdateDto serviceDto)
         {
-
             // Kiểm tra nếu model không hợp lệ
             if (!ModelState.IsValid)
             {
@@ -351,6 +341,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest();
             }
+
             var result = await _serviceService.CheckInputHasGross(input);
             return Ok(ApiResponse.Succeed(result));
         }
@@ -372,7 +363,6 @@ namespace Server.API.Controllers
                 return StatusCode(500, ApiResponse.Error(ex.Message));
             }
         }
-
 
 
         [HttpGet("get-services-by-branch")]
@@ -441,8 +431,5 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResponse.Error($"Lỗi khi xóa Service Elasticsearch: {ex.Message}"));
             }
         }
-
-
-
     }
 }
