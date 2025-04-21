@@ -28,7 +28,7 @@ public class SkinAnalyzeService
     private readonly AISkinSetting _aiSkinSetting;
     private static readonly HttpClient HttpClient = new HttpClient();
 
-    public SkinAnalyzeService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<AISkinSetting> aiSkinSetting, 
+    public SkinAnalyzeService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<AISkinSetting> aiSkinSetting,
         ILogger<SkinAnalyzeService> logger, CloudianryService cloudianryService)
     {
         _unitOfWorks = unitOfWorks;
@@ -64,20 +64,20 @@ public class SkinAnalyzeService
         var apiKey = _aiSkinSetting.ApiKey;
 
         using var memoryStream = new MemoryStream();
-        await file.CopyToAsync(memoryStream); 
+        await file.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
 
         using var client = new HttpClient();
         using var request = new HttpRequestMessage(HttpMethod.Post, _aiSkinSetting.Url);
-    
+
         request.Headers.Add("ailabapi-api-key", apiKey);
-    
+
         using var content = new MultipartFormDataContent();
         content.Add(new StreamContent(memoryStream), "image", file.FileName);
         content.Add(new StringContent(""), "face_quality_control");
         content.Add(new StringContent(""), "return_rect_confidence");
         content.Add(new StringContent(""), "return_maps");
-    
+
         request.Content = content;
 
         try
@@ -91,7 +91,7 @@ public class SkinAnalyzeService
 
             // Deserialize phần "result" thành SkinHealthFormRequest
             var apiResult = JsonConvert.DeserializeObject<SkinHealthFormRequest>(resultJson);
-            
+
             // Map API response to SkinHealth entity
             var skinHealth = new SkinHealth
             {
@@ -134,10 +134,10 @@ public class SkinAnalyzeService
             // Save SkinHealth data to the database
             await _unitOfWorks.SkinHealthRepository.AddAsync(skinHealth);
             await _unitOfWorks.SkinHealthRepository.Commit();
-            
+
             // upload image to cloudinary
             var uploadResult = await _cloudianryService.UploadImageAsync(file);
-            
+
             var skinHealthImage = new SkinHealthImage
             {
                 ImageUrl = uploadResult != null ? uploadResult.SecureUrl.ToString() : "",
@@ -145,7 +145,7 @@ public class SkinAnalyzeService
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
-            
+
             await _unitOfWorks.SkinHealthImageRepository.AddAsync(skinHealthImage);
             await _unitOfWorks.SkinHealthImageRepository.Commit();
 
@@ -163,8 +163,9 @@ public class SkinAnalyzeService
 
             foreach (var routine in routines)
             {
-                var existingRoutine = existingUserRoutines.FirstOrDefault(ur => ur.RoutineId == routine.SkincareRoutineId);
-    
+                var existingRoutine =
+                    existingUserRoutines.FirstOrDefault(ur => ur.RoutineId == routine.SkincareRoutineId);
+
                 if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Suitable.ToString())
                 {
                     // Nếu đã tồn tại, cập nhật thông tin
@@ -200,7 +201,7 @@ public class SkinAnalyzeService
             // Cập nhật và thêm mới dữ liệu
             if (userRoutinesToUpdate.Any())
             {
-              await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToUpdate);
+                await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToUpdate);
             }
 
             if (userRoutinesToAdd.Any())
@@ -212,7 +213,6 @@ public class SkinAnalyzeService
             await _unitOfWorks.UserRoutineRepository.Commit();
 
 
-            
             var result = new ApiSkinAnalyzeResponse()
             {
                 skinhealth = apiResult ?? new SkinHealthFormRequest(),
@@ -229,11 +229,11 @@ public class SkinAnalyzeService
         catch (HttpRequestException ex)
         {
             _logger.LogInformation("AI_SKIN: " + ex.Message);
-           throw new BadRequestException(ex.Message);
+            throw new BadRequestException(ex.Message);
         }
     }
-    
-    
+
+
     public async Task<SkinAnalyzeResponse> AnalyzeSkinFromFormAsync(SkinHealthFormRequest request, int userId)
     {
         try
@@ -332,7 +332,7 @@ public class SkinAnalyzeService
             // Lưu thay đổi
             await _unitOfWorks.UserRoutineRepository.Commit();
 
-            
+
             var result = new ApiSkinAnalyzeResponse()
             {
                 skinhealth = request,
@@ -348,7 +348,7 @@ public class SkinAnalyzeService
         }
         catch (HttpRequestException ex)
         {
-           throw new BadRequestException(ex.Message);
+            throw new BadRequestException(ex.Message);
         }
     }
 
@@ -356,34 +356,40 @@ public class SkinAnalyzeService
     {
         return JsonConvert.SerializeObject(apiResponse);
     }
-    
-    
+
+
     private async Task<List<(string Concern, double Confidence)>> GetSkinConcernsAsync(dynamic apiResult)
     {
-        var skinConcerns = await _unitOfWorks.SkinConcernRepository.GetAll().ToListAsync(); 
+        var skinConcerns = await _unitOfWorks.SkinConcernRepository.GetAll().ToListAsync();
         var result = new List<(string Concern, double Confidence)>();
+
+        // Nếu có skin_type hợp lệ (bao gồm cả = 0)
+        if (apiResult.skin_type?.skin_type != null)
+        {
+            int index = apiResult.skin_type.skin_type;
+            var detail = apiResult.skin_type.details?[index];
+            double confidence = double.Parse(detail?.confidence?.ToString()) ?? 0;
+
+            // Tìm đúng concern có Code = "skin_type_{index}"
+            var matchedConcern = skinConcerns.FirstOrDefault(sc => sc.Code == $"skin_type_{index}");
+            if (matchedConcern != null && confidence > 0)
+            {
+                result.Add((matchedConcern.Name, confidence));
+            }
+        }
 
         foreach (var skinConcern in skinConcerns)
         {
             double confidence = 0;
 
+            // Bỏ qua các concern bắt đầu bằng "skin_type_"
             if (skinConcern.Code.StartsWith("skin_type_"))
             {
-                int index = int.Parse(skinConcern.Code.Replace("skin_type_", ""));
-                try
-                {
-                    var detail = apiResult.skin_type?.details?[index];
-                    confidence = detail?.confidence ?? 0;
-                }
-                catch
-                {
-                    continue; // Bỏ qua nếu lỗi
-                }
+                continue;
             }
-            else
-            {
-                confidence = ExtractConfidence(apiResult, skinConcern.Code);
-            }
+
+            // Xử lý các concern khác như acne, wrinkle...
+            confidence = ExtractConfidence(apiResult, skinConcern.Code);
 
             if (confidence > 0)
             {
@@ -393,8 +399,10 @@ public class SkinAnalyzeService
 
         return result;
     }
-    
-    private async Task<List<SkincareRoutine>> GetSkincareRoutinesAsync(List<(string Concern, double Confidence)> skinConcerns)
+
+
+    private async Task<List<SkincareRoutine>> GetSkincareRoutinesAsync(
+        List<(string Concern, double Confidence)> skinConcerns)
     {
         // Lọc các concern có độ tin cậy > 0
         var prioritizedConcerns = skinConcerns
@@ -420,11 +428,12 @@ public class SkinAnalyzeService
             .GroupBy(r => r.SkincareRoutineId)
             .Select(g => g.First())
             .OrderByDescending(r => prioritizedConcerns
-                .FirstOrDefault(c => r.TargetSkinTypes!.ToLower().Contains(c.Concern.ToLower())).Confidence) // map skin_concern.Name with skin_routine.TargetSkinTypes
+                .FirstOrDefault(c => r.TargetSkinTypes!.ToLower().Contains(c.Concern.ToLower()))
+                .Confidence) // map skin_concern.Name with skin_routine.TargetSkinTypes
             .ToList();
     }
 
-    
+
     public async Task<List<SkinHealthImage>> GetSkinHealthImages(int userId)
     {
         var skinHealthImages = await _unitOfWorks.SkinHealthImageRepository
@@ -434,8 +443,8 @@ public class SkinAnalyzeService
 
         return skinHealthImages;
     }
-    
-    
+
+
     private double ExtractConfidence(dynamic apiResult, string key)
     {
         try
@@ -444,7 +453,7 @@ public class SkinAnalyzeService
             if (data == null) return 0;
 
             // Trường hợp có property "confidence"
-            if (data.confidence != null)
+            if (data.confidence != null && data.confidence != 0 && data.value != null && data.value != 0)
             {
                 double confidence = data.confidence ?? 0;
                 if (confidence != 0)
@@ -467,5 +476,4 @@ public class SkinAnalyzeService
 
         return 0;
     }
-    
 }
