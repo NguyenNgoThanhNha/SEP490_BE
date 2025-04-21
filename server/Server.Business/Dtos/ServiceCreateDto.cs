@@ -12,6 +12,8 @@ namespace Server.Business.Dtos
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        
+        [Range(0.01, double.MaxValue, ErrorMessage = "Giá dịch vụ phải lớn hơn 0")]
         public decimal Price { get; set; }
         public string Duration { get; set; }
     
