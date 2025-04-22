@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR; // ASP.NET Core SignalR
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
+using Server.Business.Constants;
 using Server.Business.Dtos;
 using Server.Business.Exceptions;
 using Server.Business.Models;
@@ -118,7 +119,7 @@ public class AppointmentsService
                 OrderCode = randomOrderCode,
                 CustomerId = userId,
                 TotalAmount = 0,
-                OrderType = "Appointment",
+                OrderType = OrderType.Appointment.ToString(),
                 VoucherId = request.VoucherId > 0 ? request.VoucherId : null,
                 DiscountAmount = voucher?.DiscountAmount ?? 0,
                 Status = OrderStatusEnum.Pending.ToString(),
@@ -155,6 +156,11 @@ public class AppointmentsService
                 var serviceId = request.ServiceId[i];
                 var staffId = request.StaffId[i];
                 var appointmentTime = request.AppointmentsTime[i];
+                
+                if(appointmentTime < DateTime.Now)
+                {
+                    throw new BadRequestException($"Thời gian đặt lịch không hợp lệ: {appointmentTime}");
+                }
 
                 var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == serviceId);
                 if (service == null)

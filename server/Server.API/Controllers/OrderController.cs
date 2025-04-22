@@ -558,5 +558,34 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
                 message = "Cập nhật trạng thái chi tiết đơn hàng thành công.",
             }));
         }
+
+        [HttpPost("create-order-with-products-and-services")]
+        public async Task<IActionResult> CreateOrderWithProductsAndServices(
+            [FromBody] CreateOrderWithProductsAndServicesRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Định dạng yêu cầu không hợp lệ"
+                }));
+            }
+
+            var result = await _orderService.CreateOrderBothProductAndService(request);
+            
+            if (result == null)
+            {
+                return BadRequest(ApiResult<object>.Error(new ApiResponse
+                {
+                    message = "Tạo đơn hàng thất bại."
+                }));
+            }
+            
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+            {
+                message = "Tạo đơn hàng thành công",
+                data = result
+            }));
+        }
     }
 }

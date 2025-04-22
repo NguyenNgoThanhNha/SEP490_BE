@@ -7,6 +7,7 @@ using Net.payOS.Types;
 using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
+using Server.Business.Constants;
 using Server.Business.Services;
 using Server.Business.Ultils;
 using Server.Data;
@@ -52,6 +53,7 @@ namespace Server.API.Controllers
         }
 
         #region old receive-webhook
+
         /*[HttpPost("receive-webhook")]
         public async Task<IActionResult> GetResultPayOsOrder([FromBody] WebhookRequest req)
         {
@@ -169,7 +171,7 @@ namespace Server.API.Controllers
                 message = "Lỗi khi cập nhật trạng thái đơn hàng."
             }));
         }*/
-        
+
         #endregion
 
         [HttpPost("receive-webhook")]
@@ -204,7 +206,8 @@ namespace Server.API.Controllers
                 var deposit = order.StatusPayment;
 
                 // Cập nhật dữ liệu tương ứng theo OrderType
-                if (order.OrderType == "Appointment" || order.OrderType == "Routine")
+                if (order.OrderType == OrderType.Appointment.ToString() ||
+                    order.OrderType == OrderType.Routine.ToString())
                 {
                     var appointments = await _unitOfWorks.AppointmentsRepository
                         .FindByCondition(a => a.OrderId == order.OrderId)
@@ -228,7 +231,7 @@ namespace Server.API.Controllers
                     await _unitOfWorks.AppointmentsRepository.Commit();
                 }
 
-                if (order.OrderType == "Product" || order.OrderType == "Routine")
+                if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.Routine.ToString())
                 {
                     var orderDetails = await _unitOfWorks.OrderDetailRepository
                         .FindByCondition(od => od.OrderId == order.OrderId)

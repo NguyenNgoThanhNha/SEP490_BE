@@ -3941,19 +3941,13 @@ namespace Server.Data.SeedData
 
             foreach (var branch in branches)
             {
-                // Chọn ngẫu nhiên số lượng sản phẩm từ 16 đến 20 cho mỗi chi nhánh
-                int productCount = random.Next(16, 21);
-
-                // Chọn ngẫu nhiên các sản phẩm cho chi nhánh này
-                var selectedProducts = products.OrderBy(x => random.Next()).Take(productCount);
-
-                foreach (var product in selectedProducts)
+                foreach (var product in products)
                 {
                     var branchProduct = new Branch_Product
                     {
                         BranchId = branch.BranchId,
                         ProductId = product.ProductId,
-                        Status = "Active",
+                        Status = ObjectStatus.Active.ToString(),
                         StockQuantity = random.Next(5, 51), // Số lượng tồn kho từ 5 đến 50
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
@@ -3963,14 +3957,13 @@ namespace Server.Data.SeedData
                 }
             }
 
-            // Thêm danh sách branchProducts vào cơ sở dữ liệu
             await _context.Branch_Products.AddRangeAsync(branchProducts);
             await _context.SaveChangesAsync();
         }
 
+
         private async Task SeedBranchServices()
         {
-            var random = new Random();
             var branches = await _context.Branchs.ToListAsync();
             var services = await _context.Services.ToListAsync();
 
@@ -3978,19 +3971,13 @@ namespace Server.Data.SeedData
 
             foreach (var branch in branches)
             {
-                // Chọn ngẫu nhiên số lượng dịch vụ từ 16 đến 21 cho mỗi chi nhánh
-                int serviceCount = random.Next(16, 21);
-
-                // Chọn ngẫu nhiên các dịch vụ cho chi nhánh này
-                var selectedServices = services.OrderBy(x => random.Next()).Take(serviceCount);
-
-                foreach (var service in selectedServices)
+                foreach (var service in services)
                 {
                     var branchService = new Branch_Service
                     {
                         BranchId = branch.BranchId,
                         ServiceId = service.ServiceId,
-                        Status = "Active",
+                        Status = ObjectStatus.Active.ToString(),
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
                     };
@@ -3999,16 +3986,13 @@ namespace Server.Data.SeedData
                 }
             }
 
-            // Thêm danh sách branchServices vào cơ sở dữ liệu
             await _context.Branch_Services.AddRangeAsync(branchServices);
             await _context.SaveChangesAsync();
         }
 
+
         private async Task SeedBranchPromotions()
         {
-            var random = new Random();
-
-            // Lấy danh sách các chi nhánh và chương trình khuyến mãi
             var branches = await _context.Branchs.ToListAsync();
             var promotions = await _context.Promotions.ToListAsync();
 
@@ -4016,19 +4000,13 @@ namespace Server.Data.SeedData
 
             foreach (var branch in branches)
             {
-                // Chọn ngẫu nhiên số lượng chương trình khuyến mãi từ 5 đến 10 cho mỗi chi nhánh
-                int promotionCount = random.Next(5, 11);
-
-                // Chọn ngẫu nhiên các chương trình khuyến mãi cho chi nhánh này
-                var selectedPromotions = promotions.OrderBy(x => random.Next()).Take(promotionCount);
-
-                foreach (var promotion in selectedPromotions)
+                foreach (var promotion in promotions)
                 {
                     var branchPromotion = new Branch_Promotion
                     {
                         BranchId = branch.BranchId,
                         PromotionId = promotion.PromotionId,
-                        Status = "Active", // Có thể là "Pending" hoặc trạng thái khác
+                        Status = "Active", // Bạn có thể thay đổi thành "Pending" hoặc ngẫu nhiên nếu muốn
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
                     };
@@ -4037,10 +4015,10 @@ namespace Server.Data.SeedData
                 }
             }
 
-            // Thêm danh sách branchPromotions vào cơ sở dữ liệu
             await _context.Branch_Promotions.AddRangeAsync(branchPromotions);
             await _context.SaveChangesAsync();
         }
+
 
         private async Task SeedStaff()
         {
@@ -5838,6 +5816,7 @@ namespace Server.Data.SeedData
                     {
                         var quantity = random.Next(1, 3);
                         var unitPrice = random.Next(10, 100);
+                        var branchId = random.Next(1, 5); // Random BranchId (assuming you have 4 branches)
                         var randomProduct = products[random.Next(products.Count)];
                         var orderDetail = new OrderDetail
                         {
@@ -5846,6 +5825,7 @@ namespace Server.Data.SeedData
                             UnitPrice = unitPrice, // Random giá từ 10 đến 100
                             SubTotal = quantity * unitPrice,
                             ProductId = randomProduct.ProductId,
+                            BranchId = branchId,
                             CreatedDate = DateTime.Now,
                             UpdatedDate = DateTime.Now
                         };

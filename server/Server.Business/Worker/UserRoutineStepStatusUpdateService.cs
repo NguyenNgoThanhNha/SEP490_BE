@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Server.Business.Constants;
 using Server.Data;
 
 public class UserRoutineStepStatusUpdateService : BackgroundService
@@ -67,7 +68,7 @@ public class UserRoutineStepStatusUpdateService : BackgroundService
                                 .FindByCondition(o =>
                                     o.CustomerId == userRoutine.UserId &&
                                     o.RoutineId == skinCareRoutineId &&
-                                    o.OrderType == "Routine")
+                                    o.OrderType == OrderType.Routine.ToString())
                                 .Select(o => o.OrderId)
                                 .ToListAsync(stoppingToken);
 
