@@ -24,6 +24,8 @@ namespace Server.API
             builder.Services.AddTransient<IAIMLService, AIMLService>();
 
             builder.Services.AddHostedService<OrderStatusUpdateService>();
+            builder.Services.AddHostedService<UserRoutineStepStatusUpdateService>();
+
 
             builder.Services.AddSwaggerGen(option =>
             {
