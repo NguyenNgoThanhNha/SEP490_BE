@@ -710,21 +710,21 @@ namespace Server.Business.Services
                 .Include(p => p.Category)
                 .Include(p => p.ProductImages)
                 .Include(p => p.Branch_Products)
-                .ThenInclude(bp => bp.Branch);
+                    .ThenInclude(bp => bp.Branch)
+                .Include(p => p.Branch_Products)
+                    .ThenInclude(bp => bp.Promotion);
 
-            // Nếu có branchId, thêm điều kiện lọc
+            // Lọc theo BranchId nếu có
             if (req.BranchId.HasValue && req.BranchId.Value > 0)
             {
                 query = query.Where(p => p.Branch_Products.Any(bp => bp.BranchId == req.BranchId.Value));
             }
 
-
             if (!string.IsNullOrEmpty(req.Brand))
             {
                 query = query.Where(p =>
                     p.Brand != null &&
-                    p.Brand.ToLower().Contains(req.Brand.ToLower())
-                );
+                    p.Brand.ToLower().Contains(req.Brand.ToLower()));
             }
 
             if (!string.IsNullOrEmpty(req.CategoryIds))
@@ -742,7 +742,6 @@ namespace Server.Business.Services
                 }
             }
 
-
             if (req.MinPrice.HasValue)
             {
                 query = query.Where(p => p.Price >= req.MinPrice.Value);
@@ -753,6 +752,7 @@ namespace Server.Business.Services
                 query = query.Where(p => p.Price <= req.MaxPrice.Value);
             }
 
+            // Sắp xếp theo yêu cầu
             if (!string.IsNullOrEmpty(req.SortBy))
             {
                 switch (req.SortBy.ToLower())
@@ -775,36 +775,6 @@ namespace Server.Business.Services
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-
-            //        var productDtos = pagedProducts.Select(p => new ProductDetailDto
-            //        {
-            //            ProductId = p.ProductId,
-            //            ProductName = p.ProductName,
-            //            ProductDescription = p.ProductDescription,
-            //            Price = p.Price,
-            //            Brand = p.Brand,
-            //            Quantity = p.Quantity,
-            //            StockQuantity = p.Branch_Products?
-            //.FirstOrDefault(bp => bp.BranchId == req.BranchId)?.StockQuantity ?? 0,
-            //            CategoryId = p.CategoryId,
-            //            Dimension = p.Dimension,
-            //            Status = p.Status,
-            //            CategoryName = p.Category?.Name,
-            //            CompanyName = p.Company?.Name,
-            //            CreatedDate = p.CreatedDate,
-            //            UpdatedDate = p.UpdatedDate,
-            //            //BrandId = p.Branch_Products?.FirstOrDefault()?.BranchId,
-            //            //BrandName = p.Branch_Products?.FirstOrDefault()?.Branch?.BranchName,
-            //            ProductBranchId = p.Branch_Products?.FirstOrDefault()?.Id,
-            //            Category = new CategoryDetailDto
-            //            {
-            //                CategoryId = p.Category?.CategoryId ?? 0,
-            //                Name = p.Category?.Name,
-            //                Description = p.Category?.Description,
-            //                Status = p.Category?.Status
-            //            },
-            //            images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
-            //        }).ToList();
 
             var productDtos = pagedProducts.Select(p =>
             {
@@ -834,10 +804,42 @@ namespace Server.Business.Services
                         Description = p.Category?.Description,
                         Status = p.Category?.Status
                     },
-                    images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>()
+                    images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>(),
+
+                    Promotion = branchProduct?.Promotion == null ? null : new PromotionDTO
+                    {
+                        PromotionId = branchProduct.Promotion.PromotionId,
+                        PromotionName = branchProduct.Promotion.PromotionName,
+                        PromotionDescription = branchProduct.Promotion.PromotionDescription,
+                        DiscountPercent = branchProduct.Promotion.DiscountPercent,
+                        StartDate = branchProduct.Promotion.StartDate,
+                        EndDate = branchProduct.Promotion.EndDate,
+                        Status = branchProduct.Promotion.Status,
+                        Image = branchProduct.Promotion.Image,
+                        CreatedDate = branchProduct.Promotion.CreatedDate,
+                        UpdatedDate = branchProduct.Promotion.UpdatedDate
+                    },
+
+                    Branch = branchProduct?.Branch == null ? null : new BranchDTO
+                    {
+                        BranchId = branchProduct.Branch.BranchId,
+                        BranchName = branchProduct.Branch.BranchName,
+                        BranchAddress = branchProduct.Branch.BranchAddress,
+                        BranchPhone = branchProduct.Branch.BranchPhone,
+                        LongAddress = branchProduct.Branch.LongAddress,
+                        LatAddress = branchProduct.Branch.LatAddress,
+                        Status = branchProduct.Branch.Status,
+                        ManagerId = branchProduct.Branch.ManagerId,
+                        District = branchProduct.Branch.District,
+                        WardCode = branchProduct.Branch.WardCode,
+                        CompanyId = branchProduct.Branch.CompanyId,
+                        CreatedDate = branchProduct.Branch.CreatedDate,
+                        UpdatedDate = branchProduct.Branch.UpdatedDate,
+                        ManagerBranch = null,
+                        Branch_Promotion = null
+                    }
                 };
             }).ToList();
-
 
             return new GetAllProductPaginationFilter
             {
@@ -850,6 +852,7 @@ namespace Server.Business.Services
                 }
             };
         }
+
 
         public async Task<ProductDetailDto> GetProductDetailByProductBranchIdAsync(int productBranchId)
         {

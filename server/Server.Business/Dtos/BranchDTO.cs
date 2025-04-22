@@ -23,11 +23,7 @@ public class BranchDTO
 
     public int? WardCode { get; set; }
 
-    public int CompanyId { get; set; }
-    /*public virtual Company Company { get; set; }*/
-    
-    /*public ICollection<Branch_Service> Branch_Services { get; set; }
-    public ICollection<Branch_Product> Branch_Products { get; set; }*/
+    public int CompanyId { get; set; }   
     
     public ICollection<BranchPromotionDTO> Branch_Promotion { get; set; }
     
