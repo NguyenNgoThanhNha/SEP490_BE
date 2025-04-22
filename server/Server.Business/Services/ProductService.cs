@@ -859,15 +859,15 @@ namespace Server.Business.Services
             // Tìm branch_product theo Id
             var productBranch = await _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(bp => bp.Id == productBranchId)
-                .Include(bp => bp.Product)
-                .ThenInclude(p => p.Company)
-                .Include(bp => bp.Product)
-                .ThenInclude(p => p.Category)
-                .Include(bp => bp.Product)
-                .ThenInclude(p => p.ProductImages)
+                .Include(bp => bp.Promotion)
                 .Include(bp => bp.Branch)
+                .Include(bp => bp.Product)
+                    .ThenInclude(p => p.Company)
+                .Include(bp => bp.Product)
+                    .ThenInclude(p => p.Category)
+                .Include(bp => bp.Product)
+                    .ThenInclude(p => p.ProductImages)
                 .FirstOrDefaultAsync();
-
 
             if (productBranch == null || productBranch.Product == null)
             {
@@ -876,7 +876,6 @@ namespace Server.Business.Services
 
             var p = productBranch.Product;
 
-            // Map sang DTO
             var productDto = new ProductDetailDto
             {
                 ProductId = p.ProductId,
@@ -885,7 +884,7 @@ namespace Server.Business.Services
                 Price = p.Price,
                 Brand = p.Brand,
                 Quantity = p.Quantity,
-                StockQuantity = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.StockQuantity ?? 0,
+                StockQuantity = productBranch.StockQuantity,
                 CategoryId = p.CategoryId,
                 Dimension = p.Dimension,
                 Status = p.Status,
@@ -893,8 +892,6 @@ namespace Server.Business.Services
                 CompanyName = p.Company?.Name,
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
-                //BrandId = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.BranchId,
-                // BrandName = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.Branch?.BranchName,
                 ProductBranchId = productBranchId,
                 Category = new CategoryDetailDto
                 {
@@ -904,11 +901,44 @@ namespace Server.Business.Services
                     Status = p.Category?.Status
                 },
                 images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>(),
-                Branch = _mapper.Map<BranchDTO>(productBranch.Branch)
+
+                Branch = productBranch.Branch == null ? null : new BranchDTO
+                {
+                    BranchId = productBranch.Branch.BranchId,
+                    BranchName = productBranch.Branch.BranchName,
+                    BranchAddress = productBranch.Branch.BranchAddress,
+                    BranchPhone = productBranch.Branch.BranchPhone,
+                    LongAddress = productBranch.Branch.LongAddress,
+                    LatAddress = productBranch.Branch.LatAddress,
+                    Status = productBranch.Branch.Status,
+                    ManagerId = productBranch.Branch.ManagerId,
+                    District = productBranch.Branch.District,
+                    WardCode = productBranch.Branch.WardCode,
+                    CompanyId = productBranch.Branch.CompanyId,
+                    CreatedDate = productBranch.Branch.CreatedDate,
+                    UpdatedDate = productBranch.Branch.UpdatedDate,
+                    ManagerBranch = null,
+                    Branch_Promotion = null
+                },
+
+                Promotion = productBranch.Promotion == null ? null : new PromotionDTO
+                {
+                    PromotionId = productBranch.Promotion.PromotionId,
+                    PromotionName = productBranch.Promotion.PromotionName,
+                    PromotionDescription = productBranch.Promotion.PromotionDescription,
+                    DiscountPercent = productBranch.Promotion.DiscountPercent,
+                    StartDate = productBranch.Promotion.StartDate,
+                    EndDate = productBranch.Promotion.EndDate,
+                    Status = productBranch.Promotion.Status,
+                    Image = productBranch.Promotion.Image,
+                    CreatedDate = productBranch.Promotion.CreatedDate,
+                    UpdatedDate = productBranch.Promotion.UpdatedDate
+                }
             };
 
             return productDto;
         }
+
 
 
         public async Task<bool> AssignOrUpdateProductToBranchAsync(AssignProductToBranchRequest request)
