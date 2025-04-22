@@ -414,12 +414,62 @@ namespace Server.Business.Services
         }
 
 
+        //public async Task<GetAllProductPaginationResponse> GetAllProduct(int page, int pageSize)
+        //{
+        //    // Lấy dữ liệu sản phẩm với Category và áp dụng phân trang trực tiếp trên IQueryable
+        //    var query = _unitOfWorks.ProductRepository.GetAll()
+        //        .Include(p => p.Category) // Bao gồm thông tin Category
+        //        .Include(p => p.Company)
+        //        .OrderByDescending(p => p.ProductId);
+
+        //    var totalCount = await query.CountAsync();
+        //    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        //    var products = await query
+        //        .Skip((page - 1) * pageSize)
+        //        .Take(pageSize)
+        //        .ToListAsync();
+
+        //    // Ánh xạ sang ProductModel
+        //    var productModels = _mapper.Map<List<ProductModel>>(products);
+
+        //    // Lấy hình ảnh cho tất cả sản phẩm một lần
+        //    var productIds = products.Select(p => p.ProductId).ToList();
+        //    var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
+        //        .Where(si => productIds.Contains(si.ProductId))
+        //        .GroupBy(si => si.ProductId)
+        //        .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
+
+        //    // Gán hình ảnh và category cho từng sản phẩm
+        //    foreach (var product in productModels)
+        //    {
+        //        product.images = productImages.ContainsKey(product.ProductId)
+        //            ? productImages[product.ProductId]
+        //            : Array.Empty<string>();
+        //    }
+
+        //    return new GetAllProductPaginationResponse
+        //    {
+        //        data = productModels,
+        //        pagination = new Pagination
+        //        {
+        //            page = page,
+        //            totalPage = totalPages,
+        //            totalCount = totalCount
+        //        }
+        //    };
+        //}
+
         public async Task<GetAllProductPaginationResponse> GetAllProduct(int page, int pageSize)
         {
-            // Lấy dữ liệu sản phẩm với Category và áp dụng phân trang trực tiếp trên IQueryable
+            // Include thêm Branch_Products → Branch & Promotion
             var query = _unitOfWorks.ProductRepository.GetAll()
-                .Include(p => p.Category) // Bao gồm thông tin Category
+                .Include(p => p.Category)
                 .Include(p => p.Company)
+                .Include(p => p.Branch_Products)
+                    .ThenInclude(bp => bp.Branch)
+                .Include(p => p.Branch_Products)
+                    .ThenInclude(bp => bp.Promotion)
                 .OrderByDescending(p => p.ProductId);
 
             var totalCount = await query.CountAsync();
@@ -430,22 +480,69 @@ namespace Server.Business.Services
                 .Take(pageSize)
                 .ToListAsync();
 
-            // Ánh xạ sang ProductModel
             var productModels = _mapper.Map<List<ProductModel>>(products);
 
-            // Lấy hình ảnh cho tất cả sản phẩm một lần
+            // Lấy hình ảnh
             var productIds = products.Select(p => p.ProductId).ToList();
             var productImages = await _unitOfWorks.ProductImageRepository.GetAll()
                 .Where(si => productIds.Contains(si.ProductId))
                 .GroupBy(si => si.ProductId)
                 .ToDictionaryAsync(g => g.Key, g => g.Select(si => si.image).ToArray());
 
-            // Gán hình ảnh và category cho từng sản phẩm
-            foreach (var product in productModels)
+            // Gán hình ảnh, branch, promotion
+            for (int i = 0; i < productModels.Count; i++)
             {
-                product.images = productImages.ContainsKey(product.ProductId)
-                    ? productImages[product.ProductId]
+                var model = productModels[i];
+                var entity = products[i];
+
+                model.images = productImages.ContainsKey(model.ProductId)
+                    ? productImages[model.ProductId]
                     : Array.Empty<string>();
+
+                var branchProduct = entity.Branch_Products?.FirstOrDefault();
+
+                if (branchProduct != null)
+                {
+                    if (branchProduct.Branch != null)
+                    {
+                        model.Branch = new BranchDTO
+                        {
+                            BranchId = branchProduct.Branch.BranchId,
+                            BranchName = branchProduct.Branch.BranchName,
+                            BranchAddress = branchProduct.Branch.BranchAddress,
+                            BranchPhone = branchProduct.Branch.BranchPhone,
+                            LongAddress = branchProduct.Branch.LongAddress,
+                            LatAddress = branchProduct.Branch.LatAddress,
+                            Status = branchProduct.Branch.Status,
+                            ManagerId = branchProduct.Branch.ManagerId,
+                            District = branchProduct.Branch.District,
+                            WardCode = branchProduct.Branch.WardCode,
+                            CompanyId = branchProduct.Branch.CompanyId,
+                            CreatedDate = branchProduct.Branch.CreatedDate,
+                            UpdatedDate = branchProduct.Branch.UpdatedDate,
+                            ManagerBranch = null,
+                            Branch_Promotion = null
+                        };
+                    }
+
+                    if (branchProduct.Promotion != null)
+                    {
+                        model.Promotion = new PromotionDTO
+                        {
+                            PromotionId = branchProduct.Promotion.PromotionId,
+                            PromotionName = branchProduct.Promotion.PromotionName,
+                            PromotionDescription = branchProduct.Promotion.PromotionDescription,
+                            DiscountPercent = branchProduct.Promotion.DiscountPercent,
+                            StartDate = branchProduct.Promotion.StartDate,
+                            EndDate = branchProduct.Promotion.EndDate,
+                            Status = branchProduct.Promotion.Status,
+                            Image = branchProduct.Promotion.Image,
+                            CreatedDate = branchProduct.Promotion.CreatedDate,
+                            UpdatedDate = branchProduct.Promotion.UpdatedDate
+                        };
+                    }
+                }
+
             }
 
             return new GetAllProductPaginationResponse
@@ -459,6 +556,7 @@ namespace Server.Business.Services
                 }
             };
         }
+
 
 
         public async Task<ApiResult<ApiResponse>> UpdateProductAsync(int productId, ProductUpdateDto productUpdateDto)
@@ -859,15 +957,15 @@ namespace Server.Business.Services
             // Tìm branch_product theo Id
             var productBranch = await _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(bp => bp.Id == productBranchId)
-                .Include(bp => bp.Product)
-                .ThenInclude(p => p.Company)
-                .Include(bp => bp.Product)
-                .ThenInclude(p => p.Category)
-                .Include(bp => bp.Product)
-                .ThenInclude(p => p.ProductImages)
+                .Include(bp => bp.Promotion)
                 .Include(bp => bp.Branch)
+                .Include(bp => bp.Product)
+                    .ThenInclude(p => p.Company)
+                .Include(bp => bp.Product)
+                    .ThenInclude(p => p.Category)
+                .Include(bp => bp.Product)
+                    .ThenInclude(p => p.ProductImages)
                 .FirstOrDefaultAsync();
-
 
             if (productBranch == null || productBranch.Product == null)
             {
@@ -876,7 +974,6 @@ namespace Server.Business.Services
 
             var p = productBranch.Product;
 
-            // Map sang DTO
             var productDto = new ProductDetailDto
             {
                 ProductId = p.ProductId,
@@ -885,7 +982,7 @@ namespace Server.Business.Services
                 Price = p.Price,
                 Brand = p.Brand,
                 Quantity = p.Quantity,
-                StockQuantity = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.StockQuantity ?? 0,
+                StockQuantity = productBranch.StockQuantity,
                 CategoryId = p.CategoryId,
                 Dimension = p.Dimension,
                 Status = p.Status,
@@ -893,8 +990,6 @@ namespace Server.Business.Services
                 CompanyName = p.Company?.Name,
                 CreatedDate = p.CreatedDate,
                 UpdatedDate = p.UpdatedDate,
-                //BrandId = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.BranchId,
-                // BrandName = p.Branch_Products?.FirstOrDefault(bp => bp.Id == productBranchId)?.Branch?.BranchName,
                 ProductBranchId = productBranchId,
                 Category = new CategoryDetailDto
                 {
@@ -904,11 +999,44 @@ namespace Server.Business.Services
                     Status = p.Category?.Status
                 },
                 images = p.ProductImages?.Select(i => i.image).ToArray() ?? Array.Empty<string>(),
-                Branch = _mapper.Map<BranchDTO>(productBranch.Branch)
+
+                Branch = productBranch.Branch == null ? null : new BranchDTO
+                {
+                    BranchId = productBranch.Branch.BranchId,
+                    BranchName = productBranch.Branch.BranchName,
+                    BranchAddress = productBranch.Branch.BranchAddress,
+                    BranchPhone = productBranch.Branch.BranchPhone,
+                    LongAddress = productBranch.Branch.LongAddress,
+                    LatAddress = productBranch.Branch.LatAddress,
+                    Status = productBranch.Branch.Status,
+                    ManagerId = productBranch.Branch.ManagerId,
+                    District = productBranch.Branch.District,
+                    WardCode = productBranch.Branch.WardCode,
+                    CompanyId = productBranch.Branch.CompanyId,
+                    CreatedDate = productBranch.Branch.CreatedDate,
+                    UpdatedDate = productBranch.Branch.UpdatedDate,
+                    ManagerBranch = null,
+                    Branch_Promotion = null
+                },
+
+                Promotion = productBranch.Promotion == null ? null : new PromotionDTO
+                {
+                    PromotionId = productBranch.Promotion.PromotionId,
+                    PromotionName = productBranch.Promotion.PromotionName,
+                    PromotionDescription = productBranch.Promotion.PromotionDescription,
+                    DiscountPercent = productBranch.Promotion.DiscountPercent,
+                    StartDate = productBranch.Promotion.StartDate,
+                    EndDate = productBranch.Promotion.EndDate,
+                    Status = productBranch.Promotion.Status,
+                    Image = productBranch.Promotion.Image,
+                    CreatedDate = productBranch.Promotion.CreatedDate,
+                    UpdatedDate = productBranch.Promotion.UpdatedDate
+                }
             };
 
             return productDto;
         }
+
 
 
         public async Task<bool> AssignOrUpdateProductToBranchAsync(AssignProductToBranchRequest request)

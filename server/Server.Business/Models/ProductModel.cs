@@ -42,6 +42,8 @@ namespace Server.Business.Models
 
         public DateTime UpdatedDate { get; set; } = DateTime.Now;
         public BranchDTO Branch { get; set; }
+        public PromotionDTO? Promotion { get; set; }
+
     }
 
 }
