@@ -318,7 +318,7 @@ namespace Server.Business.Services
                 Description = serviceDto.Description,
                 Price = serviceDto.Price,
                 Duration = serviceDto.Duration,
-                Steps = serviceDto?.Steps?.ToString() ?? string.Empty,
+                Steps = serviceDto.Steps != null ? string.Join(",", serviceDto.Steps) : null,
                 ServiceCategoryId = serviceDto.ServiceCategoryId,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,

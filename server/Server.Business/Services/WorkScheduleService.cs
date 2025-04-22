@@ -94,9 +94,15 @@ public class WorkScheduleService
 
         if (staff == null)
             throw new BadRequestException("Không tìm thấy nhân viên!");
+        
+        if(request.FromDate == null || request.ToDate == null)
+            throw new BadRequestException("Ngày bắt đầu và ngày kết thúc không được để trống.");
 
         if (request.FromDate < DateTime.Today.AddDays(7))
             throw new BadRequestException("Lịch làm việc phải được đăng ký trước ít nhất 1 tuần.");
+        
+        if (request.FromDate > request.ToDate)
+            throw new BadRequestException("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
 
         var validShifts = await _unitOfWork.ShiftRepository
             .FindByCondition(x => request.ShiftIds.Contains(x.ShiftId))

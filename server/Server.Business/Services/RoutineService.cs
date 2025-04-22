@@ -3,6 +3,7 @@ using Google.Protobuf.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Server.Business.Commons.Request;
+using Server.Business.Constants;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Data;
@@ -202,7 +203,7 @@ public class RoutineService
         try
         {
             var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId)
-                ?? throw new BadRequestException("Không tìm thấy người dùng nào!");
+                       ?? throw new BadRequestException("Không tìm thấy người dùng nào!");
             var voucher =
                 await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId);
 
@@ -219,8 +220,8 @@ public class RoutineService
             if (routine == null) return 0;
 
             var staff = await _unitOfWorks.StaffRepository
-                .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId)
-                ?? throw new BadRequestException("Không tìm thấy nhân viên nào!");
+                            .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId)
+                        ?? throw new BadRequestException("Không tìm thấy nhân viên nào!");
 
             var randomOrderCode = new Random().Next(100000, 999999);
             var order = new Order
@@ -228,7 +229,7 @@ public class RoutineService
                 OrderCode = randomOrderCode,
                 CustomerId = user.UserId,
                 TotalAmount = routine.TotalPrice ?? 0,
-                OrderType = "Routine",
+                OrderType = OrderType.Routine.ToString(),
                 RoutineId = routine.SkincareRoutineId,
                 VoucherId = request.VoucherId > 0 ? request.VoucherId : null,
                 DiscountAmount = voucher?.DiscountAmount ?? 0,
@@ -292,11 +293,11 @@ public class RoutineService
                 .FirstOrDefaultAsync(x => x.UserId == request.UserId && x.RoutineId == routine.SkincareRoutineId);
             if (userRoutine != null)
             {
-                if(userRoutine.Status == ObjectStatus.Active.ToString())
+                if (userRoutine.Status == ObjectStatus.Active.ToString())
                 {
                     throw new BadRequestException("Bạn đã đặt liệu trình này rồi!");
                 }
-                
+
                 userRoutine.Status = ObjectStatus.Active.ToString();
                 userRoutine.UpdatedDate = DateTime.Now;
                 _unitOfWorks.UserRoutineRepository.Update(userRoutine);
@@ -441,19 +442,19 @@ public class RoutineService
     public async Task<SkincareRoutineModel> GetInfoRoutineOfUserNew(int userId)
     {
         var routine = await _unitOfWorks.UserRoutineRepository
-            .FindByCondition(x => x.UserId == userId && x.Status == ObjectStatus.Active.ToString())
-            .Include(x => x.Routine)
-            .ThenInclude(x => x.ServiceRoutines)
-            .ThenInclude(x => x.Service)
-            .ThenInclude(x => x.ServiceCategory)
-            .Include(x => x.Routine)
-            .ThenInclude(x => x.ProductRoutines)
-            .ThenInclude(x => x.Products)
-            .ThenInclude(x => x.Category)
-            .Select(x => x.Routine)
-            .OrderByDescending(x => x.CreatedDate)
-            .FirstOrDefaultAsync()
-            ?? throw new BadRequestException("Không tìm thấy gói liệu trình!");
+                          .FindByCondition(x => x.UserId == userId && x.Status == ObjectStatus.Active.ToString())
+                          .Include(x => x.Routine)
+                          .ThenInclude(x => x.ServiceRoutines)
+                          .ThenInclude(x => x.Service)
+                          .ThenInclude(x => x.ServiceCategory)
+                          .Include(x => x.Routine)
+                          .ThenInclude(x => x.ProductRoutines)
+                          .ThenInclude(x => x.Products)
+                          .ThenInclude(x => x.Category)
+                          .Select(x => x.Routine)
+                          .OrderByDescending(x => x.CreatedDate)
+                          .FirstOrDefaultAsync()
+                      ?? throw new BadRequestException("Không tìm thấy gói liệu trình!");
         var routineModel = _mapper.Map<SkincareRoutineModel>(routine);
 
         // Lấy danh sách sản phẩm từ stepModels
@@ -490,11 +491,11 @@ public class RoutineService
 
         return routineModel;
     }
-    
+
     public async Task<OrderModel> GetDetailOrderRoutine(int userId, int orderId)
     {
         var order = await _unitOfWorks.OrderRepository
-            .FindByCondition(x => x.CustomerId == userId && x.OrderId == orderId && x.OrderType == "Routine")
+            .FindByCondition(x => x.CustomerId == userId && x.OrderId == orderId && x.OrderType == OrderType.Routine.ToString())
             .Include(x => x.Customer)
             .Include(x => x.OrderDetails)
             .ThenInclude(x => x.Product)
@@ -506,7 +507,7 @@ public class RoutineService
         if (order == null) return null;
 
         var orderModel = _mapper.Map<OrderModel>(order);
-        
+
         // lấy danh sách sản phẩm từ orderDetails
         var orderDetails = orderModel.OrderDetails;
         var listProduct = orderDetails.Select(pr => pr.Product).ToList();
@@ -538,6 +539,46 @@ public class RoutineService
                 orderDetail.Product.images = productImage.images;
             }
         }
+
         return orderModel;
+    }
+
+    public async Task<List<BranchModel>> GetListBranchByRoutineId(int routineId)
+    {
+        var skincareRoutine = await _unitOfWorks.SkincareRoutineRepository
+                                  .FirstOrDefaultAsync(x => x.SkincareRoutineId == routineId)
+                              ?? throw new BadRequestException("Không tìm thấy liệu trình nào!");
+
+        var serviceIds = await _unitOfWorks.ServiceRoutineRepository
+            .FindByCondition(x => x.RoutineId == skincareRoutine.SkincareRoutineId)
+            .Select(x => x.ServiceId)
+            .ToListAsync();
+
+        var productIds = await _unitOfWorks.ProductRoutineRepository
+            .FindByCondition(x => x.RoutineId == routineId)
+            .Select(x => x.ProductId)
+            .ToListAsync();
+
+        var branches = await _unitOfWorks.BranchRepository
+            .FindByCondition(x => x.Status == ObjectStatus.Active.ToString())
+            .Include(x => x.Branch_Products)
+            .ThenInclude(bp => bp.Product)
+            .Include(x => x.Branch_Services)
+            .ThenInclude(bs => bs.Service)
+            .ToListAsync();
+
+        var filteredBranches = branches.Where(branch =>
+        {
+            var branchServiceIds = branch.Branch_Services.Select(bs => bs.ServiceId).ToHashSet();
+            var branchProductIds = branch.Branch_Products.Select(bp => bp.ProductId).ToHashSet();
+
+            bool hasAllServices = serviceIds.All(id => branchServiceIds.Contains(id));
+            bool hasAllProducts = productIds.All(id => branchProductIds.Contains(id));
+
+            return hasAllServices && hasAllProducts;
+        }).ToList();
+
+        var branchModels = _mapper.Map<List<BranchModel>>(filteredBranches);
+        return branchModels;
     }
 }

@@ -125,5 +125,20 @@ namespace Server.API.Controllers
                 data = routine
             }));
         }
+        
+        [HttpGet("get-list-branches-by-routine/{routineId}")]
+        public async Task<IActionResult> GetListBranchesByRoutine(int routineId)
+        {
+            var branches = await _routineService.GetListBranchByRoutineId(routineId);
+            if (branches == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+            {
+                message = "Không tìm thấy chi nhánh nào!"
+            }));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy thành công danh sách chi nhánh!",
+                data = branches
+            }));
+        }
     }
 }
