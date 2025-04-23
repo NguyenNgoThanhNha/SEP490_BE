@@ -12,7 +12,7 @@ public class OrderDetailModels
     public int? ProductId { get; set; }
     public virtual ProductModel Product { get; set; }
     
-    public int? PromotionId { get; set; }
+    
     public virtual PromotionModel? Promotion { get; set; }
 
     public BranchModel Branch { get; set; }

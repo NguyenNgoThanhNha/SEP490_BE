@@ -537,8 +537,9 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1,
-            int pageSize = 5)
+        
+
+        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(x => x.CustomerId == userId && x.Status == status)
@@ -547,16 +548,18 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Shipment)
                 .Include(x => x.Appointments)
-                .ThenInclude(x => x.Service)
+                    .ThenInclude(x => x.Service)
                 .Include(x => x.Appointments)
-                .ThenInclude(x => x.Branch)
+                    .ThenInclude(x => x.Branch)
                 .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.ProductImages)
+                    .ThenInclude(od => od.Promotion) // ✅ Bổ sung dòng này
                 .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.Branch_Products)
-                .ThenInclude(bp => bp.Branch)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.ProductImages)
+                .Include(x => x.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.Branch_Products)
+                            .ThenInclude(bp => bp.Branch)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
 
@@ -580,29 +583,44 @@ namespace Server.Business.Services
 
             var orderModels = _mapper.Map<List<OrderModel>>(pagedOrders);
 
-            // Gán branch cho từng product detail nếu chưa có
+            // Gán branch và promotion thủ công nếu cần
             foreach (var order in orderModels)
             {
+                var entityOrder = pagedOrders.FirstOrDefault(o => o.OrderId == order.OrderId);
+
                 foreach (var detail in order.OrderDetails)
                 {
+                    var entityDetail = entityOrder?.OrderDetails.FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId);
+
+                    // Gán Branch nếu thiếu
                     if (detail.Product != null && detail.Branch == null)
                     {
-                        // Nếu Product chưa có thông tin Branch và vẫn có Branch_Products từ DB
-                        var firstBranchEntity = pagedOrders
-                            .FirstOrDefault(o => o.OrderId == order.OrderId)?
-                            .OrderDetails
-                            .FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId)?
-                            .Product?
-                            .Branch_Products?
-                            .FirstOrDefault()?.Branch;
-
-                        if (firstBranchEntity != null)
+                        var branchEntity = entityDetail?.Product?.Branch_Products?.FirstOrDefault()?.Branch;
+                        if (branchEntity != null)
                         {
-                            detail.Branch = _mapper.Map<BranchModel>(firstBranchEntity);
+                            detail.Branch = _mapper.Map<BranchModel>(branchEntity);
                         }
+                    }
+
+                    // Gán Promotion từ OrderDetail nếu có
+                    if (entityDetail?.Promotion != null)
+                    {
+                        detail.Promotion = _mapper.Map<PromotionModel>(entityDetail.Promotion);
+                    }
+
+                    // Chỉ gán Product.Promotion nếu chưa có OrderDetail.Promotion
+                    if (detail.Product != null && detail.Product.Promotion == null && entityDetail?.Promotion != null)
+                    {
+                        detail.Product.Promotion = _mapper.Map<PromotionDTO>(entityDetail.Promotion);
+                    }
+                    if (detail.Product != null)
+                    {
+                        detail.Product.Promotion = null;
+                        detail.Product.Branch = null;
                     }
                 }
             }
+
 
             return new HistoryBookingResponse()
             {
@@ -616,6 +634,7 @@ namespace Server.Business.Services
                 }
             };
         }
+
 
 
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
@@ -708,11 +727,11 @@ namespace Server.Business.Services
             return new DetailOrderResponse
             {
                 message = "Get detail order success",
-                data = orderModel // ✅ Là 1 object, không phải list
+                data = orderModel
             };
         }
 
-
+      
         public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
