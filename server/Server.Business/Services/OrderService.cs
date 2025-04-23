@@ -537,8 +537,9 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1,
-            int pageSize = 5)
+        
+
+        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(x => x.CustomerId == userId && x.Status == status)
@@ -547,16 +548,18 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Shipment)
                 .Include(x => x.Appointments)
-                .ThenInclude(x => x.Service)
+                    .ThenInclude(x => x.Service)
                 .Include(x => x.Appointments)
-                .ThenInclude(x => x.Branch)
+                    .ThenInclude(x => x.Branch)
                 .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.ProductImages)
+                    .ThenInclude(od => od.Promotion) // ✅ Bổ sung dòng này
                 .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.Branch_Products)
-                .ThenInclude(bp => bp.Branch)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.ProductImages)
+                .Include(x => x.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.Branch_Products)
+                            .ThenInclude(bp => bp.Branch)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
 
@@ -580,29 +583,44 @@ namespace Server.Business.Services
 
             var orderModels = _mapper.Map<List<OrderModel>>(pagedOrders);
 
-            // Gán branch cho từng product detail nếu chưa có
+            // Gán branch và promotion thủ công nếu cần
             foreach (var order in orderModels)
             {
+                var entityOrder = pagedOrders.FirstOrDefault(o => o.OrderId == order.OrderId);
+
                 foreach (var detail in order.OrderDetails)
                 {
+                    var entityDetail = entityOrder?.OrderDetails.FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId);
+
+                    // Gán Branch nếu thiếu
                     if (detail.Product != null && detail.Branch == null)
                     {
-                        // Nếu Product chưa có thông tin Branch và vẫn có Branch_Products từ DB
-                        var firstBranchEntity = pagedOrders
-                            .FirstOrDefault(o => o.OrderId == order.OrderId)?
-                            .OrderDetails
-                            .FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId)?
-                            .Product?
-                            .Branch_Products?
-                            .FirstOrDefault()?.Branch;
-
-                        if (firstBranchEntity != null)
+                        var branchEntity = entityDetail?.Product?.Branch_Products?.FirstOrDefault()?.Branch;
+                        if (branchEntity != null)
                         {
-                            detail.Branch = _mapper.Map<BranchModel>(firstBranchEntity);
+                            detail.Branch = _mapper.Map<BranchModel>(branchEntity);
                         }
+                    }
+
+                    // Gán Promotion từ OrderDetail nếu có
+                    if (entityDetail?.Promotion != null)
+                    {
+                        detail.Promotion = _mapper.Map<PromotionModel>(entityDetail.Promotion);
+                    }
+
+                    // Chỉ gán Product.Promotion nếu chưa có OrderDetail.Promotion
+                    if (detail.Product != null && detail.Product.Promotion == null && entityDetail?.Promotion != null)
+                    {
+                        detail.Product.Promotion = _mapper.Map<PromotionDTO>(entityDetail.Promotion);
+                    }
+                    if (detail.Product != null)
+                    {
+                        detail.Product.Promotion = null;
+                        detail.Product.Branch = null;
                     }
                 }
             }
+
 
             return new HistoryBookingResponse()
             {
@@ -616,6 +634,7 @@ namespace Server.Business.Services
                 }
             };
         }
+
 
 
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
@@ -708,11 +727,11 @@ namespace Server.Business.Services
             return new DetailOrderResponse
             {
                 message = "Get detail order success",
-                data = orderModel // ✅ Là 1 object, không phải list
+                data = orderModel
             };
         }
 
-
+      
         public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
@@ -962,178 +981,7 @@ namespace Server.Business.Services
         }
 
 
-        //public async Task<ApiResult<ApiResponse>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
 
-        //{
-        //    if (request == null
-        //        || request.Products == null
-        //        || !request.Products.Any()
-        //        || string.IsNullOrWhiteSpace(request.PaymentMethod))
-        //    {
-        //        return ApiResult<object>.Error(null, "Vui lòng nhập đầy đủ thông tin đơn hàng.");
-        //    }
-
-        //    using var transaction = await _unitOfWorks.BeginTransactionAsync();
-
-        //    try
-        //    {
-        //        // 1. Lấy user
-        //        var user = await _unitOfWorks.UserRepository
-        //            .FindByCondition(x => x.UserId == request.UserId && x.Status == "Active")
-        //            .FirstOrDefaultAsync();
-
-        //        if (user == null)
-        //            return ApiResult<object>.Error(null, "User không tồn tại hoặc đang bị vô hiệu hóa.");
-
-        //        // 2. Kiểm tra voucher
-        //        int? voucherId = null;
-        //        if (request.VoucherId.HasValue)
-        //        {
-        //            var voucher = await _unitOfWorks.VoucherRepository
-        //                .FindByCondition(x => x.VoucherId == request.VoucherId && x.Status == "Active")
-        //                .FirstOrDefaultAsync();
-
-        //            if (voucher == null)
-        //            {
-        //                return ApiResult<object>.Succeed(new ApiResponse
-        //                {
-        //                    message = "Mã giảm giá không hợp lệ.",
-        //                    data = null
-        //                });
-        //            }
-
-        //            voucherId = voucher.VoucherId;
-        //        }
-
-        //        // 3. Tạo OrderCode ngẫu nhiên
-        //        int orderCode;
-        //        var random = new Random();
-        //        do
-        //        {
-        //            orderCode = random.Next(1000, 10000);
-        //        } while (await _unitOfWorks.OrderRepository
-        //                     .FindByCondition(x => x.OrderCode == orderCode)
-        //                     .AnyAsync());
-
-        //        // 4. Tạo Order (chưa có TotalAmount)
-        //        var order = new Order
-        //        {
-        //            OrderCode = orderCode,
-        //            CustomerId = request.UserId,
-        //            VoucherId = voucherId,
-        //            TotalAmount = 0, // Tạm thời
-        //            OrderType = "Product",
-        //            PaymentMethod = request.PaymentMethod,
-        //            Status = OrderStatusEnum.Pending.ToString(),
-        //            StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
-        //            CreatedDate = DateTime.UtcNow,
-        //            UpdatedDate = DateTime.UtcNow
-        //        };
-
-        //        await _unitOfWorks.OrderRepository.AddAsync(order);
-        //        await _unitOfWorks.OrderRepository.Commit();
-
-        //        decimal calculatedTotal = 0;
-
-        //        // 5. Tạo OrderDetail và cập nhật tồn kho
-        //        foreach (var item in request.Products)
-        //        {
-        //            if (item.Quantity <= 0)
-        //                throw new BadRequestException(
-        //                    $"Số lượng của sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
-
-        //            var branchProduct = await _unitOfWorks.Branch_ProductRepository.GetByIdAsync(item.ProductBranchId);
-        //            if (branchProduct == null)
-        //                throw new BadRequestException($"Không tìm thấy BranchProduct với ID = {item.ProductBranchId}.");
-
-        //            if (branchProduct.StockQuantity < item.Quantity)
-        //                throw new BadRequestException($"Sản phẩm ID {branchProduct.ProductId} không đủ tồn kho.");
-
-        //            var product = await _unitOfWorks.ProductRepository.GetByIdAsync(branchProduct.ProductId);
-        //            if (product == null)
-        //                throw new BadRequestException($"Không tìm thấy Product với ID = {branchProduct.ProductId}.");
-
-        //            decimal subTotal = product.Price * item.Quantity;
-        //            calculatedTotal += subTotal;
-
-        //            var orderDetail = new OrderDetail
-        //            {
-        //                OrderId = order.OrderId,
-        //                ProductId = product.ProductId,
-        //                Quantity = item.Quantity,
-        //                UnitPrice = product.Price,
-        //                SubTotal = subTotal,
-        //                Status = OrderStatusEnum.Pending.ToString(),
-        //                StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
-        //                PaymentMethod = request.PaymentMethod,
-        //                CreatedDate = DateTime.Now,
-        //                UpdatedDate = DateTime.Now
-        //            };
-
-        //            await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
-
-        //            // Cập nhật tồn kho
-        //            branchProduct.StockQuantity -= item.Quantity;
-        //            branchProduct.UpdatedDate = DateTime.Now;
-        //            _unitOfWorks.Branch_ProductRepository.Update(branchProduct);
-        //        }
-
-        //        // 6. Chuẩn hóa thông tin giao hàng
-        //        var recipientName = string.IsNullOrWhiteSpace(request.RecipientName)
-        //            ? user.FullName
-        //            : request.RecipientName;
-        //        var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress)
-        //            ? user.Address
-        //            : request.RecipientAddress;
-        //        var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone)
-        //            ? user.PhoneNumber
-        //            : request.RecipientPhone;
-
-        //        // 7. Tạo Shipment
-        //        var shipment = new Shipment
-        //        {
-        //            OrderId = order.OrderId,
-        //            EstimatedDeliveryDate = request.EstimatedDeliveryDate,
-        //            ShippingCost = request.ShippingCost,
-        //            RecipientName = recipientName,
-        //            RecipientAddress = recipientAddress,
-        //            RecipientPhone = recipientPhone,
-        //            ShippingStatus = ShippingStatusEnum.Pending.ToString(),
-        //            ShippingCarrier = "Unknown",
-        //            TrackingNumber = "Unknown",
-        //            CreatedDate = DateTime.Now,
-        //            UpdatedDate = DateTime.Now
-        //        };
-
-        //        await _unitOfWorks.ShipmentRepository.AddAsync(shipment);
-
-        //        // 8. Cộng ship cost vào tổng
-        //        calculatedTotal += shipment.ShippingCost;
-
-        //        // 9. Cập nhật TotalAmount vào bảng Order
-        //        order.TotalAmount = calculatedTotal;
-        //        order.UpdatedDate = DateTime.Now;
-        //        _unitOfWorks.OrderRepository.Update(order);
-        //        await _unitOfWorks.OrderRepository.Commit();
-
-        //        // 10. Commit tất cả
-        //        await _unitOfWorks.OrderDetailRepository.Commit();
-        //        await _unitOfWorks.ShipmentRepository.Commit();
-        //        await _unitOfWorks.Branch_ProductRepository.Commit();
-        //        await transaction.CommitAsync();
-
-        //        return ApiResult<ApiResponse>.Succeed(new ApiResponse
-        //        {
-        //            message = "Tạo đơn hàng thành công.",
-        //            data = order.OrderId
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await transaction.RollbackAsync();
-        //        return ApiResult<object>.Error(null, $"Lỗi tạo đơn hàng: {ex.Message}");
-        //    }
-        //}
 
         public async Task<ApiResult<ApiResponse>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
         {
@@ -1213,10 +1061,13 @@ namespace Server.Business.Services
                 foreach (var item in request.Products)
                 {
                     if (item.Quantity <= 0)
-                        throw new BadRequestException(
-                            $"Số lượng sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
+                        throw new BadRequestException($"Số lượng sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
 
-                    var branchProduct = await _unitOfWorks.Branch_ProductRepository.GetByIdAsync(item.ProductBranchId);
+                    var branchProduct = await _unitOfWorks.Branch_ProductRepository
+                        .FindByCondition(bp => bp.Id == item.ProductBranchId && bp.Status == "Active")
+                        .Include(bp => bp.Promotion)
+                        .FirstOrDefaultAsync();
+
                     if (branchProduct == null)
                         throw new BadRequestException($"Không tìm thấy BranchProduct với ID = {item.ProductBranchId}.");
 
@@ -1227,16 +1078,32 @@ namespace Server.Business.Services
                     if (product == null)
                         throw new BadRequestException($"Không tìm thấy Product với ID = {branchProduct.ProductId}.");
 
-                    decimal subTotal = product.Price * item.Quantity;
+                    decimal unitPrice = product.Price;
+                    decimal discountAmount = 0;
+                    decimal subTotal;
+
+                    // Áp dụng giảm giá nếu có promotion hợp lệ
+                    if (branchProduct.Promotion != null &&
+                        branchProduct.Promotion.Status == "Active" &&
+                        branchProduct.Promotion.StartDate <= DateTime.Now &&
+                        branchProduct.Promotion.EndDate >= DateTime.Now)
+                    {
+                        discountAmount = unitPrice * item.Quantity * (branchProduct.Promotion.DiscountPercent / 100M);
+                    }
+
+                    subTotal = (unitPrice * item.Quantity) - discountAmount;
                     calculatedTotal += subTotal;
 
                     var orderDetail = new OrderDetail
                     {
                         OrderId = order.OrderId,
                         ProductId = product.ProductId,
+                        BranchId = branchProduct.BranchId,
+                        PromotionId = branchProduct.PromotionId,
                         Quantity = item.Quantity,
-                        UnitPrice = product.Price,
+                        UnitPrice = unitPrice,
                         SubTotal = subTotal,
+                        DiscountAmount = discountAmount,
                         Status = OrderStatusEnum.Pending.ToString(),
                         StatusPayment = OrderStatusPaymentEnum.Pending.ToString(),
                         PaymentMethod = request.PaymentMethod,
@@ -1251,10 +1118,7 @@ namespace Server.Business.Services
                     _unitOfWorks.Branch_ProductRepository.Update(branchProduct);
                 }
 
-                //var recipientName = string.IsNullOrWhiteSpace(request.RecipientName) ? user.FullName : request.RecipientName;
-                //var recipientAddress = string.IsNullOrWhiteSpace(request.RecipientAddress) ? user.Address : request.RecipientAddress;
-                //var recipientPhone = string.IsNullOrWhiteSpace(request.RecipientPhone) ? user.PhoneNumber : request.RecipientPhone;
-
+                // Gán thông tin người nhận
                 var recipientName = !string.IsNullOrWhiteSpace(request.RecipientName)
                     ? request.RecipientName
                     : (!string.IsNullOrWhiteSpace(user.FullName) ? user.FullName : "");
@@ -1288,8 +1152,9 @@ namespace Server.Business.Services
                 order.TotalAmount = calculatedTotal;
                 order.UpdatedDate = DateTime.Now;
                 _unitOfWorks.OrderRepository.Update(order);
-                await _unitOfWorks.OrderRepository.Commit();
 
+                // Commit các thay đổi
+                await _unitOfWorks.OrderRepository.Commit();
                 await _unitOfWorks.OrderDetailRepository.Commit();
                 await _unitOfWorks.ShipmentRepository.Commit();
                 await _unitOfWorks.Branch_ProductRepository.Commit();
@@ -1310,6 +1175,7 @@ namespace Server.Business.Services
                 });
             }
         }
+
 
 
         public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string status, string token)

@@ -374,7 +374,8 @@ namespace Server.Business.Services
                     createdProduct.Dimension,
                     createdProduct.CreatedDate,
                     createdProduct.UpdatedDate,
-                    ImageUrl = imageUrl
+                    ImageUrl = imageUrl,
+                    createdProduct.Brand
                 }
             });
         }
