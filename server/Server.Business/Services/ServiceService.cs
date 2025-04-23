@@ -389,44 +389,47 @@ namespace Server.Business.Services
             service.Duration = serviceDto.Duration;
             service.UpdatedDate = DateTime.Now;
 
-            // Lấy danh sách hình ảnh hiện tại của dịch vụ
-            var existingImages = await _unitOfWorks.ServiceImageRepository
-                .FindByCondition(img => img.ServiceId == serviceId).ToListAsync();
-
-            // Kiểm tra số lượng hình ảnh có đồng nhất không
-            if (existingImages.Count == serviceDto.images.Count)
+            if (serviceDto.images != null && serviceDto.images.Count > 0)
             {
-                // Cập nhật URL hình ảnh hiện tại
-                var updateTasks = existingImages.Zip(serviceDto.images, async (existingImage, newImage) =>
-                {
-                    var uploadResult = await _cloudianryService.UploadImageAsync(newImage);
-                    existingImage.image = uploadResult.SecureUrl.ToString();
-                });
+                // Lấy danh sách hình ảnh hiện tại của dịch vụ
+                var existingImages = await _unitOfWorks.ServiceImageRepository
+                    .FindByCondition(img => img.ServiceId == serviceId).ToListAsync();
 
-                await Task.WhenAll(updateTasks);
-                await _unitOfWorks.ServiceImageRepository.UpdateRangeAsync(existingImages);
-            }
-            else
-            {
-                // Xóa hình ảnh cũ và thêm hình ảnh mới
-                await _unitOfWorks.ServiceImageRepository.RemoveRangeAsync(existingImages);
-
-                var uploadTasks = serviceDto.images.Select(async image =>
+                // Kiểm tra số lượng hình ảnh có đồng nhất không
+                if (existingImages.Count == serviceDto.images.Count)
                 {
-                    var uploadResult = await _cloudianryService.UploadImageAsync(image);
-                    return new ServiceImages
+                    // Cập nhật URL hình ảnh hiện tại
+                    var updateTasks = existingImages.Zip(serviceDto.images, async (existingImage, newImage) =>
                     {
-                        ServiceId = service.ServiceId,
-                        image = uploadResult.SecureUrl.ToString(),
-                    };
-                });
+                        var uploadResult = await _cloudianryService.UploadImageAsync(newImage);
+                        existingImage.image = uploadResult.SecureUrl.ToString();
+                    });
 
-                var newImages = await Task.WhenAll(uploadTasks);
-                await _unitOfWorks.ServiceImageRepository.AddRangeAsync(newImages);
+                    await Task.WhenAll(updateTasks);
+                    await _unitOfWorks.ServiceImageRepository.UpdateRangeAsync(existingImages);
+                }
+                else
+                {
+                    // Xóa hình ảnh cũ và thêm hình ảnh mới
+                    await _unitOfWorks.ServiceImageRepository.RemoveRangeAsync(existingImages);
+
+                    var uploadTasks = serviceDto.images.Select(async image =>
+                    {
+                        var uploadResult = await _cloudianryService.UploadImageAsync(image);
+                        return new ServiceImages
+                        {
+                            ServiceId = service.ServiceId,
+                            image = uploadResult.SecureUrl.ToString(),
+                        };
+                    });
+
+                    var newImages = await Task.WhenAll(uploadTasks);
+                    await _unitOfWorks.ServiceImageRepository.AddRangeAsync(newImages);
+                }
+
+                // Lưu thay đổi qua UnitOfWork
+                await _unitOfWorks.ServiceImageRepository.Commit();
             }
-
-            // Lưu thay đổi qua UnitOfWork
-            await _unitOfWorks.ServiceImageRepository.Commit();
             _unitOfWorks.ServiceRepository.Update(service);
             await _unitOfWorks.ServiceRepository.Commit();
 
