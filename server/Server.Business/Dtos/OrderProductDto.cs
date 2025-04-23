@@ -9,6 +9,6 @@ namespace Server.Business.Dtos
     public class OrderProductDto
     {
         public int ProductBranchId { get; set; }
-        public int Quantity { get; set; }
+        public int Quantity { get; set; }      
     }
 }
