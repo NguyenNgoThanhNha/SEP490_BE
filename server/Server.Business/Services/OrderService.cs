@@ -32,7 +32,7 @@ namespace Server.Business.Services
         private readonly IHubContext<NotificationHub> _hubContext;
 
         public OrderService(UnitOfWorks unitOfWorks, IMapper mapper, IOptions<PayOSSetting> payOsSetting,
-            ServiceService serviceService, AuthService authService, ProductService productService, 
+            ServiceService serviceService, AuthService authService, ProductService productService,
             StaffService staffService, MongoDbService mongoDbService, IHubContext<NotificationHub> hubContext)
         {
             this._unitOfWorks = unitOfWorks;
@@ -537,7 +537,7 @@ namespace Server.Business.Services
         }
 
 
-        
+
 
         public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
         {
@@ -731,7 +731,7 @@ namespace Server.Business.Services
             };
         }
 
-      
+
         public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
@@ -1518,7 +1518,7 @@ namespace Server.Business.Services
 
                 var listAppointments = new List<Appointments>();
                 var listOrderDetails = new List<OrderDetail>();
-                
+
                 Staff staffAuto = null;
 
                 if (request.IsAuto)
@@ -1788,6 +1788,23 @@ namespace Server.Business.Services
                 await _unitOfWorks.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        public async Task<ApiResult<object>> CountOrdersByOrderTypeAsync()
+        {
+            var result = await _unitOfWorks.OrderRepository
+        .FindByCondition(o => true)
+        .GroupBy(o => o.OrderType)
+        .Select(g => new
+        {
+            OrderType = g.Key,
+            Amount = g.Count()
+        })
+        .ToListAsync();
+            return ApiResult<object>.Succeed(new
+            {
+                OrderTypeCounts = result
+            });
         }
     }
 }

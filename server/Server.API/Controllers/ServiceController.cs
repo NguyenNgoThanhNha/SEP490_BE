@@ -304,7 +304,7 @@ namespace Server.API.Controllers
         }
 
 
-        [HttpGet("top4-featured-services")]
+        [HttpGet("top5-featured-services")]
         public async Task<IActionResult> GetTop4FeaturedServices()
         {
             try
@@ -321,7 +321,7 @@ namespace Server.API.Controllers
 
                 return Ok(new
                 {
-                    Message = "Lấy danh sách Top 4 dịch vụ nổi bật thành công!",
+                    Message = "Lấy danh sách Top 5 dịch vụ nổi bật thành công!",
                     Data = featuredServices
                 });
             }
