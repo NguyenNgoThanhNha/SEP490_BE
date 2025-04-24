@@ -302,7 +302,7 @@ namespace Server.API.Controllers
                 message = "Lỗi khi đăng nhập bằng Google!"
             }));
         }
-        
+
         [AllowAnonymous]
         [HttpPost("login-facebook")]
         public async Task<IActionResult> LoginWithFaceBook([FromBody] LoginWithGGRequest req)
@@ -322,7 +322,7 @@ namespace Server.API.Controllers
             if (loginResult.Authenticated)
             {
                 var handler = new JwtSecurityTokenHandler();
-                
+
                 var res = new ApiResponse()
                 {
                     message = "Đăng nhập thành công",
@@ -621,7 +621,7 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
-        
+
         [HttpGet("get-user-by-phone-email")]
         public async Task<IActionResult> GetUserByPhoneEmail([FromQuery] GetUserByPhoneEmailRequest request)
         {
@@ -640,7 +640,7 @@ namespace Server.API.Controllers
                 data = user
             }));
         }
-        
+
         [Authorize]
         [HttpPost("update-user-info")]
         public async Task<IActionResult> UpdateUserInfo([FromForm] UserInfoUpdateRequest request)
@@ -699,9 +699,6 @@ namespace Server.API.Controllers
                 message = "Top 3 chi nhánh có doanh thu cao nhất!",
                 data = result
             }));
-        }
-
-
-
+        }    
     }
 }

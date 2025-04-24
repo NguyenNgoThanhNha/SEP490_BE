@@ -466,7 +466,7 @@ namespace Server.Business.Services
         {
             // Lấy danh sách Appointments có trạng thái Confirmed và bao gồm Service cùng các quan hệ cần thiết
             var appointments = await _unitOfWorks.AppointmentsRepository
-                .FindByCondition(a => a.Status == "Confirmed")
+                .FindByCondition(a => a.Status == "Completed")
                 .Include(a => a.Service)
                 .ThenInclude(s => s.Branch_Services) // Bao gồm Branch_Services nếu cần
                 .Include(a => a.Service)
@@ -486,7 +486,7 @@ namespace Server.Business.Services
                     return service;
                 })
                 //.OrderByDescending(s => s.TotalQuantity) // Sắp xếp theo TotalQuantity
-                .Take(4) // Lấy 4 dịch vụ nổi bật
+                .Take(5) // Lấy 4 dịch vụ nổi bật
                 .ToList();
 
             return featuredServices;
