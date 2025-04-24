@@ -442,19 +442,21 @@ public class RoutineService
     public async Task<SkincareRoutineModel> GetInfoRoutineOfUserNew(int userId)
     {
         var routine = await _unitOfWorks.UserRoutineRepository
-                          .FindByCondition(x => x.UserId == userId && x.Status == ObjectStatus.Active.ToString())
-                          .Include(x => x.Routine)
-                          .ThenInclude(x => x.ServiceRoutines)
-                          .ThenInclude(x => x.Service)
-                          .ThenInclude(x => x.ServiceCategory)
-                          .Include(x => x.Routine)
-                          .ThenInclude(x => x.ProductRoutines)
-                          .ThenInclude(x => x.Products)
-                          .ThenInclude(x => x.Category)
-                          .Select(x => x.Routine)
-                          .OrderByDescending(x => x.CreatedDate)
-                          .FirstOrDefaultAsync()
-                      ?? throw new BadRequestException("Không tìm thấy gói liệu trình!");
+            .FindByCondition(x => x.UserId == userId && x.Status == ObjectStatus.Active.ToString())
+            .Include(x => x.Routine)
+            .ThenInclude(x => x.ServiceRoutines)
+            .ThenInclude(x => x.Service)
+            .ThenInclude(x => x.ServiceCategory)
+            .Include(x => x.Routine)
+            .ThenInclude(x => x.ProductRoutines)
+            .ThenInclude(x => x.Products)
+            .ThenInclude(x => x.Category)
+            .Select(x => x.Routine)
+            .OrderByDescending(x => x.CreatedDate)
+            .FirstOrDefaultAsync();
+        
+        if (routine == null) return null;
+        
         var routineModel = _mapper.Map<SkincareRoutineModel>(routine);
 
         // Lấy danh sách sản phẩm từ stepModels
