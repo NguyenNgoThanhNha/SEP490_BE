@@ -100,9 +100,10 @@ namespace Server.API.Controllers
         public async Task<IActionResult> GetRoutineOfUserNewest(int userId)
         {
             var routine = await _routineService.GetInfoRoutineOfUserNew(userId);
-            if (routine == null) return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+            if (routine == null) return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "Không tìm thấy liệu trình!"
+                message = "Không tìm thấy liệu trình!",
+                data = null
             }));
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {

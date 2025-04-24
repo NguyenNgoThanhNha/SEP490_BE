@@ -20,7 +20,8 @@ namespace Server.API.Controllers
         private readonly AuthService _authService;
         private readonly MailService _mailService;
 
-        public UserController(UserService userService, AppDbContext context, AuthService authService, MailService mailService)
+        public UserController(UserService userService, AppDbContext context, AuthService authService,
+            MailService mailService)
         {
             _userService = userService;
             _context = context;
@@ -106,8 +107,8 @@ namespace Server.API.Controllers
                 }));
             }
         }
-        
-        
+
+
         [HttpPost("delete-account")]
         public async Task<IActionResult> RequestDeleteAccount(DeleteAccountRequest req)
         {
@@ -120,7 +121,7 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
-            
+
             var user = await _authService.GetUserByEmail(req.Email);
             if (user == null)
             {
@@ -129,7 +130,7 @@ namespace Server.API.Controllers
                     message = "Tài khoản không tồn tại"
                 }));
             }
-            
+
             if (user != null && user.UpdatedDate > DateTime.Now && user.OTPCode != "0")
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
@@ -142,7 +143,7 @@ namespace Server.API.Controllers
             user.OTPCode = otp.ToString();
             user.UpdatedDate = DateTime.Now.AddMinutes(2);
             await _userService.UpdateUserInfo(user);
-            
+
             var mailData = new MailData()
             {
                 EmailToId = req.Email,
@@ -159,7 +160,7 @@ namespace Server.API.Controllers
                 EmailSubject = "Confirm Account Deletion"
             };
 
-            
+
             var result = await _mailService.SendEmailAsync(mailData, false);
             if (!result)
             {
@@ -168,7 +169,7 @@ namespace Server.API.Controllers
                     message = "Không gửi được email"
                 }));
             }
-            
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Kiểm tra email để xác nhận OTP để xóa tài khoản của bạn."
@@ -188,7 +189,7 @@ namespace Server.API.Controllers
 
                 return BadRequest(ApiResult<List<string>>.Error(errors));
             }
-            
+
             var user = await _authService.GetUserByEmail(req.Email);
             if (user == null || user.OTPCode != req.OTP)
             {
@@ -197,15 +198,45 @@ namespace Server.API.Controllers
                     message = "OTP không hợp lệ hoặc Tài khoản không tồn tại"
                 }));
             }
-            
-            user.Status = ObjectStatus.InActive.ToString(); 
-            user.OTPCode = "0"; 
+
+            user.Status = ObjectStatus.InActive.ToString();
+            user.OTPCode = "0";
             await _userService.UpdateUserInfo(user);
-            
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Tài khoản đã bị vô hiệu hóa thành công."
             }));
+        }
+
+        [HttpGet("get-manager-not-in-branch")]
+        public async Task<IActionResult> GetManagerNotInBranch()
+        {
+            try
+            {
+                var managers = await _userService.GetAllManagerNotInBranch();
+                if (managers == null || managers.Count == 0)
+                {
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                    {
+                        message = "Không tìm thấy người quản lý nào không thuộc chi nhánh.",
+                        data = managers
+                    }));
+                }
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Danh sách người quản lý không thuộc chi nhánh đã được lấy thành công.",
+                    data = managers
+                }));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi khi truy xuất danh sách người quản lý: {ex.Message}"
+                }));
+            }
         }
     }
 }

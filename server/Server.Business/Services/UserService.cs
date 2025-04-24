@@ -133,5 +133,28 @@ namespace Server.Business.Services
             var result = await _unitOfWorks.UserRepository.Commit();
             return result > 0;
         }
+        
+        public async Task<List<UserInfoModel>> GetAllManagerNotInBranch()
+        {
+            var allManagers = await _unitOfWorks.UserRepository
+                .FindByCondition(x => x.RoleID == 2 && x.Status == ObjectStatus.Active.ToString())
+                .ToListAsync();
+
+            if (allManagers == null || allManagers.Count == 0)
+            {
+                return new List<UserInfoModel>();
+            }
+        
+            var managerIdsInBranch = await _unitOfWorks.BranchRepository
+                .GetAll()
+                .Select(b => b.ManagerId)
+                .ToListAsync();
+        
+            var managersNotInBranch = allManagers
+                .Where(m => !managerIdsInBranch.Contains(m.UserId))
+                .ToList();
+
+            return _mapper.Map<List<UserInfoModel>>(managersNotInBranch);
+        }
     }
 }
