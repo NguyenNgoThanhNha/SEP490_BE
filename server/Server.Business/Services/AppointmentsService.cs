@@ -706,29 +706,40 @@ public class AppointmentsService
 
 
 
-    public async Task<BookingStatsDto> GetMonthlyBookingStatsAsync(int branchId, int month, int year)
+   
+
+    public async Task<YearlyBookingStatsDto> GetYearlyBookingStatsAsync(int branchId, int year)
     {
         var appointments = await _unitOfWorks.AppointmentsRepository
-            .FindByCondition(a =>
-                a.BranchId == branchId &&
-                a.AppointmentsTime.Month == month &&
-                a.AppointmentsTime.Year == year)
+            .FindByCondition(a => a.BranchId == branchId && a.AppointmentsTime.Year == year)
             .ToListAsync();
 
-        if (appointments == null || !appointments.Any())
-        {
-            throw new BadRequestException("Không có dữ liệu đặt lịch cho chi nhánh trong tháng này.");
-        }
+        var monthlyStats = Enumerable.Range(1, 12)
+            .Select(month =>
+            {
+                var monthlyAppointments = appointments
+                    .Where(a => a.AppointmentsTime.Month == month)
+                    .ToList();
 
-        return new BookingStatsDto
+                return new MonthlyStatDto
+                {
+                    Month = month,
+                    TotalBookings = monthlyAppointments.Count,
+                    TotalServicesBooked = monthlyAppointments.Sum(a => a.Quantity)
+                };
+            }).ToList();
+
+        return new YearlyBookingStatsDto
         {
             BranchId = branchId,
-            Month = month,
             Year = year,
-            TotalBookings = appointments.Count,
-            TotalServicesBooked = appointments.Sum(a => a.Quantity)
+            MonthlyStats = monthlyStats
         };
     }
+
+
+
+
 
     public async Task<List<CustomerAppointmentModel>> GetAppointmentsByRoutine(int customerId, int routineId)
     {

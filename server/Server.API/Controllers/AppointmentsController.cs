@@ -400,17 +400,18 @@ namespace Server.API.Controllers
         }
 
 
+       
+
         [HttpGet("booking-statistics")]
-      
-        public async Task<IActionResult> GetBookingStats([FromQuery] int branchId, [FromQuery] int month, [FromQuery] int year)
+        public async Task<IActionResult> GetBookingStats([FromQuery] int branchId, [FromQuery] int year)
         {
             try
             {
-                var result = await _appointmentsService.GetMonthlyBookingStatsAsync(branchId, month, year);
+                var result = await _appointmentsService.GetYearlyBookingStatsAsync(branchId, year);
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
-                    message = "Lấy thống kê đặt lịch thành công!",
+                    message = "Lấy thống kê đặt lịch theo năm thành công!",
                     data = result
                 }));
             }
@@ -422,6 +423,7 @@ namespace Server.API.Controllers
                 }));
             }
         }
+
 
         [HttpGet("get-appointments-by-routine")]
         public async Task<IActionResult> GetAppointmentsByRoutine([FromQuery] int routineId)
