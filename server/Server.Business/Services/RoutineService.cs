@@ -259,7 +259,7 @@ public class RoutineService
                         StaffId = staff.StaffId,
                         ServiceId = service.ServiceId,
                         Status = OrderStatusEnum.Pending.ToString(),
-                        BranchId = staff.BranchId,
+                        BranchId = request.BranchId,
                         AppointmentsTime = appointmentTime,
                         AppointmentEndTime = endTime,
                         Quantity = 1,

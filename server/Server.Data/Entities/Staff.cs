@@ -13,7 +13,7 @@ public class Staff
     public int UserId { get; set; }
 
     [ForeignKey("Branch")]
-    public int BranchId { get; set; }
+    public int? BranchId { get; set; }
     
     [ForeignKey("StaffRole")]
     public int RoleId { get; set; }

@@ -9,7 +9,7 @@
         //public int UserId { get; set; }
         
         public int RoleId { get; set; }
-        public int BranchId { get; set; }
+        public int? BranchId { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }

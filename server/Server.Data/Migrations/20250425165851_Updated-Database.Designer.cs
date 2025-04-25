@@ -11,8 +11,8 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250419065824_Updated-Databse")]
-    partial class UpdatedDatabse
+    [Migration("20250425165851_Updated-Database")]
+    partial class UpdatedDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1476,7 +1476,7 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
@@ -2488,9 +2488,7 @@ namespace Server.Data.Migrations
                 {
                     b.HasOne("Server.Data.Entities.Branch", "Branch")
                         .WithMany("Staffs")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BranchId");
 
                     b.HasOne("Server.Data.Entities.StaffRole", "Role")
                         .WithMany("Staffs")
