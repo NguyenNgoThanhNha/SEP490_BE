@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatedDatabse : Migration
+    public partial class UpdatedDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -1054,7 +1054,7 @@ namespace Server.Data.Migrations
                     StaffId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    BranchId = table.Column<int>(type: "int", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: true),
                     RoleId = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
@@ -1066,8 +1066,7 @@ namespace Server.Data.Migrations
                         name: "FK_Staff_Branch_BranchId",
                         column: x => x.BranchId,
                         principalTable: "Branch",
-                        principalColumn: "BranchId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "BranchId");
                     table.ForeignKey(
                         name: "FK_Staff_StaffRole_RoleId",
                         column: x => x.RoleId,

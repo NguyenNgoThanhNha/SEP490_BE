@@ -1473,7 +1473,7 @@ namespace Server.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("BranchId")
+                    b.Property<int?>("BranchId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
@@ -2485,9 +2485,7 @@ namespace Server.Data.Migrations
                 {
                     b.HasOne("Server.Data.Entities.Branch", "Branch")
                         .WithMany("Staffs")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BranchId");
 
                     b.HasOne("Server.Data.Entities.StaffRole", "Role")
                         .WithMany("Staffs")

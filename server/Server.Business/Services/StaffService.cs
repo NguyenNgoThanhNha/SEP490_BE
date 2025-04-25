@@ -92,13 +92,16 @@ namespace Server.Business.Services
                 if (staffDto == null)
                     return ApiResponse.Error("Staff data is required.");
 
-                // Kiểm tra Branch tồn tại
-                var branchExists = await _unitOfWorks.BranchRepository
-                    .FindByCondition(x => x.BranchId == staffDto.BranchId)
-                    .AnyAsync();
+                if (staffDto.BranchId != null)
+                {
+                    // Kiểm tra Branch tồn tại
+                    var branchExists = await _unitOfWorks.BranchRepository
+                        .FindByCondition(x => x.BranchId == staffDto.BranchId)
+                        .AnyAsync();
 
-                if (!branchExists)
-                    return ApiResponse.Error("Branch not found.");
+                    if (!branchExists)
+                        return ApiResponse.Error("Branch not found.");
+                }
 
                 var userExist = await _unitOfWorks.UserRepository
                     .FirstOrDefaultAsync(x => x.Email.ToLower() == staffDto.Email.ToLower());
