@@ -412,7 +412,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
 
 
 
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize]
         [HttpPost("create-full")]
         public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
         {
