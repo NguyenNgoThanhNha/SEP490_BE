@@ -483,14 +483,14 @@ namespace Server.Business.Services
             }
         }
 
-        public async Task<List<StaffDTO>> GetStaffByBranchAsync(int branchId)
+        public async Task<List<StaffDto>> GetStaffByBranchAsync(int branchId)
         {
             var staffList = await _unitOfWorks.StaffRepository
                 .FindByCondition(s => s.BranchId == branchId)
                 .Include(s => s.StaffInfo) // Bao gồm thông tin người dùng
                 .ToListAsync();
 
-            var staffDtoList = staffList.Select(s => new StaffDTO
+            var staffDtoList = staffList.Select(s => new StaffDto
             {
                 StaffId = s.StaffId,
                 //UserId = s.UserId,
