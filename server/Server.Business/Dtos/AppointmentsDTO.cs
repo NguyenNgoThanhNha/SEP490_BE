@@ -11,7 +11,7 @@ public class AppointmentsDTO
     public virtual UserDTO Customer { get; set; }
 
     public int StaffId { get; set; }
-    public virtual StaffDTO Staff { get; set; }
+    public virtual StaffDto Staff { get; set; }
 
     public int ServiceId { get; set; }
     public virtual ServiceDto Service { get; set; }

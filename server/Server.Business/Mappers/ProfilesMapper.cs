@@ -41,8 +41,8 @@ namespace Server.Business.Mappers
             CreateMap<UpdateBranchProductDto, Branch_Product>();
 
             CreateMap<Staff, StaffModel>().ReverseMap();
-            CreateMap<Staff, StaffDTO>().ReverseMap();
-            CreateMap<StaffModel, StaffDTO>().ReverseMap();
+            CreateMap<Staff, StaffDto>().ReverseMap();
+            CreateMap<StaffModel, StaffDto>().ReverseMap();
 
             CreateMap<Product, ProductModel>().ReverseMap();
             CreateMap<ProductModel, ProductDto>().ReverseMap();
