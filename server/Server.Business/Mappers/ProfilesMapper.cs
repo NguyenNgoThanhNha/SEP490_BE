@@ -192,7 +192,11 @@ namespace Server.Business.Mappers
 
             CreateMap<ProductRoutineStep, ProductRoutineStepDto>().ReverseMap();
 
-            CreateMap<OrderDetail, OrderDetailModels>().ReverseMap();
+            CreateMap<OrderDetail, OrderDetailModels>()
+     .ForMember(dest => dest.Promotion, opt => opt.MapFrom(src => src.Promotion))
+     .ForMember(dest => dest.Product, opt => opt.MapFrom(src => src.Product))
+     .ForMember(dest => dest.Branch, opt => opt.MapFrom(src => src.Branch));
+
 
 
 

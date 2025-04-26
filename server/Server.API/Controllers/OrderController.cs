@@ -87,7 +87,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
 }*/
 
         #endregion
-        
+
         [HttpPost("confirm-order")]
         public async Task<IActionResult> ConfirmOrder([FromBody] ConfirmOrderRequest req)
         {
@@ -105,7 +105,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
                 data = checkoutUrl
             }));
         }
-        
+
 
         [HttpPost("confirm-order-deposit")]
         public async Task<IActionResult> ConfirmOrderDeposit([FromBody] DepositRequest req)
@@ -361,7 +361,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
             if (!result)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
-                {           
+                {
                     message = "Hủy đơn hàng không thành công!"
                 }));
             }
@@ -410,9 +410,9 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
         }
 
 
-       
-      
-      
+
+
+        [Authorize]
         [HttpPost("create-full")]
         public async Task<IActionResult> CreateOrderWithDetails([FromBody] CreateOrderWithDetailsRequest request)
         {
@@ -511,7 +511,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
             return Ok(ApiResult<object>.Succeed(result.Result));
         }
 
-      
+
         [HttpGet("routine-history")]
         public async Task<IActionResult> GetRoutineHistory(int userId)
         {
@@ -572,7 +572,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
             }
 
             var result = await _orderService.CreateOrderBothProductAndService(request);
-            
+
             if (result == null)
             {
                 return BadRequest(ApiResult<object>.Error(new ApiResponse
@@ -580,12 +580,19 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
                     message = "Tạo đơn hàng thất bại."
                 }));
             }
-            
+
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Tạo đơn hàng thành công",
                 data = result
             }));
+        }
+
+        [HttpGet("count-by-order-type")]
+        public async Task<IActionResult> CountOrdersByOrderType()
+        {
+            var result = await _orderService.CountOrdersByOrderTypeAsync();
+            return Ok(result);
         }
     }
 }

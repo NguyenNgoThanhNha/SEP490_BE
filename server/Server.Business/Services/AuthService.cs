@@ -4,6 +4,7 @@ using System.Text;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
@@ -553,7 +554,7 @@ public class AuthService
     {
         var existedUser = await _unitOfWorks.UserRepository
             .FindByCondition(x => x.PhoneNumber == phoneNumber || x.UserName == userName).FirstOrDefaultAsync();
-        if(existedUser != null)
+        if (existedUser != null)
         {
             throw new BadRequestException("Phone number or username already exist");
         }
@@ -576,7 +577,7 @@ public class AuthService
         await _mongoDbService.CreateCustomerAsync(userEntity.UserId);
         return result > 0 ? _mapper.Map<UserInfoModel>(userEntity) : null;
     }
-    
+
     public async Task<UserInfoModel> CheckExistAccount(string? phoneNumber, string? email)
     {
         var existedUser = await _unitOfWorks.UserRepository
@@ -596,7 +597,7 @@ public class AuthService
         user.UserName = userInfoModel.UserName ?? user.UserName;
         user.FullName = userInfoModel.FullName ?? user.FullName;
         user.Email = userInfoModel.Email ?? user.Email;
-        if(userInfoModel.Avatar != null)
+        if (userInfoModel.Avatar != null)
         {
             var avatar = await _cloudianryService.UploadImageAsync(userInfoModel.Avatar);
             user.Avatar = avatar.SecureUrl.ToString();
@@ -714,5 +715,41 @@ public class AuthService
         return branchRevenue;
     }
 
+    public async Task<UserModel> CreateUserAsync(UserModel req)
+    {
+       
+        if (req.RoleID != 1 && req.RoleID != 2)
+        {
+            throw new BadRequestException("Chỉ tạo mới cho Admin và Manager");
+        }
 
+        var existingUser = _unitOfWorks.UserRepository.FindByCondition(x => x.Email == req.Email).FirstOrDefault();
+
+        if (existingUser != null)
+        {
+            throw new BadRequestException("Email đã tồn tại");
+        }
+
+        var userEntity = _mapper.Map<User>(req);
+
+        
+        userEntity.Password = SecurityUtil.Hash(req.Password);
+        userEntity.Status = "Active"; 
+        userEntity.CreateDate = DateTimeOffset.Now;
+        userEntity.OTPCode = "0";
+        userEntity.TypeLogin = "Normal"; 
+
+        
+        userEntity = await _unitOfWorks.UserRepository.AddAsync(userEntity);
+        int result = await _unitOfWorks.UserRepository.Commit();
+
+        if (result > 0)
+        {
+            return _mapper.Map<UserModel>(userEntity);
+        }
+        else
+        {
+            throw new BadRequestException("Failed to create user.");
+        }
+    }
 }

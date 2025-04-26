@@ -21,7 +21,7 @@ public class OrderDetail
     
     public virtual Branch Branch { get; set; }
     
-    [ForeignKey("Product_OrderDetail_Promotion")]
+    [ForeignKey("PromotionId")]
     public int? PromotionId { get; set; }
     public virtual Promotion? Promotion { get; set; }
     
