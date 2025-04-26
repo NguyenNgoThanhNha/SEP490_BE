@@ -715,7 +715,41 @@ public class AuthService
         return branchRevenue;
     }
 
+    public async Task<UserModel> CreateUserAsync(UserModel req)
+    {
+       
+        if (req.RoleID != 1 && req.RoleID != 2)
+        {
+            throw new BadRequestException("Chỉ tạo mới cho Admin và Manager");
+        }
 
-   
+        var existingUser = _unitOfWorks.UserRepository.FindByCondition(x => x.Email == req.Email).FirstOrDefault();
 
+        if (existingUser != null)
+        {
+            throw new BadRequestException("Email đã tồn tại");
+        }
+
+        var userEntity = _mapper.Map<User>(req);
+
+        
+        userEntity.Password = SecurityUtil.Hash(req.Password);
+        userEntity.Status = "Active"; 
+        userEntity.CreateDate = DateTimeOffset.Now;
+        userEntity.OTPCode = "0";
+        userEntity.TypeLogin = "Normal"; 
+
+        
+        userEntity = await _unitOfWorks.UserRepository.AddAsync(userEntity);
+        int result = await _unitOfWorks.UserRepository.Commit();
+
+        if (result > 0)
+        {
+            return _mapper.Map<UserModel>(userEntity);
+        }
+        else
+        {
+            throw new BadRequestException("Failed to create user.");
+        }
+    }
 }

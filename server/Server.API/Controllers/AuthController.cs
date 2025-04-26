@@ -699,6 +699,24 @@ namespace Server.API.Controllers
                 message = "Top 3 chi nhánh có doanh thu cao nhất!",
                 data = result
             }));
-        }    
+        }
+        [HttpPost("create-admin-manager")]
+        public async Task<IActionResult> CreateUser([FromBody] UserModel request)
+        {
+           
+            var createdUser = await authService.CreateUserAsync(request);            
+            return Ok(new
+            {
+                Message = "User created successfully",
+                User = new
+                {
+                    createdUser.UserId,
+                    createdUser.UserName,
+                    createdUser.Email,
+                    createdUser.RoleID,
+                    createdUser.FullName
+                }
+            });
+        }
     }
 }
