@@ -8,6 +8,7 @@ using Server.Data.SeedData;
 using Service.Business.Services;
 using StackExchange.Redis;
 
+
 namespace Server.API
 {
     public class Program
@@ -65,8 +66,9 @@ namespace Server.API
                 {
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
+            builder.Services.AddElasticSearchT(builder.Configuration);
 
-            builder.Services.AddElasticSearch(builder.Configuration);
+
             builder.Services.AddHttpClient("AIML", client =>
             {
                 client.BaseAddress = new Uri("https://api.aimlapi.com/");

@@ -8,12 +8,13 @@ namespace Server.API.Extensions
 {
     public static class ElasticSearchExtension
     {
-        public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
+        public static void AddElasticSearchT(this IServiceCollection services, IConfiguration configuration)
         {
             // Bind ElasticSettings from configuration
             var elasticSettings = new ElasticSettings();
             configuration.GetSection("ElasticSettings").Bind(elasticSettings);
 
+            // Validate ElasticSettings
             if (string.IsNullOrWhiteSpace(elasticSettings.baseUrl))
                 throw new ArgumentException("ElasticSearch BaseUrl cannot be null or empty");
 
@@ -23,30 +24,52 @@ namespace Server.API.Extensions
             if (string.IsNullOrWhiteSpace(elasticSettings.password))
                 throw new ArgumentException("ElasticSearch Password cannot be null or empty");
 
-            Console.WriteLine(elasticSettings.baseUrl);
+            Console.WriteLine($"ElasticSearch Base URL: {elasticSettings.baseUrl}");
+
             // Set up connection settings
             var settings = new ConnectionSettings(new Uri(elasticSettings.baseUrl))
                 .PrettyJson()
                 .CertificateFingerprint(elasticSettings.finger)
                 .BasicAuthentication("elastic", elasticSettings.password)
-                .EnableApiVersioningHeader();
+                .EnableApiVersioningHeader()
+                .DisableDirectStreaming(); // Enable direct streaming to get detailed response
 
-            // Add default mappings (if needed)
-            AddDefaultMappings(settings);
+            // Ensure AddDefaultMappings is defined
+            try
+            {
+                AddDefaultMappings(settings);  // Make sure this method is properly defined
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while adding default mappings: {ex.Message}");
+            }
 
             // Create ElasticClient and register as a singleton
             var client = new ElasticClient(settings);
+
+            // Ping to ensure connection is valid
             var pingResponse = client.Ping();
             if (!pingResponse.IsValid)
             {
-                Console.WriteLine("Error connect ElasticSearch: ", pingResponse.DebugInformation);
-                return;
+                Console.WriteLine($"Error connecting to ElasticSearch: {pingResponse.DebugInformation}");
+                throw new InvalidOperationException($"ElasticSearch connection failed: {pingResponse.DebugInformation}");
             }
+
+            // Add ElasticClient to services container
             services.AddSingleton<IElasticClient>(client);
 
-            // Create index if needed
-            CreateIndex(client);
+            // Ensure CreateIndex is defined
+            try
+            {
+                CreateIndex(client);  // Ensure this method is properly defined
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while creating index: {ex.Message}");
+            }
         }
+
+
 
         private static void AddDefaultMappings(ConnectionSettings settings)
         {
