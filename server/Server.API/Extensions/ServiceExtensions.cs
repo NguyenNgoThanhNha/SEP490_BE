@@ -144,20 +144,7 @@ namespace Server.API.Extensions
             services.AddHttpContextAccessor();
 
             return services;
-        }
+        }           
 
-        public static IServiceCollection AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
-        {
-            var elasticSettings = configuration.GetSection(nameof(ElasticSettings)).Get<ElasticSettings>();
-
-            var settings = new ConnectionSettings(new Uri(elasticSettings.baseUrl))
-                .DefaultIndex(elasticSettings.defaultIndex);
-
-            var client = new ElasticClient(settings);
-
-            services.AddSingleton<IElasticClient>(client);
-
-            return services;
-        }
     }
 }

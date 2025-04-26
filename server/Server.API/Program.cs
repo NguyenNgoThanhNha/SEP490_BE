@@ -66,7 +66,7 @@ namespace Server.API
                 {
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
-            builder.Services.AddElasticSearch(builder.Configuration);
+            builder.Services.AddElasticSearchT(builder.Configuration);
 
 
             builder.Services.AddHttpClient("AIML", client =>
