@@ -701,22 +701,20 @@ namespace Server.API.Controllers
             }));
         }
         [HttpPost("create-admin-manager")]
-        public async Task<IActionResult> CreateUser([FromBody] UserModel request)
+        public async Task<IActionResult> CreateUser([FromBody] CreateAdminManagerRequestDto request)
         {
-           
-            var createdUser = await authService.CreateUserAsync(request);            
+            // Gọi hàm CreateUserAsync từ AuthService để tạo user
+            var createdUser = await authService.CreateUserAsync(request);
+
             return Ok(new
             {
                 Message = "User created successfully",
-                User = new
+                Data = new
                 {
-                    createdUser.UserId,
-                    createdUser.UserName,
-                    createdUser.Email,
-                    createdUser.RoleID,
-                    createdUser.FullName
+                    createdUser.UserId                    
                 }
             });
         }
+
     }
 }
