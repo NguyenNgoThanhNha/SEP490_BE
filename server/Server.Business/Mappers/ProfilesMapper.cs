@@ -19,6 +19,7 @@ namespace Server.Business.Mappers
             CreateMap<UserModel, UserDTO>().ReverseMap();
             CreateMap<UserInfoModel, UserDTO>().ReverseMap();
             CreateMap<User, CustomerDTO>();
+            CreateMap<CreateAdminManagerRequestDto, User>();
 
             CreateMap<Server.Data.Entities.Service, ServiceModel>().ReverseMap();
             CreateMap<Server.Data.Entities.Service, ServiceDto>().ReverseMap();
