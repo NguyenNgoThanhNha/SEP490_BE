@@ -11,16 +11,14 @@ using Server.Data.Base;
 using Server.Data.Entities;
 using Server.Data.SeedData;
 using Server.Data.UnitOfWorks;
-using System.Text;
-using Microsoft.AspNetCore.Http.Features;
 using Server.Data.MongoDb.Repository;
 using Server.Data.Repositories;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Server.Business.Worker;
+using Nest;
+using System.Text;
 
 namespace Server.API.Extensions
 {
-
     public static class ServiceExtensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
@@ -30,82 +28,52 @@ namespace Server.API.Extensions
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
-            //Add Mapper
-            var mapperConfig = new MapperConfiguration(mc =>
-            {
-                mc.AddProfile(new ProfilesMapper());
-            });
+            // Add AutoMapper
+            var mapperConfig = new MapperConfiguration(mc => mc.AddProfile(new ProfilesMapper()));
+            services.AddSingleton(mapperConfig.CreateMapper());
 
-            IMapper mapper = mapperConfig.CreateMapper();
-            services.AddSingleton(mapper);
-
-            // jwt
+            // JWT Settings
             var jwtSettings = configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>();
             services.Configure<JwtSettings>(configuration.GetSection(nameof(JwtSettings)));
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<JwtSettings>>().Value);
 
-            // zalo pay
-            /*var zaloPaySetting = configuration.GetSection(nameof(ZaloPaySetting)).Get<ZaloPaySetting>();
-            services.Configure<ZaloPaySetting>(configuration.GetSection(nameof(ZaloPaySetting)));
-            services.AddSingleton(sp => sp.GetRequiredService<IOptions<ZaloPaySetting>>().Value);*/
-
-            // payOs
-            var payOsSetting = configuration.GetSection(nameof(PayOSSetting)).Get<PayOSSetting>();
+            // PayOS Settings
             services.Configure<PayOSSetting>(configuration.GetSection(nameof(PayOSSetting)));
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<PayOSSetting>>().Value);
 
-            // mail
+            // Other settings
             services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
-
-            // cloud
             services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));
-
-            // botchat
             services.Configure<BotChatSetting>(configuration.GetSection(nameof(BotChatSetting)));
-
-            // skin analysis AI
             services.Configure<AISkinSetting>(configuration.GetSection(nameof(AISkinSetting)));
-
-            // ElasticSettings
             services.Configure<ElasticSettings>(configuration.GetSection(nameof(ElasticSettings)));
-            
-            // MongoDbSetting
             services.Configure<MongoDbSetting>(configuration.GetSection(nameof(MongoDbSetting)));
-            
-            // RedisSetting
             services.Configure<RedisSetting>(configuration.GetSection(nameof(RedisSetting)));
-            
-            /*services.Configure<FormOptions>(options =>
-            {
-                options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10 MB
-            });*/
-            services.AddAuthorization();
-            
 
+            services.AddAuthorization();
+
+            // JWT Authentication
             services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-                .AddJwtBearer(options =>
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true
-                    };
-                    {
-                        options.Authority = "https://dev-urvottxjuerzz313.us.auth0.com/";
-                        options.Audience = "L&L";
-                    }
-                });
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true
+                };
+                options.Authority = "https://dev-urvottxjuerzz313.us.auth0.com/";
+                options.Audience = "L&L";
+            });
 
-            services.Configure<CloundSettings>(configuration.GetSection(nameof(CloundSettings)));
-
+            // Database MySQL
             services.AddDbContext<AppDbContext>(opt =>
             {
                 var connectionString = configuration.GetConnectionString("MySqlConnection");
@@ -113,23 +81,23 @@ namespace Server.API.Extensions
                 opt.UseMySQL(connectionString);
             });
 
-            /*Config repository*/
+            // Config Repositories
             services.AddScoped(typeof(IRepository<,>), typeof(GenericRepository<,>));
             services.AddScoped(typeof(IRepositoryMongoDB<>), typeof(RepositoryMongoDb<>));
             services.AddScoped<CustomerRepository>();
             services.AddScoped<MessageRepository>();
             services.AddScoped<ChannelsRepository>();
 
-            /*Config SignalR*/
+            // Config SignalR
             services.AddSignalR();
-            
-            /* Register UnitOfWorks*/
+
+            // Unit of Work
             services.AddScoped<UnitOfWorks>();
 
-            /* Init Data*/
+            // Database Initializer
             services.AddScoped<DatabaseInitializer>();
 
-            /*Config Service*/
+            // Register Services
             services.AddScoped<AuthService>();
             services.AddScoped<UserService>();
             services.AddScoped<MailService>();
@@ -161,9 +129,7 @@ namespace Server.API.Extensions
             services.AddScoped<MongoDbService>();
             services.AddScoped<FeedbackService>();
             services.AddScoped<VoucherService>();
-            services.AddHttpContextAccessor();
             services.AddScoped<CartService>();
-            services.AddScoped<OrderStatusUpdateService>();
             services.AddScoped<AppointmentFeedbackService>();
             services.AddScoped<ProductFeedbackService>();
             services.AddScoped<ServiceFeedbackService>();
@@ -173,10 +139,25 @@ namespace Server.API.Extensions
             services.AddScoped<ServiceRoutineStepService>();
             services.AddScoped<ProductRoutineService>();
             services.AddScoped<ProductRoutineStepService>();
-            services.AddScoped<OrderDetailService>();
             services.AddScoped<UserRoutineStepStatusUpdateService>();
+
+            services.AddHttpContextAccessor();
 
             return services;
         }
-    };
+
+        public static IServiceCollection AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
+        {
+            var elasticSettings = configuration.GetSection(nameof(ElasticSettings)).Get<ElasticSettings>();
+
+            var settings = new ConnectionSettings(new Uri(elasticSettings.baseUrl))
+                .DefaultIndex(elasticSettings.defaultIndex);
+
+            var client = new ElasticClient(settings);
+
+            services.AddSingleton<IElasticClient>(client);
+
+            return services;
+        }
+    }
 }

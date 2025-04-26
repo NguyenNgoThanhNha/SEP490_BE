@@ -1,18 +1,17 @@
-﻿using Microsoft.CodeAnalysis.Options;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Nest;
 using Server.Business.Dtos;
 using Server.Business.Ultils;
+using System;
 
 namespace Server.API.Extensions
 {
-    public static class ElasticSearchExtension
+    public static class ServiceExtensionst
     {
-        public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddElasticSearchT(this IServiceCollection services, IConfiguration configuration)
         {
-            // Bind ElasticSettings from configuration
-            var elasticSettings = new ElasticSettings();
-            configuration.GetSection("ElasticSettings").Bind(elasticSettings);
+            var elasticSettings = configuration.GetSection(nameof(ElasticSettings)).Get<ElasticSettings>();
 
             if (string.IsNullOrWhiteSpace(elasticSettings.baseUrl))
                 throw new ArgumentException("ElasticSearch BaseUrl cannot be null or empty");
@@ -23,29 +22,30 @@ namespace Server.API.Extensions
             if (string.IsNullOrWhiteSpace(elasticSettings.password))
                 throw new ArgumentException("ElasticSearch Password cannot be null or empty");
 
-            Console.WriteLine(elasticSettings.baseUrl);
-            // Set up connection settings
             var settings = new ConnectionSettings(new Uri(elasticSettings.baseUrl))
+                .DefaultIndex(elasticSettings.defaultIndex ?? "default-index")
                 .PrettyJson()
                 .CertificateFingerprint(elasticSettings.finger)
                 .BasicAuthentication("elastic", elasticSettings.password)
                 .EnableApiVersioningHeader();
 
-            // Add default mappings (if needed)
             AddDefaultMappings(settings);
 
-            // Create ElasticClient and register as a singleton
             var client = new ElasticClient(settings);
+
             var pingResponse = client.Ping();
             if (!pingResponse.IsValid)
             {
-                Console.WriteLine("Error connect ElasticSearch: ", pingResponse.DebugInformation);
-                return;
+                Console.WriteLine("❌ ElasticSearch Ping failed:");
+                Console.WriteLine(pingResponse.DebugInformation);
+                throw new Exception("ElasticSearch ping failed. See logs for details.");
             }
+
             services.AddSingleton<IElasticClient>(client);
 
-            // Create index if needed
-            CreateIndex(client);
+            CreateIndices(client);
+
+            return services;
         }
 
         private static void AddDefaultMappings(ConnectionSettings settings)
@@ -63,30 +63,27 @@ namespace Server.API.Extensions
                 .Ignore(p => p.UpdatedDate));
         }
 
-
-        private static void CreateIndex(IElasticClient client)
+        private static void CreateIndices(IElasticClient client)
         {
-            CreateIndexForType<ProductDto>(client, $"products");
-            CreateIndexForType<BlogDTO>(client, $"blogs");
-            CreateIndexForType<ServiceDto>(client, $"services");
+            CreateIndexIfNotExists<ProductDto>(client, "products");
+            CreateIndexIfNotExists<BlogDTO>(client, "blogs");
+            CreateIndexIfNotExists<ServiceDto>(client, "services");
         }
 
-        private static void CreateIndexForType<T>(IElasticClient client, string indexName) where T : class
+        private static void CreateIndexIfNotExists<T>(IElasticClient client, string indexName) where T : class
         {
-            var existsResponse = client.Indices.Exists(indexName);
-
-            if (!existsResponse.Exists)
+            var exists = client.Indices.Exists(indexName);
+            if (!exists.Exists)
             {
-                var createIndexResponse = client.Indices.Create(indexName, index => index
-                    .Map<T>(x => x.AutoMap()) // AutoMap tự động ánh xạ các thuộc tính
+                var response = client.Indices.Create(indexName, c => c
+                    .Map<T>(m => m.AutoMap())
                     .Settings(s => s
-                        .NumberOfReplicas(1) // Số lượng bản sao
-                        .NumberOfShards(1))  // Số lượng shards
-                );
+                        .NumberOfShards(1)
+                        .NumberOfReplicas(1)));
 
-                if (!createIndexResponse.IsValid)
+                if (!response.IsValid)
                 {
-                    throw new Exception($"Failed to create index {indexName}: {createIndexResponse.ServerError?.Error.Reason}");
+                    throw new Exception($"❌ Failed to create index '{indexName}': {response.ServerError?.Error.Reason}");
                 }
             }
         }
