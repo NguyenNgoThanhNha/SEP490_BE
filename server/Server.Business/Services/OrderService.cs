@@ -1641,7 +1641,6 @@ namespace Server.Business.Services
 
         public async Task UpdateOrderStatusBasedOnPayment()
         {
-            // Lấy các đơn hàng có trạng thái "Pending" và chưa thanh toán
             var ordersToUpdate = await _unitOfWorks.OrderRepository
                 .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
                                       o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
@@ -1654,12 +1653,14 @@ namespace Server.Business.Services
                 // Check thời gian
                 if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
                 {
-                    // ======= Cập nhật Order =======
+                    // ======= Chỉ khi ĐỦ 1 NGÀY mới update =======
+
+                    // Update Order
                     order.Status = OrderStatusEnum.Cancelled.ToString();
                     order.UpdatedDate = DateTime.UtcNow;
                     _unitOfWorks.OrderRepository.Update(order);
 
-                    // ======= Cập nhật OrderDetails =======
+                    // Update OrderDetails
                     if (order.OrderDetails != null && order.OrderDetails.Any())
                     {
                         foreach (var detail in order.OrderDetails)
@@ -1670,7 +1671,7 @@ namespace Server.Business.Services
                         }
                     }
 
-                    // ======= Cập nhật Shipment =======
+                    // Update Shipment
                     if (order.Shipment != null)
                     {
                         order.Shipment.ShippingStatus = ShippingStatusEnum.Cancelled.ToString();
@@ -1680,30 +1681,40 @@ namespace Server.Business.Services
                 }
             }
 
-            // ======= Commit =======
+            // Commit sau cùng
             await _unitOfWorks.OrderDetailRepository.Commit();
             await _unitOfWorks.ShipmentRepository.Commit();
             await _unitOfWorks.OrderRepository.Commit();
         }
 
 
+
         public async Task AutoCompleteOrderAfterDelivery()
         {
-            // Lấy các đơn hàng đủ điều kiện auto-complete
             var orders = await _unitOfWorks.OrderRepository
-                .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString()
-                                      && o.StatusPayment == OrderStatusPaymentEnum.Paid.ToString()
-                                      && o.Shipment != null
-                                      && o.Shipment.EstimatedDeliveryDate != null)
+                .FindByCondition(o =>
+                    o.Status == OrderStatusEnum.Pending.ToString() &&
+                    o.StatusPayment != OrderStatusPaymentEnum.Pending.ToString() && // ✅ Chỉ cần khác Pending
+                    o.Shipment != null) // Shipment phải tồn tại
                 .Include(o => o.OrderDetails)
                 .Include(o => o.Shipment)
                 .ToListAsync();
 
             foreach (var order in orders)
             {
-                // Kiểm tra nếu đã quá 3 ngày sau ngày dự kiến giao hàng
-                if (order.Shipment.EstimatedDeliveryDate.HasValue &&
-                    DateTime.UtcNow.Date >= order.Shipment.EstimatedDeliveryDate.Value.Date.AddDays(3))
+                DateTime deliveryDate;
+
+                if (order.Shipment.EstimatedDeliveryDate.HasValue)
+                {
+                    deliveryDate = order.Shipment.EstimatedDeliveryDate.Value;
+                }
+                else
+                {
+                    deliveryDate = order.Shipment.CreatedDate;
+                }
+
+                // Kiểm tra nếu đã quá 3 ngày sau ngày giao hàng/created
+                if (DateTime.UtcNow.Date >= deliveryDate.Date.AddDays(3))
                 {
                     // ======= Cập nhật Order =======
                     order.Status = OrderStatusEnum.Completed.ToString();
@@ -1736,6 +1747,7 @@ namespace Server.Business.Services
             await _unitOfWorks.ShipmentRepository.Commit();
             await _unitOfWorks.OrderRepository.Commit();
         }
+
 
         public async Task<List<RoutineAppointmentModel>> GetRoutineHistoryByCustomerIdAsync(int customerId)
         {
@@ -2150,6 +2162,43 @@ namespace Server.Business.Services
             {
                 OrderTypeCounts = result
             });
+        }
+
+        public async Task AutoCancelPendingAppointmentOrdersAsync()
+        {
+            var vnNow = DateTime.UtcNow.AddHours(7); // ✅ lấy giờ Việt Nam chuẩn
+
+            var orders = await _unitOfWorks.OrderRepository
+                .FindByCondition(o =>
+                    o.OrderType == OrderType.Appointment.ToString() &&
+                    o.Status == OrderStatusEnum.Pending.ToString() &&
+                    o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString() &&
+                    o.CreatedDate <= vnNow.AddMinutes(-15)) // ✅ kiểm CreatedDate đúng theo giờ VN
+                .Include(o => o.Appointments)
+                .ToListAsync();
+
+            foreach (var order in orders)
+            {
+                // ======= Cập nhật Order =======
+                order.Status = OrderStatusEnum.Cancelled.ToString();
+                order.UpdatedDate = DateTime.UtcNow;
+                _unitOfWorks.OrderRepository.Update(order);
+
+                // ======= Cập nhật Appointments =======
+                if (order.Appointments != null && order.Appointments.Any())
+                {
+                    foreach (var appointment in order.Appointments)
+                    {
+                        appointment.Status = OrderStatusEnum.Cancelled.ToString();
+                        appointment.UpdatedDate = DateTime.UtcNow;
+                        _unitOfWorks.AppointmentsRepository.Update(appointment);
+                    }
+                }
+            }
+
+            // ======= Commit tất cả =======
+            await _unitOfWorks.OrderRepository.Commit();
+            await _unitOfWorks.AppointmentsRepository.Commit();
         }
     }
 }

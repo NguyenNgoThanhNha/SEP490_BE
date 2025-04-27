@@ -36,6 +36,9 @@ namespace Server.Business.Worker
                     // Task 2: Auto Complete đơn hàng giao xong 3 ngày
                     await orderService.AutoCompleteOrderAfterDelivery();
 
+                    // ✅ Task 3: Auto Cancel Appointment chưa cọc sau 15 phút
+                    await orderService.AutoCancelPendingAppointmentOrdersAsync();
+
                     _logger.LogInformation("OrderStatusUpdateService ran successfully at: {time}", DateTimeOffset.Now);
                 }
                 catch (Exception ex)
@@ -43,11 +46,11 @@ namespace Server.Business.Worker
                     _logger.LogError(ex, "An error occurred while processing order status updates.");
                 }
 
-                // Chờ 10 phút rồi lặp lại
-                await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
 
             _logger.LogInformation("OrderStatusUpdateService is stopping.");
         }
+
     }
 }
