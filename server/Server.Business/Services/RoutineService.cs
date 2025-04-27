@@ -91,7 +91,10 @@ public class RoutineService
 
     public async Task<List<SkincareRoutineModel>> GetListSkincareRoutine()
     {
-        var routines = _unitOfWorks.SkincareRoutineRepository.GetAll();
+        var routines = await _unitOfWorks.SkincareRoutineRepository
+            .GetAll()
+            .OrderByDescending(x => x.SkincareRoutineId)
+            .ToListAsync();
         var routineModels = _mapper.Map<List<SkincareRoutineModel>>(routines);
         return routineModels;
     }
