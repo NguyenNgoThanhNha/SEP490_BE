@@ -8,14 +8,15 @@ using Server.Business.Models;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
 using System.Linq.Expressions;
+using Server.Data;
 
 namespace Server.Business.Services
 {
     public class CategoryService
     {
-
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IMapper _mapper;
+
         public CategoryService(UnitOfWorks unitOfWorks, IMapper mapper)
         {
             _unitOfWorks = unitOfWorks;
@@ -23,14 +24,14 @@ namespace Server.Business.Services
         }
 
         public async Task<Pagination<CategoryDto>> GetListAsync(
-    Expression<Func<Category, bool>> filter = null,
-    Func<IQueryable<Category>, IOrderedQueryable<Category>> orderBy = null,
-    int? pageIndex = 0,
-    int? pageSize = 10)
+            Expression<Func<Category, bool>> filter = null,
+            Func<IQueryable<Category>, IOrderedQueryable<Category>> orderBy = null,
+            int? pageIndex = 0,
+            int? pageSize = 10)
         {
             IQueryable<Category> query = _unitOfWorks.CategoryRepository.GetAll()
-      .Include(c => c.Products) // Bao gồm danh sách sản phẩm
-          .ThenInclude(p => p.Category); // Bao gồm thông tin công ty của sản phẩm
+                .AsTracking()
+                .Include(c => c.Products); // Bao gồm danh sách sản phẩm
 
 
             if (filter != null)
@@ -45,7 +46,14 @@ namespace Server.Business.Services
 
             var totalItemsCount = await query.CountAsync();
 
-            if (totalItemsCount == 0)
+            pageIndex = pageIndex.HasValue && pageIndex.Value >= 0 ? pageIndex.Value : 0;
+            pageSize = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : 10;
+
+            query = query.Skip(pageIndex.Value * pageSize.Value).Take(pageSize.Value);
+
+            var categories = await query.ToListAsync();
+            
+            if (categories.Count == 0)
             {
                 return new Pagination<CategoryDto>
                 {
@@ -56,38 +64,7 @@ namespace Server.Business.Services
                 };
             }
 
-            pageIndex = pageIndex.HasValue && pageIndex.Value >= 0 ? pageIndex.Value : 0;
-            pageSize = pageSize.HasValue && pageSize.Value > 0 ? pageSize.Value : 10;
-
-            query = query.Skip(pageIndex.Value * pageSize.Value).Take(pageSize.Value);
-
-            var categories = await query.ToListAsync();
-
-            var categoryDtos = categories.Select(c => new CategoryDto
-            {
-                CategoryId = c.CategoryId,
-                Name = c.Name,
-                Description = c.Description,
-                Status = c.Status,
-                ImageUrl = c.ImageUrl,
-                CreatedDate = c.CreatedDate,
-                UpdatedDate = c.UpdatedDate,
-                Products = c.Products?.Select(p => new ProductDto
-                {
-                    ProductId = p.ProductId,
-                    ProductName = p.ProductName,
-                    ProductDescription = p.ProductDescription,
-                    Price = p.Price,
-                    Quantity = p.Quantity,
-                    Status = p.Status,
-                    //CategoryId = p.CategoryId,
-                    CompanyId = p.CompanyId,
-                    CompanyName = p.Company.Name,
-                    //CategoryName = p.Category.Name,
-                    CreatedDate = p.CreatedDate,
-                    UpdatedDate = p.UpdatedDate
-                }).ToList() ?? new List<ProductDto>()
-            }).ToList();
+            var categoryDtos = _mapper.Map<List<CategoryDto>>(categories);
 
             var totalPagesCount = (int)Math.Ceiling(totalItemsCount / (double)pageSize.Value);
 
@@ -154,10 +131,10 @@ namespace Server.Business.Services
         {
             // Lấy danh mục từ repository
             var category = await _unitOfWorks.CategoryRepository
-    .FindByCondition(c => c.CategoryId == categoryId)
-    .Include(c => c.Products) // Bao gồm sản phẩm
-    .ThenInclude(p => p.Company) // Bao gồm thông tin công ty
-    .FirstOrDefaultAsync();
+                .FindByCondition(c => c.CategoryId == categoryId)
+                .Include(c => c.Products) // Bao gồm sản phẩm
+                .ThenInclude(p => p.Company) // Bao gồm thông tin công ty
+                .FirstOrDefaultAsync();
 
             // Kiểm tra nếu không tìm thấy danh mục
             if (category == null)
@@ -182,7 +159,7 @@ namespace Server.Business.Services
                     ProductDescription = p.ProductDescription,
                     Price = p.Price,
                     Quantity = p.Quantity,
-                    Status = p.Status,                    
+                    Status = p.Status,
                     CreatedDate = p.CreatedDate,
                     UpdatedDate = p.UpdatedDate
                 }).ToList()
@@ -268,6 +245,7 @@ namespace Server.Business.Services
             var updatedCategoryModel = _mapper.Map<CategoryModel>(existingCategory);
             return updatedCategoryModel;
         }
+
         public async Task<CategoryModel> DeleteCategoryAsync(int categoryId)
         {
             // Tìm danh mục từ cơ sở dữ liệu thông qua UnitOfWork
