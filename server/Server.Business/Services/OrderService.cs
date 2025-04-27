@@ -1528,6 +1528,12 @@ namespace Server.Business.Services
                                     .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId)
                                 ?? throw new BadRequestException("Không tìm thấy nhân viên phù hợp!");
                     var appointmentTime = request.AppointmentDates.FirstOrDefault();
+                    
+                    if (appointmentTime < DateTime.Now)
+                    {
+                        throw new BadRequestException($"Thời gian đặt lịch phải lớn hơn thời gian hiện tại!");  
+                    }
+                    
                     for (int i = 0; i < request.ServiceIds.Length; i++)
                     {
                         var service =
@@ -1541,7 +1547,7 @@ namespace Server.Business.Services
 
                         var newAppointment = new Appointments
                         {
-                            CustomerId = request.CustomerId,
+                            CustomerId = user.UserId,
                             OrderId = createdOrder.OrderId,
                             StaffId = staffAuto.StaffId,
                             ServiceId = service.ServiceId,
@@ -1579,7 +1585,7 @@ namespace Server.Business.Services
 
                         if (appointmentTime < DateTime.Now)
                         {
-                            throw new BadRequestException($"Thời gian đặt lịch không hợp lệ: {appointmentTime}");
+                            throw new BadRequestException($"Thời gian đặt lịch phải lớn hơn thời gian hiện tại!");
                         }
 
                         var service =
@@ -1634,6 +1640,18 @@ namespace Server.Business.Services
                         {
                             throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
                         }
+                        
+                        // Check if customer has overlapping appointments
+                        var isCustomerBusy = await _unitOfWorks.AppointmentsRepository
+                            .FirstOrDefaultAsync(a => a.CustomerId == user.UserId &&
+                                                      a.AppointmentsTime < endTime &&
+                                                      a.AppointmentEndTime > appointmentTime &&
+                                                      a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                        if (isCustomerBusy)
+                        {
+                            throw new BadRequestException($"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
+                        }
+
 
                         // Nếu IsAuto là false, kiểm tra lịch làm việc của nhân viên
                         if (!request.IsAuto)

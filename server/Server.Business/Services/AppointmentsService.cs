@@ -212,6 +212,18 @@ public class AppointmentsService
                     throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
                 }
                 
+                // Check if customer has overlapping appointments
+                var isCustomerBusy = await _unitOfWorks.AppointmentsRepository
+                    .FirstOrDefaultAsync(a => a.CustomerId == userId &&
+                                              a.AppointmentsTime < endTime &&
+                                              a.AppointmentEndTime > appointmentTime &&
+                                              a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                if (isCustomerBusy)
+                {
+                    throw new BadRequestException($"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
+                }
+
+                
                 // Lấy ngày và thứ trong tuần từ appointmentTime
                 var appointmentDate = appointmentTime.Date;
                 var dayOfWeek = (int)appointmentDate.DayOfWeek;
