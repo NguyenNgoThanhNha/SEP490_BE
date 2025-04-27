@@ -487,44 +487,131 @@ namespace Server.Business.Services
         }
 
 
-        public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType,
-            int page = 1,
-            int pageSize = 5)
+        //public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType,
+        //    int page = 1,
+        //    int pageSize = 5)
+        //{
+        //    var listOrders = await _unitOfWorks.OrderRepository
+        //        .FindByCondition(x => x.CustomerId == userId)
+        //        .Include(x => x.Customer)
+        //        .Include(x => x.Routine)
+        //        .Include(x => x.Voucher)
+        //        .Include(x => x.Shipment) // ✅ Thêm Include Shipment
+        //        .Include(x => x.Appointments)
+        //        .ThenInclude(x => x.Service)
+        //        .Include(x => x.OrderDetails)
+        //        .ThenInclude(od => od.Product)
+        //        .ThenInclude(p => p.ProductImages) // ✅ Hình ảnh sản phẩm
+        //        .Include(x => x.OrderDetails)
+        //        .ThenInclude(od => od.Product)
+        //        .ThenInclude(p => p.Branch_Products)
+        //        .ThenInclude(bp => bp.Branch) // ✅ Chi nhánh của sản phẩm
+        //        .Where(x => x.Status == status && x.OrderType == orderType)
+        //        .OrderByDescending(x => x.CreatedDate)
+        //        .ToListAsync();
+
+
+        //    if (listOrders.Equals(null))
+        //    {
+        //        return null;
+        //    }
+
+        //    var totalCount = listOrders.Count();
+
+        //    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        //    var pagedServices = listOrders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        //    var orderModels = _mapper.Map<List<OrderModel>>(pagedServices);
+
+        //    return new HistoryBookingResponse()
+        //    {
+        //        data = orderModels,
+        //        pagination = new Pagination
+        //        {
+        //            page = page,
+        //            totalPage = totalPages,
+        //            totalCount = totalCount
+        //        }
+        //    };
+        //}
+
+        public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType, int page = 1, int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(x => x.CustomerId == userId)
                 .Include(x => x.Customer)
                 .Include(x => x.Routine)
                 .Include(x => x.Voucher)
-                .Include(x => x.Shipment) // ✅ Thêm Include Shipment
+                .Include(x => x.Shipment)
                 .Include(x => x.Appointments)
-                .ThenInclude(x => x.Service)
+                    .ThenInclude(x => x.Service)
                 .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.ProductImages) // ✅ Hình ảnh sản phẩm
-                .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.Branch_Products)
-                .ThenInclude(bp => bp.Branch) // ✅ Chi nhánh của sản phẩm
+                    .ThenInclude(od => od.Product)
+                        .ThenInclude(p => p.ProductImages)
                 .Where(x => x.Status == status && x.OrderType == orderType)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
 
-
-            if (listOrders.Equals(null))
+            if (listOrders == null || !listOrders.Any())
             {
-                return null;
+                return new HistoryBookingResponse
+                {
+                    data = new List<OrderModel>(),
+                    pagination = new Pagination
+                    {
+                        page = page,
+                        totalPage = 0,
+                        totalCount = 0
+                    }
+                };
             }
 
             var totalCount = listOrders.Count();
-
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-            var pagedServices = listOrders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var pagedOrders = listOrders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
-            var orderModels = _mapper.Map<List<OrderModel>>(pagedServices);
+            // 👉 Chuẩn: Lấy tất cả branchId cần thiết
+            var branchIds = pagedOrders
+                .SelectMany(x => x.OrderDetails)
+                .Where(od => od.BranchId.HasValue)
+                .Select(od => od.BranchId.Value)
+                .Distinct()
+                .ToList();
 
-            return new HistoryBookingResponse()
+            var listBranches = await _unitOfWorks.BranchRepository
+                .FindByCondition(b => branchIds.Contains(b.BranchId))
+                .ToListAsync();
+
+            var branchDict = listBranches.ToDictionary(b => b.BranchId, b => b);
+
+            var orderModels = _mapper.Map<List<OrderModel>>(pagedOrders);
+
+            // 👉 Map thêm Branch cho mỗi OrderDetail
+            foreach (var order in orderModels)
+            {
+                var entityOrder = pagedOrders.FirstOrDefault(o => o.OrderId == order.OrderId);
+
+                foreach (var detail in order.OrderDetails)
+                {
+                    if (detail.Product != null && detail.Branch == null && detail.BranchId.HasValue)
+                    {
+                        if (branchDict.TryGetValue(detail.BranchId.Value, out var matchedBranch))
+                        {
+                            detail.Branch = _mapper.Map<BranchModel>(matchedBranch);
+                        }
+                    }
+
+                    // Optional: Reset lại Product.Branch nếu bạn không cần trả branch cho Product
+                    if (detail.Product != null)
+                    {
+                        detail.Product.Branch = null;
+                    }
+                }
+            }
+
+            return new HistoryBookingResponse
             {
                 data = orderModels,
                 pagination = new Pagination
@@ -535,6 +622,7 @@ namespace Server.Business.Services
                 }
             };
         }
+
 
 
 
