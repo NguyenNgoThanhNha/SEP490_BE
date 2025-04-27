@@ -207,9 +207,13 @@ public class RoutineService
         {
             var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId)
                        ?? throw new BadRequestException("Không tìm thấy người dùng nào!");
-            var voucher =
-                await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
-                ?? throw new BadRequestException("Không tìm thấy mã giảm giá nào!");
+            Voucher voucher = null;
+            if (request.VoucherId != null && request.VoucherId != 0)
+            {
+                voucher =
+                    await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
+                    ?? throw new BadRequestException("Không tìm thấy mã giảm giá nào!");
+            }
             
             if (request.AppointmentTime == null)
             {

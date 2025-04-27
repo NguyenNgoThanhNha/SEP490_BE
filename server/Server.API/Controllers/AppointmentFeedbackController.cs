@@ -5,6 +5,7 @@ using Server.Business.Commons;
 using Server.Business.Services;
 using Server.Data.UnitOfWorks;
 using Server.Business.Dtos;
+using Server.Business.Exceptions;
 using Server.Data.Entities;
 using static Server.Business.Dtos.AppointmentFeedbackCreateDto;
 
@@ -16,14 +17,15 @@ namespace Server.API.Controllers
     {
         private readonly AppointmentFeedbackService _appointmentFeedbackService;
         private readonly CloudianryService _cloudinaryService;
+        private readonly AppointmentsService _appointmentsService;
 
 
-
-        public AppointmentFeedbackController(AppointmentFeedbackService appointmentFeedbackService, CloudianryService cloudinaryService)
+        public AppointmentFeedbackController(AppointmentFeedbackService appointmentFeedbackService, CloudianryService cloudinaryService,
+            AppointmentsService appointmentsService)
         {
             _appointmentFeedbackService = appointmentFeedbackService;
             _cloudinaryService = cloudinaryService;
-
+            _appointmentsService = appointmentsService;
         }
 
         [HttpGet("get-by-id/{appointmentFeedbackId}")]
@@ -113,6 +115,14 @@ namespace Server.API.Controllers
                     message = "AppointmentId, CustomerId, StaffId là bắt buộc và phải lớn hơn 0.",
                     data = new List<object>()
                 }));
+            }
+
+            var appointmentExist = await _appointmentsService.GetAppointmentsById(dto.AppointmentId)
+                ?? throw new BadRequestException("Không tìm thấy cuộc hẹn với ID được cung cấp.");
+            
+            if (appointmentExist.StaffId != dto.StaffId)
+            {
+                throw new BadRequestException("Không thể tạo phản hồi cho cuộc hẹn này, do nhân viên không phải là người thực hiện cuộc hẹn này.");
             }
 
             if (dto.ImageBefore == null)
