@@ -539,6 +539,102 @@ namespace Server.Business.Services
 
 
 
+        //public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
+        //{
+        //    var listOrders = await _unitOfWorks.OrderRepository
+        //        .FindByCondition(x => x.CustomerId == userId && x.Status == status)
+        //        .Include(x => x.Customer)
+        //        .Include(x => x.Routine)
+        //        .Include(x => x.Voucher)
+        //        .Include(x => x.Shipment)
+        //        .Include(x => x.Appointments)
+        //            .ThenInclude(x => x.Service)
+        //        .Include(x => x.Appointments)
+        //            .ThenInclude(x => x.Branch)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Promotion) // ✅ Bổ sung dòng này
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //                .ThenInclude(p => p.ProductImages)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //                .ThenInclude(p => p.Branch_Products)
+        //                    .ThenInclude(bp => bp.Branch)
+        //        .OrderByDescending(x => x.CreatedDate)
+        //        .ToListAsync();
+
+        //    if (listOrders == null || !listOrders.Any())
+        //    {
+        //        return new HistoryBookingResponse()
+        //        {
+        //            data = new List<OrderModel>(),
+        //            pagination = new Pagination
+        //            {
+        //                page = page,
+        //                totalPage = 0,
+        //                totalCount = 0
+        //            }
+        //        };
+        //    }
+
+        //    var totalCount = listOrders.Count();
+        //    var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        //    var pagedOrders = listOrders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+        //    var orderModels = _mapper.Map<List<OrderModel>>(pagedOrders);
+
+        //    // Gán branch và promotion thủ công nếu cần
+        //    foreach (var order in orderModels)
+        //    {
+        //        var entityOrder = pagedOrders.FirstOrDefault(o => o.OrderId == order.OrderId);
+
+        //        foreach (var detail in order.OrderDetails)
+        //        {
+        //            var entityDetail = entityOrder?.OrderDetails.FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId);
+
+        //            // Gán Branch nếu thiếu
+        //            if (detail.Product != null && detail.Branch == null)
+        //            {
+        //                var branchEntity = entityDetail?.Product?.Branch_Products?.FirstOrDefault()?.Branch;
+        //                if (branchEntity != null)
+        //                {
+        //                    detail.Branch = _mapper.Map<BranchModel>(branchEntity);
+        //                }
+        //            }
+
+        //            // Gán Promotion từ OrderDetail nếu có
+        //            if (entityDetail?.Promotion != null)
+        //            {
+        //                detail.Promotion = _mapper.Map<PromotionModel>(entityDetail.Promotion);
+        //            }
+
+        //            // Chỉ gán Product.Promotion nếu chưa có OrderDetail.Promotion
+        //            if (detail.Product != null && detail.Product.Promotion == null && entityDetail?.Promotion != null)
+        //            {
+        //                detail.Product.Promotion = _mapper.Map<PromotionDTO>(entityDetail.Promotion);
+        //            }
+        //            if (detail.Product != null)
+        //            {
+        //                detail.Product.Promotion = null;
+        //                detail.Product.Branch = null;
+        //            }
+        //        }
+        //    }
+
+
+        //    return new HistoryBookingResponse()
+        //    {
+        //        message = "Lấy lịch sử tất cả loại đơn thành công!",
+        //        data = orderModels,
+        //        pagination = new Pagination
+        //        {
+        //            page = page,
+        //            totalPage = totalPages,
+        //            totalCount = totalCount
+        //        }
+        //    };
+        //}
+
         public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
@@ -552,14 +648,10 @@ namespace Server.Business.Services
                 .Include(x => x.Appointments)
                     .ThenInclude(x => x.Branch)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Promotion) // ✅ Bổ sung dòng này
+                    .ThenInclude(od => od.Promotion)
                 .Include(x => x.OrderDetails)
                     .ThenInclude(od => od.Product)
                         .ThenInclude(p => p.ProductImages)
-                .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.Branch_Products)
-                            .ThenInclude(bp => bp.Branch)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
 
@@ -581,9 +673,23 @@ namespace Server.Business.Services
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
             var pagedOrders = listOrders.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
+            // 👉 Bổ sung: Lấy tất cả Branch cần cho OrderDetails
+            var branchIds = pagedOrders
+                .SelectMany(o => o.OrderDetails)
+                .Where(od => od.BranchId.HasValue)
+                .Select(od => od.BranchId.Value)
+                .Distinct()
+                .ToList();
+
+            var listBranches = await _unitOfWorks.BranchRepository
+                .FindByCondition(b => branchIds.Contains(b.BranchId))
+                .ToListAsync();
+
+            var branchDict = listBranches.ToDictionary(b => b.BranchId, b => b);
+
             var orderModels = _mapper.Map<List<OrderModel>>(pagedOrders);
 
-            // Gán branch và promotion thủ công nếu cần
+            // 👉 Map thêm Branch và Promotion
             foreach (var order in orderModels)
             {
                 var entityOrder = pagedOrders.FirstOrDefault(o => o.OrderId == order.OrderId);
@@ -592,13 +698,12 @@ namespace Server.Business.Services
                 {
                     var entityDetail = entityOrder?.OrderDetails.FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId);
 
-                    // Gán Branch nếu thiếu
-                    if (detail.Product != null && detail.Branch == null)
+                    // Gán Branch theo OrderDetail.BranchId
+                    if (detail.Product != null && detail.Branch == null && detail.BranchId.HasValue)
                     {
-                        var branchEntity = entityDetail?.Product?.Branch_Products?.FirstOrDefault()?.Branch;
-                        if (branchEntity != null)
+                        if (branchDict.TryGetValue(detail.BranchId.Value, out var matchedBranch))
                         {
-                            detail.Branch = _mapper.Map<BranchModel>(branchEntity);
+                            detail.Branch = _mapper.Map<BranchModel>(matchedBranch);
                         }
                     }
 
@@ -608,19 +713,20 @@ namespace Server.Business.Services
                         detail.Promotion = _mapper.Map<PromotionModel>(entityDetail.Promotion);
                     }
 
-                    // Chỉ gán Product.Promotion nếu chưa có OrderDetail.Promotion
-                    if (detail.Product != null && detail.Product.Promotion == null && entityDetail?.Promotion != null)
-                    {
-                        detail.Product.Promotion = _mapper.Map<PromotionDTO>(entityDetail.Promotion);
-                    }
+                    // Gán Promotion vào Product nếu chưa có
                     if (detail.Product != null)
                     {
-                        detail.Product.Promotion = null;
+                        if (detail.Product.Promotion == null && entityDetail?.Promotion != null)
+                        {
+                            detail.Product.Promotion = _mapper.Map<PromotionDTO>(entityDetail.Promotion);
+                        }
+
+                        // Xóa Branch và Promotion cũ trong Product
                         detail.Product.Branch = null;
+                        detail.Product.Promotion = null;
                     }
                 }
             }
-
 
             return new HistoryBookingResponse()
             {
@@ -634,6 +740,7 @@ namespace Server.Business.Services
                 }
             };
         }
+
 
 
 
