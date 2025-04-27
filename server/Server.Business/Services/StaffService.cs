@@ -92,7 +92,7 @@ namespace Server.Business.Services
                 if (staffDto == null)
                     return ApiResponse.Error("Staff data is required.");
 
-                if (staffDto.BranchId != null)
+                if (staffDto.BranchId != null && staffDto.BranchId != 0)
                 {
                     // Kiểm tra Branch tồn tại
                     var branchExists = await _unitOfWorks.BranchRepository

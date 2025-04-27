@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
@@ -715,7 +716,52 @@ public class AuthService
         return branchRevenue;
     }
 
+    public async Task<UserModel> CreateUserAsync(CreateAdminManagerRequestDto req)
+    {
+        if (req.RoleID != 1 && req.RoleID != 2)
+        {
+            throw new BadRequestException("Chỉ tạo mới cho Admin và Manager");
+        }
 
-   
+      
+        var existingUser = _unitOfWorks.UserRepository.FindByCondition(x => x.Email == req.Email).FirstOrDefault();
+        if (existingUser != null)
+        {
+            throw new BadRequestException("Email đã tồn tại");
+        }
+
+        var emailValidationResult = new EmailAddressAttribute().IsValid(req.Email);
+        if (!emailValidationResult)
+        {
+            throw new BadRequestException("Email không hợp lệ.");
+        }
+
+
+        var userEntity = _mapper.Map<User>(req);
+
+        
+        userEntity.Password = SecurityUtil.Hash(req.Password);
+
+       
+        userEntity.Status = "Active";
+        userEntity.CreateDate = DateTimeOffset.Now; 
+        userEntity.UpdatedDate = DateTime.Now; 
+        userEntity.OTPCode = "0";
+        userEntity.TypeLogin = "Normal";
+
+      
+        userEntity = await _unitOfWorks.UserRepository.AddAsync(userEntity);
+        int result = await _unitOfWorks.UserRepository.Commit();
+
+       
+        if (result > 0)
+        {
+            return _mapper.Map<UserModel>(userEntity);
+        }
+        else
+        {
+            throw new BadRequestException("Tạo mới thất bại.");
+        }
+    }
 
 }

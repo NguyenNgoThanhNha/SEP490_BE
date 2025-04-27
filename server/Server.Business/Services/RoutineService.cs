@@ -91,7 +91,10 @@ public class RoutineService
 
     public async Task<List<SkincareRoutineModel>> GetListSkincareRoutine()
     {
-        var routines = _unitOfWorks.SkincareRoutineRepository.GetAll();
+        var routines = await _unitOfWorks.SkincareRoutineRepository
+            .GetAll()
+            .OrderByDescending(x => x.SkincareRoutineId)
+            .ToListAsync();
         var routineModels = _mapper.Map<List<SkincareRoutineModel>>(routines);
         return routineModels;
     }
@@ -204,8 +207,23 @@ public class RoutineService
         {
             var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.UserId)
                        ?? throw new BadRequestException("Không tìm thấy người dùng nào!");
-            var voucher =
-                await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId);
+            Voucher voucher = null;
+            if (request.VoucherId != null && request.VoucherId != 0)
+            {
+                voucher =
+                    await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
+                    ?? throw new BadRequestException("Không tìm thấy mã giảm giá nào!");
+            }
+            
+            if (request.AppointmentTime == null)
+            {
+                throw new BadRequestException("Thời gian đặt lịch không hợp lệ: Thời gian không được để trống.");
+            }
+            
+            if (request.AppointmentTime < DateTime.Now)
+            {
+                throw new BadRequestException("Thời gian đặt lịch không hợp lệ: Thời gian phải lớn hơn hiện tại.");
+            }
 
             var routine = await _unitOfWorks.SkincareRoutineRepository
                 .FindByCondition(x => x.SkincareRoutineId == request.RoutineId)
@@ -244,6 +262,7 @@ public class RoutineService
 
             var listAppointment = new List<Appointments>();
             var listOrderDetail = new List<OrderDetail>();
+
             var appointmentTime = request.AppointmentTime ?? DateTime.Now;
 
             foreach (var step in routine.SkinCareRoutineSteps.OrderBy(x => x.Step))
