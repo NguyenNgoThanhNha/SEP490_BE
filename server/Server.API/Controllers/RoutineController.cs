@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
@@ -139,6 +140,23 @@ namespace Server.API.Controllers
             {
                 message = "Lấy thành công danh sách chi nhánh!",
                 data = branches
+            }));
+        }
+
+        [Authorize]
+        [HttpGet("get-list-service-and-product-rcm/{userId}")]
+        public async Task<IActionResult> GetListServiceAndProductRcm(int userId)
+        {
+            var result = await _routineService.GetListServiceAndProductRcm(userId);
+            if (result == null)
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy dịch vụ và sản phẩm nào!"
+                }));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lấy thành công danh sách dịch vụ và sản phẩm!",
+                data = result
             }));
         }
     }
