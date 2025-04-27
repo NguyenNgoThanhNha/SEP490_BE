@@ -6144,10 +6144,7 @@ namespace Server.Data.SeedData
                 new SkinConcern { Code = "nasolabial_fold", Name = "Nếp nhăn rãnh cười" },
                 new SkinConcern { Code = "skin_spot", Name = "Đốm sắc tố" },
                 new SkinConcern { Code = "mole", Name = "Nốt ruồi" },
-                new SkinConcern { Code = "enlarged_pores", Name = "Lỗ chân lông to" },
-                new SkinConcern { Code = "skin_age", Name = "Tuổi da" },
-                new SkinConcern { Code = "skin_color", Name = "Màu da" },
-                new SkinConcern { Code = "skin_type", Name = "Loại da" }
+                new SkinConcern { Code = "enlarged_pores", Name = "Lỗ chân lông to" }
             };
 
             // Kiểm tra nếu chưa có concern nào mới thêm vào

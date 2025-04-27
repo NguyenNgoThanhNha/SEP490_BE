@@ -584,7 +584,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
             {
                 message = "Tạo đơn hàng thành công",
-                data = result
+                data = result.OrderId
             }));
         }
 
