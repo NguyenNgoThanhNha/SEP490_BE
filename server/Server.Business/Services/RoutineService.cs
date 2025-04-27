@@ -3,6 +3,7 @@ using Google.Protobuf.Collections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Server.Business.Commons.Request;
+using Server.Business.Commons.Response;
 using Server.Business.Constants;
 using Server.Business.Exceptions;
 using Server.Business.Models;
@@ -214,12 +215,12 @@ public class RoutineService
                     await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
                     ?? throw new BadRequestException("Không tìm thấy mã giảm giá nào!");
             }
-            
+
             if (request.AppointmentTime == null)
             {
                 throw new BadRequestException("Thời gian đặt lịch không hợp lệ: Thời gian không được để trống.");
             }
-            
+
             if (request.AppointmentTime < DateTime.Now)
             {
                 throw new BadRequestException("Thời gian đặt lịch không hợp lệ: Thời gian phải lớn hơn hiện tại.");
@@ -473,9 +474,9 @@ public class RoutineService
             .Select(x => x.Routine)
             .OrderByDescending(x => x.CreatedDate)
             .FirstOrDefaultAsync();
-        
+
         if (routine == null) return null;
-        
+
         var routineModel = _mapper.Map<SkincareRoutineModel>(routine);
 
         // Lấy danh sách sản phẩm từ stepModels
@@ -516,7 +517,8 @@ public class RoutineService
     public async Task<OrderModel> GetDetailOrderRoutine(int userId, int orderId)
     {
         var order = await _unitOfWorks.OrderRepository
-            .FindByCondition(x => x.CustomerId == userId && x.OrderId == orderId && x.OrderType == OrderType.Routine.ToString())
+            .FindByCondition(x =>
+                x.CustomerId == userId && x.OrderId == orderId && x.OrderType == OrderType.Routine.ToString())
             .Include(x => x.Customer)
             .Include(x => x.OrderDetails)
             .ThenInclude(x => x.Product)
@@ -601,5 +603,79 @@ public class RoutineService
 
         var branchModels = _mapper.Map<List<BranchModel>>(filteredBranches);
         return branchModels;
+    }
+
+    public async Task<GetListServiceAndProductRcmResponse> GetListServiceAndProductRcm(int userId)
+    {
+        var routines = await _unitOfWorks.UserRoutineRepository
+            .FindByCondition(x => x.UserId == userId && x.Status == ObjectStatus.Suitable.ToString())
+            .Include(x => x.Routine)
+            .ThenInclude(x => x.ServiceRoutines)
+            .ThenInclude(x => x.Service)
+            .ThenInclude(x => x.ServiceCategory)
+            .Include(x => x.Routine)
+            .ThenInclude(x => x.ProductRoutines)
+            .ThenInclude(x => x.Products)
+            .ThenInclude(x => x.Category)
+            .OrderByDescending(x => x.CreatedDate)
+            .ToListAsync();
+
+        if (routines == null || routines.Count == 0)
+            return null;
+        
+        var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x=> x.UserId == userId)
+            ?? throw new BadRequestException("Không tìm thấy người dùng nào!");
+
+        var listService = new List<Data.Entities.Service>();
+        var listProduct = new List<Product>();
+
+        foreach (var userRoutine in routines)
+        {
+            if (userRoutine.Routine != null)
+            {
+                if (userRoutine.Routine.ServiceRoutines != null)
+                {
+                    foreach (var serviceRoutine in userRoutine.Routine.ServiceRoutines)
+                    {
+                        if (serviceRoutine.Service != null)
+                            listService.Add(serviceRoutine.Service);
+                    }
+                }
+
+                if (userRoutine.Routine.ProductRoutines != null)
+                {
+                    foreach (var productRoutine in userRoutine.Routine.ProductRoutines)
+                    {
+                        if (productRoutine.Products != null)
+                            listProduct.Add(productRoutine.Products);
+                    }
+                }
+            }
+        }
+
+        // Distinct theo Id
+        var distinctServices = listService
+            .GroupBy(x => x.ServiceId)
+            .Select(g => g.First())
+            .ToList();
+
+        var distinctProducts = listProduct
+            .GroupBy(x => x.ProductId)
+            .Select(g => g.First())
+            .ToList();
+        
+        var listServiceModel =
+            await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(distinctServices));
+        var listProductModel =
+            await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(distinctProducts));
+        
+        var response = new GetListServiceAndProductRcmResponse
+        {
+            UserInfo = _mapper.Map<UserInfoModel>(user),
+            Services = listServiceModel,
+            Products = listProductModel
+        };
+
+        return response;
     }
 }

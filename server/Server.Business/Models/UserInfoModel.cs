@@ -35,22 +35,10 @@ public class UserInfoModel
     [Phone(ErrorMessage = "Invalid Phone Number")]
     public string? PhoneNumber { get; set; }
     
-    public string? STK { get; set; }
-    public string? Bank { get; set; }
-    public string? QRCode { get; set; }
-    
     public int? District { get; set; }
     
     public int? WardCode { get; set; }
-
-    public string? CreateBy { get; set; }
-
-    public DateTimeOffset? CreateDate { get; set; }
-
-    public string? ModifyBy { get; set; }
-
-    public DateTimeOffset? ModifyDate { get; set; }
-
+    
     public string? Status { get; set; }
     public int RoleId { get; set; }
     public DateTime CreatedDate { get; set; } = DateTime.Now;
