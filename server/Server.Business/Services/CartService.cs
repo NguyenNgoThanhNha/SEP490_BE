@@ -113,6 +113,109 @@ namespace Server.Business.Services
             }
         }
 
+        //public async Task<ApiResult<ApiResponse>> AddToCart(AddToCartRequest request)
+        //{
+        //    await EnsureConnected();
+
+        //    if (request.UserId <= 0)
+        //    {
+        //        return ApiResult<ApiResponse>.Error(new ApiResponse
+        //        {
+        //            message = "Vui lòng đăng nhập vào hệ thống"
+        //        });
+        //    }
+
+        //    // 1. Kiểm tra productBranchId hợp lệ
+        //    var productBranch = await _unitOfWorks.Branch_ProductRepository
+        //        .FirstOrDefaultAsync(x => x.Id == request.ProductBranchId);
+
+        //    if (productBranch == null)
+        //    {
+        //        return ApiResult<ApiResponse>.Error(new ApiResponse
+        //        {
+        //            message = "Sản phẩm chi nhánh không tồn tại."
+        //        });
+        //    }
+
+        //    // 2. Tìm Cart (nếu chưa có thì tạo mới)
+        //    var existingCart = await _unitOfWorks.CartRepository
+        //        .FindByCondition(c => c.CustomerId == request.UserId)
+        //        .FirstOrDefaultAsync();
+
+        //    if (existingCart == null)
+        //    {
+        //        existingCart = new Cart
+        //        {
+        //            CustomerId = request.UserId,
+        //            CreatedDate = DateTime.Now,
+        //            UpdatedDate = DateTime.Now
+        //        };
+
+        //        await _unitOfWorks.CartRepository.AddAsync(existingCart);
+        //        await _unitOfWorks.CartRepository.Commit();
+        //    }
+
+        //    // 3. Kiểm tra sản phẩm đã có trong giỏ chưa
+        //    var cartItem = await _unitOfWorks.ProductCartRepository
+        //        .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductBranchId == productBranch.Id)
+        //        .FirstOrDefaultAsync();
+
+        //    if (cartItem == null)
+        //    {
+        //        if (request.Operation != Data.OperationTypeEnum.Add)
+        //        {
+        //            return ApiResult<ApiResponse>.Error(new ApiResponse
+        //            {
+        //                message = "Sản phẩm chưa tồn tại trong giỏ hàng!"
+        //            });
+        //        }
+
+        //        // Thêm mới
+        //        var newItem = new ProductCart
+        //        {
+        //            CartId = existingCart.CartId,
+        //            ProductBranchId = productBranch.Id,
+        //            Quantity = Math.Max(1, request.Quantity),
+        //            CreatedDate = DateTime.Now,
+        //            UpdatedDate = DateTime.Now
+        //        };
+
+        //        await _unitOfWorks.ProductCartRepository.AddAsync(newItem);
+        //    }
+        //    else
+        //    {
+        //        // Cập nhật số lượng theo Operation
+        //        cartItem.Quantity = request.Operation switch
+        //        {
+        //            Data.OperationTypeEnum.Add => cartItem.Quantity + request.Quantity,
+        //            Data.OperationTypeEnum.Subtract => Math.Max(1, cartItem.Quantity - request.Quantity),
+        //            Data.OperationTypeEnum.Replace => Math.Max(1, request.Quantity),
+        //            _ => cartItem.Quantity
+        //        };
+
+        //        cartItem.UpdatedDate = DateTime.Now;
+        //        _unitOfWorks.ProductCartRepository.Update(cartItem);
+        //    }
+
+        //    // 4. Lưu thay đổi
+        //    if (await _unitOfWorks.ProductCartRepository.Commit() > 0)
+        //    {
+        //        var cart = await GetCartFromDatabase(request.UserId);
+        //        await UpdateCartCache(request.UserId, cart);
+
+        //        return ApiResult<ApiResponse>.Succeed(new ApiResponse
+        //        {
+        //            message = "Cập nhật giỏ hàng thành công",
+        //            data = cart
+        //        });
+        //    }
+
+        //    return ApiResult<ApiResponse>.Error(new ApiResponse
+        //    {
+        //        message = "Lỗi cập nhật giỏ hàng"
+        //    });
+        //}
+
         public async Task<ApiResult<ApiResponse>> AddToCart(AddToCartRequest request)
         {
             await EnsureConnected();
@@ -137,77 +240,87 @@ namespace Server.Business.Services
                 });
             }
 
-            // 2. Tìm Cart (nếu chưa có thì tạo mới)
-            var existingCart = await _unitOfWorks.CartRepository
-                .FindByCondition(c => c.CustomerId == request.UserId)
-                .FirstOrDefaultAsync();
-
-            if (existingCart == null)
+            // 👉 2. Dùng Transaction để chống race condition
+            using (var transaction = await _unitOfWorks.BeginTransactionAsync())
             {
-                existingCart = new Cart
+                // 3. Kiểm tra lại Cart sau khi mở Transaction
+                var existingCart = await _unitOfWorks.CartRepository
+                    .FindByCondition(c => c.CustomerId == request.UserId)
+                    .FirstOrDefaultAsync();
+
+                if (existingCart == null)
                 {
-                    CustomerId = request.UserId,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                };
-
-                await _unitOfWorks.CartRepository.AddAsync(existingCart);
-                await _unitOfWorks.CartRepository.Commit();
-            }
-
-            // 3. Kiểm tra sản phẩm đã có trong giỏ chưa
-            var cartItem = await _unitOfWorks.ProductCartRepository
-                .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductBranchId == productBranch.Id)
-                .FirstOrDefaultAsync();
-
-            if (cartItem == null)
-            {
-                if (request.Operation != Data.OperationTypeEnum.Add)
-                {
-                    return ApiResult<ApiResponse>.Error(new ApiResponse
+                    existingCart = new Cart
                     {
-                        message = "Sản phẩm chưa tồn tại trong giỏ hàng!"
-                    });
+                        CustomerId = request.UserId,
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
+                    };
+
+                    await _unitOfWorks.CartRepository.AddAsync(existingCart);
+                    await _unitOfWorks.CartRepository.Commit();
                 }
 
-                // Thêm mới
-                var newItem = new ProductCart
+                // 4. Kiểm tra sản phẩm trong giỏ
+                var cartItem = await _unitOfWorks.ProductCartRepository
+                    .FindByCondition(c => c.CartId == existingCart.CartId && c.ProductBranchId == productBranch.Id)
+                    .FirstOrDefaultAsync();
+
+                if (cartItem == null)
                 {
-                    CartId = existingCart.CartId,
-                    ProductBranchId = productBranch.Id,
-                    Quantity = Math.Max(1, request.Quantity),
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                };
+                    if (request.Operation != Data.OperationTypeEnum.Add)
+                    {
+                        return ApiResult<ApiResponse>.Error(new ApiResponse
+                        {
+                            message = "Sản phẩm chưa tồn tại trong giỏ hàng!"
+                        });
+                    }
 
-                await _unitOfWorks.ProductCartRepository.AddAsync(newItem);
-            }
-            else
-            {
-                // Cập nhật số lượng theo Operation
-                cartItem.Quantity = request.Operation switch
+                    // Thêm mới
+                    var newItem = new ProductCart
+                    {
+                        CartId = existingCart.CartId,
+                        ProductBranchId = productBranch.Id,
+                        Quantity = Math.Max(1, request.Quantity),
+                        CreatedDate = DateTime.UtcNow,
+                        UpdatedDate = DateTime.UtcNow
+                    };
+
+                    await _unitOfWorks.ProductCartRepository.AddAsync(newItem);
+                }
+                else
                 {
-                    Data.OperationTypeEnum.Add => cartItem.Quantity + request.Quantity,
-                    Data.OperationTypeEnum.Subtract => Math.Max(1, cartItem.Quantity - request.Quantity),
-                    Data.OperationTypeEnum.Replace => Math.Max(1, request.Quantity),
-                    _ => cartItem.Quantity
-                };
+                    // Cập nhật số lượng theo Operation
+                    cartItem.Quantity = request.Operation switch
+                    {
+                        Data.OperationTypeEnum.Add => cartItem.Quantity + request.Quantity,
+                        Data.OperationTypeEnum.Subtract => Math.Max(1, cartItem.Quantity - request.Quantity),
+                        Data.OperationTypeEnum.Replace => Math.Max(1, request.Quantity),
+                        _ => cartItem.Quantity
+                    };
 
-                cartItem.UpdatedDate = DateTime.Now;
-                _unitOfWorks.ProductCartRepository.Update(cartItem);
-            }
+                    cartItem.UpdatedDate = DateTime.UtcNow;
+                    _unitOfWorks.ProductCartRepository.Update(cartItem);
+                }
 
-            // 4. Lưu thay đổi
-            if (await _unitOfWorks.ProductCartRepository.Commit() > 0)
-            {
-                var cart = await GetCartFromDatabase(request.UserId);
-                await UpdateCartCache(request.UserId, cart);
-
-                return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                // 5. Commit thay đổi
+                if (await _unitOfWorks.ProductCartRepository.Commit() > 0)
                 {
-                    message = "Cập nhật giỏ hàng thành công",
-                    data = cart
-                });
+                    await transaction.CommitAsync(); // ✅ Commit Transaction luôn
+
+                    var cart = await GetCartFromDatabase(request.UserId);
+                    await UpdateCartCache(request.UserId, cart);
+
+                    return ApiResult<ApiResponse>.Succeed(new ApiResponse
+                    {
+                        message = "Cập nhật giỏ hàng thành công",
+                        data = cart
+                    });
+                }
+                else
+                {
+                    await transaction.RollbackAsync(); // Nếu lỗi thì rollback
+                }
             }
 
             return ApiResult<ApiResponse>.Error(new ApiResponse
@@ -215,6 +328,7 @@ namespace Server.Business.Services
                 message = "Lỗi cập nhật giỏ hàng"
             });
         }
+
 
 
         //public async Task<ApiResult<ApiResponse>> DeleteProductFromCart(int productBranchId, int userId)
