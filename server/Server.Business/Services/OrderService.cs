@@ -2166,14 +2166,14 @@ namespace Server.Business.Services
 
         public async Task AutoCancelPendingAppointmentOrdersAsync()
         {
-            var vnNow = DateTime.UtcNow.AddHours(7); // ✅ lấy giờ Việt Nam chuẩn
+            var utc = DateTime.UtcNow; 
 
             var orders = await _unitOfWorks.OrderRepository
                 .FindByCondition(o =>
                     o.OrderType == OrderType.Appointment.ToString() &&
                     o.Status == OrderStatusEnum.Pending.ToString() &&
                     o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString() &&
-                    o.CreatedDate <= vnNow.AddMinutes(-15)) // ✅ kiểm CreatedDate đúng theo giờ VN
+                    o.CreatedDate <= utc.AddMinutes(-15)) // ✅ kiểm CreatedDate đúng theo giờ VN
                 .Include(o => o.Appointments)
                 .ToListAsync();
 

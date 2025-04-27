@@ -46,7 +46,7 @@ namespace Server.Business.Worker
                     _logger.LogError(ex, "An error occurred while processing order status updates.");
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
             }
 
             _logger.LogInformation("OrderStatusUpdateService is stopping.");
