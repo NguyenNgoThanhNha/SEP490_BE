@@ -15,6 +15,7 @@ public class OrderDetailModels
     
     public virtual PromotionModel? Promotion { get; set; }
 
+    public int? BranchId { get; set; }
     public BranchModel Branch { get; set; }
 
     public int Quantity { get; set; }
