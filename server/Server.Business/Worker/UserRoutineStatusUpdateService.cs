@@ -95,19 +95,19 @@ public class UserRoutineStatusUpdateService : BackgroundService
                                 }
                             }
 
-                            _logger.LogInformation($"[UserRoutineStatusUpdateService] Updated OrderId = {order.OrderId} to Completed.");
+                            _logger.LogInformation($"[UserRoutineStatusUpdateService] đã cập nhật OrderId = {order.OrderId} sang Completed.");
                         }
                     }
                 }
 
                 await unitOfWorks.OrderDetailRepository.Commit();
                 await unitOfWorks.OrderRepository.Commit();
-                _logger.LogInformation("[UserRoutineStatusUpdateService] Finished updating Routine Orders at " + DateTime.UtcNow);
+                _logger.LogInformation("[UserRoutineStatusUpdateService] kết thúc cập nhật Routine Orders lúc " + DateTime.UtcNow);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error while updating Routine Orders in background service.");
+            _logger.LogError(ex, "Đã xảy ra lỗi khi update.");
         }
     }
 }
