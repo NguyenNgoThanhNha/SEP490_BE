@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Google.Protobuf.Collections;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Server.Business.Commons.Request;
@@ -19,14 +20,20 @@ public class RoutineService
     private readonly IMapper _mapper;
     private readonly ProductService _productService;
     private readonly ServiceService _serviceService;
+    private readonly StaffService _staffService;
+    private readonly MongoDbService _mongoDbService;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
     public RoutineService(UnitOfWorks unitOfWorks, IMapper mapper, ProductService productService,
-        ServiceService serviceService)
+        ServiceService serviceService, StaffService staffService, MongoDbService mongoDbService, IHubContext<NotificationHub> hubContext)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
         _productService = productService;
         _serviceService = serviceService;
+        _staffService = staffService;
+        _mongoDbService = mongoDbService;
+        _hubContext = hubContext;
     }
 
     public async Task<SkincareRoutineModel> GetSkincareRoutineDetails(int id)
@@ -215,6 +222,9 @@ public class RoutineService
                     await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
                     ?? throw new BadRequestException("Không tìm thấy mã giảm giá nào!");
             }
+            
+            var branch = await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId)
+                         ?? throw new BadRequestException("Không tìm thấy chi nhánh nào!");
 
             if (request.AppointmentTime == null)
             {
@@ -289,8 +299,45 @@ public class RoutineService
                         Notes = "",
                         CreatedDate = DateTime.Now
                     };
-                    listAppointment.Add(_mapper.Map<Appointments>(newAppointment));
+                    var appointmentEntity =
+                        await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(newAppointment));
+                    await _unitOfWorks.AppointmentsRepository.Commit();
                     appointmentTime = endTime.AddDays(step.IntervalBeforeNextStep ?? 0);
+                    
+                    // get specialist MySQL
+                    var specialistMySQL = await _staffService.GetStaffById(staff.StaffId);
+
+                    // get admin, specialist, customer from MongoDB
+                    var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
+                    var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+                    var customerMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId);
+
+                    // create channel
+                    var channel = await _mongoDbService.CreateChannelAsync(
+                        $"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id,
+                        appointmentEntity.AppointmentId);
+
+                    // add member to channel
+                    await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+                    await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
+                
+                    // create notification
+                    if (NotificationHub.TryGetConnectionId(user.UserId.ToString(), out var connectionId))
+                    {
+                        var notification = new Notifications()
+                        {
+                            CustomerId = user.UserId,
+                            Content = $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                            Type = "Appointment",
+                            isRead = false,
+                            ObjectId = appointmentEntity.AppointmentId,
+                            CreatedDate = DateTime.Now,
+                        };
+                        await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                        await _unitOfWorks.NotificationRepository.Commit();
+
+                        await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                    }
                 }
 
                 foreach (var productStep in step.ProductRoutineSteps)
