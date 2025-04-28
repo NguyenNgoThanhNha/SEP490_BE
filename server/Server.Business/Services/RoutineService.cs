@@ -418,7 +418,7 @@ public class RoutineService
             }
 
 
-            await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointment);
+            /*await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointment);*/
             await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetail);
             await _unitOfWorks.CommitTransactionAsync();
 
