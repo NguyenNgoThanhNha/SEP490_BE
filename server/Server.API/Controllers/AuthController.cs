@@ -716,5 +716,26 @@ namespace Server.API.Controllers
             });
         }
 
+        [HttpPost("update-status-order-routine")] //all step of userroutinestep completed --> update order status (routine)
+        public async Task<IActionResult> RunUserRoutineStatusUpdate([FromServices] UserRoutineStatusUpdateService userRoutineStatusUpdateService)
+        {
+            try
+            {
+                await userRoutineStatusUpdateService.ManualRunAsync();
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Đã chạy cập nhật trạng thái Routine thành công!"
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi khi chạy cập nhật Routine: {ex.Message}"
+                }));
+            }
+        }
+
+
     }
 }
