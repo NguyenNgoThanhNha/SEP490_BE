@@ -926,6 +926,137 @@ namespace Server.Business.Services
         //    };
         //}
 
+        //public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
+        //{
+        //    var user = await _unitOfWorks.UserRepository.GetByIdAsync(userId);
+        //    if (user == null)
+        //        return null;
+
+        //    IQueryable<Order> query = _unitOfWorks.OrderRepository
+        //        .FindByCondition(x => x.OrderId == orderId);
+
+        //    if (user.RoleID == 3)
+        //    {
+        //        query = query.Where(x => x.CustomerId == userId);
+        //    }
+
+        //    var order = await query
+        //        .Include(x => x.Customer)
+        //        .Include(x => x.Shipment)
+        //        .Include(x => x.Voucher)
+        //        .Include(x => x.Routine)
+        //        .Include(x => x.OrderDetails)
+        //            .ThenInclude(od => od.Product)
+        //            .ThenInclude(p => p.ProductImages)
+        //        .Include(x => x.Appointments)
+        //        .FirstOrDefaultAsync();
+
+        //    if (order == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    var listServiceModels = new List<ServiceModel>();
+        //    var listProductModels = new List<ProductModel>();
+        //    var listBranches = new List<Branch>();
+
+        //    if (order.OrderType == OrderType.Appointment.ToString())
+        //    {
+        //        var orderAppointments = await _unitOfWorks.AppointmentsRepository
+        //            .FindByCondition(x => x.OrderId == orderId)
+        //            .Include(x => x.Branch)
+        //            .Include(x => x.Service)
+        //            .Include(x => x.Staff)
+        //                .ThenInclude(x => x.StaffInfo)
+        //            .ToListAsync();
+
+        //        order.Appointments = orderAppointments;
+
+        //        var listService = orderAppointments.Select(a => a.Service).ToList();
+        //        listServiceModels = await _serviceService.GetListImagesOfServices(listService);
+        //    }
+        //    else if (order.OrderType == OrderType.Product.ToString())
+        //    {
+        //        var orderDetails = order.OrderDetails.ToList();
+        //        var listProducts = orderDetails.Select(od => od.Product).ToList();
+        //        listProductModels = await _productService.GetListImagesOfProduct(listProducts);
+
+        //        // 👉 Lấy branchId từ OrderDetail
+        //        var branchIds = orderDetails
+        //            .Where(od => od.BranchId.HasValue)
+        //            .Select(od => od.BranchId.Value)
+        //            .Distinct()
+        //            .ToList();
+
+        //        // 👉 Query tất cả Branch theo branchId
+        //        listBranches = await _unitOfWorks.BranchRepository
+        //            .FindByCondition(b => branchIds.Contains(b.BranchId))
+        //            .ToListAsync();
+        //    }
+
+        //    var orderModel = _mapper.Map<OrderModel>(order);
+
+        //    if (orderModel.OrderType == OrderType.Appointment.ToString())
+        //    {
+        //        if (orderModel.Appointments?.Any() == true)
+        //        {
+        //            foreach (var appointment in orderModel.Appointments)
+        //            {
+        //                var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+        //                if (matchedService != null)
+        //                {
+        //                    appointment.Service.images = matchedService.images;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else if (orderModel.OrderType == OrderType.Product.ToString())
+        //    {
+        //        if (orderModel.OrderDetails?.Any() == true)
+        //        {
+        //            foreach (var orderDetail in orderModel.OrderDetails)
+        //            {
+        //                var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
+        //                if (matchedProduct != null)
+        //                {
+        //                    orderDetail.Product.images = matchedProduct.images;
+        //                }
+
+        //                if (orderDetail.BranchId.HasValue)
+        //                {
+        //                    var matchedBranch = listBranches.FirstOrDefault(b => b.BranchId == orderDetail.BranchId.Value);
+        //                    if (matchedBranch != null)
+        //                    {
+        //                        orderDetail.Product.Branch = new BranchDTO
+        //                        {
+        //                            BranchId = matchedBranch.BranchId,
+        //                            BranchName = matchedBranch.BranchName,
+        //                            BranchAddress = matchedBranch.BranchAddress,
+        //                            BranchPhone = matchedBranch.BranchPhone,
+        //                            LongAddress = matchedBranch.LongAddress,
+        //                            LatAddress = matchedBranch.LatAddress,
+        //                            Status = matchedBranch.Status,
+        //                            ManagerId = matchedBranch.ManagerId,
+        //                            District = matchedBranch.District,
+        //                            WardCode = matchedBranch.WardCode,
+        //                            CompanyId = matchedBranch.CompanyId,
+        //                            CreatedDate = matchedBranch.CreatedDate,
+        //                            UpdatedDate = matchedBranch.UpdatedDate,
+        //                        };
+        //                    }
+
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return new DetailOrderResponse
+        //    {
+        //        message = "Get detail order success",
+        //        data = orderModel
+        //    };
+        //}
+
         public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
         {
             var user = await _unitOfWorks.UserRepository.GetByIdAsync(userId);
@@ -960,7 +1091,8 @@ namespace Server.Business.Services
             var listProductModels = new List<ProductModel>();
             var listBranches = new List<Branch>();
 
-            if (order.OrderType == OrderType.Appointment.ToString())
+            // ✅ Nếu là Appointment hoặc ProductAndService: lấy Appointments
+            if (order.OrderType == OrderType.Appointment.ToString() || order.OrderType == OrderType.ProductAndService.ToString())
             {
                 var orderAppointments = await _unitOfWorks.AppointmentsRepository
                     .FindByCondition(x => x.OrderId == orderId)
@@ -975,20 +1107,20 @@ namespace Server.Business.Services
                 var listService = orderAppointments.Select(a => a.Service).ToList();
                 listServiceModels = await _serviceService.GetListImagesOfServices(listService);
             }
-            else if (order.OrderType == OrderType.Product.ToString())
+
+            // ✅ Nếu là Product hoặc ProductAndService: lấy OrderDetails
+            if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.ProductAndService.ToString())
             {
                 var orderDetails = order.OrderDetails.ToList();
                 var listProducts = orderDetails.Select(od => od.Product).ToList();
                 listProductModels = await _productService.GetListImagesOfProduct(listProducts);
 
-                // 👉 Lấy branchId từ OrderDetail
                 var branchIds = orderDetails
                     .Where(od => od.BranchId.HasValue)
                     .Select(od => od.BranchId.Value)
                     .Distinct()
                     .ToList();
 
-                // 👉 Query tất cả Branch theo branchId
                 listBranches = await _unitOfWorks.BranchRepository
                     .FindByCondition(b => branchIds.Contains(b.BranchId))
                     .ToListAsync();
@@ -996,55 +1128,51 @@ namespace Server.Business.Services
 
             var orderModel = _mapper.Map<OrderModel>(order);
 
-            if (orderModel.OrderType == OrderType.Appointment.ToString())
+            // 👉 Map Services nếu có
+            if (orderModel.Appointments?.Any() == true)
             {
-                if (orderModel.Appointments?.Any() == true)
+                foreach (var appointment in orderModel.Appointments)
                 {
-                    foreach (var appointment in orderModel.Appointments)
+                    var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+                    if (matchedService != null)
                     {
-                        var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
-                        if (matchedService != null)
-                        {
-                            appointment.Service.images = matchedService.images;
-                        }
+                        appointment.Service.images = matchedService.images;
                     }
                 }
             }
-            else if (orderModel.OrderType == OrderType.Product.ToString())
+
+            // 👉 Map Products nếu có
+            if (orderModel.OrderDetails?.Any() == true)
             {
-                if (orderModel.OrderDetails?.Any() == true)
+                foreach (var orderDetail in orderModel.OrderDetails)
                 {
-                    foreach (var orderDetail in orderModel.OrderDetails)
+                    var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
+                    if (matchedProduct != null)
                     {
-                        var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
-                        if (matchedProduct != null)
-                        {
-                            orderDetail.Product.images = matchedProduct.images;
-                        }
+                        orderDetail.Product.images = matchedProduct.images;
+                    }
 
-                        if (orderDetail.BranchId.HasValue)
+                    if (orderDetail.BranchId.HasValue)
+                    {
+                        var matchedBranch = listBranches.FirstOrDefault(b => b.BranchId == orderDetail.BranchId.Value);
+                        if (matchedBranch != null)
                         {
-                            var matchedBranch = listBranches.FirstOrDefault(b => b.BranchId == orderDetail.BranchId.Value);
-                            if (matchedBranch != null)
+                            orderDetail.Product.Branch = new BranchDTO
                             {
-                                orderDetail.Product.Branch = new BranchDTO
-                                {
-                                    BranchId = matchedBranch.BranchId,
-                                    BranchName = matchedBranch.BranchName,
-                                    BranchAddress = matchedBranch.BranchAddress,
-                                    BranchPhone = matchedBranch.BranchPhone,
-                                    LongAddress = matchedBranch.LongAddress,
-                                    LatAddress = matchedBranch.LatAddress,
-                                    Status = matchedBranch.Status,
-                                    ManagerId = matchedBranch.ManagerId,
-                                    District = matchedBranch.District,
-                                    WardCode = matchedBranch.WardCode,
-                                    CompanyId = matchedBranch.CompanyId,
-                                    CreatedDate = matchedBranch.CreatedDate,
-                                    UpdatedDate = matchedBranch.UpdatedDate,
-                                };
-                            }
-
+                                BranchId = matchedBranch.BranchId,
+                                BranchName = matchedBranch.BranchName,
+                                BranchAddress = matchedBranch.BranchAddress,
+                                BranchPhone = matchedBranch.BranchPhone,
+                                LongAddress = matchedBranch.LongAddress,
+                                LatAddress = matchedBranch.LatAddress,
+                                Status = matchedBranch.Status,
+                                ManagerId = matchedBranch.ManagerId,
+                                District = matchedBranch.District,
+                                WardCode = matchedBranch.WardCode,
+                                CompanyId = matchedBranch.CompanyId,
+                                CreatedDate = matchedBranch.CreatedDate,
+                                UpdatedDate = matchedBranch.UpdatedDate,
+                            };
                         }
                     }
                 }
@@ -1056,6 +1184,7 @@ namespace Server.Business.Services
                 data = orderModel
             };
         }
+
 
 
 

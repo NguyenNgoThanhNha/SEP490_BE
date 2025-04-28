@@ -180,6 +180,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
             }
 
             // Chia tách token
+            // Chia tách token
             var tokenValue = token.ToString().Split(' ')[1];
             // Lấy thông tin người dùng từ token
             var currentUser = await _authService.GetUserInToken(tokenValue);
