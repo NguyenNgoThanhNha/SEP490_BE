@@ -45,6 +45,7 @@ public class Appointments
     
     public decimal SubTotal  { get; set; } // (Quantity * UnitPrice)
     
+    public int? Step { get; set; }
     public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
     
     public string? PaymentMethod { get; set; } = PaymentMethodEnum.PayOS.ToString();

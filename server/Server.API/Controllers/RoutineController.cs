@@ -159,5 +159,32 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+
+        [HttpPatch("update-start-time-of-routine")]
+        public async Task<IActionResult> UpdateStartTimeOfRoutine(UpdateStartTimeOfRoutineRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(ApiResult<List<string>>.Error(errors));
+            }
+
+            var result =
+                await _routineService.UpdateStartTimeOfRoutine(request.OrderId, request.FromStep, request.StartTime);
+            if (result == null)
+                return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = "Không tìm thấy liệu trình!"
+                }));
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Cập nhật thời gian bắt đầu liệu trình thành công!",
+                data = result
+            }));
+        }
     }
 }
