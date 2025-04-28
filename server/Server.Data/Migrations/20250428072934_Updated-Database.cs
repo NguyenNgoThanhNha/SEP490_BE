@@ -1263,6 +1263,7 @@ namespace Server.Data.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Step = table.Column<int>(type: "int", nullable: true),
                     StatusPayment = table.Column<string>(type: "longtext", nullable: false),
                     PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),

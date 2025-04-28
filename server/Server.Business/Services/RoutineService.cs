@@ -25,7 +25,8 @@ public class RoutineService
     private readonly IHubContext<NotificationHub> _hubContext;
 
     public RoutineService(UnitOfWorks unitOfWorks, IMapper mapper, ProductService productService,
-        ServiceService serviceService, StaffService staffService, MongoDbService mongoDbService, IHubContext<NotificationHub> hubContext)
+        ServiceService serviceService, StaffService staffService, MongoDbService mongoDbService,
+        IHubContext<NotificationHub> hubContext)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
@@ -222,7 +223,7 @@ public class RoutineService
                     await _unitOfWorks.VoucherRepository.FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
                     ?? throw new BadRequestException("Không tìm thấy mã giảm giá nào!");
             }
-            
+
             var branch = await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId)
                          ?? throw new BadRequestException("Không tìm thấy chi nhánh nào!");
 
@@ -281,7 +282,20 @@ public class RoutineService
                 foreach (var serviceStep in step.ServiceRoutineSteps)
                 {
                     var service = serviceStep.Service;
-                    var endTime = appointmentTime.AddMinutes(int.Parse(service.Duration));
+                    var endTime = appointmentTime.AddMinutes(int.Parse(service.Duration) + 5);
+
+                    // Check if customer has overlapping appointments
+                    var isCustomerBusy = await _unitOfWorks.AppointmentsRepository
+                        .FirstOrDefaultAsync(a => a.CustomerId == user.UserId &&
+                                                  a.AppointmentsTime < endTime &&
+                                                  a.AppointmentEndTime > appointmentTime &&
+                                                  a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                    if (isCustomerBusy)
+                    {
+                        throw new BadRequestException(
+                            $"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
+                    }
+
                     var newAppointment = new AppointmentsModel
                     {
                         CustomerId = user.UserId,
@@ -297,13 +311,14 @@ public class RoutineService
                         SubTotal = service.Price,
                         Feedback = "",
                         Notes = "",
+                        Step = step.Step,
                         CreatedDate = DateTime.Now
                     };
                     var appointmentEntity =
                         await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(newAppointment));
                     await _unitOfWorks.AppointmentsRepository.Commit();
-                    appointmentTime = endTime.AddDays(step.IntervalBeforeNextStep ?? 0);
-                    
+                    appointmentTime = endTime;
+
                     // get specialist MySQL
                     var specialistMySQL = await _staffService.GetStaffById(staff.StaffId);
 
@@ -320,25 +335,9 @@ public class RoutineService
                     // add member to channel
                     await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
                     await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
-                
-                    // create notification
-                    if (NotificationHub.TryGetConnectionId(user.UserId.ToString(), out var connectionId))
-                    {
-                        var notification = new Notifications()
-                        {
-                            CustomerId = user.UserId,
-                            Content = $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
-                            Type = "Appointment",
-                            isRead = false,
-                            ObjectId = appointmentEntity.AppointmentId,
-                            CreatedDate = DateTime.Now,
-                        };
-                        await _unitOfWorks.NotificationRepository.AddAsync(notification);
-                        await _unitOfWorks.NotificationRepository.Commit();
-
-                        await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
-                    }
                 }
+
+                appointmentTime = appointmentTime.AddDays(step.IntervalBeforeNextStep ?? 0);
 
                 foreach (var productStep in step.ProductRoutineSteps)
                 {
@@ -421,6 +420,24 @@ public class RoutineService
             /*await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointment);*/
             await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetail);
             await _unitOfWorks.CommitTransactionAsync();
+
+            // create notification
+            if (NotificationHub.TryGetConnectionId(user.UserId.ToString(), out var connectionId))
+            {
+                var notification = new Notifications()
+                {
+                    CustomerId = user.UserId,
+                    Content = $"Đặt lịch thành công liệu trình {routine.Name}",
+                    Type = "Routine",
+                    isRead = false,
+                    ObjectId = order.OrderId,
+                    CreatedDate = DateTime.Now,
+                };
+                await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                await _unitOfWorks.NotificationRepository.Commit();
+
+                await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+            }
 
             return order.OrderId;
         }
@@ -669,9 +686,9 @@ public class RoutineService
 
         if (routines == null || routines.Count == 0)
             return null;
-        
-        var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x=> x.UserId == userId)
-            ?? throw new BadRequestException("Không tìm thấy người dùng nào!");
+
+        var user = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == userId)
+                   ?? throw new BadRequestException("Không tìm thấy người dùng nào!");
 
         var listService = new List<Data.Entities.Service>();
         var listProduct = new List<Product>();
@@ -710,12 +727,12 @@ public class RoutineService
             .GroupBy(x => x.ProductId)
             .Select(g => g.First())
             .ToList();
-        
+
         var listServiceModel =
             await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(distinctServices));
         var listProductModel =
             await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(distinctProducts));
-        
+
         var response = new GetListServiceAndProductRcmResponse
         {
             UserInfo = _mapper.Map<UserInfoModel>(user),
@@ -724,5 +741,149 @@ public class RoutineService
         };
 
         return response;
+    }
+
+    public async Task<bool> UpdateStartTimeOfRoutine(int orderId, int fromStep, DateTime startTime)
+    {
+        var order = await _unitOfWorks.OrderRepository
+            .FindByCondition(x => x.OrderId == orderId && x.OrderType == OrderType.Routine.ToString())
+            .Include(x => x.Routine)
+            .ThenInclude(x => x.SkinCareRoutineSteps)
+            .ThenInclude(x => x.ServiceRoutineSteps)
+            .ThenInclude(x => x.Service)
+            .FirstOrDefaultAsync() ?? throw new BadRequestException("Không tìm thấy đơn hàng nào!");
+
+        var stepsToUpdate = order.Routine.SkinCareRoutineSteps
+            .Where(s => s.Step >= fromStep)
+            .OrderBy(s => s.Step)
+            .ToList();
+
+        if (stepsToUpdate.Count == 0)
+            throw new BadRequestException("Không tìm thấy bước nào để cập nhật!");
+
+        var serviceIds = stepsToUpdate
+            .SelectMany(s => s.ServiceRoutineSteps)
+            .Select(s => s.ServiceId)
+            .Distinct()
+            .ToList();
+
+        var appointments = await _unitOfWorks.AppointmentsRepository
+            .FindByCondition(x =>
+                x.OrderId == orderId && x.ServiceId != null && serviceIds.Contains(x.ServiceId) && x.Step >= fromStep)
+            .OrderBy(x => x.AppointmentId)
+            .ToListAsync();
+
+        if (appointments.Count == 0)
+            throw new BadRequestException("Không tìm thấy lịch hẹn nào để cập nhật!");
+
+        if (fromStep > 1)
+        {
+            // Lấy step ngay trước đó
+            var previousStep = order.Routine.SkinCareRoutineSteps
+                .FirstOrDefault(s => s.Step == fromStep - 1);
+
+            if (previousStep != null)
+            {
+                var previousServiceStep = previousStep.ServiceRoutineSteps
+                    .OrderBy(s => s.Step)
+                    .FirstOrDefault();
+
+                if (previousServiceStep != null)
+                {
+                    var previousAppointment = await _unitOfWorks.AppointmentsRepository
+                        .FindByCondition(x => x.OrderId == orderId && x.ServiceId == previousServiceStep.ServiceId && x.Step == previousStep.Step)
+                        .OrderBy(x => x.AppointmentId)
+                        .FirstOrDefaultAsync();
+
+                    if (previousAppointment != null)
+                    {
+                        // Thời gian kết thúc của step trước
+                        var previousEndTime = previousAppointment.AppointmentEndTime;
+
+                        if (previousEndTime == null)
+                        {
+                            throw new BadRequestException("Lịch hẹn trước chưa có thời gian kết thúc!");
+                        }
+
+                        var expectedStartDate = previousEndTime.Date.AddDays(previousStep.IntervalBeforeNextStep ?? 0);
+
+                        if (startTime <= expectedStartDate)
+                        {
+                            throw new BadRequestException(
+                                $"Ngày bắt đầu không hợp lệ! Phải sau bước trước {previousStep.IntervalBeforeNextStep} ngày.");
+                        }
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Không tìm thấy lịch hẹn của bước trước!");
+                    }
+                }
+            }
+        }
+
+        bool isFirstStep = true;
+        foreach (var step in stepsToUpdate)
+        {
+            var serviceSteps = step.ServiceRoutineSteps.OrderBy(s => s.Step).ToList();
+
+            foreach (var serviceStep in serviceSteps)
+            {
+                // Tìm appointment đúng serviceId + đúng step
+                var appointment = appointments
+                    .FirstOrDefault(x => x.ServiceId == serviceStep.ServiceId && x.Step == step.Step);
+
+                if (appointment == null)
+                {
+                    continue;
+                }
+
+                appointments.Remove(appointment); // Remove luôn để không update trùng lần sau
+
+                if (isFirstStep)
+                {
+                    // Step đầu tiên: cập nhật cả ngày giờ
+                    appointment.AppointmentsTime = startTime;
+
+                    if (int.TryParse(serviceStep.Service.Duration, out var duration))
+                    {
+                        appointment.AppointmentEndTime = startTime.AddMinutes(duration + 5);
+                        startTime = appointment.AppointmentEndTime;
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Thời lượng dịch vụ không hợp lệ!");
+                    }
+                }
+                else
+                {
+                    // Các bước sau: chỉ đổi ngày, giữ giờ phút cũ
+                    var oldTime = appointment.AppointmentsTime;
+                    appointment.AppointmentsTime = new DateTime(
+                        startTime.Year, startTime.Month, startTime.Day,
+                        oldTime.Hour, oldTime.Minute, oldTime.Second);
+
+                    var oldEndTime = appointment.AppointmentEndTime;
+                    appointment.AppointmentEndTime = new DateTime(
+                        startTime.Year, startTime.Month, startTime.Day,
+                        oldEndTime.Hour, oldEndTime.Minute, oldEndTime.Second);
+                }
+
+                _unitOfWorks.AppointmentsRepository.Update(appointment);
+
+                var commitResult = await _unitOfWorks.AppointmentsRepository.Commit();
+                if (commitResult <= 0)
+                {
+                    throw new BadRequestException("Cập nhật lịch hẹn thất bại!");
+                }
+            }
+
+            // Cộng thêm ngày sau mỗi bước
+            var dayInterval = step.IntervalBeforeNextStep ?? 0;
+            startTime = startTime.AddDays(dayInterval);
+
+            isFirstStep = false;
+        }
+
+        return true;
     }
 }

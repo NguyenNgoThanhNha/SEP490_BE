@@ -68,7 +68,7 @@ public class MongoDbService
     public async Task<Channels> CreateChannelAsync(string name, string adminId, int appointmentId)
     {
         var channelExists = await _channelsRepository
-            .GetManyAsync(c => c.Name == name || c.AppointmentId == appointmentId);
+            .GetManyAsync(c => c.AppointmentId == appointmentId);
         if (channelExists.Any())
         {
             throw new BadRequestException($"Kênh {name} với cuộc hẹn đã tồn tại.");
