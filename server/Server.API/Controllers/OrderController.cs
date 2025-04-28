@@ -257,7 +257,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
 
         [Authorize]
         [HttpPost("create-order-appointment-more/{orderId}")]
-        public async Task<IActionResult> CreateOrderAppointmentMore(int orderId, [FromBody] AppointmentUpdateRequest req)
+        public async Task<IActionResult> CreateOrderAppointmentMore(int orderId, [FromBody] AppointmentCreateMoreRequest req)
         {
             // Lấy token từ header
             if (!Request.Headers.TryGetValue("Authorization", out var token))
@@ -280,7 +280,7 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
                     message = "Không tìm thấy thông tin khách hàng!"
                 }));
             }
-            var order = await _orderService.CreateMoreOrderAppointment(orderId, req);
+            var order = await _orderService.CreateMoreOrderAppointment(req.UserId, req, orderId);
             if (order == null)
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()

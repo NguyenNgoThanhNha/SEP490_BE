@@ -377,8 +377,8 @@ namespace Server.Business.Services
                     price: Convert.ToInt32(ap.UnitPrice)
                 )));
             }*/
-            
-            if (order.OrderType == OrderType.Product.ToString() 
+
+            if (order.OrderType == OrderType.Product.ToString()
                 || order.OrderType == OrderType.Routine.ToString()
                 || order.OrderType == OrderType.ProductAndService.ToString())
             {
@@ -398,7 +398,7 @@ namespace Server.Business.Services
                 )));
             }
 
-            if (order.OrderType == OrderType.Appointment.ToString() 
+            if (order.OrderType == OrderType.Appointment.ToString()
                 || order.OrderType == OrderType.Routine.ToString()
                 || order.OrderType == OrderType.ProductAndService.ToString())
             {
@@ -578,7 +578,8 @@ namespace Server.Business.Services
         //    };
         //}
 
-        public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType, int page = 1, int pageSize = 5)
+        public async Task<HistoryBookingResponse> BookingHistory(int userId, string status, string orderType,
+            int page = 1, int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(x => x.CustomerId == userId)
@@ -587,10 +588,10 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Shipment)
                 .Include(x => x.Appointments)
-                    .ThenInclude(x => x.Service)
+                .ThenInclude(x => x.Service)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.ProductImages)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
                 .Where(x => x.Status == status && x.OrderType == orderType)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
@@ -664,9 +665,6 @@ namespace Server.Business.Services
                 }
             };
         }
-
-
-
 
 
         //public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
@@ -765,7 +763,8 @@ namespace Server.Business.Services
         //    };
         //}
 
-        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1, int pageSize = 5)
+        public async Task<HistoryBookingResponse> BookingHistoryAllTypes(int userId, string status, int page = 1,
+            int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(x => x.CustomerId == userId && x.Status == status)
@@ -774,14 +773,14 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Shipment)
                 .Include(x => x.Appointments)
-                    .ThenInclude(x => x.Service)
+                .ThenInclude(x => x.Service)
                 .Include(x => x.Appointments)
-                    .ThenInclude(x => x.Branch)
+                .ThenInclude(x => x.Branch)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Promotion)
+                .ThenInclude(od => od.Promotion)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.ProductImages)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
                 .OrderByDescending(x => x.CreatedDate)
                 .ToListAsync();
 
@@ -826,7 +825,8 @@ namespace Server.Business.Services
 
                 foreach (var detail in order.OrderDetails)
                 {
-                    var entityDetail = entityOrder?.OrderDetails.FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId);
+                    var entityDetail =
+                        entityOrder?.OrderDetails.FirstOrDefault(od => od.OrderDetailId == detail.OrderDetailId);
 
                     // Gán Branch theo OrderDetail.BranchId
                     if (detail.Product != null && detail.Branch == null && detail.BranchId.HasValue)
@@ -870,8 +870,6 @@ namespace Server.Business.Services
                 }
             };
         }
-
-
 
 
         //public async Task<DetailOrderResponse> GetDetailOrder(int orderId, int userId)
@@ -1119,8 +1117,8 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Routine)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                    .ThenInclude(p => p.ProductImages)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
                 .Include(x => x.Appointments)
                 .FirstOrDefaultAsync();
 
@@ -1134,14 +1132,15 @@ namespace Server.Business.Services
             var listBranches = new List<Branch>();
 
             // ✅ Nếu là Appointment hoặc ProductAndService: lấy Appointments
-            if (order.OrderType == OrderType.Appointment.ToString() || order.OrderType == OrderType.ProductAndService.ToString())
+            if (order.OrderType == OrderType.Appointment.ToString() ||
+                order.OrderType == OrderType.ProductAndService.ToString())
             {
                 var orderAppointments = await _unitOfWorks.AppointmentsRepository
                     .FindByCondition(x => x.OrderId == orderId)
                     .Include(x => x.Branch)
                     .Include(x => x.Service)
                     .Include(x => x.Staff)
-                        .ThenInclude(x => x.StaffInfo)
+                    .ThenInclude(x => x.StaffInfo)
                     .ToListAsync();
 
                 order.Appointments = orderAppointments;
@@ -1151,7 +1150,8 @@ namespace Server.Business.Services
             }
 
             // ✅ Nếu là Product hoặc ProductAndService: lấy OrderDetails
-            if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.ProductAndService.ToString())
+            if (order.OrderType == OrderType.Product.ToString() ||
+                order.OrderType == OrderType.ProductAndService.ToString())
             {
                 var orderDetails = order.OrderDetails.ToList();
                 var listProducts = orderDetails.Select(od => od.Product).ToList();
@@ -1188,7 +1188,8 @@ namespace Server.Business.Services
             {
                 foreach (var orderDetail in orderModel.OrderDetails)
                 {
-                    var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
+                    var matchedProduct =
+                        listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
                     if (matchedProduct != null)
                     {
                         orderDetail.Product.images = matchedProduct.images;
@@ -1228,79 +1229,317 @@ namespace Server.Business.Services
         }
 
 
-
-
-        public async Task<bool> CreateMoreOrderAppointment(int orderId, AppointmentUpdateRequest request)
+        public async Task<List<AppointmentsModel>> CreateMoreOrderAppointment(int userId,
+            AppointmentCreateMoreRequest request,
+            int existingOrderId)
         {
-            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
-            if (order == null)
+            await _unitOfWorks.BeginTransactionAsync();
+
+            try
             {
-                return false;
+                var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == userId);
+                var branch =
+                    await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId);
+                Voucher voucher = null;
+
+                // Kiểm tra voucher (nếu có)
+                if (request.VoucherId != null && request.VoucherId > 0)
+                {
+                    voucher = await _unitOfWorks.VoucherRepository
+                                  .FirstOrDefaultAsync(x => x.VoucherId == request.VoucherId)
+                              ?? throw new BadRequestException("Không tìm thấy voucher!");
+                }
+
+                if (customer == null) throw new BadRequestException("Không tìm thấy thông tin khách hàng!");
+                if (branch == null) throw new BadRequestException("Không tìm thấy thông tin chi nhánh!");
+
+                // Kiểm tra tính hợp lệ của số lượng dịch vụ, nhân viên và thời gian
+                if (request.ServiceId.Length != request.StaffId.Length ||
+                    request.ServiceId.Length != request.AppointmentsTime.Length)
+                {
+                    throw new BadRequestException("The number of services, staff, and appointment times must match!");
+                }
+
+                // Lấy thông tin Order đã tồn tại
+                var existingOrder =
+                    await _unitOfWorks.OrderRepository.FirstOrDefaultAsync(x => x.OrderId == existingOrderId);
+                if (existingOrder == null)
+                {
+                    throw new BadRequestException("Không tìm thấy đơn hàng!");
+                }
+
+                // Kiểm tra trạng thái của order
+                if (existingOrder.Status == OrderStatusEnum.Completed.ToString() ||
+                    existingOrder.Status == OrderStatusEnum.Cancelled.ToString())
+                {
+                    throw new BadRequestException("Không thể thêm cuộc hẹn vào đơn hàng đã hoàn thành hoặc bị hủy!");
+                }
+
+                // Đảm bảo rằng order vẫn đang trong trạng thái chờ xử lý
+                var randomOrderCode = new Random().Next(100000, 999999);
+                existingOrder.OrderCode = randomOrderCode;
+                existingOrder.UpdatedDate = DateTime.UtcNow;
+
+                _unitOfWorks.OrderRepository.Update(existingOrder);
+                await _unitOfWorks.OrderRepository.Commit();
+
+                // Nếu voucher có, giảm số lượng voucher
+                if (voucher != null)
+                {
+                    voucher.RemainQuantity -= 1;
+                    if (voucher.RemainQuantity < 0)
+                    {
+                        throw new BadRequestException("Voucher đã hết hạn!");
+                    }
+
+                    existingOrder.DiscountAmount = voucher.DiscountAmount;
+                    existingOrder.VoucherId = voucher.VoucherId;
+                    _unitOfWorks.OrderRepository.Update(existingOrder);
+                    await _unitOfWorks.OrderRepository.Commit();
+
+                    _unitOfWorks.VoucherRepository.Update(voucher);
+                    await _unitOfWorks.VoucherRepository.Commit();
+                }
+
+                var appointments = new List<AppointmentsModel>();
+                var staffAppointments =
+                    new Dictionary<int, DateTime>(); // Lưu lịch làm việc của nhân viên trong request
+
+                // Duyệt qua từng dịch vụ, nhân viên và thời gian
+                for (int i = 0; i < request.ServiceId.Length; i++)
+                {
+                    var serviceId = request.ServiceId[i];
+                    var staffId = request.StaffId[i];
+                    var appointmentTime = request.AppointmentsTime[i];
+
+                    if (appointmentTime < DateTime.Now)
+                    {
+                        throw new BadRequestException($"Thời gian đặt lịch không hợp lệ: {appointmentTime}");
+                    }
+
+                    var service =
+                        await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == serviceId);
+                    if (service == null)
+                    {
+                        throw new BadRequestException($"Không tìm thấy thông tin dịch vụ!");
+                    }
+
+                    var serviceInBranch = await _unitOfWorks.Branch_ServiceRepository
+                        .FirstOrDefaultAsync(sb => sb.ServiceId == serviceId && sb.BranchId == request.BranchId);
+                    if (serviceInBranch == null)
+                    {
+                        throw new BadRequestException($"Trong chi nhánh hiện tại không tồn tại dịch vụ này!");
+                    }
+
+                    var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == staffId)
+                        .Include(x => x.StaffInfo)
+                        .FirstOrDefaultAsync();
+                    if (staff == null)
+                    {
+                        throw new BadRequestException($"Không tìm thấy thông tin nhân viên!");
+                    }
+
+                    if (staff.BranchId != request.BranchId)
+                    {
+                        throw new BadRequestException($"Staff hiện đang không trực ở chi nhánh {request.BranchId}!");
+                    }
+
+                    var totalDuration = int.Parse(service.Duration) + 5; // Thời gian dịch vụ + thời gian nghỉ
+                    var endTime = appointmentTime.AddMinutes(totalDuration);
+
+                    if (staffAppointments.ContainsKey(staffId))
+                    {
+                        var lastAppointmentEndTime = staffAppointments[staffId];
+                        if (appointmentTime < lastAppointmentEndTime)
+                        {
+                            throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
+                        }
+                    }
+
+                    staffAppointments[staffId] = endTime;
+
+                    var isStaffBusy = await _unitOfWorks.AppointmentsRepository
+                        .FirstOrDefaultAsync(a => a.StaffId == staffId &&
+                                                  a.AppointmentsTime < endTime &&
+                                                  a.AppointmentEndTime > appointmentTime &&
+                                                  a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                    if (isStaffBusy)
+                    {
+                        throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
+                    }
+
+                    // Check if customer has overlapping appointments
+                    var isCustomerBusy = await _unitOfWorks.AppointmentsRepository
+                        .FirstOrDefaultAsync(a => a.CustomerId == userId &&
+                                                  a.AppointmentsTime < endTime &&
+                                                  a.AppointmentEndTime > appointmentTime &&
+                                                  a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                    if (isCustomerBusy)
+                    {
+                        throw new BadRequestException(
+                            $"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
+                    }
+
+                    var newAppointment = new AppointmentsModel
+                    {
+                        CustomerId = userId,
+                        OrderId = existingOrder.OrderId, // Sử dụng OrderId hiện tại
+                        StaffId = staffId,
+                        ServiceId = serviceId,
+                        Status = OrderStatusEnum.Pending.ToString(),
+                        BranchId = request.BranchId,
+                        AppointmentsTime = appointmentTime,
+                        AppointmentEndTime = endTime,
+                        Quantity = 1,
+                        UnitPrice = service.Price,
+                        SubTotal = service.Price,
+                        Feedback = request.Feedback ?? "",
+                        Notes = request.Notes ?? ""
+                    };
+
+                    var appointmentEntity =
+                        await _unitOfWorks.AppointmentsRepository.AddAsync(_mapper.Map<Appointments>(newAppointment));
+                    await _unitOfWorks.AppointmentsRepository.Commit();
+                    appointments.Add(_mapper.Map<AppointmentsModel>(appointmentEntity));
+
+                    // Handle notifications and MongoDB interactions
+                    var specialistMySQL = await _staffService.GetStaffById(staffId);
+                    var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
+                    var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+                    var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+
+                    var channel = await _mongoDbService.CreateChannelAsync(
+                        $"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id,
+                        appointmentEntity.AppointmentId);
+
+                    await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+                    await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
+
+                    if (NotificationHub.TryGetConnectionId(customer.UserId.ToString(), out var connectionId))
+                    {
+                        var notification = new Notifications()
+                        {
+                            CustomerId = customer.UserId,
+                            Content =
+                                $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                            Type = "Appointment",
+                            isRead = false,
+                            ObjectId = appointmentEntity.AppointmentId,
+                            CreatedDate = DateTime.Now,
+                        };
+                        await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                        await _unitOfWorks.NotificationRepository.Commit();
+                        await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                    }
+                }
+
+                // Cập nhật tổng giá trị đơn hàng
+                existingOrder.TotalAmount = appointments.Sum(a => a.SubTotal);
+                _unitOfWorks.OrderRepository.Update(existingOrder);
+                var result = await _unitOfWorks.SaveChangesAsync();
+                await _unitOfWorks.CommitTransactionAsync();
+
+                return result > 0 ? appointments : null;
             }
-
-            // Kiểm tra nếu Status không hợp lệ
-            if (!string.IsNullOrEmpty(request.Status) && !Enum.IsDefined(typeof(OrderStatusEnum), request.Status))
+            catch (Exception e)
             {
-                throw new BadRequestException(
-                    $"Status must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusEnum)))}.");
+                await _unitOfWorks.RollbackTransactionAsync();
+                throw new BadRequestException(e.Message);
             }
-
-            if (!string.IsNullOrEmpty(request.Status) &&
-                !Enum.IsDefined(typeof(OrderStatusPaymentEnum), request.Status))
-            {
-                throw new BadRequestException(
-                    $"Status Order Payment must be one of: {string.Join(", ", Enum.GetNames(typeof(OrderStatusPaymentEnum)))}.");
-            }
-
-            var appointment = new Appointments()
-            {
-                CustomerId = request.CustomerId,
-                OrderId = order.OrderId,
-                BranchId = request.BranchId,
-                ServiceId = request.ServiceId,
-                StaffId = request.StaffId,
-                AppointmentsTime = request.AppointmentsTime,
-                Status = request.Status ?? OrderStatusEnum.Pending.ToString(),
-                StatusPayment = request.StatusPayment ?? OrderStatusPaymentEnum.Pending.ToString(),
-                Notes = request.Notes ?? "",
-                Feedback = request?.Feedback ?? "",
-                CreatedDate = DateTime.Now,
-                UpdatedDate = DateTime.Now
-            };
-
-            await _unitOfWorks.AppointmentsRepository.AddAsync(appointment);
-            return await _unitOfWorks.AppointmentsRepository.Commit() > 0;
         }
 
         public async Task<bool> CreateMoreOrderProduct(int orderId, OrderDetailRequest request)
         {
-            var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
-            if (order == null)
+            // Bắt đầu giao dịch
+            await _unitOfWorks.BeginTransactionAsync();
+
+            try
             {
+                var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
+                if (order == null)
+                {
+                    throw new BadRequestException("Không tìm thấy đơn hàng!");
+                }
+
+                if (order.OrderType != OrderType.Product.ToString())
+                {
+                    throw new BadRequestException("Order type không phù hợp!");
+                }
+
+                if (request.ProductIds == null || request.ProductIds.Length == 0)
+                {
+                    throw new BadRequestException("At least one ProductId is required!");
+                }
+
+                // Kiểm tra rằng số lượng sản phẩm có đủ cho mỗi ProductId
+                if (request.ProductIds.Length != request.Quantity.Length)
+                {
+                    throw new BadRequestException("Number of ProductIds must match number of Quantities.");
+                }
+
+                var branch = await _unitOfWorks.BranchRepository
+                                 .FirstOrDefaultAsync(x => x.BranchId == request.BranchId)
+                             ?? throw new BadRequestException("Không tìm thấy thông tin chi nhánh");
+
+                // Duyệt qua từng sản phẩm và xử lý
+                for (int i = 0; i < request.ProductIds.Length; i++)
+                {
+                    var productId = request.ProductIds[i];
+                    var quantity = request.Quantity[i]; // Lấy số lượng tương ứng với ProductId
+
+                    var product = await _unitOfWorks.ProductRepository.GetByIdAsync(productId);
+
+                    var productBranch = await _unitOfWorks.Branch_ProductRepository
+                                            .FindByCondition(x =>
+                                                x.ProductId == productId && x.BranchId == branch.BranchId)
+                                            .FirstOrDefaultAsync()
+                                        ?? throw new BadRequestException(
+                                            "Không tìm thấy thông tin sản phẩm trong chi nhánh");
+
+                    if (product == null)
+                    {
+                        throw new BadRequestException($"Sản phẩm với ID {productId} không tồn tại!");
+                    }
+
+                    var productPrice = product?.Price ?? 0;
+
+                    var orderDetail = new OrderDetail
+                    {
+                        OrderId = orderId,
+                        ProductId = productBranch.ProductId,
+                        BranchId = productBranch.BranchId,
+                        PromotionId = request.PromotionId > 0 ? request.PromotionId : null,
+                        Quantity = quantity, // Gán số lượng đúng cho sản phẩm
+                        UnitPrice = productPrice,
+                        SubTotal = quantity * productPrice, // Tính tổng số tiền cho sản phẩm
+                        Status = request.Status ?? OrderStatusEnum.Pending.ToString(),
+                        StatusPayment = request.StatusPayment ?? OrderStatusPaymentEnum.Pending.ToString(),
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+                }
+
+                // Commit giao dịch
+                var result = await _unitOfWorks.OrderDetailRepository.Commit();
+                if (result > 0)
+                {
+                    // Nếu commit thành công, thực hiện commit giao dịch tổng
+                    await _unitOfWorks.CommitTransactionAsync();
+                    return true;
+                }
+
                 return false;
             }
-
-            var product = await _unitOfWorks.ProductRepository.GetByIdAsync(request.ProductId);
-
-            var productPrice = product?.Price ?? 0;
-
-            var orderDetail = new OrderDetail
+            catch (Exception)
             {
-                OrderId = orderId,
-                ProductId = request.ProductId,
-                PromotionId = request.PromotionId > 0 ? request.PromotionId : null,
-                Quantity = request.Quantity,
-                UnitPrice = productPrice,
-                SubTotal = request.Quantity * productPrice,
-                Status = request.Status ?? OrderStatusEnum.Pending.ToString(),
-                StatusPayment = request.StatusPayment ?? OrderStatusPaymentEnum.Pending.ToString(),
-                CreatedDate = DateTime.Now,
-                UpdatedDate = DateTime.Now
-            };
-
-            await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
-            return await _unitOfWorks.OrderDetailRepository.Commit() > 0;
+                // Nếu có lỗi, rollback giao dịch
+                await _unitOfWorks.RollbackTransactionAsync();
+                throw;
+            }
         }
+
 
         public async Task<bool> UpdateOrderStatus(int orderId, string orderStatus)
         {
@@ -1479,8 +1718,6 @@ namespace Server.Business.Services
         }
 
 
-
-
         public async Task<ApiResult<ApiResponse>> CreateOrderWithDetailsAsync(CreateOrderWithDetailsRequest request)
         {
             if (request == null
@@ -1559,7 +1796,8 @@ namespace Server.Business.Services
                 foreach (var item in request.Products)
                 {
                     if (item.Quantity <= 0)
-                        throw new BadRequestException($"Số lượng sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
+                        throw new BadRequestException(
+                            $"Số lượng sản phẩm [ProductBranchId = {item.ProductBranchId}] phải lớn hơn 0.");
 
                     var branchProduct = await _unitOfWorks.Branch_ProductRepository
                         .FindByCondition(bp => bp.Id == item.ProductBranchId && bp.Status == "Active")
@@ -1673,7 +1911,6 @@ namespace Server.Business.Services
                 });
             }
         }
-
 
 
         public async Task<ApiResult<object>> UpdateOrderStatusSimpleAsync(int orderId, string status, string token)
@@ -1859,9 +2096,6 @@ namespace Server.Business.Services
         }
 
 
-
-       
-
         public async Task AutoCompleteOrderAfterDelivery()
         {
             var orders = await _unitOfWorks.OrderRepository
@@ -1871,7 +2105,7 @@ namespace Server.Business.Services
                     o.Shipment != null)
                 .Include(o => o.OrderDetails)
                 .Include(o => o.Shipment)
-                .Include(o => o.Customer) 
+                .Include(o => o.Customer)
                 .ToListAsync();
 
             foreach (var order in orders)
@@ -1915,13 +2149,12 @@ namespace Server.Business.Services
 
                     if (order.Customer != null)
                     {
-                        
                         if (order.Customer.BonusPoint == null)
                         {
                             order.Customer.BonusPoint = 0;
                         }
 
-                       
+
                         if (order.Customer.BonusPoint < 100)
                         {
                             order.Customer.BonusPoint += 100;
@@ -1932,13 +2165,12 @@ namespace Server.Business.Services
                 }
             }
 
-         
+
             await _unitOfWorks.OrderDetailRepository.Commit();
             await _unitOfWorks.ShipmentRepository.Commit();
             await _unitOfWorks.OrderRepository.Commit();
             await _unitOfWorks.UserRepository.Commit();
         }
-
 
 
         public async Task<List<RoutineAppointmentModel>> GetRoutineHistoryByCustomerIdAsync(int customerId)
@@ -2059,12 +2291,12 @@ namespace Server.Business.Services
                                     .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId)
                                 ?? throw new BadRequestException("Không tìm thấy nhân viên phù hợp!");
                     var appointmentTime = request.AppointmentDates.FirstOrDefault();
-                    
+
                     if (appointmentTime < DateTime.Now)
                     {
-                        throw new BadRequestException($"Thời gian đặt lịch phải lớn hơn thời gian hiện tại!");  
+                        throw new BadRequestException($"Thời gian đặt lịch phải lớn hơn thời gian hiện tại!");
                     }
-                    
+
                     for (int i = 0; i < request.ServiceIds.Length; i++)
                     {
                         var service =
@@ -2171,7 +2403,7 @@ namespace Server.Business.Services
                         {
                             throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
                         }
-                        
+
                         // Check if customer has overlapping appointments
                         var isCustomerBusy = await _unitOfWorks.AppointmentsRepository
                             .FirstOrDefaultAsync(a => a.CustomerId == user.UserId &&
@@ -2180,7 +2412,8 @@ namespace Server.Business.Services
                                                       a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
                         if (isCustomerBusy)
                         {
-                            throw new BadRequestException($"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
+                            throw new BadRequestException(
+                                $"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
                         }
 
 
@@ -2342,14 +2575,14 @@ namespace Server.Business.Services
         public async Task<ApiResult<object>> CountOrdersByOrderTypeAsync()
         {
             var result = await _unitOfWorks.OrderRepository
-        .FindByCondition(o => true)
-        .GroupBy(o => o.OrderType)
-        .Select(g => new
-        {
-            OrderType = g.Key,
-            Amount = g.Count()
-        })
-        .ToListAsync();
+                .FindByCondition(o => true)
+                .GroupBy(o => o.OrderType)
+                .Select(g => new
+                {
+                    OrderType = g.Key,
+                    Amount = g.Count()
+                })
+                .ToListAsync();
             return ApiResult<object>.Succeed(new
             {
                 OrderTypeCounts = result
@@ -2358,7 +2591,7 @@ namespace Server.Business.Services
 
         public async Task AutoCancelPendingAppointmentOrdersAsync()
         {
-            var utc = DateTime.UtcNow; 
+            var utc = DateTime.UtcNow;
 
             var orders = await _unitOfWorks.OrderRepository
                 .FindByCondition(o =>
