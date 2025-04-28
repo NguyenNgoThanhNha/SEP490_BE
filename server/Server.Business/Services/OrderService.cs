@@ -1860,15 +1860,18 @@ namespace Server.Business.Services
 
 
 
+       
+
         public async Task AutoCompleteOrderAfterDelivery()
         {
             var orders = await _unitOfWorks.OrderRepository
                 .FindByCondition(o =>
                     o.Status == OrderStatusEnum.Pending.ToString() &&
-                    o.StatusPayment != OrderStatusPaymentEnum.Pending.ToString() && // ✅ Chỉ cần khác Pending
-                    o.Shipment != null) // Shipment phải tồn tại
+                    o.StatusPayment != OrderStatusPaymentEnum.Pending.ToString() &&
+                    o.Shipment != null)
                 .Include(o => o.OrderDetails)
                 .Include(o => o.Shipment)
+                .Include(o => o.Customer) 
                 .ToListAsync();
 
             foreach (var order in orders)
@@ -1884,8 +1887,7 @@ namespace Server.Business.Services
                     deliveryDate = order.Shipment.CreatedDate;
                 }
 
-                // Kiểm tra nếu đã quá 3 ngày sau ngày giao hàng/created
-                if (DateTime.UtcNow.Date >= deliveryDate.Date.AddDays(3))
+                if (DateTime.UtcNow >= deliveryDate.Date.AddDays(3))
                 {
                     // ======= Cập nhật Order =======
                     order.Status = OrderStatusEnum.Completed.ToString();
@@ -1910,14 +1912,33 @@ namespace Server.Business.Services
                         order.Shipment.UpdatedDate = DateTime.UtcNow;
                         _unitOfWorks.ShipmentRepository.Update(order.Shipment);
                     }
+
+                    if (order.Customer != null)
+                    {
+                        
+                        if (order.Customer.BonusPoint == null)
+                        {
+                            order.Customer.BonusPoint = 0;
+                        }
+
+                       
+                        if (order.Customer.BonusPoint < 100)
+                        {
+                            order.Customer.BonusPoint += 100;
+                            order.Customer.UpdatedDate = DateTime.UtcNow;
+                            _unitOfWorks.UserRepository.Update(order.Customer);
+                        }
+                    }
                 }
             }
 
-            // ======= Commit =======
+         
             await _unitOfWorks.OrderDetailRepository.Commit();
             await _unitOfWorks.ShipmentRepository.Commit();
             await _unitOfWorks.OrderRepository.Commit();
+            await _unitOfWorks.UserRepository.Commit();
         }
+
 
 
         public async Task<List<RoutineAppointmentModel>> GetRoutineHistoryByCustomerIdAsync(int customerId)

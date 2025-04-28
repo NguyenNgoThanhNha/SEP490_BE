@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR; // ASP.NET Core SignalR
 using Microsoft.EntityFrameworkCore;
+using MySql.EntityFrameworkCore.Extensions;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Constants;
@@ -776,8 +777,27 @@ public class AppointmentsService
         return _mapper.Map<List<CustomerAppointmentModel>>(appointments);
     }
 
+    public async Task<List<AppointmentsModel>> GetAppointmentsMoreThanOneDayAsync(DateTime time)
+    {
+        var staffUserIds = await _unitOfWorks.StaffRepository
+            .FindByCondition(s => s.StaffInfo.RoleID == 3 && s.RoleId == 3)
+            .Select(s => s.StaffId)
+            .ToListAsync();
 
+        if (!staffUserIds.Any())
+            return new List<AppointmentsModel>();
 
+        var appointments = await _unitOfWorks.AppointmentsRepository
+            .FindByCondition(a => staffUserIds.Contains(a.StaffId)
+                                  && EF.Functions.DateDiffHour(time, a.AppointmentsTime) > 24) 
+            .Include(a => a.Customer)
+            .Include(a => a.Service)
+            .Include(a => a.Branch)
+            .Include(a => a.Staff)
+                .ThenInclude(s => s.StaffInfo)
+            .OrderBy(a => a.AppointmentsTime)
+            .ToListAsync();
 
-
+        return _mapper.Map<List<AppointmentsModel>>(appointments);
+    }
 }

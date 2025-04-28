@@ -26,6 +26,8 @@ namespace Server.API
 
             builder.Services.AddHostedService<OrderStatusUpdateService>();
             builder.Services.AddHostedService<UserRoutineStepStatusUpdateService>();
+            builder.Services.AddHostedService<UserRoutineStatusUpdateService>();
+            builder.Services.AddSingleton<UserRoutineStatusUpdateService>();
 
 
             builder.Services.AddSwaggerGen(option =>
