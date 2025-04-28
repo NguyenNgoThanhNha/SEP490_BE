@@ -347,6 +347,7 @@ public class RoutineService
                         OrderId = createdOrder.OrderId,
                         ProductId = product.ProductId,
                         Quantity = 1,
+                        BranchId = branch.BranchId,
                         UnitPrice = product.Price,
                         SubTotal = product.Price,
                         CreatedDate = DateTime.Now

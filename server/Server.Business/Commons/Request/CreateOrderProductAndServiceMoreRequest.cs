@@ -3,14 +3,12 @@ using Server.Data;
 
 namespace Server.Business.Commons.Request;
 
-public class OrderDetailRequest
+public class CreateOrderProductAndServiceMoreRequest
 {
-    [Required(ErrorMessage = "OrderId là bắt buộc!")]
     public int[] ProductIds { get; set; }
-    public int? PromotionId { get; set; }
-    
-    [Required(ErrorMessage = "Quantity là bắt buộc!")]
     public int[] Quantity { get; set; }
+    public int[] ServiceIds { get; set; }
+    
     public string Status { get; set; } = OrderStatusEnum.Pending.ToString();
     public string StatusPayment { get; set; } = OrderStatusPaymentEnum.Pending.ToString();
     
