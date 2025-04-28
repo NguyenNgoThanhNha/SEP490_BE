@@ -343,7 +343,7 @@ namespace Server.Business.Services
             var totalAmount = Convert.ToDecimal(req.totalAmount);
             var itemsList = new List<ItemData>();
 
-            if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.Routine.ToString())
+            /*if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.Routine.ToString())
             {
                 var orderDetails = await _unitOfWorks.OrderDetailRepository
                     .FindByCondition(x => x.OrderId == req.orderId)
@@ -376,7 +376,49 @@ namespace Server.Business.Services
                     quantity: ap.Quantity,
                     price: Convert.ToInt32(ap.UnitPrice)
                 )));
+            }*/
+            
+            if (order.OrderType == OrderType.Product.ToString() 
+                || order.OrderType == OrderType.Routine.ToString()
+                || order.OrderType == OrderType.ProductAndService.ToString())
+            {
+                // Lấy danh sách order details (Product)
+                var orderDetails = await _unitOfWorks.OrderDetailRepository
+                    .FindByCondition(x => x.OrderId == req.orderId)
+                    .Include(x => x.Product)
+                    .ToListAsync();
+
+                if (order.OrderType == OrderType.Product.ToString() && !orderDetails.Any())
+                    throw new BadRequestException("No order details found for the given Order ID!");
+
+                itemsList.AddRange(orderDetails.Select(od => new ItemData(
+                    name: od.Product.ProductName,
+                    quantity: od.Quantity,
+                    price: Convert.ToInt32(od.UnitPrice)
+                )));
             }
+
+            if (order.OrderType == OrderType.Appointment.ToString() 
+                || order.OrderType == OrderType.Routine.ToString()
+                || order.OrderType == OrderType.ProductAndService.ToString())
+            {
+                // Lấy danh sách appointments (Service)
+                var appointments = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(x => x.OrderId == req.orderId)
+                    .Include(x => x.Service)
+                    .Include(x => x.Branch)
+                    .ToListAsync();
+
+                if (order.OrderType == OrderType.Appointment.ToString() && !appointments.Any())
+                    throw new BadRequestException("No appointments found for the given Order ID!");
+
+                itemsList.AddRange(appointments.Select(ap => new ItemData(
+                    name: ap.Service.Name,
+                    quantity: ap.Quantity,
+                    price: Convert.ToInt32(ap.UnitPrice)
+                )));
+            }
+
 
             if (!itemsList.Any())
                 throw new BadRequestException("No items found to process payment!");
