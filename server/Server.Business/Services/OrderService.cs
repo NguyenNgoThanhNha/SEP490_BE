@@ -1401,8 +1401,9 @@ namespace Server.Business.Services
                 {
                     throw new BadRequestException("Không tìm thấy đơn hàng!");
                 }
-                
-                if (existingOrder.OrderType == OrderType.Product.ToString() || existingOrder.OrderType == OrderType.Routine.ToString())
+
+                if (existingOrder.OrderType == OrderType.Product.ToString() ||
+                    existingOrder.OrderType == OrderType.Routine.ToString())
                 {
                     throw new BadRequestException("Order type không phù hợp!");
                 }
@@ -1512,7 +1513,8 @@ namespace Server.Business.Services
                         .FirstOrDefaultAsync(a => a.CustomerId == userId &&
                                                   a.AppointmentsTime < endTime &&
                                                   a.AppointmentEndTime > appointmentTime &&
-                                                  a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                                                  a.Status != OrderStatusEnum.Cancelled.ToString()
+                                                  || a.Status != OrderStatusEnum.Completed.ToString()) != null;
                     if (isCustomerBusy)
                     {
                         throw new BadRequestException(
@@ -1600,11 +1602,12 @@ namespace Server.Business.Services
                     throw new BadRequestException("Không tìm thấy đơn hàng!");
                 }
 
-                if (order.OrderType == OrderType.Appointment.ToString() || order.OrderType == OrderType.Routine.ToString())
+                if (order.OrderType == OrderType.Appointment.ToString() ||
+                    order.OrderType == OrderType.Routine.ToString())
                 {
                     throw new BadRequestException("Order type không phù hợp!");
                 }
-                
+
                 // Kiểm tra trạng thái của order
                 if (order.Status == OrderStatusEnum.Completed.ToString() ||
                     order.Status == OrderStatusEnum.Cancelled.ToString())
@@ -2555,7 +2558,8 @@ namespace Server.Business.Services
                             .FirstOrDefaultAsync(a => a.CustomerId == user.UserId &&
                                                       a.AppointmentsTime < endTime &&
                                                       a.AppointmentEndTime > appointmentTime &&
-                                                      a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                                                      a.Status != OrderStatusEnum.Cancelled.ToString()
+                                                      || a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
                         if (isCustomerBusy)
                         {
                             throw new BadRequestException(

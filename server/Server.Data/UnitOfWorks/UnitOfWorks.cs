@@ -58,6 +58,7 @@ namespace Server.Data.UnitOfWorks
         private ProductRoutineRepository _productRoutineRepository;
         private SkinConcernRepository _skinConcernRepository;
         private SkinCareConcernRepository _skinCareConcernRepository;
+        private UserRoutineLoggerRepository _userRoutineLoggerRepository;
         public UnitOfWorks(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -303,6 +304,11 @@ namespace Server.Data.UnitOfWorks
         public ProductRoutineRepository ProductRoutineRepository
         {
             get { return _productRoutineRepository ??= new ProductRoutineRepository(_dbContext); }
+        }
+        
+        public UserRoutineLoggerRepository UserRoutineLoggerRepository
+        {
+            get { return _userRoutineLoggerRepository ??= new UserRoutineLoggerRepository(_dbContext); }
         }
 
 

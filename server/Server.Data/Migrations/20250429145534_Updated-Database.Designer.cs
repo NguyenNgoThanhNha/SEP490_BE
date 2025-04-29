@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250428072934_Updated-Database")]
+    [Migration("20250429145534_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -668,6 +668,9 @@ namespace Server.Data.Migrations
                     b.Property<string>("StatusPayment")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int?>("Step")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(18,2)");

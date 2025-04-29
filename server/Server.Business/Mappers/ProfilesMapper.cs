@@ -199,7 +199,7 @@ namespace Server.Business.Mappers
      .ForMember(dest => dest.Branch, opt => opt.MapFrom(src => src.Branch));
 
 
-
+            CreateMap<UserRoutineLogger, UserRoutineLoggerModel>().ReverseMap();
 
         }
     }

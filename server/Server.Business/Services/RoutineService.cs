@@ -285,16 +285,16 @@ public class RoutineService
                     var endTime = appointmentTime.AddMinutes(int.Parse(service.Duration) + 5);
 
                     // Check if customer has overlapping appointments
-                    var isCustomerBusy = await _unitOfWorks.AppointmentsRepository
+                    /*var isCustomerBusy = await _unitOfWorks.AppointmentsRepository
                         .FirstOrDefaultAsync(a => a.CustomerId == user.UserId &&
                                                   a.AppointmentsTime < endTime &&
                                                   a.AppointmentEndTime > appointmentTime &&
-                                                  a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                                                  a.Status != OrderStatusEnum.Cancelled.ToString() || a.Status != OrderStatusEnum.Completed.ToString()) != null;
                     if (isCustomerBusy)
                     {
                         throw new BadRequestException(
                             $"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
-                    }
+                    }*/
 
                     var newAppointment = new AppointmentsModel
                     {
@@ -348,6 +348,7 @@ public class RoutineService
                         ProductId = product.ProductId,
                         Quantity = 1,
                         BranchId = branch.BranchId,
+                        Step = step.Step,
                         UnitPrice = product.Price,
                         SubTotal = product.Price,
                         CreatedDate = DateTime.Now

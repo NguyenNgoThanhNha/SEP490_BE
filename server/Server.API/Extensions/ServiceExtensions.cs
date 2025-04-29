@@ -141,6 +141,7 @@ namespace Server.API.Extensions
             services.AddScoped<ProductRoutineStepService>();
             services.AddScoped<UserRoutineStepStatusUpdateService>();
             services.AddScoped<SkinHealthService>();
+            services.AddScoped<UserRoutineLoggerService>();
 
             services.AddHttpContextAccessor();
 
