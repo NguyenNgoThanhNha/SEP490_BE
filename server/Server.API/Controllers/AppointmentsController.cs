@@ -456,12 +456,12 @@ namespace Server.API.Controllers
             }));
         }
 
-        [HttpGet("appointments-more-than-24h")] //get all apm with DefaultStaff..
-        public async Task<IActionResult> GetAppointmentsWithin24Hours([FromQuery] DateTime time)
+        [HttpGet("appointments-in-previous-24h")] //Các lịch hẹn trong vòng 24h trước thời điểm được truyền vào.
+        public async Task<IActionResult> GetAppointmentsInPrevious24Hours([FromQuery] DateTime time)
         {
             try
             {
-                var result = await _appointmentsService.GetAppointmentsMoreThanOneDayAsync(time);
+                var result = await _appointmentsService.GetAppointmentsInPrevious24HoursAsync(time);
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {

@@ -777,7 +777,7 @@ public class AppointmentsService
         return _mapper.Map<List<CustomerAppointmentModel>>(appointments);
     }
 
-    public async Task<List<AppointmentsModel>> GetAppointmentsMoreThanOneDayAsync(DateTime time)
+    public async Task<List<AppointmentsModel>> GetAppointmentsInPrevious24HoursAsync(DateTime time)
     {
         var staffUserIds = await _unitOfWorks.StaffRepository
             .FindByCondition(s => s.StaffInfo.RoleID == 3 && s.RoleId == 3)
@@ -787,9 +787,12 @@ public class AppointmentsService
         if (!staffUserIds.Any())
             return new List<AppointmentsModel>();
 
+        var oneDayAgo = time.AddDays(-1);
+
         var appointments = await _unitOfWorks.AppointmentsRepository
             .FindByCondition(a => staffUserIds.Contains(a.StaffId)
-                                  && EF.Functions.DateDiffHour(time, a.AppointmentsTime) > 24) 
+                                  && a.AppointmentsTime >= oneDayAgo
+                                  && a.AppointmentsTime <= time)
             .Include(a => a.Customer)
             .Include(a => a.Service)
             .Include(a => a.Branch)
@@ -800,4 +803,5 @@ public class AppointmentsService
 
         return _mapper.Map<List<AppointmentsModel>>(appointments);
     }
+
 }
