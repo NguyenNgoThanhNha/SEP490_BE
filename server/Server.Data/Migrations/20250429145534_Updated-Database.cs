@@ -1099,6 +1099,7 @@ namespace Server.Data.Migrations
                     Status = table.Column<string>(type: "longtext", nullable: false),
                     StatusPayment = table.Column<string>(type: "longtext", nullable: false),
                     PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
+                    Step = table.Column<int>(type: "int", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },

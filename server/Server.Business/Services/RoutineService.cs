@@ -348,6 +348,7 @@ public class RoutineService
                         ProductId = product.ProductId,
                         Quantity = 1,
                         BranchId = branch.BranchId,
+                        Step = step.Step,
                         UnitPrice = product.Price,
                         SubTotal = product.Price,
                         CreatedDate = DateTime.Now

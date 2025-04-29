@@ -7,4 +7,6 @@ public enum ObjectStatus
     Banned = 3,
     Expired = 4,
     Suitable = 5,
+    Completed = 6,
+    Cancelled = 7,
 }
