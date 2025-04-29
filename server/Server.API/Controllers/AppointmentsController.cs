@@ -456,12 +456,13 @@ namespace Server.API.Controllers
             }));
         }
 
-        [HttpGet("appointments-in-previous-24h")] //Các lịch hẹn trong vòng 24h trước thời điểm được truyền vào.
-        public async Task<IActionResult> GetAppointmentsInPrevious24Hours([FromQuery] DateTime time)
+        [HttpGet("appointments-in-next-24h")]
+        // Các lịch hẹn trong vòng 24h sau thời điểm được truyền vào
+        public async Task<IActionResult> GetAppointmentsInNext24Hours([FromQuery] DateTime time, [FromQuery] int? branchId)
         {
             try
             {
-                var result = await _appointmentsService.GetAppointmentsInPrevious24HoursAsync(time);
+                var result = await _appointmentsService.GetAppointmentsInNext24HoursAsync(time, branchId);
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {
@@ -477,10 +478,5 @@ namespace Server.API.Controllers
                 }));
             }
         }
-
-
-
-
-
     }
 }
