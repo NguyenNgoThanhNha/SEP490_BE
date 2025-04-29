@@ -1267,6 +1267,11 @@ namespace Server.Business.Services
                 {
                     throw new BadRequestException("Không tìm thấy đơn hàng!");
                 }
+                
+                if (existingOrder.OrderType == OrderType.Product.ToString() || existingOrder.OrderType == OrderType.Routine.ToString())
+                {
+                    throw new BadRequestException("Order type không phù hợp!");
+                }
 
                 // Kiểm tra trạng thái của order
                 if (existingOrder.Status == OrderStatusEnum.Completed.ToString() ||
@@ -1461,9 +1466,16 @@ namespace Server.Business.Services
                     throw new BadRequestException("Không tìm thấy đơn hàng!");
                 }
 
-                if (order.OrderType != OrderType.Product.ToString())
+                if (order.OrderType == OrderType.Appointment.ToString() || order.OrderType == OrderType.Routine.ToString())
                 {
                     throw new BadRequestException("Order type không phù hợp!");
+                }
+                
+                // Kiểm tra trạng thái của order
+                if (order.Status == OrderStatusEnum.Completed.ToString() ||
+                    order.Status == OrderStatusEnum.Cancelled.ToString())
+                {
+                    throw new BadRequestException("Không thể thêm cuộc hẹn vào đơn hàng đã hoàn thành hoặc bị hủy!");
                 }
 
                 if (request.ProductIds == null || request.ProductIds.Length == 0)
