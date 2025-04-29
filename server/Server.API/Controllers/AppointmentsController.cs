@@ -7,6 +7,7 @@ using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
 using Server.Business.Exceptions;
+using Server.Business.Models;
 using Server.Business.Services;
 using Server.Business.Ultils;
 using Server.Data.UnitOfWorks;
@@ -456,13 +457,13 @@ namespace Server.API.Controllers
             }));
         }
 
-        [HttpGet("appointments-in-next-24h")]
-        // Các lịch hẹn trong vòng 24h sau thời điểm được truyền vào
-        public async Task<IActionResult> GetAppointmentsInNext24Hours([FromQuery] DateTime time, [FromQuery] int? branchId)
+        [HttpGet("appointments/within-24h")]
+        /// Lấy tất cả lịch hẹn xảy ra trong 24 giờ kế tiếp kể từ thời điểm fromTime
+        public async Task<IActionResult> GetAppointmentsWithinNext24Hours([FromQuery] DateTime fromTime, [FromQuery] int? branchId)
         {
             try
             {
-                var result = await _appointmentsService.GetAppointmentsInNext24HoursAsync(time, branchId);
+                var result = await _appointmentsService.GetAppointmentsWithinNext24HoursAsync(fromTime, branchId);
 
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
                 {

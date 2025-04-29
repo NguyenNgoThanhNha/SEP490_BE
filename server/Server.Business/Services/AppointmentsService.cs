@@ -777,7 +777,7 @@ public class AppointmentsService
         return _mapper.Map<List<CustomerAppointmentModel>>(appointments);
     }
 
-    public async Task<List<AppointmentsModel>> GetAppointmentsInNext24HoursAsync(DateTime time, int? branchId)
+    public async Task<List<AppointmentsModel>> GetAppointmentsWithinNext24HoursAsync(DateTime time, int? branchId)
     {
         var staffUserIds = await _unitOfWorks.StaffRepository
             .FindByCondition(s => s.StaffInfo.RoleID == 3 && s.RoleId == 3)
@@ -787,16 +787,12 @@ public class AppointmentsService
         if (!staffUserIds.Any())
             return new List<AppointmentsModel>();
 
-        var oneDayLater = time.AddDays(1);
-
-        // Tạo query lấy Appointments trong khoảng [time, time + 1 ngày]
+        var timeEnd = time.AddDays(1);
         var query = _unitOfWorks.AppointmentsRepository
             .FindByCondition(a =>
                 staffUserIds.Contains(a.StaffId) &&
                 a.AppointmentsTime >= time &&
-                a.AppointmentsTime <= oneDayLater
-            );
-
+                a.AppointmentsTime <= timeEnd);
         if (branchId.HasValue)
         {
             query = query.Where(a => a.BranchId == branchId.Value);
