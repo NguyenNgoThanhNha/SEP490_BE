@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.SignalR; // ASP.NET Core SignalR
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MySql.EntityFrameworkCore.Extensions;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
@@ -22,15 +23,17 @@ public class AppointmentsService
     private readonly StaffService _staffService;
     private readonly MongoDbService _mongoDbService;
     private readonly IHubContext<NotificationHub> _hubContext;
+    private readonly ILogger<AppointmentsService> _logger;
 
     public AppointmentsService(UnitOfWorks unitOfWorks, IMapper mapper, StaffService staffService,
-        MongoDbService mongoDbService, IHubContext<NotificationHub> hubContext)
+        MongoDbService mongoDbService, IHubContext<NotificationHub> hubContext, ILogger<AppointmentsService> logger)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
         _staffService = staffService;
         _mongoDbService = mongoDbService;
         _hubContext = hubContext;
+        _logger = logger;
     }
 
     public async Task<GetAllAppointmentResponse> GetAllAppointments(int page = 1, int pageSize = 5)
@@ -313,22 +316,25 @@ public class AppointmentsService
                     ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
                 
                 // create notification
+                var notification = new Notifications()
+                {
+                    UserId = customer.UserId,
+                    Content = $"Bạn có cuộc hẹn mới với {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                    Type = "Appointment",
+                    isRead = false,
+                    ObjectId = appointmentEntity.AppointmentId,
+                    CreatedDate = DateTime.UtcNow,
+                };
+
+                await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                await _unitOfWorks.NotificationRepository.Commit();
+
                 if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
                 {
-                    var notification = new Notifications()
-                    {
-                        UserId = customer.UserId,
-                        Content = $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
-                        Type = "Appointment",
-                        isRead = false,
-                        ObjectId = appointmentEntity.AppointmentId,
-                        CreatedDate = DateTime.Now,
-                    };
-                    await _unitOfWorks.NotificationRepository.AddAsync(notification);
-                    await _unitOfWorks.NotificationRepository.Commit();
-
+                    _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
                     await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
                 }
+
             }
 
 

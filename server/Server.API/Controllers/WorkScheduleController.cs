@@ -25,10 +25,12 @@ namespace Server.API.Controllers
         private readonly UserService _userService;
         private readonly UnitOfWorks _unitOfWorks;
         private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly ILogger<WorkScheduleController> _logger;
 
         public WorkScheduleController(WorkScheduleService workScheduleService, AppointmentsService appointmentsService,
             MailService mailService, StaffService staffService, MongoDbService mongoDbService, AuthService authService,
-            UserService userService, UnitOfWorks unitOfWorks, IHubContext<NotificationHub> hubContext)
+            UserService userService, UnitOfWorks unitOfWorks, IHubContext<NotificationHub> hubContext,
+            ILogger<WorkScheduleController> logger)
         {
             _workScheduleService = workScheduleService;
             _appointmentsService = appointmentsService;
@@ -39,6 +41,7 @@ namespace Server.API.Controllers
             _userService = userService;
             _unitOfWorks = unitOfWorks;
             _hubContext = hubContext;
+            _logger = logger;
         }
 
         [Microsoft.AspNetCore.Authorization.Authorize]
@@ -63,7 +66,6 @@ namespace Server.API.Controllers
                 message = "Tạo lịch làm việc nhiều ca thành công!"
             }));
         }
-
 
 
         //[Microsoft.AspNetCore.Authorization.Authorize]
@@ -255,7 +257,7 @@ namespace Server.API.Controllers
                 var appointmentDate = appointment.AppointmentsTime.ToString("dd/MM/yyyy");
                 var appointmentTime = appointment.AppointmentsTime.ToString("HH:mm");
 
-               
+
                 _ = Task.Run(async () =>
                 {
                     var specialistEmail = new MailData
@@ -302,7 +304,7 @@ namespace Server.API.Controllers
                     await _mailService.SendEmailAsync(newStaffEmail, false);
                 });
 
-                
+
                 var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(newStaff.StaffInfo.UserId);
                 var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
 
@@ -314,37 +316,47 @@ namespace Server.API.Controllers
                 await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
                 await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
 
-               
-                async Task SendNotificationAsync(int receiverUserId, string content, string type)
+
+                async Task SendNotificationAsync(int receiverUserId, string content, string type, int appointmentId)
                 {
                     var receiver = await _mongoDbService.GetCustomerByIdAsync(receiverUserId);
-                    
+                    if (receiver == null) return;
+
                     var notification = new Notifications
                     {
                         UserId = receiverUserId,
                         Content = content,
                         Type = type,
                         isRead = false,
-                        ObjectId = appointment.AppointmentId,
+                        ObjectId = appointmentId,
                         CreatedDate = DateTime.UtcNow,
                     };
+
                     await _unitOfWorks.NotificationRepository.AddAsync(notification);
-                    await _unitOfWorks.NotificationRepository.Commit();
 
                     if (NotificationHub.TryGetConnectionId(receiver.Id, out var connId))
                     {
                         await _hubContext.Clients.Client(connId).SendAsync("receiveNotification", notification);
                     }
                 }
-
+                
                 if (specialist != null)
                 {
-                    await SendNotificationAsync(specialist.UserId, $"Bạn đã được cập nhật lịch nghỉ vào {appointmentDate} {appointmentTime}.", "SpecialistLeave");
+                    await SendNotificationAsync(specialist.UserId,
+                        $"Bạn đã được cập nhật lịch nghỉ vào {appointmentDate} {appointmentTime}.", "SpecialistLeave",
+                        appointment.AppointmentId);
                 }
 
-                await SendNotificationAsync(customer.UserId, $"Lịch hẹn ngày {appointmentDate} {appointmentTime} đã thay đổi do nhân viên nghỉ.", "AppointmentUpdate");
+                await SendNotificationAsync(customer.UserId,
+                    $"Lịch hẹn ngày {appointmentDate} {appointmentTime} đã thay đổi do nhân viên nghỉ.",
+                    "AppointmentUpdate", appointment.AppointmentId);
 
-                await SendNotificationAsync(newStaff.StaffInfo.UserId, $"Bạn được thay thế lịch hẹn ngày {appointmentDate} {appointmentTime}.", "StaffReplacement");
+                await SendNotificationAsync(newStaff.StaffInfo.UserId,
+                    $"Bạn được thay thế lịch hẹn ngày {appointmentDate} {appointmentTime}.", "StaffReplacement",
+                    appointment.AppointmentId);
+
+                // Commit một lần cuối
+                await _unitOfWorks.NotificationRepository.Commit();
             }
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
@@ -352,8 +364,6 @@ namespace Server.API.Controllers
                 message = "Cập nhật lịch làm việc thành công",
             }));
         }
-
-
 
 
         [HttpGet("staff/{staffId}/work-schedules")]

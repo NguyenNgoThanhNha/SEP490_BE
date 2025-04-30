@@ -3,6 +3,7 @@ using Google.Protobuf.Collections;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Constants;
@@ -23,10 +24,11 @@ public class RoutineService
     private readonly StaffService _staffService;
     private readonly MongoDbService _mongoDbService;
     private readonly IHubContext<NotificationHub> _hubContext;
+    private readonly ILogger<RoutineService> _logger;
 
     public RoutineService(UnitOfWorks unitOfWorks, IMapper mapper, ProductService productService,
         ServiceService serviceService, StaffService staffService, MongoDbService mongoDbService,
-        IHubContext<NotificationHub> hubContext)
+        IHubContext<NotificationHub> hubContext, ILogger<RoutineService> logger)
     {
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
@@ -35,6 +37,7 @@ public class RoutineService
         _staffService = staffService;
         _mongoDbService = mongoDbService;
         _hubContext = hubContext;
+        _logger = logger;
     }
 
     public async Task<SkincareRoutineModel> GetSkincareRoutineDetails(int id)
@@ -427,21 +430,23 @@ public class RoutineService
 
             var userMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId)
                             ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
-            // create notification
+
+            var notification = new Notifications
+            {
+                UserId = user.UserId,
+                Content = $"Đặt lịch thành công liệu trình {routine.Name}",
+                Type = "Routine",
+                isRead = false,
+                ObjectId = order.OrderId,
+                CreatedDate = DateTime.UtcNow,
+            };
+
+            await _unitOfWorks.NotificationRepository.AddAsync(notification);
+            await _unitOfWorks.NotificationRepository.Commit();
+
             if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
             {
-                var notification = new Notifications()
-                {
-                    UserId = user.UserId,
-                    Content = $"Đặt lịch thành công liệu trình {routine.Name}",
-                    Type = "Routine",
-                    isRead = false,
-                    ObjectId = order.OrderId,
-                    CreatedDate = DateTime.Now,
-                };
-                await _unitOfWorks.NotificationRepository.AddAsync(notification);
-                await _unitOfWorks.NotificationRepository.Commit();
-
+                _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
                 await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
             }
 
