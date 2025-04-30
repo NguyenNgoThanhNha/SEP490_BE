@@ -218,8 +218,9 @@ public class AppointmentsService
                     .FirstOrDefaultAsync(a => a.CustomerId == userId &&
                                               a.AppointmentsTime < endTime &&
                                               a.AppointmentEndTime > appointmentTime &&
-                                              a.Status != OrderStatusEnum.Cancelled.ToString()
-                                              || a.Status != OrderStatusEnum.Completed.ToString()) != null;
+                                              (a.Status != OrderStatusEnum.Cancelled.ToString() &&
+                                               a.Status != OrderStatusEnum.Completed.ToString())) != null;
+
                 if (isCustomerBusy)
                 {
                     throw new BadRequestException($"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
@@ -402,6 +403,8 @@ public class AppointmentsService
         if (request.AppointmentsTime != null)
         {
             appointmentEntity.AppointmentsTime = request.AppointmentsTime;
+            appointmentEntity.AppointmentEndTime =
+                appointmentEntity.AppointmentsTime.AddMinutes(int.Parse(service.Duration));
         }
 
         if (request.Status != null)

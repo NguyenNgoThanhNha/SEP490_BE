@@ -289,7 +289,9 @@ public class RoutineService
                         .FirstOrDefaultAsync(a => a.CustomerId == user.UserId &&
                                                   a.AppointmentsTime < endTime &&
                                                   a.AppointmentEndTime > appointmentTime &&
-                                                  a.Status != OrderStatusEnum.Cancelled.ToString() || a.Status != OrderStatusEnum.Completed.ToString()) != null;
+                                                  (a.Status != OrderStatusEnum.Cancelled.ToString() &&
+                                                   a.Status != OrderStatusEnum.Completed.ToString())) != null;
+
                     if (isCustomerBusy)
                     {
                         throw new BadRequestException(
