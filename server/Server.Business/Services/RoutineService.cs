@@ -425,12 +425,14 @@ public class RoutineService
             await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetail);
             await _unitOfWorks.CommitTransactionAsync();
 
+            var userMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId)
+                            ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
             // create notification
-            if (NotificationHub.TryGetConnectionId(user.UserId.ToString(), out var connectionId))
+            if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
             {
                 var notification = new Notifications()
                 {
-                    CustomerId = user.UserId,
+                    UserId = user.UserId,
                     Content = $"Đặt lịch thành công liệu trình {routine.Name}",
                     Type = "Routine",
                     isRead = false,

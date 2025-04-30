@@ -11,7 +11,7 @@ public class Notifications
     public int NotificationId { get; set; }
     
     [ForeignKey("User_Notifications")]
-    public int CustomerId { get; set; }
+    public int UserId { get; set; }
     public virtual User User { get; set; }
     
     public string Content { get; set; }

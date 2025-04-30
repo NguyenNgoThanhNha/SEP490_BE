@@ -317,7 +317,7 @@ public class AppointmentsService
                 {
                     var notification = new Notifications()
                     {
-                        CustomerId = userId,
+                        UserId = customer.UserId,
                         Content = $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
                         Type = "Appointment",
                         isRead = false,
