@@ -2031,7 +2031,7 @@ namespace Server.Business.Services
                 {
                     OrderId = order.OrderId,
                     EstimatedDeliveryDate = request.EstimatedDeliveryDate,
-                    ShippingCost = request.ShippingCost,
+                    ShippingCost = request.ShippingCost ?? 0,
                     RecipientName = recipientName,
                     RecipientAddress = recipientAddress,
                     RecipientPhone = recipientPhone,

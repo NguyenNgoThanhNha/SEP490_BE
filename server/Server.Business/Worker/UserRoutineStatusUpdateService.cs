@@ -14,7 +14,7 @@ public class UserRoutineStatusUpdateService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<UserRoutineStatusUpdateService> _logger;
-    private readonly TimeSpan ScheduledTime = new TimeSpan(17, 0, 0); 
+    private readonly TimeSpan ScheduledTime = new TimeSpan(2, 0, 0); 
 
     public UserRoutineStatusUpdateService(IServiceProvider serviceProvider, ILogger<UserRoutineStatusUpdateService> logger)
     {

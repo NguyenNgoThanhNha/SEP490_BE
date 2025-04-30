@@ -19,7 +19,7 @@ namespace Server.Business.Dtos
         public string PaymentMethod { get; set; }
 
         [Range(1, double.MaxValue, ErrorMessage = "Tiền ship phải lớn hơn 0")]
-        public decimal ShippingCost { get; set; }
+        public decimal? ShippingCost { get; set; }
         public DateTime? EstimatedDeliveryDate { get; set; }
         public string? RecipientName { get; set; }
         public string? RecipientAddress { get; set; }
