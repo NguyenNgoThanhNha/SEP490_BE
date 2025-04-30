@@ -543,9 +543,6 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ObjectId")
                         .HasColumnType("int");
 

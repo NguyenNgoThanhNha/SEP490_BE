@@ -1556,11 +1556,14 @@ namespace Server.Business.Services
                     await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
                     await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
 
-                    if (NotificationHub.TryGetConnectionId(customer.UserId.ToString(), out var connectionId))
+                    var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId)
+                                    ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
+                    
+                    if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
                     {
                         var notification = new Notifications()
                         {
-                            CustomerId = customer.UserId,
+                            UserId = customer.UserId,
                             Content =
                                 $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
                             Type = "Appointment",
@@ -2655,12 +2658,16 @@ namespace Server.Business.Services
                         await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
                         await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
 
+                        
+                        var userMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId)
+                                        ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
+                        
                         // Create notification
-                        if (NotificationHub.TryGetConnectionId(user.UserId.ToString(), out var connectionId))
+                        if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
                         {
                             var notification = new Notifications()
                             {
-                                CustomerId = user.UserId,
+                                UserId = user.UserId,
                                 Content =
                                     $"Bạn có cuộc hẹn mới  {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
                                 Type = "Appointment",
