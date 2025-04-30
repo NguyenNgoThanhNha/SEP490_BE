@@ -317,9 +317,11 @@ namespace Server.API.Controllers
                
                 async Task SendNotificationAsync(int receiverUserId, string content, string type)
                 {
+                    var receiver = await _mongoDbService.GetCustomerByIdAsync(receiverUserId);
+                    
                     var notification = new Notifications
                     {
-                        CustomerId = receiverUserId,
+                        UserId = receiverUserId,
                         Content = content,
                         Type = type,
                         isRead = false,
@@ -329,7 +331,7 @@ namespace Server.API.Controllers
                     await _unitOfWorks.NotificationRepository.AddAsync(notification);
                     await _unitOfWorks.NotificationRepository.Commit();
 
-                    if (NotificationHub.TryGetConnectionId(receiverUserId.ToString(), out var connId))
+                    if (NotificationHub.TryGetConnectionId(receiver.Id, out var connId))
                     {
                         await _hubContext.Clients.Client(connId).SendAsync("receiveNotification", notification);
                     }
