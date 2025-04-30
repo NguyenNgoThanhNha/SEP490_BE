@@ -332,7 +332,7 @@ public class AppointmentsService
                 if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
                 {
                     _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
-                    Console.WriteLine("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+                    Console.WriteLine($"User connected: {userMongo.Id} => {connectionId}");
                     await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
                 }
 
