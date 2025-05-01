@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Server.Business.Commons.Request;
+using Server.Business.Commons.Response;
 using Server.Business.Exceptions;
 using Server.Business.Models;
 using Server.Data;
@@ -19,17 +21,45 @@ public class UserRoutineLoggerService
         _unitOfWorks = unitOfWorks;
         _mapper = mapper;
     }
-    
-    public async Task<List<UserRoutineLoggerModel>> GetAllUserRoutineLoggersAsync()
+
+    public async Task<GetAlUserRoutineLoggerPaginationResponse> GetAllUserRoutineLoggersAsync(int? userRoutineId,
+        int pageIndex, int pageSize)
     {
-        var rs = await _unitOfWorks.UserRoutineLoggerRepository
+        var query = _unitOfWorks.UserRoutineLoggerRepository
             .FindByCondition(x => x.Status == ObjectStatus.Active.ToString())
-            .Include(x => x.Staff)
-            .ThenInclude(x => x.StaffInfo)
+            .Include(x => x.Staff).ThenInclude(x => x.StaffInfo)
             .Include(x => x.User)
-            .ToListAsync() ?? new List<UserRoutineLogger>();
-        return _mapper.Map<List<UserRoutineLoggerModel>>(rs);
+            .Include(x => x.UserRoutineStep)
+            .ThenInclude(x => x.UserRoutine) // đảm bảo EF load được UserRoutine nếu cần filter
+            .AsQueryable();
+
+        if (userRoutineId.HasValue)
+        {
+            query = query.Where(x => x.UserRoutineStep.UserRoutineId == userRoutineId.Value);
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var pageUserRoutineLoggers = await query
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new GetAlUserRoutineLoggerPaginationResponse()
+        {
+            message = "Lấy danh sách thành công",
+            data = _mapper.Map<List<UserRoutineLoggerModel>>(pageUserRoutineLoggers),
+            pagination = new Pagination
+            {
+                page = pageIndex,
+                totalPage = totalPages,
+                totalCount = totalCount
+            }
+        };
     }
+
+
     public async Task<bool> CreateUserRoutineLogger(UserRoutineLoggerRequest request)
     {
         var hasUser = request.UserId.HasValue;
@@ -44,7 +74,7 @@ public class UserRoutineLoggerService
         // Kiểm tra Step có tồn tại không
         var stepExists =
             await _unitOfWorks.UserRoutineStepRepository.FindByCondition(s =>
-                s.UserRoutineStepId == request.StepId)
+                    s.UserRoutineStepId == request.StepId)
                 .Include(x => x.UserRoutine)
                 .FirstOrDefaultAsync();
         if (stepExists == null)
@@ -63,7 +93,8 @@ public class UserRoutineLoggerService
 
             // Kiểm tra User có thuộc SkinCareRoutine không
             var userRoutineExists = await _unitOfWorks.UserRoutineRepository
-                .FirstOrDefaultAsync(u => u.UserId == request.UserId && u.RoutineId == stepExists.UserRoutine.RoutineId);
+                .FirstOrDefaultAsync(u =>
+                    u.UserId == request.UserId && u.RoutineId == stepExists.UserRoutine.RoutineId);
             if (userRoutineExists == null)
             {
                 throw new BadRequestException(
@@ -100,7 +131,8 @@ public class UserRoutineLoggerService
 
     public async Task<bool> UpdateUserRoutineLoggerAsync(int id, UserRoutineLoggerRequest request)
     {
-        var logger = await _unitOfWorks.UserRoutineLoggerRepository.FirstOrDefaultAsync(l => l.UserRoutineLoggerId == id);
+        var logger =
+            await _unitOfWorks.UserRoutineLoggerRepository.FirstOrDefaultAsync(l => l.UserRoutineLoggerId == id);
         if (logger == null)
             throw new NotFoundException($"Không tìm thấy logger với Id = {id}");
 
@@ -156,10 +188,11 @@ public class UserRoutineLoggerService
         _unitOfWorks.UserRoutineLoggerRepository.Update(logger);
         return await _unitOfWorks.SaveChangesAsync() > 0;
     }
-    
+
     public async Task<bool> DeleteUserRoutineLoggerAsync(int id)
     {
-        var logger = await _unitOfWorks.UserRoutineLoggerRepository.FirstOrDefaultAsync(l => l.UserRoutineLoggerId == id);
+        var logger =
+            await _unitOfWorks.UserRoutineLoggerRepository.FirstOrDefaultAsync(l => l.UserRoutineLoggerId == id);
         if (logger == null)
             throw new NotFoundException($"Không tìm thấy logger với Id = {id}");
 
@@ -168,5 +201,4 @@ public class UserRoutineLoggerService
         _unitOfWorks.UserRoutineLoggerRepository.Update(logger);
         return await _unitOfWorks.SaveChangesAsync() > 0;
     }
-
 }
