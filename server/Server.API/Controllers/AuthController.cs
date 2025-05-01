@@ -736,6 +736,30 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpPost("run-user-routine-step-update")]
+        public async Task<IActionResult> RunUserRoutineStepUpdate(
+    [FromServices] UserRoutineStepStatusUpdateService userRoutineStepStatusUpdateService)
+        {
+            try
+            {
+                // Tạo một method ManualRunAsync() trong service nếu chưa có để tái sử dụng logic
+                await userRoutineStepStatusUpdateService.ManualRunAsync();
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Đã chạy cập nhật bước routine và gửi nhắc nhở thành công!"
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi khi chạy nhắc nhở routine: {ex.Message}"
+                }));
+            }
+        }
+
+
 
     }
 }
