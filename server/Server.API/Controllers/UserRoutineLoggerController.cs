@@ -19,17 +19,13 @@ namespace Server.API.Controllers
         }
         
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllUserRoutineLoggers()
+        public async Task<IActionResult> GetAllUserRoutineLoggers([FromQuery] int? userRoutineId, int pageIndex, int pageSize)
         {
             try
             {
-                var result = await _userRoutineLoggerService.GetAllUserRoutineLoggersAsync();
+                var result = await _userRoutineLoggerService.GetAllUserRoutineLoggersAsync(userRoutineId, pageIndex, pageSize);
                 
-                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
-                {
-                    message = "Lấy dữ liệu thành công",
-                    data = result
-                }));
+                return Ok(ApiResult<GetAlUserRoutineLoggerPaginationResponse>.Succeed(result));
             }
             catch (Exception ex)
             {

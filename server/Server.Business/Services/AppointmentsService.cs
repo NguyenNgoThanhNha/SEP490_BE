@@ -335,7 +335,12 @@ public class AppointmentsService
                     Console.WriteLine($"User connected: {userMongo.Id} => {connectionId}");
                     await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
                 }
-
+                if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionSpecialListId))
+                {
+                    _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id, connectionId);
+                    Console.WriteLine($"User connected: {specialistMongo.Id} => {connectionSpecialListId}");
+                    await _hubContext.Clients.Client(connectionSpecialListId).SendAsync("receiveNotification", notification);
+                }
             }
 
 
