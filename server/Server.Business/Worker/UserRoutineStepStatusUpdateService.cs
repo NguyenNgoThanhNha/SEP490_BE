@@ -1,29 +1,29 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Server.Business.Ultils;
-using Server.Data.UnitOfWorks;
-using Server.Data;
-using Server.Business.Services;
 using Microsoft.EntityFrameworkCore;
 using Server.Business.Constants;
+using Server.Business.Services;
+using Server.Business.Ultils;
+using Server.Data.UnitOfWorks;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Org.BouncyCastle.Asn1.Pkcs;
-using System.Runtime.InteropServices;
+using Server.Data;
+using Server.Data.Entities;
 
 public class UserRoutineStepStatusUpdateService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<UserRoutineStepStatusUpdateService> _logger;
-    private readonly TimeSpan ScheduledTime = new TimeSpan(2, 0, 0); // 2h UTC = 9h sáng VN
+    private readonly TimeSpan ScheduledTime = new TimeSpan(2, 0, 0); // 9h sáng VN (UTC+7)
 
     public UserRoutineStepStatusUpdateService(IServiceProvider serviceProvider, ILogger<UserRoutineStepStatusUpdateService> logger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -60,17 +60,20 @@ public class UserRoutineStepStatusUpdateService : BackgroundService
                 .FindByCondition(ur => ur.Status != "Completed")
                 .Include(ur => ur.UserRoutineSteps)
                     .ThenInclude(urs => urs.SkinCareRoutineStep)
-                    .ThenInclude(scrs => scrs.SkincareRoutine)
                 .ToListAsync(stoppingToken);
 
             foreach (var userRoutine in userRoutines)
             {
-                var steps = userRoutine.UserRoutineSteps.OrderBy(s => s.SkinCareRoutineStep.Step).ToList();
+                var steps = userRoutine.UserRoutineSteps
+                    .Where(s => s.SkinCareRoutineStep != null)
+                    .OrderBy(s => s.SkinCareRoutineStep.Step)
+                    .ToList();
 
                 for (int i = 0; i < steps.Count; i++)
                 {
                     var step = steps[i];
-                    var routineId = step.SkinCareRoutineStep?.SkincareRoutineId;
+                    var stepNum = step.SkinCareRoutineStep.Step;
+                    var routineId = step.SkinCareRoutineStep.SkincareRoutineId;
                     if (routineId == null) continue;
 
                     var orderIds = await unitOfWorks.OrderRepository
@@ -86,17 +89,20 @@ public class UserRoutineStepStatusUpdateService : BackgroundService
                         .FindByCondition(a => a.OrderId.HasValue &&
                                               orderIds.Contains(a.OrderId.Value) &&
                                               a.Step.HasValue &&
-                                              a.Step.Value.Equals(step.SkinCareRoutineStep.Step))
+                                              a.Step.Value == stepNum)
                         .Include(a => a.Customer)
                         .Include(a => a.Service)
                         .ToListAsync(stoppingToken);
 
-                    bool allCompleted = appointments.Any() && appointments.All(a => a.Status == OrderStatusEnum.Completed.ToString());
+                    bool allCompleted = appointments.Any() &&
+                        appointments.All(a => a.Status == OrderStatusEnum.Completed.ToString());
 
                     if (allCompleted && step.StepStatus != "Completed")
                     {
+                        step.SkinCareRoutineStep = null; // tránh lỗi tracking
                         step.StepStatus = "Completed";
                         step.UpdatedDate = DateTime.UtcNow;
+
                         unitOfWorks.UserRoutineStepRepository.Update(step);
                         _logger.LogInformation($"✔ Step {step.UserRoutineStepId} updated to Completed.");
                     }
@@ -106,18 +112,20 @@ public class UserRoutineStepStatusUpdateService : BackgroundService
                         var nextStep = steps[i + 1];
                         if (nextStep.StepStatus == "Completed") continue;
 
+                        var nextStepNum = nextStep.SkinCareRoutineStep.Step;
+
                         var nextAppointments = await unitOfWorks.AppointmentsRepository
                             .FindByCondition(a => a.OrderId.HasValue &&
                                                   orderIds.Contains(a.OrderId.Value) &&
                                                   a.Step.HasValue &&
-                                                  a.Step.Value.Equals(nextStep.SkinCareRoutineStep.Step))
+                                                  a.Step.Value == nextStepNum)
                             .Include(a => a.Customer)
                             .Include(a => a.Service)
                             .ToListAsync(stoppingToken);
 
                         foreach (var appointment in nextAppointments)
                         {
-                            var appointmentDateUtc = DateTime.SpecifyKind(appointment.AppointmentsTime, DateTimeKind.Utc).Date;
+                            var appointmentDateUtc = appointment.AppointmentsTime.Date;
                             var targetDate = DateTime.UtcNow.Date.AddDays(1);
 
                             if (appointmentDateUtc == targetDate)
@@ -130,39 +138,36 @@ public class UserRoutineStepStatusUpdateService : BackgroundService
                                 {
                                     EmailToId = appointment.Customer.Email,
                                     EmailToName = appointment.Customer.FullName,
-                                    EmailSubject = $"[Nhắc nhở] Bước tiếp theo trong liệu trình chăm sóc da",
+                                    EmailSubject = "[Nhắc nhở] Bước tiếp theo trong liệu trình chăm sóc da",
                                     EmailBody = $@"
-<div style=\""max - width: 600px; margin: 20px auto; padding: 20px; background - color: #f9f9f9; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);\"" >
-    < h2 style =\""text-align: center; color: #3498db;\"" >Nhắc nhở bước tiếp theo trong liệu trình</h2>
-    < p style =\""font-size: 16px;\"" >Chào {appointment.Customer.FullName},</p>
-    < p > Bạn đã hoàn thành bước { step.SkinCareRoutineStep.Step}
-                                trong liệu trình<strong>{ step.SkinCareRoutineStep.SkincareRoutine?.Name}</ strong >.</ p >
-    < p > Đây là nhắc nhở cho bước tiếp theo:</ p >
-    < ul style =\""list-style-type: none;\"">
-        < li >< strong > Tên liệu trình:</ strong > { step.SkinCareRoutineStep.SkincareRoutine?.Name}</ li >
-        < li >< strong > Số bước:</ strong > { step.SkinCareRoutineStep.SkincareRoutine?.TotalSteps}</ li >
-        < li >< strong > Bước tiếp theo:</ strong > Bước { nextStep.SkinCareRoutineStep.Step}</ li >
-        < li >< strong > Thời gian thực hiện:</ strong > { vietnamTime: yyyy - MM - dd HH: mm}</ li >
-    </ ul >
-    < p > Vui lòng đến đúng giờ. Nếu có bất kỳ thắc mắc nào, xin liên hệ với chúng tôi.</ p >
-    < p style =\""text-align:center; color: #aaa;\"" >Đội ngũ Solace Spa trân trọng!</p>
-                                </ div > "
+<div style='max-width:600px;margin:20px auto;padding:20px;background-color:#f9f9f9;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);'>
+  <h2 style='text-align:center;color:#3498db;'>Nhắc nhở bước tiếp theo trong liệu trình</h2>
+  <p style='font-size:16px;'>Chào {appointment.Customer.FullName},</p>
+  <p>Bạn đã hoàn thành bước {stepNum}.</p>
+  <p>Đây là nhắc nhở cho bước tiếp theo:</p>
+  <ul style='list-style-type:none;'>
+    <li><strong>Bước tiếp theo:</strong> Bước {nextStepNum}</li>
+    <li><strong>Thời gian thực hiện:</strong> {vietnamTime:yyyy-MM-dd HH:mm}</li>
+  </ul>
+  <p>Vui lòng đến đúng giờ. Nếu có bất kỳ thắc mắc nào, xin liên hệ với chúng tôi.</p>
+  <p style='text-align:center;color:#aaa;'>Đội ngũ Solace Spa trân trọng!</p>
+</div>"
                                 };
 
-                            var sent = await mailService.SendEmailAsync(mailData, false);
-                            if (sent)
-                                _logger.LogInformation($"📩 Email sent to {appointment.Customer.Email} for Step {nextStep.SkinCareRoutineStep.Step}.");
-                            else
-                                _logger.LogError($"❌ Failed to send email to {appointment.Customer.Email}.");
+                                var sent = await mailService.SendEmailAsync(mailData, false);
+                                if (sent)
+                                    _logger.LogInformation($"📩 Email sent to {appointment.Customer.Email} for Step {nextStepNum}.");
+                                else
+                                    _logger.LogError($"❌ Failed to send email to {appointment.Customer.Email}.");
+                            }
                         }
                     }
                 }
             }
-        }
 
             await unitOfWorks.UserRoutineStepRepository.Commit();
-        _logger.LogInformation("✅ Finished updating step statuses and sending routine reminders.");
-    }
+            _logger.LogInformation("✅ Finished updating step statuses and sending routine reminders.");
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "❌ Error during step update and reminder process.");
