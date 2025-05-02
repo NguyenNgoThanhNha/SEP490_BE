@@ -16,6 +16,7 @@ using Server.Data.UnitOfWorks;
 using LoginRequest = Server.Business.Commons.Request.LoginRequest;
 using Token = Server.Business.Ultils.Token;
 using Server.Data.Entities;
+using Server.Business.Worker;
 
 namespace Server.API.Controllers
 {
@@ -758,6 +759,29 @@ namespace Server.API.Controllers
                 }));
             }
         }
+
+        [HttpPost("run-order-appointment-update")]
+        public async Task<IActionResult> RunOrderStatusUpdate(
+    [FromServices] OrderStatusUpdateService orderStatusUpdateService)
+        {
+            try
+            {
+                await orderStatusUpdateService.ManualRunAsync();
+
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Đã chạy cập nhật trạng thái đơn hàng thành công!"
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi khi cập nhật trạng thái đơn hàng: {ex.Message}"
+                }));
+            }
+        }
+
 
 
 
