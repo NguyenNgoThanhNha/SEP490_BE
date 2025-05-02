@@ -771,22 +771,25 @@ namespace Server.Business.Services
             int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
-                .FindByCondition(x => x.CustomerId == userId && x.Status == status)
-                .Include(x => x.Customer)
-                .Include(x => x.Routine)
-                .Include(x => x.Voucher)
-                .Include(x => x.Shipment)
-                .Include(x => x.Appointments)
-                .ThenInclude(x => x.Service)
-                .Include(x => x.Appointments)
-                .ThenInclude(x => x.Branch)
-                .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Promotion)
-                .Include(x => x.OrderDetails)
-                .ThenInclude(od => od.Product)
-                .ThenInclude(p => p.ProductImages)
-                .OrderByDescending(x => x.CreatedDate)
-                .ToListAsync();
+    .FindByCondition(x => x.CustomerId == userId && x.Status == status)
+    .Include(x => x.Customer)
+    .Include(x => x.Routine)
+    .Include(x => x.Voucher)
+    .Include(x => x.Shipment)
+    .Include(x => x.Appointments)
+        .ThenInclude(x => x.Service)
+    .Include(x => x.Appointments)
+        .ThenInclude(x => x.Branch)
+    .Include(x => x.OrderDetails)
+        .ThenInclude(od => od.Promotion)
+    .Include(x => x.OrderDetails)
+        .ThenInclude(od => od.Product)
+            .ThenInclude(p => p.ProductImages)
+    .Include(x => x.OrderDetails)
+        .ThenInclude(od => od.Branch) // ✅ thêm dòng này
+    .OrderByDescending(x => x.CreatedDate)
+    .ToListAsync();
+
 
             if (listOrders == null || !listOrders.Any())
             {
@@ -1246,7 +1249,6 @@ namespace Server.Business.Services
                 query = query.Where(x => x.CustomerId == userId);
             }
 
-            // Lấy các thông tin cơ bản của đơn hàng
             var order = await query
                 .Include(x => x.Customer)
                 .Include(x => x.Shipment)
@@ -1255,16 +1257,14 @@ namespace Server.Business.Services
                 .Include(x => x.OrderDetails)
                     .ThenInclude(od => od.Product)
                         .ThenInclude(p => p.ProductImages)
+                .Include(x => x.OrderDetails)
+                    .ThenInclude(od => od.Branch) // ✅ Include thêm Branch
                 .FirstOrDefaultAsync();
 
             if (order == null)
                 return null;
 
-            var listServiceModels = new List<ServiceModel>();
-            var listProductModels = new List<ProductModel>();
-            var listBranches = new List<Branch>();
-
-            // ✅ Luôn luôn lấy Appointments có đầy đủ thông tin liên quan
+            // Lấy Appointments
             var orderAppointments = await _unitOfWorks.AppointmentsRepository
                 .FindByCondition(x => x.OrderId == orderId)
                 .Include(x => x.Branch)
@@ -1275,7 +1275,7 @@ namespace Server.Business.Services
 
             order.Appointments = orderAppointments;
 
-            // Nếu đơn hàng có dịch vụ (Appointment, ProductAndService, hoặc Routine)
+            var listServiceModels = new List<ServiceModel>();
             if (orderAppointments.Any())
             {
                 var listServices = orderAppointments
@@ -1286,77 +1286,53 @@ namespace Server.Business.Services
                 listServiceModels = await _serviceService.GetListImagesOfServices(listServices);
             }
 
-            // Nếu đơn hàng có sản phẩm (Product hoặc ProductAndService)
-            if (order.OrderType == OrderType.Product.ToString() ||
-                order.OrderType == OrderType.ProductAndService.ToString())
+            var listProductModels = new List<ProductModel>();
+            if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.ProductAndService.ToString())
             {
-                var orderDetails = order.OrderDetails.ToList();
-                var listProducts = orderDetails.Select(od => od.Product).ToList();
+                var listProducts = order.OrderDetails.Select(od => od.Product).ToList();
                 listProductModels = await _productService.GetListImagesOfProduct(listProducts);
-
-                var branchIds = orderDetails
-                    .Where(od => od.BranchId.HasValue)
-                    .Select(od => od.BranchId.Value)
-                    .Distinct()
-                    .ToList();
-
-                listBranches = await _unitOfWorks.BranchRepository
-                    .FindByCondition(b => branchIds.Contains(b.BranchId))
-                    .ToListAsync();
             }
 
-            // Sau khi đã load đầy đủ thông tin, thực hiện mapping
             var orderModel = _mapper.Map<OrderModel>(order);
 
-            // 👉 Gán images cho Service trong Appointments
-            if (orderModel.Appointments?.Any() == true)
+            // Gán images cho service
+            foreach (var appointment in orderModel.Appointments ?? [])
             {
-                foreach (var appointment in orderModel.Appointments)
+                var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+                if (matchedService != null)
                 {
-                    var matchedService = listServiceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
-                    if (matchedService != null)
-                    {
-                        appointment.Service.images = matchedService.images;
-                    }
+                    appointment.Service.images = matchedService.images;
                 }
             }
 
-            // 👉 Gán images và branch cho Products trong OrderDetails
-            if (orderModel.OrderDetails?.Any() == true)
+            // Gán images và branch cho sản phẩm
+            foreach (var orderDetail in orderModel.OrderDetails ?? [])
             {
-                foreach (var orderDetail in orderModel.OrderDetails)
+                var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product?.ProductId);
+                if (matchedProduct != null)
                 {
-                    var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product.ProductId);
-                    if (matchedProduct != null)
-                    {
-                        orderDetail.Product.images = matchedProduct.images;
-                    }
+                    orderDetail.Product.images = matchedProduct.images;
+                }
 
-                    if (orderDetail.BranchId.HasValue)
+                // Gán Branch nếu chưa có
+                if (orderDetail.Branch == null && orderDetail.BranchId.HasValue)
+                {
+                    var matchedEntity = order.OrderDetails
+                        .FirstOrDefault(od => od.OrderDetailId == orderDetail.OrderDetailId);
+
+                    if (matchedEntity?.Branch != null)
                     {
-                        var matchedBranch = listBranches.FirstOrDefault(b => b.BranchId == orderDetail.BranchId.Value);
-                        if (matchedBranch != null)
-                        {
-                            orderDetail.Product.Branch = new BranchDTO
-                            {
-                                BranchId = matchedBranch.BranchId,
-                                BranchName = matchedBranch.BranchName,
-                                BranchAddress = matchedBranch.BranchAddress,
-                                BranchPhone = matchedBranch.BranchPhone,
-                                LongAddress = matchedBranch.LongAddress,
-                                LatAddress = matchedBranch.LatAddress,
-                                Status = matchedBranch.Status,
-                                ManagerId = matchedBranch.ManagerId,
-                                District = matchedBranch.District,
-                                WardCode = matchedBranch.WardCode,
-                                CompanyId = matchedBranch.CompanyId,
-                                CreatedDate = matchedBranch.CreatedDate,
-                                UpdatedDate = matchedBranch.UpdatedDate,
-                            };
-                        }
+                        orderDetail.Branch = _mapper.Map<BranchModel>(matchedEntity.Branch);
                     }
                 }
+
+                // ❌ Xóa branch trong Product để tránh lặp
+                if (orderDetail.Product != null)
+                {
+                    orderDetail.Product.Branch = null;
+                }
             }
+
 
             return new DetailOrderResponse
             {
@@ -1364,6 +1340,7 @@ namespace Server.Business.Services
                 data = orderModel
             };
         }
+
 
 
 
