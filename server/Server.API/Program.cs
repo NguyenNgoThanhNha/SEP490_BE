@@ -25,7 +25,9 @@ namespace Server.API
             builder.Services.AddTransient<IAIMLService, AIMLService>();
 
             builder.Services.AddHostedService<OrderStatusUpdateService>();
+            builder.Services.AddSingleton<OrderStatusUpdateService>();
             builder.Services.AddHostedService<UserRoutineStepStatusUpdateService>();
+            builder.Services.AddSingleton<UserRoutineStepStatusUpdateService>();
             builder.Services.AddHostedService<UserRoutineStatusUpdateService>();
             builder.Services.AddSingleton<UserRoutineStatusUpdateService>();
 
