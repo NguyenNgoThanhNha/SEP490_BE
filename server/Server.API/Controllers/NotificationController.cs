@@ -23,7 +23,7 @@ namespace Server.API.Controllers
             try
             {
                 var result = await _notificationServices.GetAllNotificationsByUserIdAsync(userId, pageIndex, pageSize);
-                return Ok(result);
+                return Ok(ApiResult<GetAllNotificationsByUserIdResponse>.Succeed(result));
             }
             catch (Exception ex)
             {
