@@ -5,7 +5,7 @@ public class UserRoutineLoggerModel
     public int UserRoutineLoggerId { get; set; }
     
     public int StepId { get; set; }
-    public virtual SkinCareRoutineStepModel UserRoutineStep { get; set; }
+    public virtual UserRoutineStepModel UserRoutineStep { get; set; }
     
     public int? StaffId { get; set; } // Ai thực hiện bước này
     public virtual StaffModel? Staff { get; set; }

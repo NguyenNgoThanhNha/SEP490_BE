@@ -2707,6 +2707,7 @@ namespace Server.Business.Services
                     var newOrderDetail = new OrderDetail
                     {
                         OrderId = createdOrder.OrderId,
+                        BranchId = productBranch.BranchId,
                         ProductId = product.ProductId,
                         Quantity = quantity,
                         UnitPrice = product.Price,

@@ -23,7 +23,7 @@ public class UserRoutineLoggerService
     }
 
     public async Task<GetAlUserRoutineLoggerPaginationResponse> GetAllUserRoutineLoggersAsync(int? userRoutineId,
-        int pageIndex, int pageSize)
+        int pageIndex = 1, int pageSize = 10)
     {
         var query = _unitOfWorks.UserRoutineLoggerRepository
             .FindByCondition(x => x.Status == ObjectStatus.Active.ToString())
@@ -46,10 +46,12 @@ public class UserRoutineLoggerService
             .Take(pageSize)
             .ToListAsync();
 
+        var data = _mapper.Map<List<UserRoutineLoggerModel>>(pageUserRoutineLoggers);
+
         return new GetAlUserRoutineLoggerPaginationResponse()
         {
             message = "Lấy danh sách thành công",
-            data = _mapper.Map<List<UserRoutineLoggerModel>>(pageUserRoutineLoggers),
+            data = data,
             pagination = new Pagination
             {
                 page = pageIndex,
