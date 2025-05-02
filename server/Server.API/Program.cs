@@ -30,6 +30,10 @@ namespace Server.API
             builder.Services.AddSingleton<UserRoutineStepStatusUpdateService>();
             builder.Services.AddHostedService<UserRoutineStatusUpdateService>();
             builder.Services.AddSingleton<UserRoutineStatusUpdateService>();
+            builder.Services.AddHostedService<AppointmentReminderNoRealStaffWorker>();
+            builder.Services.AddSingleton<AppointmentReminderNoRealStaffWorker>();
+
+
 
 
             builder.Services.AddSwaggerGen(option =>

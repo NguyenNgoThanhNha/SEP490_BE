@@ -4,6 +4,7 @@ using Server.Business.Commons;
 using Server.Business.Commons.Request;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
+using Server.Business.Exceptions;
 using Server.Business.Services;
 using Server.Data.Entities;
 using Server.Data.UnitOfWorks;
@@ -1056,5 +1057,29 @@ namespace Server.API.Controllers
                 data = result
             }));
         }
+
+        [HttpGet("replacement-staff")]
+        public async Task<IActionResult> GetAvailableReplacementStaff(
+    [FromQuery] int branchId,
+    [FromQuery] TimeSpan startTime,
+    [FromQuery] TimeSpan endTime,
+    [FromQuery] DateTime? date = null)
+        {
+            try
+            {
+                var staffList = await _staffService.GetAvailableReplacementStaffAsync(branchId, startTime, endTime, date);
+
+                return Ok(ApiResponse.Succeed(staffList, "Available replacement staff retrieved successfully."));
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ApiResponse.Error(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Error($"Internal server error: {ex.Message}"));
+            }
+        }
+
     }
 }

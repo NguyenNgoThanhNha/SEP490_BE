@@ -1707,5 +1707,70 @@ namespace Server.Business.Services
 
             return availableStaffs;
         }
+
+        public async Task<List<StaffModel>> GetAvailableReplacementStaffAsync(
+      int branchId, TimeSpan startTime, TimeSpan endTime, DateTime? date = null)
+        {
+            if (branchId <= 0 || startTime >= endTime)
+                throw new BadRequestException("Invalid input.");
+
+            var targetDate = date?.Date ?? DateTime.Today;
+
+            // 1. Xác định các ca trùng với khoảng thời gian yêu cầu
+            var overlappingShifts = await _unitOfWorks.ShiftRepository
+                .FindByCondition(shift =>
+                    shift.StartTime < endTime &&
+                    shift.EndTime > startTime)
+                .ToListAsync();
+
+            if (!overlappingShifts.Any())
+                return new List<StaffModel>();
+
+            var shiftIds = overlappingShifts.Select(s => s.ShiftId).ToList();
+
+            var staffList = await _unitOfWorks.StaffRepository
+    .FindByCondition(s => s.BranchId == branchId && s.StaffInfo.RoleID == (int)RoleConstant.RoleType.Staff)
+    .Include(s => s.StaffInfo)
+    .ToListAsync();
+
+
+            var staffIds = staffList.Select(s => s.StaffId).ToList();
+
+            // 3. Lấy lịch làm việc có ca phù hợp và ngày phù hợp
+            var schedules = await _unitOfWorks.WorkScheduleRepository
+                .FindByCondition(ws =>
+                    staffIds.Contains(ws.StaffId) &&
+                    ws.WorkDate.Date == targetDate &&
+                    ws.Status == ObjectStatus.Active.ToString() &&
+                    shiftIds.Contains(ws.ShiftId))
+                .ToListAsync();
+
+            var workingStaffIds = schedules.Select(ws => ws.StaffId).Distinct().ToList();
+
+            // 4. Lấy các lịch hẹn đang trùng giờ (chưa bị hủy)
+            var from = targetDate.Add(startTime);
+            var to = targetDate.Add(endTime);
+
+            var appointments = await _unitOfWorks.AppointmentsRepository
+                .FindByCondition(a =>
+                    workingStaffIds.Contains(a.StaffId) &&
+                    a.Status != OrderStatusEnum.Cancelled.ToString() &&
+                    a.AppointmentsTime < to &&
+                    a.AppointmentEndTime > from)
+                .ToListAsync();
+
+            var busyStaffIds = appointments.Select(a => a.StaffId).Distinct().ToHashSet();
+
+            // 5. Trả về danh sách nhân viên có ca làm phù hợp và không bận
+            var availableStaff = staffList
+                .Where(s => workingStaffIds.Contains(s.StaffId) && !busyStaffIds.Contains(s.StaffId))
+                .ToList();
+
+            return _mapper.Map<List<StaffModel>>(availableStaff);
+        }
+
+
+
+
     }
 }

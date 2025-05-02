@@ -782,8 +782,26 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpPost("run-appointment-missing-staff-reminder")]
+        public async Task<IActionResult> RunMissingStaffReminderAsync(
+      [FromServices] AppointmentReminderNoRealStaffWorker appointmentReminderNoRealStaffWorker)
+        {
+            try
+            {
+                await appointmentReminderNoRealStaffWorker.ManualRunAsync();
 
-
-
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse
+                {
+                    message = "Đã chạy nhắc nhở lịch hẹn chưa có nhân viên thực tế thành công!"
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = $"Lỗi khi chạy nhắc nhở lịch hẹn: {ex.Message}"
+                }));
+            }
+        }
     }
 }
