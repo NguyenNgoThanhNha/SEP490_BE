@@ -127,6 +127,7 @@ public class AppointmentsService
                 VoucherId = request.VoucherId > 0 ? request.VoucherId : null,
                 DiscountAmount = voucher?.DiscountAmount ?? 0,
                 Status = OrderStatusEnum.Pending.ToString(),
+                PaymentMethod = request.PaymentMedhod,
                 Note = request.Notes,
                 CreatedDate = DateTime.UtcNow,
                 UpdatedDate = DateTime.UtcNow

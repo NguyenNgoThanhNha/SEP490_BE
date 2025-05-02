@@ -8,4 +8,6 @@ public class BookCompoSkinCareRoutineRequest
     public int? VoucherId { get; set; }
     public string? Note { get; set; }
     public DateTime? AppointmentTime { get; set; } = DateTime.Now;
+    
+    public string? PaymentMethod { get; set; }
 }

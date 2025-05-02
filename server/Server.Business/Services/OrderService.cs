@@ -1494,8 +1494,8 @@ namespace Server.Business.Services
                         .FirstOrDefaultAsync(a => a.CustomerId == userId &&
                                                   a.AppointmentsTime < endTime &&
                                                   a.AppointmentEndTime > appointmentTime &&
-                                                  a.Status != OrderStatusEnum.Cancelled.ToString()
-                                                  || a.Status != OrderStatusEnum.Completed.ToString()) != null;
+                                                  (a.Status != OrderStatusEnum.Cancelled.ToString() &&
+                                                   a.Status != OrderStatusEnum.Completed.ToString())) != null;
                     if (isCustomerBusy)
                     {
                         throw new BadRequestException(
@@ -2415,6 +2415,7 @@ namespace Server.Business.Services
                     VoucherId = request.VoucherId,
                     DiscountAmount = voucher?.DiscountAmount ?? 0,
                     Status = OrderStatusEnum.Pending.ToString(),
+                    PaymentMethod = request.PaymentMethod,
                     Note = "",
                     CreatedDate = DateTime.UtcNow,
                     UpdatedDate = DateTime.UtcNow
@@ -2707,6 +2708,7 @@ namespace Server.Business.Services
                     var newOrderDetail = new OrderDetail
                     {
                         OrderId = createdOrder.OrderId,
+                        BranchId = productBranch.BranchId,
                         ProductId = product.ProductId,
                         Quantity = quantity,
                         UnitPrice = product.Price,

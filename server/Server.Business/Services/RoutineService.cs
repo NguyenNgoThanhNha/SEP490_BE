@@ -266,6 +266,7 @@ public class RoutineService
                 RoutineId = routine.SkincareRoutineId,
                 VoucherId = request.VoucherId > 0 ? request.VoucherId : null,
                 DiscountAmount = voucher?.DiscountAmount ?? 0,
+                PaymentMethod = request.PaymentMethod,
                 Status = OrderStatusEnum.Pending.ToString(),
                 Note = request.Note ?? "",
                 CreatedDate = DateTime.UtcNow,

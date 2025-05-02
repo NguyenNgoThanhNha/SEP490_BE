@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
@@ -17,12 +18,13 @@ namespace Server.API.Controllers
             _notificationServices = notificationServices;
         }
         
+        [Authorize]
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllNotificationsByUserId([FromQuery] int userId, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetAllNotificationsByUserId([FromQuery] int userId, bool? isRead, int pageIndex, int pageSize)
         {
             try
             {
-                var result = await _notificationServices.GetAllNotificationsByUserIdAsync(userId, pageIndex, pageSize);
+                var result = await _notificationServices.GetAllNotificationsByUserIdAsync(userId,isRead, pageIndex, pageSize);
                 return Ok(ApiResult<GetAllNotificationsByUserIdResponse>.Succeed(result));
             }
             catch (Exception ex)
@@ -50,6 +52,28 @@ namespace Server.API.Controllers
                 return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
                 {
                     message = "Đánh dấu đã đọc thành công",
+                    data = result
+                }));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                {
+                    message = ex.Message,
+                }));
+            }
+        }
+        
+        [Authorize]
+        [HttpGet("mark-as-read-all")]
+        public async Task<IActionResult> MarkAsReadAll([FromQuery] int userId)
+        {
+            try
+            {
+                var result = await _notificationServices.MarkAllAsReadByUserIdAsync(userId);
+                return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                {
+                    message = "Đánh dấu tất cả đã đọc thành công",
                     data = result
                 }));
             }
