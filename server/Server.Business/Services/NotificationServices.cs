@@ -13,12 +13,18 @@ public class NotificationServices
         _unitOfWorks = unitOfWorks;
     }
     
-    public async Task<GetAllNotificationsByUserIdResponse> GetAllNotificationsByUserIdAsync(int userId, int pageIndex, int pageSize)
+    public async Task<GetAllNotificationsByUserIdResponse> GetAllNotificationsByUserIdAsync(int userId, bool? isRead, int pageIndex, int pageSize)
     {
         var query = _unitOfWorks.NotificationRepository
-            .FindByCondition(n => n.UserId == userId)
-            .OrderByDescending(n => n.CreatedDate);
+            .FindByCondition(n => n.UserId == userId);
 
+        if (isRead.HasValue)
+        {
+            query = query.Where(n => n.isRead == isRead.Value);
+        }
+
+        query = query.OrderByDescending(n => n.CreatedDate);
+        
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
@@ -57,5 +63,24 @@ public class NotificationServices
         return true;
     }
 
+    public async Task<bool> MarkAllAsReadByUserIdAsync(int userId)
+    {
+        var notifications = await _unitOfWorks.NotificationRepository
+            .FindByCondition(n => n.UserId == userId && !n.isRead.HasValue)
+            .ToListAsync();
+
+        if (notifications == null || !notifications.Any()) return false;
+
+        foreach (var notification in notifications)
+        {
+            notification.isRead = true;
+            notification.UpdatedDate = DateTime.Now;
+        }
+
+        await _unitOfWorks.NotificationRepository.UpdateRangeAsync(notifications);
+        await _unitOfWorks.SaveChangesAsync();
+
+        return true;
+    }
 
 }

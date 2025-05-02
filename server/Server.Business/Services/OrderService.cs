@@ -2415,6 +2415,7 @@ namespace Server.Business.Services
                     VoucherId = request.VoucherId,
                     DiscountAmount = voucher?.DiscountAmount ?? 0,
                     Status = OrderStatusEnum.Pending.ToString(),
+                    PaymentMethod = request.PaymentMethod,
                     Note = "",
                     CreatedDate = DateTime.UtcNow,
                     UpdatedDate = DateTime.UtcNow

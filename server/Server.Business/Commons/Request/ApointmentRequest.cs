@@ -25,4 +25,6 @@ public class ApointmentRequest
     public string? Feedback { get; set; }
     
     public int VoucherId { get; set; }
+    
+    public string PaymentMedhod { get; set; }
 }

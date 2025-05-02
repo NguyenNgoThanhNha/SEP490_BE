@@ -35,4 +35,6 @@ public class CreateOrderWithProductsAndServicesRequest
 
     [Required(ErrorMessage = "IsAuto là bắt buộc")]
     public bool IsAuto { get; set; }
+    
+    public string? PaymentMethod { get; set; }
 }
