@@ -19,6 +19,19 @@ namespace Server.Business.Worker
             _logger = logger;
         }
 
+        public async Task ManualRunAsync()
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var orderService = scope.ServiceProvider.GetRequiredService<OrderService>();
+
+            await orderService.UpdateOrderStatusBasedOnPayment();
+            await orderService.AutoCompleteOrderAfterDelivery();
+            await orderService.AutoCancelPendingAppointmentOrdersAsync();
+
+            _logger.LogInformation("✅ ManualRun of OrderStatusUpdateService completed at: {time}", DateTimeOffset.Now);
+        }
+
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("OrderStatusUpdateService is starting.");
