@@ -431,5 +431,12 @@ namespace Server.API.Controllers
                 return BadRequest(ApiResponse.Error($"Lỗi khi xóa Service Elasticsearch: {ex.Message}"));
             }
         }
+
+        [HttpGet("branches-has-service")]
+        public async Task<IActionResult> GetBranchesHasService(int serviceId)
+        {
+            var branches = await _serviceService.GetBranchesHasService(serviceId);
+            return Ok(ApiResult<GetBranchesHasServiceResponse<GetBranchesHasService>>.Succeed(branches));
+        }
     }
 }

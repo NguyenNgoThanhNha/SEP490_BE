@@ -595,5 +595,16 @@ public async Task<IActionResult> ConfirmOrderDetail([FromBody] ConfirmOrderReque
             var result = await _orderService.CountOrdersByOrderTypeAsync();
             return Ok(result);
         }
+
+        [HttpPut("update-order-payment-status")]
+        public async Task<IActionResult> UpdateOrderPaymentStatus([FromBody] UpdateOrderPaymentStatusRequest request)
+        {
+            var result = await _orderService.UpdateStatusPayment(request.OrderId, request.Status);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Cập nhật trạng thái thanh toán thành công",
+                data = result
+            }));
+        }
     }
 }

@@ -773,24 +773,24 @@ namespace Server.Business.Services
             int pageSize = 5)
         {
             var listOrders = await _unitOfWorks.OrderRepository
-    .FindByCondition(x => x.CustomerId == userId && x.Status == status)
-    .Include(x => x.Customer)
-    .Include(x => x.Routine)
-    .Include(x => x.Voucher)
-    .Include(x => x.Shipment)
-    .Include(x => x.Appointments)
-        .ThenInclude(x => x.Service)
-    .Include(x => x.Appointments)
-        .ThenInclude(x => x.Branch)
-    .Include(x => x.OrderDetails)
-        .ThenInclude(od => od.Promotion)
-    .Include(x => x.OrderDetails)
-        .ThenInclude(od => od.Product)
-            .ThenInclude(p => p.ProductImages)
-    .Include(x => x.OrderDetails)
-        .ThenInclude(od => od.Branch) // ✅ thêm dòng này
-    .OrderByDescending(x => x.CreatedDate)
-    .ToListAsync();
+                .FindByCondition(x => x.CustomerId == userId && x.Status == status)
+                .Include(x => x.Customer)
+                .Include(x => x.Routine)
+                .Include(x => x.Voucher)
+                .Include(x => x.Shipment)
+                .Include(x => x.Appointments)
+                .ThenInclude(x => x.Service)
+                .Include(x => x.Appointments)
+                .ThenInclude(x => x.Branch)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(od => od.Promotion)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(od => od.Branch) // ✅ thêm dòng này
+                .OrderByDescending(x => x.CreatedDate)
+                .ToListAsync();
 
 
             if (listOrders == null || !listOrders.Any())
@@ -1257,10 +1257,10 @@ namespace Server.Business.Services
                 .Include(x => x.Voucher)
                 .Include(x => x.Routine)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                        .ThenInclude(p => p.ProductImages)
+                .ThenInclude(od => od.Product)
+                .ThenInclude(p => p.ProductImages)
                 .Include(x => x.OrderDetails)
-                    .ThenInclude(od => od.Branch) // ✅ Include thêm Branch
+                .ThenInclude(od => od.Branch) // ✅ Include thêm Branch
                 .FirstOrDefaultAsync();
 
             if (order == null)
@@ -1272,7 +1272,7 @@ namespace Server.Business.Services
                 .Include(x => x.Branch)
                 .Include(x => x.Service)
                 .Include(x => x.Staff)
-                    .ThenInclude(s => s.StaffInfo)
+                .ThenInclude(s => s.StaffInfo)
                 .ToListAsync();
 
             order.Appointments = orderAppointments;
@@ -1289,7 +1289,8 @@ namespace Server.Business.Services
             }
 
             var listProductModels = new List<ProductModel>();
-            if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.ProductAndService.ToString())
+            if (order.OrderType == OrderType.Product.ToString() ||
+                order.OrderType == OrderType.ProductAndService.ToString())
             {
                 var listProducts = order.OrderDetails.Select(od => od.Product).ToList();
                 listProductModels = await _productService.GetListImagesOfProduct(listProducts);
@@ -1310,7 +1311,8 @@ namespace Server.Business.Services
             // Gán images và branch cho sản phẩm
             foreach (var orderDetail in orderModel.OrderDetails ?? [])
             {
-                var matchedProduct = listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product?.ProductId);
+                var matchedProduct =
+                    listProductModels.FirstOrDefault(p => p.ProductId == orderDetail.Product?.ProductId);
                 if (matchedProduct != null)
                 {
                     orderDetail.Product.images = matchedProduct.images;
@@ -1342,8 +1344,6 @@ namespace Server.Business.Services
                 data = orderModel
             };
         }
-
-
 
 
         public async Task<List<AppointmentsModel>> CreateMoreOrderAppointment(int userId,
@@ -1541,13 +1541,15 @@ namespace Server.Business.Services
                     await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
 
                     var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId)
-                                    ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
+                                    ?? throw new BadRequestException(
+                                        "Không tìm thấy thông tin khách hàng trong MongoDB!");
 
                     // create notification
                     var notification = new Notifications()
                     {
                         UserId = customer.UserId,
-                        Content = $"Bạn có cuộc hẹn mới với {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                        Content =
+                            $"Bạn có cuộc hẹn mới với {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
                         Type = "Appointment",
                         isRead = false,
                         ObjectId = appointmentEntity.AppointmentId,
@@ -1559,16 +1561,19 @@ namespace Server.Business.Services
 
                     if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
                     {
-                        _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+                        _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id,
+                            connectionId);
                         Console.WriteLine($"User connected: {userMongo.Id} => {connectionId}");
                         await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
                     }
 
                     if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionSpecialListId))
                     {
-                        _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id, connectionId);
+                        _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id,
+                            connectionId);
                         Console.WriteLine($"User connected: {specialistMongo.Id} => {connectionSpecialListId}");
-                        await _hubContext.Clients.Client(connectionSpecialListId).SendAsync("receiveNotification", notification);
+                        await _hubContext.Clients.Client(connectionSpecialListId)
+                            .SendAsync("receiveNotification", notification);
                     }
                 }
 
@@ -2657,13 +2662,15 @@ namespace Server.Business.Services
 
 
                         var userMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId)
-                                        ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
+                                        ?? throw new BadRequestException(
+                                            "Không tìm thấy thông tin khách hàng trong MongoDB!");
 
                         // create notification
                         var notification = new Notifications()
                         {
                             UserId = user.UserId,
-                            Content = $"Bạn có cuộc hẹn mới với {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                            Content =
+                                $"Bạn có cuộc hẹn mới với {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
                             Type = "Appointment",
                             isRead = false,
                             ObjectId = appointmentEntity.AppointmentId,
@@ -2675,16 +2682,20 @@ namespace Server.Business.Services
 
                         if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
                         {
-                            _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+                            _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id,
+                                connectionId);
                             Console.WriteLine($"User connected: {userMongo.Id} => {connectionId}");
-                            await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                            await _hubContext.Clients.Client(connectionId)
+                                .SendAsync("receiveNotification", notification);
                         }
 
                         if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionSpecialListId))
                         {
-                            _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id, connectionId);
+                            _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id,
+                                connectionId);
                             Console.WriteLine($"User connected: {specialistMongo.Id} => {connectionSpecialListId}");
-                            await _hubContext.Clients.Client(connectionSpecialListId).SendAsync("receiveNotification", notification);
+                            await _hubContext.Clients.Client(connectionSpecialListId)
+                                .SendAsync("receiveNotification", notification);
                         }
                     }
                 }
@@ -2802,7 +2813,7 @@ namespace Server.Business.Services
                     o.StatusPayment.ToUpper() == OrderStatusPaymentEnum.Pending.ToString().ToUpper() &&
                     o.CreatedDate <= thresholdTime)
                 .Include(o => o.Appointments)
-                    .ThenInclude(a => a.Customer)
+                .ThenInclude(a => a.Customer)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -2824,7 +2835,8 @@ namespace Server.Business.Services
 
                 foreach (var appointment in order.Appointments)
                 {
-                    var appointmentEntity = await _unitOfWorks.AppointmentsRepository.GetByIdAsync(appointment.AppointmentId);
+                    var appointmentEntity =
+                        await _unitOfWorks.AppointmentsRepository.GetByIdAsync(appointment.AppointmentId);
                     if (appointmentEntity != null)
                     {
                         appointmentEntity.Status = OrderStatusEnum.Cancelled.ToString();
@@ -2877,6 +2889,22 @@ namespace Server.Business.Services
         }
 
 
-    }
+        public async Task<bool> UpdateStatusPayment(int orderId, string statusPaymentEnum)
+        {
+            if (!Enum.TryParse<OrderStatusPaymentEnum>(statusPaymentEnum, true, out var parsedStatus))
+            {
+                throw new BadRequestException("Trạng thái thanh toán không hợp lệ!");
+            }
 
+            var order = await _unitOfWorks.OrderRepository.FirstOrDefaultAsync(x => x.OrderId == orderId)
+                        ?? throw new BadRequestException("Không tìm thấy đơn hàng!");
+
+            order.StatusPayment = parsedStatus.ToString();
+            _unitOfWorks.OrderRepository.Update(order);
+            var result = await _unitOfWorks.SaveChangesAsync();
+
+            return result > 0;
+        }
+
+    }
 }

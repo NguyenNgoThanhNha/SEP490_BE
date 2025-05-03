@@ -421,8 +421,7 @@ public class AppointmentsService
     }
 
 
-    public async Task<AppointmentsModel> UpdateAppointments(int appointmentId,
-        AppointmentUpdateRequest request)
+    public async Task<AppointmentsModel> UpdateAppointments(int appointmentId, AppointmentUpdateRequest request)
     {
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId);
         var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == request.StaffId);
@@ -430,53 +429,20 @@ public class AppointmentsService
         var branch = await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId);
 
         var appointmentEntity = await _unitOfWorks.AppointmentsRepository
-            .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);
+                                    .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId)
+                                ?? throw new BadRequestException("Không tìm thấy thông tin cuộc hẹn!");
 
-        if (customer == null)
-        {
-            throw new BadRequestException("Customer not found!");
-        }
+        if (customer == null) throw new BadRequestException("Không tìm thấy thông tin khách hàng!");
+        if (staff == null) throw new BadRequestException("Không tìm thấy thông tin nhân viên!");
+        if (service == null) throw new BadRequestException("Không tìm thấy thông tin dịch vụ!");
+        if (branch == null) throw new BadRequestException("Không tìm thấy thông tin chi nhánh!");
+        if (staff.BranchId != request.BranchId) throw new BadRequestException("Nhân viên hiện không trực trong chi nhánh!");
 
-        if (staff == null)
-        {
-            throw new BadRequestException("Staff not found!");
-        }
-
-        if (service == null)
-        {
-            throw new BadRequestException("Service not found!");
-        }
-
-        if (branch == null)
-        {
-            throw new BadRequestException("Branch not found!");
-        }
-
-        if (staff.BranchId != request.BranchId)
-        {
-            throw new BadRequestException("Staff does not in branch!");
-        }
-
-        if (request.CustomerId != null)
-        {
-            appointmentEntity.CustomerId = request.CustomerId;
-        }
-
-        if (request.StaffId != null)
-        {
-            appointmentEntity.StaffId = request.StaffId;
-        }
-
-        if (request.ServiceId != null)
-        {
-            appointmentEntity.ServiceId = request.ServiceId;
-        }
-
-        if (request.BranchId != null)
-        {
-            appointmentEntity.BranchId = request.BranchId;
-        }
-
+        // Cập nhật các thông tin
+        if (request.CustomerId != null) appointmentEntity.CustomerId = request.CustomerId;
+        if (request.StaffId != null) appointmentEntity.StaffId = request.StaffId;
+        if (request.ServiceId != null) appointmentEntity.ServiceId = request.ServiceId;
+        if (request.BranchId != null) appointmentEntity.BranchId = request.BranchId;
         if (request.AppointmentsTime != null)
         {
             appointmentEntity.AppointmentsTime = request.AppointmentsTime;
@@ -484,34 +450,48 @@ public class AppointmentsService
                 appointmentEntity.AppointmentsTime.AddMinutes(int.Parse(service.Duration));
         }
 
-        if (request.Status != null)
-        {
-            appointmentEntity.Status = request.Status;
-        }
+        if (request.Status != null) appointmentEntity.Status = request.Status;
+        if (request.Notes != null) appointmentEntity.Notes = request.Notes;
+        if (request.Feedback != null) appointmentEntity.Feedback = request.Feedback;
 
-        if (request.Notes != null)
-        {
-            appointmentEntity.Notes = request.Notes;
-        }
-
-        if (request.Feedback != null)
-        {
-            appointmentEntity.Feedback = request.Feedback;
-        }
-
-        var appointmentUpdated =
-            _unitOfWorks.AppointmentsRepository.Update(appointmentEntity);
-
-        var appointmentResponse = await GetAppointmentsById(appointmentUpdated.AppointmentId);
-
+        var appointmentUpdated = _unitOfWorks.AppointmentsRepository.Update(appointmentEntity);
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
-        if (result > 0)
+
+        if (result <= 0) return null;
+        
+        var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+        var staffMongo = await _mongoDbService.GetCustomerByIdAsync(staff.UserId);
+
+        var notification = new Notifications
         {
-            return appointmentResponse;
+            UserId = customer.UserId,
+            Content =
+                $"Cuộc hẹn với {staff.StaffInfo.FullName} vào lúc {appointmentEntity.AppointmentsTime:HH:mm dd/MM/yyyy} đã được cập nhật.",
+            Type = "Appointment",
+            isRead = false,
+            ObjectId = appointmentEntity.AppointmentId,
+            CreatedDate = DateTime.Now
+        };
+
+        await _unitOfWorks.NotificationRepository.AddAsync(notification);
+        await _unitOfWorks.NotificationRepository.Commit();
+
+        // Gửi real-time qua SignalR
+        if (NotificationHub.TryGetConnectionId(customerMongo.Id, out var connectionCustomer))
+        {
+            await _hubContext.Clients.Client(connectionCustomer)
+                .SendAsync("receiveNotification", notification);
         }
 
-        return null;
+        if (NotificationHub.TryGetConnectionId(staffMongo.Id, out var connectionStaff))
+        {
+            await _hubContext.Clients.Client(connectionStaff)
+                .SendAsync("receiveNotification", notification);
+        }
+
+        return await GetAppointmentsById(appointmentUpdated.AppointmentId);
     }
+
 
     public async Task<AppointmentsModel> DeleteAppointments(AppointmentsModel appointmentsModel)
     {

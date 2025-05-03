@@ -624,5 +624,41 @@ namespace Server.Business.Services
             var serviceModels = await GetListImagesOfServices(services);
             return serviceModels;
         }
+
+        public async Task<GetBranchesHasServiceResponse<GetBranchesHasService>> GetBranchesHasService(int serviceId)
+        {
+            var service = await _unitOfWorks.ServiceRepository
+                              .FirstOrDefaultAsync(x => x.ServiceId == serviceId)
+                          ?? throw new BadRequestException("Không tìm thấy thông tin dịch vụ.");
+
+            var branchServices = await _unitOfWorks.Branch_ServiceRepository
+                .FindByCondition(x => x.ServiceId == serviceId)
+                .Include(x => x.Branch)
+                .Include(x => x.Service)
+                .ToListAsync();
+
+            var branchDtos = branchServices.Select(x => new BranchServiceDto
+            {
+                Id = x.Id,
+                Service = _mapper.Map<ServiceDto>(x.Service),
+                Branch = _mapper.Map<BranchDTO>(x.Branch),
+                Status = x.Status,
+                CreatedDate = x.CreatedDate,
+                UpdatedDate = x.UpdatedDate
+            }).ToList();
+
+            var result = new GetBranchesHasService
+            {
+                ServiceId = serviceId,
+                Branches = branchDtos
+            };
+
+            return new GetBranchesHasServiceResponse<GetBranchesHasService>
+            {
+                Message = "Lấy danh sách chi nhánh có dịch vụ thành công",
+                Data = new List<GetBranchesHasService> { result }
+            };
+        }
+
     }
 }

@@ -24,7 +24,9 @@ namespace Server.API.Controllers
         private readonly IElasticClient _elasticClient;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly ElasticService<ProductDto> _elasticService;
-        public ProductController(ProductService productService, BranchService branchService, IElasticClient elasticClient, IWebHostEnvironment hostingEnvironment)
+
+        public ProductController(ProductService productService, BranchService branchService,
+            IElasticClient elasticClient, IWebHostEnvironment hostingEnvironment)
         {
             _productService = productService;
             _branchService = branchService;
@@ -35,15 +37,15 @@ namespace Server.API.Controllers
 
         [HttpGet("get-list")]
         public async Task<IActionResult> GetList(
-    string? productName,
-    string? description,
-    string? categoryName,
-    string? companyName,
-    decimal? price,
-    decimal? endPrice,
-    int? filterTypePrice = 0,
-    int pageIndex = 0,
-    int pageSize = 10)
+            string? productName,
+            string? description,
+            string? categoryName,
+            string? companyName,
+            decimal? price,
+            decimal? endPrice,
+            int? filterTypePrice = 0,
+            int pageIndex = 0,
+            int pageSize = 10)
         {
             Expression<Func<Product, bool>> filter = p =>
                 (string.IsNullOrEmpty(productName) || p.ProductName.ToLower().Contains(productName.ToLower()))
@@ -100,6 +102,7 @@ namespace Server.API.Controllers
             }
             else
                 productList = (await _elasticService.GetAllAsync()).ToList();
+
             return Ok(ApiResponse.Succeed(productList));
         }
 
@@ -114,6 +117,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
             return Ok(model);
         }
 
@@ -168,7 +172,6 @@ namespace Server.API.Controllers
         }
 
 
-
         [HttpGet("{productId}")]
         public async Task<IActionResult> GetProductById(int productId)
         {
@@ -195,7 +198,6 @@ namespace Server.API.Controllers
         {
             try
             {
-
                 var products = await _productService.GetAllProduct(page, pageSize);
 
                 // Kiểm tra nếu không có dữ liệu
@@ -212,7 +214,6 @@ namespace Server.API.Controllers
             }
             catch (Exception ex)
             {
-
                 return StatusCode(500, ApiResult<ApiResponse>.Error(new ApiResponse
                 {
                     message = $"Đã xảy ra lỗi khi truy xuất sản phẩm: {ex.Message}"
@@ -230,6 +231,7 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResponse.Error("Không tìm thấy sản phẩm"));
             }
+
             if (await _branchService.GetBranchAsync(productId) == null)
             {
                 return BadRequest(ApiResponse.Error("Không tìm thấy chi nhánh"));
@@ -283,8 +285,6 @@ namespace Server.API.Controllers
 
         [Authorize(Roles = "Admin, Manager")]
         [HttpDelete("{productId}")]
-
-
         public async Task<IActionResult> DeleteProduct(int productId)
         {
             try
@@ -354,9 +354,11 @@ namespace Server.API.Controllers
             {
                 return BadRequest();
             }
+
             var result = await _productService.CheckInputHasGross(input);
             return Ok(ApiResponse.Succeed(result));
         }
+
         [HttpGet("filter")]
         public async Task<IActionResult> FilterProducts([FromQuery] ProductFilterRequest req)
         {
@@ -397,7 +399,8 @@ namespace Server.API.Controllers
                     success = true,
                     result = new
                     {
-                        message = "Không tìm thấy sản phẩm tương ứng với ProductBranchId. Đảm bảo đã nhập ProductBranchId đúng.",
+                        message =
+                            "Không tìm thấy sản phẩm tương ứng với ProductBranchId. Đảm bảo đã nhập ProductBranchId đúng.",
                         data = (object)null
                     }
                 });
@@ -474,7 +477,12 @@ namespace Server.API.Controllers
         }
 
 
+        [HttpGet("branches-has-product")]
+        public async Task<IActionResult> GetBranchesHasProduct(int productId)
+        {
+            var branches = await _productService.GetBranchesHasProduct(productId);
 
-
+            return Ok(ApiResult<GetBranchesHasProductResponse<GetBranchesHasProduct>>.Succeed(branches));
+        }
     }
 }
