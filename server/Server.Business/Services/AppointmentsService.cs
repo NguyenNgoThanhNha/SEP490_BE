@@ -77,11 +77,11 @@ public class AppointmentsService
             .FindByCondition(x => x.AppointmentId == id)
             .Include(x => x.Customer)
             .Include(x => x.Staff)
-                .ThenInclude(s => s.StaffInfo)
+            .ThenInclude(s => s.StaffInfo)
             .Include(x => x.Branch)
             .Include(x => x.Service)
-                .ThenInclude(s => s.ServiceRoutines)
-                    .ThenInclude(sr => sr.Routine) 
+            .ThenInclude(s => s.ServiceRoutines)
+            .ThenInclude(sr => sr.Routine)
             .FirstOrDefaultAsync();
 
         if (appointmentsExist == null)
@@ -161,8 +161,8 @@ public class AppointmentsService
                 var serviceId = request.ServiceId[i];
                 var staffId = request.StaffId[i];
                 var appointmentTime = request.AppointmentsTime[i];
-                
-                if(appointmentTime < DateTime.Now)
+
+                if (appointmentTime < DateTime.Now)
                 {
                     throw new BadRequestException($"Thời gian đặt lịch không hợp lệ: {appointmentTime}");
                 }
@@ -211,12 +211,13 @@ public class AppointmentsService
                     .FirstOrDefaultAsync(a => a.StaffId == staffId &&
                                               a.AppointmentsTime < endTime &&
                                               a.AppointmentEndTime > appointmentTime &&
-                                              a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                                              (a.Status != OrderStatusEnum.Cancelled.ToString() &&
+                                               a.Status != OrderStatusEnum.Completed.ToString())) != null;
                 if (isStaffBusy)
                 {
                     throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
                 }
-                
+
                 // Check if customer has overlapping appointments
                 var isCustomerBusy = await _unitOfWorks.AppointmentsRepository
                     .FirstOrDefaultAsync(a => a.CustomerId == userId &&
@@ -227,10 +228,11 @@ public class AppointmentsService
 
                 if (isCustomerBusy)
                 {
-                    throw new BadRequestException($"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
+                    throw new BadRequestException(
+                        $"Bạn đã có một cuộc hẹn khác trùng vào khoảng thời gian: {appointmentTime:HH:mm dd/MM/yyyy}!");
                 }
 
-                
+
                 // Lấy ngày và thứ trong tuần từ appointmentTime
                 var appointmentDate = appointmentTime.Date;
                 var dayOfWeek = (int)appointmentDate.DayOfWeek;
@@ -259,7 +261,8 @@ public class AppointmentsService
 
                         if (!isWithinShiftTime)
                         {
-                            throw new BadRequestException("Thời gian đặt lịch không nằm trong ca làm việc của nhân viên.");
+                            throw new BadRequestException(
+                                "Thời gian đặt lịch không nằm trong ca làm việc của nhân viên.");
                         }
                     }
                 }
@@ -270,7 +273,8 @@ public class AppointmentsService
 
                 if (appointmentTime < shiftStartDateTime || endTime > shiftEndDateTime)
                 {
-                    throw new BadRequestException($"Thời gian đặt lịch {appointmentTime:HH:mm} không nằm trong ca làm việc ({workSchedule.Shift.ShiftName}) của nhân viên.");
+                    throw new BadRequestException(
+                        $"Thời gian đặt lịch {appointmentTime:HH:mm} không nằm trong ca làm việc ({workSchedule.Shift.ShiftName}) của nhân viên.");
                 }
 
 
@@ -296,52 +300,56 @@ public class AppointmentsService
                 await _unitOfWorks.AppointmentsRepository.Commit();
                 appointments.Add(_mapper.Map<AppointmentsModel>(appointmentEntity));
 
-                // get specialist MySQL
-                var specialistMySQL = await _staffService.GetStaffById(staffId);
-
-                // get admin, specialist, customer from MongoDB
-                var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
-                var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
-                var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
-
-                // create channel
-                var channel = await _mongoDbService.CreateChannelAsync(
-                    $"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id,
-                    appointmentEntity.AppointmentId);
-
-                // add member to channel
-                await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
-                await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
-                
-                var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId)
-                    ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
-                
-                // create notification
-                var notification = new Notifications()
-                {
-                    UserId = customer.UserId,
-                    Content = $"Bạn có cuộc hẹn mới với {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
-                    Type = "Appointment",
-                    isRead = false,
-                    ObjectId = appointmentEntity.AppointmentId,
-                    CreatedDate = DateTime.UtcNow,
-                };
-
-                await _unitOfWorks.NotificationRepository.AddAsync(notification);
-                await _unitOfWorks.NotificationRepository.Commit();
-
-                if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
-                {
-                    _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
-                    Console.WriteLine($"User connected: {userMongo.Id} => {connectionId}");
-                    await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
-                }
-                if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionSpecialListId))
-                {
-                    _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id, connectionId);
-                    Console.WriteLine($"User connected: {specialistMongo.Id} => {connectionSpecialListId}");
-                    await _hubContext.Clients.Client(connectionSpecialListId).SendAsync("receiveNotification", notification);
-                }
+                // // get specialist MySQL
+                // var specialistMySQL = await _staffService.GetStaffById(staffId);
+                //
+                // // get admin, specialist, customer from MongoDB
+                // var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
+                // var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+                // var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+                //
+                // // create channel
+                // var channel = await _mongoDbService.CreateChannelAsync(
+                //     $"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id,
+                //     appointmentEntity.AppointmentId);
+                //
+                // // add member to channel
+                // await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+                // await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
+                //
+                // var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId)
+                //                 ?? throw new BadRequestException("Không tìm thấy thông tin khách hàng trong MongoDB!");
+                //
+                // // create notification
+                // var notification = new Notifications()
+                // {
+                //     UserId = customer.UserId,
+                //     Content =
+                //         $"Bạn có cuộc hẹn mới với {staff.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                //     Type = "Appointment",
+                //     isRead = false,
+                //     ObjectId = appointmentEntity.AppointmentId,
+                //     CreatedDate = DateTime.UtcNow,
+                // };
+                //
+                // await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                // await _unitOfWorks.NotificationRepository.Commit();
+                //
+                // if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+                // {
+                //     _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+                //     Console.WriteLine($"User connected: {userMongo.Id} => {connectionId}");
+                //     await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                // }
+                //
+                // if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionSpecialListId))
+                // {
+                //     _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id,
+                //         connectionId);
+                //     Console.WriteLine($"User connected: {specialistMongo.Id} => {connectionSpecialListId}");
+                //     await _hubContext.Clients.Client(connectionSpecialListId)
+                //         .SendAsync("receiveNotification", notification);
+                // }
             }
 
 
@@ -350,7 +358,56 @@ public class AppointmentsService
             var result = await _unitOfWorks.SaveChangesAsync();
             await _unitOfWorks.CommitTransactionAsync();
 
-            return result > 0 ? appointments : null;
+            // Tạo và gửi notification sau khi tất cả cuộc hẹn được tạo thành công
+            if (result > 0)
+            {
+                foreach (var appointment in appointments)
+                {
+                    var specialistMySQL = await _staffService.GetStaffById(appointment.StaffId);
+                    var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+                    var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+                    var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
+
+                    // Tạo channel
+                    var channel = await _mongoDbService.CreateChannelAsync(
+                        $"Channel {appointment.AppointmentId} {appointment.Service.Name}", adminMongo!.Id,
+                        appointment.AppointmentId);
+
+                    await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+                    await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
+
+                    // Tạo notification
+                    var notification = new Notifications
+                    {
+                        UserId = customer.UserId,
+                        Content =
+                            $"Bạn có cuộc hẹn mới với {specialistMySQL.StaffInfo.FullName} vào lúc {appointment.AppointmentsTime}",
+                        Type = "Appointment",
+                        isRead = false,
+                        ObjectId = appointment.AppointmentId,
+                        CreatedDate = DateTime.UtcNow
+                    };
+
+                    await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                    await _unitOfWorks.NotificationRepository.Commit();
+
+                    if (NotificationHub.TryGetConnectionId(customerMongo.Id, out var connectionCustomer))
+                    {
+                        await _hubContext.Clients.Client(connectionCustomer)
+                            .SendAsync("receiveNotification", notification);
+                    }
+
+                    if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionStaff))
+                    {
+                        await _hubContext.Clients.Client(connectionStaff)
+                            .SendAsync("receiveNotification", notification);
+                    }
+                }
+
+                return appointments;
+            }
+
+            return null;
         }
         catch (Exception e)
         {
@@ -370,7 +427,7 @@ public class AppointmentsService
 
         var appointmentEntity = await _unitOfWorks.AppointmentsRepository
             .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);
-        
+
         if (customer == null)
         {
             throw new BadRequestException("Customer not found!");
@@ -442,14 +499,14 @@ public class AppointmentsService
             _unitOfWorks.AppointmentsRepository.Update(appointmentEntity);
 
         var appointmentResponse = await GetAppointmentsById(appointmentUpdated.AppointmentId);
-        
+
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
         if (result > 0)
         {
             return appointmentResponse;
         }
 
-        return null;    
+        return null;
     }
 
     public async Task<AppointmentsModel> DeleteAppointments(AppointmentsModel appointmentsModel)
@@ -533,9 +590,9 @@ public class AppointmentsService
         return _mapper.Map<List<AppointmentsModel>>(listAppointments);
     }
 
-   
 
-    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(AppointmentFilterRequest request)
+    public async Task<GetAllAppointmentPaginationResponse> GetAppointmentsByBranchAsync(
+        AppointmentFilterRequest request)
     {
         if (request.BranchId <= 0)
         {
@@ -554,7 +611,7 @@ public class AppointmentsService
         var query = _unitOfWorks.AppointmentsRepository
             .FindByCondition(a => a.BranchId == request.BranchId)
             .Include(a => a.Staff)
-                .ThenInclude(s => s.StaffInfo) 
+            .ThenInclude(s => s.StaffInfo)
             .Include(a => a.Customer)
             .Include(a => a.Service)
             .OrderByDescending(a => a.AppointmentsTime);
@@ -573,68 +630,71 @@ public class AppointmentsService
             OrderId = a.OrderId,
 
             //CustomerId = a.CustomerId,
-            Customer = a.Customer == null ? null : new UserDTO
-            {
-                UserId = a.Customer.UserId,
-                UserName = a.Customer.UserName,
-                FullName = a.Customer.FullName,
-                Email = a.Customer.Email,
-                Gender = a.Customer.Gender,
-                City = a.Customer.City,
-                Address = a.Customer.Address,
-                BirthDate = a.Customer.BirthDate,
-                Avatar = a.Customer.Avatar,
-                PhoneNumber = a.Customer.PhoneNumber,
-                CreatedDate = a.Customer.CreatedDate,
-                CreateBy = a.Customer.CreateBy,
-                ModifyBy = a.Customer.ModifyBy,
-                ModifyDate = a.Customer.ModifyDate,
-                Status = a.Customer.Status,
-                BonusPoint = a.Customer.BonusPoint,
-                TypeLogin = a.Customer.TypeLogin,
-                RoleID = a.Customer.RoleID
-            },
+            Customer = a.Customer == null
+                ? null
+                : new UserDTO
+                {
+                    UserId = a.Customer.UserId,
+                    UserName = a.Customer.UserName,
+                    FullName = a.Customer.FullName,
+                    Email = a.Customer.Email,
+                    Gender = a.Customer.Gender,
+                    City = a.Customer.City,
+                    Address = a.Customer.Address,
+                    BirthDate = a.Customer.BirthDate,
+                    Avatar = a.Customer.Avatar,
+                    PhoneNumber = a.Customer.PhoneNumber,
+                    CreatedDate = a.Customer.CreatedDate,
+                    CreateBy = a.Customer.CreateBy,
+                    ModifyBy = a.Customer.ModifyBy,
+                    ModifyDate = a.Customer.ModifyDate,
+                    Status = a.Customer.Status,
+                    BonusPoint = a.Customer.BonusPoint,
+                    TypeLogin = a.Customer.TypeLogin,
+                    RoleID = a.Customer.RoleID
+                },
 
             //StaffId = a.StaffId,
-            Staff = a.Staff?.StaffInfo == null ? null : new UserDTO
-            {
-                UserId = a.Staff.StaffInfo.UserId,
-                UserName = a.Staff.StaffInfo.UserName,
-                FullName = a.Staff.StaffInfo.FullName,
-                Email = a.Staff.StaffInfo.Email,
-                Gender = a.Staff.StaffInfo.Gender,
-                City = a.Staff.StaffInfo.City,
-                Address = a.Staff.StaffInfo.Address,
-                BirthDate = a.Staff.StaffInfo.BirthDate,
-                Avatar = a.Staff.StaffInfo.Avatar,
-                PhoneNumber = a.Staff.StaffInfo.PhoneNumber,
-                CreatedDate = a.Staff.StaffInfo.CreatedDate,
-                CreateBy = a.Staff.StaffInfo.CreateBy,
-                ModifyBy = a.Staff.StaffInfo.ModifyBy,
-                ModifyDate = a.Staff.StaffInfo.ModifyDate,
-                Status = a.Staff.StaffInfo.Status,
-                BonusPoint = a.Staff.StaffInfo.BonusPoint,
-                TypeLogin = a.Staff.StaffInfo.TypeLogin,
-                RoleID = a.Staff.StaffInfo.RoleID
-
-
-            },
+            Staff = a.Staff?.StaffInfo == null
+                ? null
+                : new UserDTO
+                {
+                    UserId = a.Staff.StaffInfo.UserId,
+                    UserName = a.Staff.StaffInfo.UserName,
+                    FullName = a.Staff.StaffInfo.FullName,
+                    Email = a.Staff.StaffInfo.Email,
+                    Gender = a.Staff.StaffInfo.Gender,
+                    City = a.Staff.StaffInfo.City,
+                    Address = a.Staff.StaffInfo.Address,
+                    BirthDate = a.Staff.StaffInfo.BirthDate,
+                    Avatar = a.Staff.StaffInfo.Avatar,
+                    PhoneNumber = a.Staff.StaffInfo.PhoneNumber,
+                    CreatedDate = a.Staff.StaffInfo.CreatedDate,
+                    CreateBy = a.Staff.StaffInfo.CreateBy,
+                    ModifyBy = a.Staff.StaffInfo.ModifyBy,
+                    ModifyDate = a.Staff.StaffInfo.ModifyDate,
+                    Status = a.Staff.StaffInfo.Status,
+                    BonusPoint = a.Staff.StaffInfo.BonusPoint,
+                    TypeLogin = a.Staff.StaffInfo.TypeLogin,
+                    RoleID = a.Staff.StaffInfo.RoleID
+                },
 
             ServiceId = a.ServiceId,
-            Service = a.Service == null ? null : new ServiceDto
-            {
-                ServiceId = a.Service.ServiceId,
-                Name = a.Service.Name,
-                Price = a.Service.Price,
-                Description = a.Service.Description,
-                Duration = a.Service.Duration,
-                Status = a.Service.Status,
-                Steps = a.Service.Steps,
-                CreatedDate = a.Service.CreatedDate,
-                UpdatedDate = a.Service.UpdatedDate,
-                ServiceCategoryId = a.Service.ServiceCategoryId
-
-            },
+            Service = a.Service == null
+                ? null
+                : new ServiceDto
+                {
+                    ServiceId = a.Service.ServiceId,
+                    Name = a.Service.Name,
+                    Price = a.Service.Price,
+                    Description = a.Service.Description,
+                    Duration = a.Service.Duration,
+                    Status = a.Service.Status,
+                    Steps = a.Service.Steps,
+                    CreatedDate = a.Service.CreatedDate,
+                    UpdatedDate = a.Service.UpdatedDate,
+                    ServiceCategoryId = a.Service.ServiceCategoryId
+                },
 
             BranchId = a.BranchId,
             AppointmentsTime = a.AppointmentsTime,
@@ -669,7 +729,9 @@ public class AppointmentsService
         appointment.UpdatedDate = DateTime.Now;
         appointment = _unitOfWorks.AppointmentsRepository.Update(appointment);
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
-        return result > 0 ? appointment.AppointmentId : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
+        return result > 0
+            ? appointment.AppointmentId
+            : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
     }
 
     //public async Task<GetAllAppointmentResponseCustomer> GetAppointmentsByCustomer(int customerId, int page = 1, int pageSize = 5)
@@ -708,7 +770,8 @@ public class AppointmentsService
     //    };
     //}
 
-    public async Task<List<CustomerAppointmentModel>> GetAppointmentsByCustomer(int customerId, DateTime startDate, DateTime? endDate)
+    public async Task<List<CustomerAppointmentModel>> GetAppointmentsByCustomer(int customerId, DateTime startDate,
+        DateTime? endDate)
     {
         // Nếu không truyền hoặc truyền endDate là MinValue → mặc định cộng 7 ngày
         var effectiveEndDate = (!endDate.HasValue || endDate == DateTime.MinValue)
@@ -718,14 +781,14 @@ public class AppointmentsService
         // Truy vấn danh sách lịch hẹn trong khoảng thời gian
         var appointments = await _unitOfWorks.AppointmentsRepository
             .FindByCondition(x => x.CustomerId == customerId
-                               && x.AppointmentsTime >= startDate
-                               && x.AppointmentsTime <= effectiveEndDate)
+                                  && x.AppointmentsTime >= startDate
+                                  && x.AppointmentsTime <= effectiveEndDate)
             .Include(x => x.Order)
             .Include(x => x.Service)
-                .ThenInclude(s => s.ServiceRoutines)
-                    .ThenInclude(sr => sr.Routine)
+            .ThenInclude(s => s.ServiceRoutines)
+            .ThenInclude(sr => sr.Routine)
             .Include(x => x.Staff)
-                .ThenInclude(s => s.StaffInfo)
+            .ThenInclude(s => s.StaffInfo)
             .Include(x => x.Branch)
             .Include(x => x.Customer)
             .OrderByDescending(x => x.AppointmentsTime)
@@ -737,9 +800,6 @@ public class AppointmentsService
         return mappedAppointments;
     }
 
-
-
-   
 
     public async Task<YearlyBookingStatsDto> GetYearlyBookingStatsAsync(int branchId, int year)
     {
@@ -769,9 +829,6 @@ public class AppointmentsService
             MonthlyStats = monthlyStats
         };
     }
-
-
-
 
 
     public async Task<List<CustomerAppointmentModel>> GetAppointmentsByRoutine(int customerId, int routineId)
@@ -823,11 +880,10 @@ public class AppointmentsService
             .Include(a => a.Service)
             .Include(a => a.Branch)
             .Include(a => a.Staff)
-                .ThenInclude(s => s.StaffInfo)
+            .ThenInclude(s => s.StaffInfo)
             .OrderBy(a => a.AppointmentsTime)
             .ToListAsync();
 
         return _mapper.Map<List<AppointmentsModel>>(appointments);
     }
-
 }

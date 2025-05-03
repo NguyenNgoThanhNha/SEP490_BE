@@ -1483,7 +1483,8 @@ namespace Server.Business.Services
                         .FirstOrDefaultAsync(a => a.StaffId == staffId &&
                                                   a.AppointmentsTime < endTime &&
                                                   a.AppointmentEndTime > appointmentTime &&
-                                                  a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                                                  (a.Status != OrderStatusEnum.Cancelled.ToString() &&
+                                                   a.Status != OrderStatusEnum.Completed.ToString())) != null;
                     if (isStaffBusy)
                     {
                         throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
@@ -2543,7 +2544,8 @@ namespace Server.Business.Services
                             .FirstOrDefaultAsync(a => a.StaffId == staffId &&
                                                       a.AppointmentsTime < endTime &&
                                                       a.AppointmentEndTime > appointmentTime &&
-                                                      a.Status != OrderStatusEnum.Cancelled.ToString()) != null;
+                                                      (a.Status != OrderStatusEnum.Cancelled.ToString() &&
+                                                       a.Status != OrderStatusEnum.Completed.ToString())) != null;
                         if (isStaffBusy)
                         {
                             throw new BadRequestException($"Staff đang bận trong khoảng thời gian: {appointmentTime}!");
