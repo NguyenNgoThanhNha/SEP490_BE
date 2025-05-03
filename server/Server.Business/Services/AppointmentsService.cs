@@ -424,7 +424,9 @@ public class AppointmentsService
     public async Task<AppointmentsModel> UpdateAppointments(int appointmentId, AppointmentUpdateRequest request)
     {
         var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId);
-        var staff = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(x => x.StaffId == request.StaffId);
+        var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == request.StaffId)
+            .Include(x => x.StaffInfo)
+            .FirstOrDefaultAsync();
         var service = await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == request.ServiceId);
         var branch = await _unitOfWorks.BranchRepository.FirstOrDefaultAsync(x => x.BranchId == request.BranchId);
 
@@ -436,7 +438,8 @@ public class AppointmentsService
         if (staff == null) throw new BadRequestException("Không tìm thấy thông tin nhân viên!");
         if (service == null) throw new BadRequestException("Không tìm thấy thông tin dịch vụ!");
         if (branch == null) throw new BadRequestException("Không tìm thấy thông tin chi nhánh!");
-        if (staff.BranchId != request.BranchId) throw new BadRequestException("Nhân viên hiện không trực trong chi nhánh!");
+        if (staff.BranchId != request.BranchId)
+            throw new BadRequestException("Nhân viên hiện không trực trong chi nhánh!");
 
         // Cập nhật các thông tin
         if (request.CustomerId != null) appointmentEntity.CustomerId = request.CustomerId;
@@ -458,7 +461,7 @@ public class AppointmentsService
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
 
         if (result <= 0) return null;
-        
+
         var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
         var staffMongo = await _mongoDbService.GetCustomerByIdAsync(staff.UserId);
 
@@ -711,12 +714,54 @@ public class AppointmentsService
 
         appointment.Status = status;
         appointment.UpdatedDate = DateTime.Now;
+
         appointment = _unitOfWorks.AppointmentsRepository.Update(appointment);
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
-        return result > 0
-            ? appointment.AppointmentId
-            : throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
+
+        if (result <= 0)
+            throw new BadRequestException("Cập nhật trạng thái lịch hẹn thất bại");
+
+        // BẮN NOTIFICATION
+        var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == appointment.CustomerId);
+        var staff = await _unitOfWorks.StaffRepository
+            .FindByCondition(x => x.StaffId == appointment.StaffId)
+            .Include(x => x.StaffInfo)
+            .FirstOrDefaultAsync();
+        var service =
+            await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x => x.ServiceId == appointment.ServiceId);
+
+        var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer!.UserId);
+        var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(staff!.UserId);
+
+        var notification = new Notifications
+        {
+            UserId = customer.UserId,
+            Content =
+                $"Lịch hẹn #{appointment.AppointmentId} với dịch vụ {service!.Name} đã được cập nhật trạng thái: {status}",
+            Type = "Appointment",
+            isRead = false,
+            ObjectId = appointment.AppointmentId,
+            CreatedDate = DateTime.UtcNow
+        };
+
+        await _unitOfWorks.NotificationRepository.AddAsync(notification);
+        await _unitOfWorks.NotificationRepository.Commit();
+
+        if (NotificationHub.TryGetConnectionId(customerMongo.Id, out var connectionCustomer))
+        {
+            await _hubContext.Clients.Client(connectionCustomer)
+                .SendAsync("receiveNotification", notification);
+        }
+
+        if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionStaff))
+        {
+            await _hubContext.Clients.Client(connectionStaff)
+                .SendAsync("receiveNotification", notification);
+        }
+
+        return appointment.AppointmentId;
     }
+
 
     //public async Task<GetAllAppointmentResponseCustomer> GetAppointmentsByCustomer(int customerId, int page = 1, int pageSize = 5)
     //{
