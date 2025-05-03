@@ -368,9 +368,13 @@ public class AppointmentsService
                     var customerMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
                     var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
 
+                    var service =
+                        await _unitOfWorks.ServiceRepository.FirstOrDefaultAsync(x =>
+                            x.ServiceId == appointment.ServiceId);
+
                     // Tạo channel
                     var channel = await _mongoDbService.CreateChannelAsync(
-                        $"Channel {appointment.AppointmentId} {appointment.Service.Name}", adminMongo!.Id,
+                        $"Channel {appointment.AppointmentId} {service.Name}", adminMongo!.Id,
                         appointment.AppointmentId);
 
                     await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
