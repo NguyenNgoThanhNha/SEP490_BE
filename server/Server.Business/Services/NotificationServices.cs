@@ -66,7 +66,7 @@ public class NotificationServices
     public async Task<bool> MarkAllAsReadByUserIdAsync(int userId)
     {
         var notifications = await _unitOfWorks.NotificationRepository
-            .FindByCondition(n => n.UserId == userId && !n.isRead.HasValue)
+            .FindByCondition(n => n.UserId == userId)
             .ToListAsync();
 
         if (notifications == null || !notifications.Any()) return false;
