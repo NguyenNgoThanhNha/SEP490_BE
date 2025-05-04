@@ -443,7 +443,16 @@ public class AppointmentsService
 
         // Cập nhật các thông tin
         if (request.CustomerId != null) appointmentEntity.CustomerId = request.CustomerId;
-        if (request.StaffId != null) appointmentEntity.StaffId = request.StaffId;
+        if (request.StaffId != null)
+        {
+            appointmentEntity.StaffId = request.StaffId;
+            var specialistMySQL = await _staffService.GetStaffById(appointmentEntity.StaffId);
+            var specialistMongo = await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+            
+            var channel = await _mongoDbService.GetChannelByAppointmentIdAsync(appointmentEntity.AppointmentId);
+            
+            await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+        }
         if (request.ServiceId != null) appointmentEntity.ServiceId = request.ServiceId;
         if (request.BranchId != null) appointmentEntity.BranchId = request.BranchId;
         if (request.AppointmentsTime != null)
