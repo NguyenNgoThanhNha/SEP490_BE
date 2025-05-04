@@ -2197,6 +2197,10 @@ namespace Server.Business.Services
 
             foreach (var order in ordersToUpdate)
             {
+                if (order.PaymentMethod == PaymentMethodEnum.Cash.ToString())
+                {
+                    continue;
+                }
                 // Check thời gian
                 if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
                 {
@@ -2795,7 +2799,9 @@ namespace Server.Business.Services
 
             var orders = await _unitOfWorks.OrderRepository
                 .FindByCondition(o =>
-                    o.OrderType.ToUpper() == OrderType.Appointment.ToString().ToUpper() &&
+                    (o.OrderType.ToUpper() == OrderType.Appointment.ToString().ToUpper() ||
+                     o.OrderType.ToUpper() == OrderType.Routine.ToString().ToUpper() ||
+                     o.OrderType.ToUpper() == OrderType.ProductAndService.ToString().ToUpper()) &&
                     o.Status.ToUpper() == OrderStatusEnum.Pending.ToString().ToUpper() &&
                     o.StatusPayment.ToUpper() == OrderStatusPaymentEnum.Pending.ToString().ToUpper() &&
                     o.CreatedDate <= thresholdTime)
