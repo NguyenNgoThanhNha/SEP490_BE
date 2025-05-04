@@ -1431,6 +1431,9 @@ namespace Server.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("TargetSkinTypes")
                         .HasColumnType("longtext");
 
@@ -1767,12 +1770,12 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("ManagerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Notes")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<int?>("StaffId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1793,7 +1796,7 @@ namespace Server.Data.Migrations
 
                     b.HasKey("UserRoutineLoggerId");
 
-                    b.HasIndex("StaffId");
+                    b.HasIndex("ManagerId");
 
                     b.HasIndex("StepId");
 
@@ -2573,9 +2576,9 @@ namespace Server.Data.Migrations
 
             modelBuilder.Entity("Server.Data.Entities.UserRoutineLogger", b =>
                 {
-                    b.HasOne("Server.Data.Entities.Staff", "Staff")
+                    b.HasOne("Server.Data.Entities.User", "Manager")
                         .WithMany()
-                        .HasForeignKey("StaffId");
+                        .HasForeignKey("ManagerId");
 
                     b.HasOne("Server.Data.Entities.UserRoutineStep", "UserRoutineStep")
                         .WithMany()
@@ -2587,7 +2590,7 @@ namespace Server.Data.Migrations
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.Navigation("Staff");
+                    b.Navigation("Manager");
 
                     b.Navigation("User");
 

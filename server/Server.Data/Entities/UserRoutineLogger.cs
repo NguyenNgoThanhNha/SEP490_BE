@@ -13,9 +13,9 @@ public class UserRoutineLogger
     public int StepId { get; set; }
     public virtual UserRoutineStep UserRoutineStep { get; set; }
     
-    [ForeignKey("UserRoutine_Staff")]
-    public int? StaffId { get; set; } // Ai thực hiện bước này
-    public virtual Staff? Staff { get; set; }
+    [ForeignKey("UserRoutine_Manager")]
+    public int? ManagerId { get; set; }
+    public virtual User? Manager { get; set; }
     
     [ForeignKey("UserRoutine_Customer")]
     public int? UserId { get; set; } // Ai thực hiện bước này

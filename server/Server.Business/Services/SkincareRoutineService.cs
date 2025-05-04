@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Server.Business.Exceptions;
+using Server.Data;
 
 namespace Server.Business.Services
 {
@@ -27,8 +28,9 @@ namespace Server.Business.Services
         public async Task<GetAllSkincareRoutinePaginationResponse> GetAllPaginationAsync(int page, int pageSize)
         {
             var query = _unitOfWorks.SkincareRoutineRepository
-                .GetAll()
-                .OrderByDescending(x => x.SkincareRoutineId);
+                .FindByCondition(x => x.Status == ObjectStatus.Active.ToString())
+                .OrderByDescending(x => x.SkincareRoutineId)
+                .AsQueryable();
 
             var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -185,9 +187,11 @@ namespace Server.Business.Services
             var entity = await _unitOfWorks.SkincareRoutineRepository.GetByIdAsync(id);
             if (entity == null) return false;
 
-            _unitOfWorks.SkincareRoutineRepository.Remove(id);
-            await _unitOfWorks.SaveChangesAsync();
-            return true;
+            entity.Status = ObjectStatus.InActive.ToString();
+            entity.UpdatedDate = DateTime.Now;
+            _unitOfWorks.SkincareRoutineRepository.Update(entity);
+            var result = await _unitOfWorks.SkincareRoutineRepository.Commit();
+            return result > 0;
         }
 
         public async Task<List<string>> GetTargetSkinTypesAsync()

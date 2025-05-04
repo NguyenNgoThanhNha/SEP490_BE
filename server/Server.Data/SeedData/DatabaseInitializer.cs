@@ -2779,6 +2779,7 @@ namespace Server.Data.SeedData
                     Name = "Da dầu",
                     Description = "Chăm sóc da dầu và giảm bã nhờn dư thừa.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da dầu",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -2787,6 +2788,7 @@ namespace Server.Data.SeedData
                     Name = "Da khô",
                     Description = "Dưỡng ẩm và nuôi dưỡng làn da khô.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da khô",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -2795,6 +2797,7 @@ namespace Server.Data.SeedData
                     Name = "Da trung tính",
                     Description = "Duy trì sự cân bằng trung tính cho da.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da trung tính",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -2803,6 +2806,7 @@ namespace Server.Data.SeedData
                     Name = "Da hỗn hợp",
                     Description = "Chăm sóc cho cả vùng da khô và da dầu.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da hỗn hợp",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -2811,6 +2815,7 @@ namespace Server.Data.SeedData
                     Name = "Mụn đầu đen",
                     Description = "Giúp làm sạch và ngăn ngừa mụn đầu đen.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn đầu đen",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -2819,6 +2824,7 @@ namespace Server.Data.SeedData
                     Name = "Mụn trứng cá",
                     Description = "Liệu trình chăm sóc da giảm mụn trứng cá.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn trứng cá",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -2827,6 +2833,7 @@ namespace Server.Data.SeedData
                     Name = "Quầng thâm mắt",
                     Description = "Giúp giảm quầng thâm dưới mắt.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Quầng thâm mắt",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -2835,6 +2842,7 @@ namespace Server.Data.SeedData
                     Name = "Mụn có nhân đóng",
                     Description = "Liệu trình kiểm soát mụn có nhân đóng.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn có nhân đóng",
                     TotalPrice = random.Next(500000, 5000000)
                 },
@@ -2843,6 +2851,7 @@ namespace Server.Data.SeedData
                     Name = "Nếp nhăn Glabella",
                     Description = "Giúp giảm nếp nhăn vùng giữa hai lông mày.",
                     TotalSteps = 4,
+                    Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Nếp nhăn Glabella",
                     TotalPrice = random.Next(500000, 5000000)
                 }

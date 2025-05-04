@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatedDatabase : Migration
+    public partial class UpdatedDatabse : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -142,6 +142,7 @@ namespace Server.Data.Migrations
                     TotalSteps = table.Column<int>(type: "int", nullable: true),
                     TargetSkinTypes = table.Column<string>(type: "longtext", nullable: true),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    Status = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
@@ -1397,7 +1398,7 @@ namespace Server.Data.Migrations
                     UserRoutineLoggerId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     StepId = table.Column<int>(type: "int", nullable: false),
-                    StaffId = table.Column<int>(type: "int", nullable: true),
+                    ManagerId = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: true),
                     ActionDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Status = table.Column<string>(type: "longtext", nullable: false),
@@ -1410,16 +1411,16 @@ namespace Server.Data.Migrations
                 {
                     table.PrimaryKey("PK_UserRoutineLogger", x => x.UserRoutineLoggerId);
                     table.ForeignKey(
-                        name: "FK_UserRoutineLogger_Staff_StaffId",
-                        column: x => x.StaffId,
-                        principalTable: "Staff",
-                        principalColumn: "StaffId");
-                    table.ForeignKey(
                         name: "FK_UserRoutineLogger_UserRoutineStep_StepId",
                         column: x => x.StepId,
                         principalTable: "UserRoutineStep",
                         principalColumn: "UserRoutineStepId",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoutineLogger_User_ManagerId",
+                        column: x => x.ManagerId,
+                        principalTable: "User",
+                        principalColumn: "UserId");
                     table.ForeignKey(
                         name: "FK_UserRoutineLogger_User_UserId",
                         column: x => x.UserId,
@@ -1804,9 +1805,9 @@ namespace Server.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoutineLogger_StaffId",
+                name: "IX_UserRoutineLogger_ManagerId",
                 table: "UserRoutineLogger",
-                column: "StaffId");
+                column: "ManagerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoutineLogger_StepId",

@@ -27,7 +27,7 @@ public class UserRoutineLoggerService
     {
         var query = _unitOfWorks.UserRoutineLoggerRepository
             .FindByCondition(x => x.Status == ObjectStatus.Active.ToString())
-            .Include(x => x.Staff).ThenInclude(x => x.StaffInfo)
+            .Include(x => x.Manager)
             .Include(x => x.User)
             .Include(x => x.UserRoutineStep)
             .ThenInclude(x => x.UserRoutine) // đảm bảo EF load được UserRoutine nếu cần filter
@@ -65,12 +65,12 @@ public class UserRoutineLoggerService
     public async Task<bool> CreateUserRoutineLogger(UserRoutineLoggerRequest request)
     {
         var hasUser = request.UserId.HasValue;
-        var hasStaff = request.StaffId.HasValue;
+        var hasStaff = request.ManagerId.HasValue;
 
         // Validate: phải có đúng một trong hai
         if ((hasUser && hasStaff) || (!hasUser && !hasStaff))
         {
-            throw new BadRequestException("Phải có đúng một trong hai: UserId hoặc StaffId.");
+            throw new BadRequestException("Phải có đúng một trong hai: UserId hoặc ManagerId.");
         }
 
         // Kiểm tra Step có tồn tại không
@@ -107,17 +107,17 @@ public class UserRoutineLoggerService
         // Nếu có StaffId → kiểm tra Staff có tồn tại
         if (hasStaff)
         {
-            var staffExists = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(s => s.StaffId == request.StaffId);
+            var staffExists = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(s => s.UserId == request.ManagerId && s.RoleID == 2);
             if (staffExists == null)
             {
-                throw new BadRequestException($"Staff với Id = {request.StaffId} không tồn tại.");
+                throw new BadRequestException($"Manager với Id = {request.ManagerId} không tồn tại.");
             }
         }
 
         var userRoutineLogger = new UserRoutineLogger
         {
             StepId = stepExists.UserRoutineStepId,
-            StaffId = request.StaffId,
+            ManagerId = request.ManagerId,
             UserId = request.UserId,
             ActionDate = request.ActionDate,
             Step_Logger = request.Step_Logger,
@@ -139,7 +139,7 @@ public class UserRoutineLoggerService
             throw new NotFoundException($"Không tìm thấy logger với Id = {id}");
 
         var hasUser = request.UserId.HasValue;
-        var hasStaff = request.StaffId.HasValue;
+        var hasStaff = request.ManagerId.HasValue;
 
         if ((hasUser && hasStaff) || (!hasUser && !hasStaff))
         {
@@ -172,15 +172,15 @@ public class UserRoutineLoggerService
 
         if (hasStaff)
         {
-            var staffExists = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(s => s.StaffId == request.StaffId);
+            var staffExists = await _unitOfWorks.StaffRepository.FirstOrDefaultAsync(s => s.StaffId == request.ManagerId);
             if (staffExists == null)
             {
-                throw new BadRequestException($"Staff với Id = {request.StaffId} không tồn tại.");
+                throw new BadRequestException($"Staff với Id = {request.ManagerId} không tồn tại.");
             }
         }
 
         logger.StepId = request.StepId;
-        logger.StaffId = request.StaffId;
+        logger.ManagerId = request.ManagerId;
         logger.UserId = request.UserId;
         logger.ActionDate = request.ActionDate;
         logger.Step_Logger = request.Step_Logger;
