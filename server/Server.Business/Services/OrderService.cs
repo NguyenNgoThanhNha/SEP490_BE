@@ -1752,13 +1752,19 @@ namespace Server.Business.Services
             if (request.BranchId.HasValue)
             {
                 query = query.Where(order =>
-                    (order.OrderType == "Appointment" &&
-                     order.Appointments.Any(a => a.BranchId == request.BranchId.Value)) ||
-                    (order.OrderType == "Product" &&
-                     order.OrderDetails.Any(od =>
-                         od.Product.Branch_Products.Any(bp => bp.BranchId == request.BranchId.Value)))
+                    (order.OrderType == OrderType.Appointment.ToString() ||
+                     order.OrderType == OrderType.Routine.ToString() ||
+                     order.OrderType == OrderType.ProductAndService.ToString()) &&
+                    order.Appointments.Any(a => a.BranchId == request.BranchId.Value)
+                    ||
+                    (order.OrderType == OrderType.Product.ToString() ||
+                     order.OrderType == OrderType.Routine.ToString() ||
+                     order.OrderType == OrderType.ProductAndService.ToString()) &&
+                    order.OrderDetails.Any(od =>
+                        od.Product.Branch_Products.Any(bp => bp.BranchId == request.BranchId.Value))
                 );
             }
+
 
             var pageSize = request.PageSize ?? 10;
             var pageIndex = request.PageIndex ?? 1;
@@ -1774,47 +1780,28 @@ namespace Server.Business.Services
             // Gán thêm images
             foreach (var order in result)
             {
-                if (order.OrderType == "Appointment")
-                {
-                    var services = order.Appointments.Select(a => a.Service).ToList();
-                    var serviceModels =
-                        await _serviceService.GetListImagesOfServices(
-                            _mapper.Map<List<Data.Entities.Service>>(services));
-                    foreach (var appointment in order.Appointments)
-                    {
-                        var matchedService = serviceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
-                        if (matchedService != null)
-                            appointment.Service.images = matchedService.images;
-                    }
-                }
-                else if (order.OrderType == "Product")
-                {
-                    var products = order.OrderDetails.Select(od => od.Product).ToList();
-                    var productModels =
-                        await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(products));
-                    foreach (var detail in order.OrderDetails)
-                    {
-                        var matchedProduct = productModels.FirstOrDefault(p => p.ProductId == detail.Product.ProductId);
-                        if (matchedProduct != null)
-                        {
-                            detail.Product.images = matchedProduct.images;
-                            detail.Product.Branch = matchedProduct.Branch;
-                        }
-                    }
-                }
-                else if (order.OrderType == "Routine")
-                {
-                    var services = order.Appointments.Select(a => a.Service).ToList();
-                    var serviceModels =
-                        await _serviceService.GetListImagesOfServices(
-                            _mapper.Map<List<Data.Entities.Service>>(services));
-                    foreach (var appointment in order.Appointments)
-                    {
-                        var matchedService = serviceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
-                        if (matchedService != null)
-                            appointment.Service.images = matchedService.images;
-                    }
+                var hasService = order.OrderType == OrderType.Appointment.ToString() ||
+                                 order.OrderType == OrderType.Routine.ToString() ||
+                                 order.OrderType == OrderType.ProductAndService.ToString();
+                var hasProduct = order.OrderType == OrderType.Product.ToString() ||
+                                 order.OrderType == OrderType.Routine.ToString() ||
+                                 order.OrderType == OrderType.ProductAndService.ToString();
 
+                if (hasService)
+                {
+                    var services = order.Appointments.Select(a => a.Service).ToList();
+                    var serviceModels = await _serviceService.GetListImagesOfServices(
+                        _mapper.Map<List<Data.Entities.Service>>(services));
+                    foreach (var appointment in order.Appointments)
+                    {
+                        var matchedService = serviceModels.FirstOrDefault(s => s.ServiceId == appointment.ServiceId);
+                        if (matchedService != null)
+                            appointment.Service.images = matchedService.images;
+                    }
+                }
+
+                if (hasProduct)
+                {
                     var products = order.OrderDetails.Select(od => od.Product).ToList();
                     var productModels =
                         await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(products));
@@ -2905,6 +2892,5 @@ namespace Server.Business.Services
 
             return result > 0;
         }
-
     }
 }
