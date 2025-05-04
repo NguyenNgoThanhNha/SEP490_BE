@@ -6,7 +6,7 @@ public class SkinHealthModel
     
     public int UserId { get; set; }
     public virtual UserInfoModel User { get; set; }
-    
+    public string? Images { get; set; }
     public string? SkinColor { get; set; }
     public string? SkinToneIta { get; set; } // Returns skin color classification information based on the ITA (Individual Typology Angle) standard.
     public string? SkinTone { get; set; }
