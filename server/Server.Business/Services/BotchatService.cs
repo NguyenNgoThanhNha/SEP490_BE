@@ -15,109 +15,114 @@ public class BotchatService
     private readonly UnitOfWorks _unitOfWorks;
     private readonly BotChatSetting _botChatSetting;
     private static readonly HttpClient HttpClient = new HttpClient();
-    
+
     public BotchatService(IOptions<BotChatSetting> botChatSetting, UnitOfWorks unitOfWorks)
     {
         _unitOfWorks = unitOfWorks;
         _botChatSetting = botChatSetting.Value;
     }
-public async Task<bool> SeedingDataChatbot()
-{
-    try
+
+    public async Task<bool> SeedingDataChatbot()
     {
-        // Đọc nội dung file JSON
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "SolaceFAQs.json");
-        var jsonDataFromFile = await File.ReadAllTextAsync(filePath);
-        
-        // Giải mã JSON thành List<JsonObject> thay vì dynamic
-        var faqData = JsonSerializer.Deserialize<List<JsonObject>>(jsonDataFromFile);
-
-        // Lấy dữ liệu từ repository
-        var products = await _unitOfWorks.ProductRepository.GetAll().ToListAsync();
-        var services = await _unitOfWorks.ServiceRepository.GetAll().ToListAsync();
-
-        // Kiểm tra và xóa Product nếu có, sau đó thêm lại toàn bộ sản phẩm
-        var productIndex = faqData.FindIndex(f =>
+        try
         {
-            try
+            // Đọc nội dung file JSON
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "SolaceFAQs.json");
+            var jsonDataFromFile = await File.ReadAllTextAsync(filePath);
+
+            // Giải mã JSON thành List<JsonObject> thay vì dynamic
+            var faqData = JsonSerializer.Deserialize<List<JsonObject>>(jsonDataFromFile);
+
+            // Lấy dữ liệu từ repository
+            var products = await _unitOfWorks.ProductRepository.GetAll().ToListAsync();
+            var services = await _unitOfWorks.ServiceRepository.GetAll().ToListAsync();
+
+            // Kiểm tra và xóa Product nếu có, sau đó thêm lại toàn bộ sản phẩm
+            var productIndex = faqData.FindIndex(f =>
+            {
+                try
+                {
+                    var questionElement = f["question"]?.ToString();
+                    return questionElement == "Product";
+                }
+                catch (KeyNotFoundException)
+                {
+                    // Trường hợp không tìm thấy thuộc tính "question"
+                    return false;
+                }
+            });
+
+            if (productIndex >= 0)
+            {
+                faqData.RemoveAt(productIndex); // Xóa Product nếu có
+            }
+
+            // Thêm mới danh sách sản phẩm
+            faqData.Add(new JsonObject
+            {
+                { "question", "Product" },
+                {
+                    "answer", JsonSerializer.Serialize(products.Select(p => new
+                    {
+                        name = p.ProductName,
+                        description = p.ProductDescription,
+                        price = p.Price
+                    }))
+                }
+            });
+
+            // Kiểm tra và xóa Service nếu có, sau đó thêm lại toàn bộ dịch vụ
+            var serviceIndex = faqData.FindIndex(f =>
             {
                 var questionElement = f["question"]?.ToString();
-                return questionElement == "Product";
-            }
-            catch (KeyNotFoundException)
+                return questionElement == "Service";
+            });
+
+            if (serviceIndex >= 0)
             {
-                // Trường hợp không tìm thấy thuộc tính "question"
-                return false;
+                faqData.RemoveAt(serviceIndex); // Xóa Service nếu có
             }
-        });
 
-        if (productIndex >= 0)
-        {
-            faqData.RemoveAt(productIndex); // Xóa Product nếu có
-        }
-
-        // Thêm mới danh sách sản phẩm
-        faqData.Add(new JsonObject
-        {
-            { "question", "Product" },
-            { "answer", JsonSerializer.Serialize(products.Select(p => new
+            // Thêm mới danh sách dịch vụ
+            faqData.Add(new JsonObject
+            {
+                { "question", "Service" },
                 {
-                    name = p.ProductName,
-                    description = p.ProductDescription,
-                    price = p.Price
-                }))
-            }
-        });
+                    "answer", JsonSerializer.Serialize(services.Select(s => new
+                    {
+                        name = s.Name,
+                        description = s.Description,
+                        price = s.Price
+                    }))
+                }
+            });
 
-        // Kiểm tra và xóa Service nếu có, sau đó thêm lại toàn bộ dịch vụ
-        var serviceIndex = faqData.FindIndex(f =>
-        {
-            var questionElement = f["question"]?.ToString();
-            return questionElement == "Service";
-        });
+            // Ghi lại toàn bộ dữ liệu vào file JSON
+            var updatedJsonData = JsonSerializer.Serialize(faqData, new JsonSerializerOptions
+            {
+                WriteIndented = true, // Format JSON dễ đọc
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder
+                    .UnsafeRelaxedJsonEscaping // Đảm bảo rằng ký tự đặc biệt (ví dụ: dấu tiếng Việt) không bị mã hóa sai
+            });
 
-        if (serviceIndex >= 0)
-        {
-            faqData.RemoveAt(serviceIndex); // Xóa Service nếu có
+            await File.WriteAllTextAsync(filePath, updatedJsonData);
+
+            return true;
         }
-
-        // Thêm mới danh sách dịch vụ
-        faqData.Add(new JsonObject
+        catch (Exception ex)
         {
-            { "question", "Service" },
-            { "answer", JsonSerializer.Serialize(services.Select(s => new
-                {
-                    name = s.Name,
-                    description = s.Description,
-                    price = s.Price
-                }))
-            }
-        });
-
-        // Ghi lại toàn bộ dữ liệu vào file JSON
-        var updatedJsonData = JsonSerializer.Serialize(faqData, new JsonSerializerOptions
-        {
-            WriteIndented = true, // Format JSON dễ đọc
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // Đảm bảo rằng ký tự đặc biệt (ví dụ: dấu tiếng Việt) không bị mã hóa sai
-        });
-
-        await File.WriteAllTextAsync(filePath, updatedJsonData);
-
-        return true;
+            // Xử lý lỗi
+            Console.WriteLine($"Error while updating Product and Service data: {ex.Message}");
+            return false;
+        }
     }
-    catch (Exception ex)
-    {
-        // Xử lý lỗi
-        Console.WriteLine($"Error while updating Product and Service data: {ex.Message}");
-        return false;
-    }
-}
 
-      
+
     public async Task<string> SendChatMessageAsync(string userMessage)
     {
         try
         {
+            var userMessageWithSolace = userMessage + " " + "Solace";
             // Đường dẫn đến file JSON
             var jsonFilePath = "SolaceFAQs.json";
 
@@ -131,7 +136,7 @@ public async Task<bool> SeedingDataChatbot()
             }
 
             // Tìm câu trả lời phù hợp với câu hỏi của người dùng
-            var matchedFAQ = faqs.FirstOrDefault(faq => faq.question.ToLower().Contains(userMessage.ToLower()));
+            var matchedFAQ = faqs.FirstOrDefault(faq => faq.question.ToLower().Contains(userMessageWithSolace.ToLower()));
 
             if (matchedFAQ != null)
             {
@@ -140,10 +145,11 @@ public async Task<bool> SeedingDataChatbot()
 
             // Nếu không tìm thấy câu trả lời trong FAQ, gửi yêu cầu đến AI
             var modelName = "gemini-1.5-flash";
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={_botChatSetting.ApiKey}";
+            var url =
+                $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={_botChatSetting.ApiKey}";
 
-            var userMessageLower = userMessage.ToLower();
-            
+            var userMessageLower = userMessageWithSolace.ToLower();
+
 
             bool containsSolace = userMessageLower.Contains("solace");
             bool containsProduct = userMessageLower.Contains("product") || userMessageLower.Contains("sản phẩm");
@@ -152,21 +158,23 @@ public async Task<bool> SeedingDataChatbot()
             // Xử lý câu hỏi về Solace
             if (containsSolace)
             {
-                userMessage = userMessage + " " + faqs[0].question + " " + faqs[0].answer;
+                userMessageWithSolace = userMessageWithSolace + " " + faqs[0].question + " " + faqs[0].answer;
             }
 
             // Xử lý câu hỏi về sản phẩm
             if (containsProduct)
             {
-                userMessage = userMessage + " lấy ra số lượng sản phẩm yêu cầu nếu có không thì chỉ lấy ra 5: " + faqs[1].question + " " + faqs[1].answer;
+                userMessageWithSolace = userMessageWithSolace + " lấy ra số lượng sản phẩm yêu cầu nếu có không thì chỉ lấy ra 5: " +
+                                        faqs[1].question + " " + faqs[1].answer;
             }
 
             // Xử lý câu hỏi về dịch vụ
             if (containsService)
             {
-                userMessage = userMessage + "lấy ra số lượng dịch vụ yêu cầu nếu có không thì chỉ lấy ra 5: " + faqs[2].question + " " + faqs[2].answer;
+                userMessageWithSolace = userMessageWithSolace + "lấy ra số lượng dịch vụ yêu cầu nếu có không thì chỉ lấy ra 5: " +
+                                        faqs[2].question + " " + faqs[2].answer;
             }
-            
+
             var requestBody = new
             {
                 contents = new[]
@@ -175,7 +183,7 @@ public async Task<bool> SeedingDataChatbot()
                     {
                         parts = new[]
                         {
-                            new { text = userMessage }
+                            new { text = userMessageWithSolace }
                         }
                     }
                 }

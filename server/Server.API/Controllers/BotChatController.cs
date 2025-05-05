@@ -23,13 +23,13 @@ namespace Server.API.Controllers
         {
             if (string.IsNullOrWhiteSpace(request.message))
             {
-                return BadRequest("Tin nh?n kh�ng ???c ?? tr?ng.");
+                return BadRequest("Tin nhắn không được để trống.");
             }
 
             var response = await _botchatService.SendChatMessageAsync(request.message);
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "G?i tin nh?n th�nh c�ng",
+                message = "Gửi tin nhắn thành công",
                 data = response
             }));
         }
@@ -42,12 +42,12 @@ namespace Server.API.Controllers
             {
                 return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {
-                    message = "L?i t?o d? li?u!",
+                    message = "Lỗi tải dữ liệu!",
                 }));
             }
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {
-                message = "T?o d? li?u th�nh c�ng",
+                message = "Tải dữ liệu thành công",
             }));
         }
     }

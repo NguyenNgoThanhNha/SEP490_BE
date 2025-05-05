@@ -365,12 +365,7 @@ public class RoutineService
 
             var userRoutine = await _unitOfWorks.UserRoutineRepository
                 .FirstOrDefaultAsync(x => x.UserId == request.UserId && x.RoutineId == routine.SkincareRoutineId);
-            
-            if(userRoutine != null && userRoutine.Status == ObjectStatus.Active.ToString())
-            {
-                throw new BadRequestException("Bạn đã đặt liệu trình này rồi!");
-            }
-            
+
             if (userRoutine != null)
             {
                 if (userRoutine.Status == ObjectStatus.Active.ToString())
@@ -378,29 +373,65 @@ public class RoutineService
                     throw new BadRequestException("Bạn đã đặt liệu trình này rồi!");
                 }
 
-                userRoutine.Status = ObjectStatus.Active.ToString();
-                userRoutine.UpdatedDate = DateTime.Now;
-                _unitOfWorks.UserRoutineRepository.Update(userRoutine);
-                await _unitOfWorks.UserRoutineRepository.Commit();
-
-                var listUserRoutineStep = new List<UserRoutineStep>();
-                foreach (var step in routine.SkinCareRoutineSteps)
+                if (userRoutine.Status == ObjectStatus.Completed.ToString())
                 {
-                    var newUserRoutineStep = new UserRoutineStep
+                    // Tạo routine mới nếu routine cũ đã hoàn thành
+                    var newUserRoutine = new UserRoutine
                     {
-                        UserRoutineId = userRoutine.UserRoutineId,
-                        SkinCareRoutineStepId = step.SkinCareRoutineStepId,
-                        StepStatus = UserRoutineStepEnum.Pending.ToString(),
+                        UserId = request.UserId,
+                        RoutineId = routine.SkincareRoutineId,
+                        ProgressNotes = "",
+                        Status = ObjectStatus.Active.ToString(),
                         CreatedDate = DateTime.UtcNow,
                         UpdatedDate = DateTime.UtcNow
                     };
-                    listUserRoutineStep.Add(newUserRoutineStep);
-                }
+                    await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
+                    await _unitOfWorks.UserRoutineRepository.Commit();
 
-                await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
+                    var listUserRoutineStep = new List<UserRoutineStep>();
+                    foreach (var step in routine.SkinCareRoutineSteps)
+                    {
+                        var newUserRoutineStep = new UserRoutineStep
+                        {
+                            UserRoutineId = newUserRoutine.UserRoutineId,
+                            SkinCareRoutineStepId = step.SkinCareRoutineStepId,
+                            StepStatus = UserRoutineStepEnum.Pending.ToString(),
+                            CreatedDate = DateTime.UtcNow,
+                            UpdatedDate = DateTime.UtcNow
+                        };
+                        listUserRoutineStep.Add(newUserRoutineStep);
+                    }
+
+                    await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
+                }
+                else
+                {
+                    // Các trường hợp khác (ví dụ Suitable), chuyển sang Active
+                    userRoutine.Status = ObjectStatus.Active.ToString();
+                    userRoutine.UpdatedDate = DateTime.Now;
+                    _unitOfWorks.UserRoutineRepository.Update(userRoutine);
+                    await _unitOfWorks.UserRoutineRepository.Commit();
+
+                    var listUserRoutineStep = new List<UserRoutineStep>();
+                    foreach (var step in routine.SkinCareRoutineSteps)
+                    {
+                        var newUserRoutineStep = new UserRoutineStep
+                        {
+                            UserRoutineId = userRoutine.UserRoutineId,
+                            SkinCareRoutineStepId = step.SkinCareRoutineStepId,
+                            StepStatus = UserRoutineStepEnum.Pending.ToString(),
+                            CreatedDate = DateTime.UtcNow,
+                            UpdatedDate = DateTime.UtcNow
+                        };
+                        listUserRoutineStep.Add(newUserRoutineStep);
+                    }
+
+                    await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
+                }
             }
             else
             {
+                // Trường hợp chưa có userRoutine
                 var newUserRoutine = new UserRoutine
                 {
                     UserId = request.UserId,
@@ -810,7 +841,9 @@ public class RoutineService
                 if (previousServiceStep != null)
                 {
                     var previousAppointment = await _unitOfWorks.AppointmentsRepository
-                        .FindByCondition(x => x.OrderId == orderId && x.ServiceId == previousServiceStep.ServiceId && x.Step == previousStep.Step)
+                        .FindByCondition(x =>
+                            x.OrderId == orderId && x.ServiceId == previousServiceStep.ServiceId &&
+                            x.Step == previousStep.Step)
                         .OrderBy(x => x.AppointmentId)
                         .FirstOrDefaultAsync();
 
