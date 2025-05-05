@@ -111,7 +111,7 @@ namespace Server.Data.Entities
             {
                 e.ToTable("UserRoutine");
                 e.HasKey(e => e.UserRoutineId);
-                e.HasIndex(e => new { e.UserId, e.RoutineId }).IsUnique();
+                e.HasIndex(e => new { e.UserId, e.RoutineId });
 
                 e.HasOne(e => e.User)
                     .WithMany(e => e.UserRoutines)
@@ -125,7 +125,7 @@ namespace Server.Data.Entities
             });
             
             // UserRoutines
-            modelBuilder.Entity<UserRoutine>(e =>
+            /*modelBuilder.Entity<UserRoutine>(e =>
             {
                 e.ToTable("UserRoutine");
                 e.HasKey(e => e.UserRoutineId);
@@ -140,7 +140,7 @@ namespace Server.Data.Entities
                     .WithMany(e => e.UserRoutines)
                     .HasForeignKey(e => e.RoutineId)
                     .HasConstraintName("FK_User_Routine_Routine");
-            });
+            });*/
             
             // ProductRoutines
             modelBuilder.Entity<ProductRoutine>(e =>

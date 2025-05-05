@@ -11,8 +11,8 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250504162852_Updated-Databse")]
-    partial class UpdatedDatabse
+    [Migration("20250505165952_Updated-Database")]
+    partial class UpdatedDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1755,8 +1755,7 @@ namespace Server.Data.Migrations
 
                     b.HasIndex("RoutineId");
 
-                    b.HasIndex("UserId", "RoutineId")
-                        .IsUnique();
+                    b.HasIndex("UserId", "RoutineId");
 
                     b.ToTable("UserRoutine", (string)null);
                 });

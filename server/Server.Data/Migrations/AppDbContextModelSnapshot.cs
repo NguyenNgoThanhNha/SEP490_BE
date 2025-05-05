@@ -1752,8 +1752,7 @@ namespace Server.Data.Migrations
 
                     b.HasIndex("RoutineId");
 
-                    b.HasIndex("UserId", "RoutineId")
-                        .IsUnique();
+                    b.HasIndex("UserId", "RoutineId");
 
                     b.ToTable("UserRoutine", (string)null);
                 });

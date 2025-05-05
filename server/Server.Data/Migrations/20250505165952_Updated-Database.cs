@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Server.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatedDatabse : Migration
+    public partial class UpdatedDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -1801,8 +1801,7 @@ namespace Server.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoutine_UserId_RoutineId",
                 table: "UserRoutine",
-                columns: new[] { "UserId", "RoutineId" },
-                unique: true);
+                columns: new[] { "UserId", "RoutineId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserRoutineLogger_ManagerId",
