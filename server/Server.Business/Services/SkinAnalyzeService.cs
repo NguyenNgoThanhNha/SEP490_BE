@@ -160,29 +160,30 @@ public class SkinAnalyzeService
 
             List<UserRoutine> userRoutinesToUpdate = new List<UserRoutine>();
             List<UserRoutine> userRoutinesToAdd = new List<UserRoutine>();
-
+            List<UserRoutine> userRoutinesToDelete = new List<UserRoutine>();
+            
+            var newRoutineIds = routines.Select(r => r.SkincareRoutineId).ToHashSet();
+            
             foreach (var routine in routines)
             {
                 var existingRoutine =
                     existingUserRoutines.FirstOrDefault(ur => ur.RoutineId == routine.SkincareRoutineId);
 
-                if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Suitable.ToString())
+                if (existingRoutine != null)
                 {
-                    // Nếu đã tồn tại, cập nhật thông tin
-                    existingRoutine.Status = ObjectStatus.Suitable.ToString();
-                    existingRoutine.ProgressNotes = "Updated routine for your skin";
-                    existingRoutine.UpdatedDate = DateTime.Now;
-
-                    userRoutinesToUpdate.Add(existingRoutine);
-                }
-                else if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Active.ToString())
-                {
-                    // Nếu đã tồn tại đang sử dụng, cập nhật thông tin
-                    continue;
+                    if (existingRoutine.Status == ObjectStatus.Suitable.ToString())
+                    {
+                        existingRoutine.ProgressNotes = "Updated routine for your skin";
+                        existingRoutine.UpdatedDate = DateTime.Now;
+                        userRoutinesToUpdate.Add(existingRoutine);
+                    }
+                    else if (existingRoutine.Status == ObjectStatus.Active.ToString())
+                    {
+                        continue;
+                    }
                 }
                 else
                 {
-                    // Nếu chưa tồn tại, thêm mới
                     var newRoutine = new UserRoutine()
                     {
                         UserId = userId,
@@ -198,7 +199,18 @@ public class SkinAnalyzeService
                 }
             }
 
-            // Cập nhật và thêm mới dữ liệu
+            // Xử lý xóa những routine cũ không còn trong danh sách mới và KHÔNG phải là Active
+            foreach (var existingRoutine in existingUserRoutines)
+            {
+                if (!newRoutineIds.Contains(existingRoutine.RoutineId) &&
+                    existingRoutine.Status != ObjectStatus.Active.ToString())
+                {
+                    existingRoutine.Status = ObjectStatus.InActive.ToString();
+                    userRoutinesToDelete.Add(existingRoutine);
+                }
+            }
+
+            // Cập nhật, thêm mới và xóa
             if (userRoutinesToUpdate.Any())
             {
                 await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToUpdate);
@@ -209,7 +221,12 @@ public class SkinAnalyzeService
                 await _unitOfWorks.UserRoutineRepository.AddRangeAsync(userRoutinesToAdd);
             }
 
-            // Lưu thay đổi vào database
+            if (userRoutinesToDelete.Any())
+            {
+                await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToDelete);
+            }
+
+            // Lưu thay đổi
             await _unitOfWorks.UserRoutineRepository.Commit();
 
 
@@ -283,31 +300,40 @@ public class SkinAnalyzeService
 
             // Process skin concerns
             var skinConcerns = await GetSkinConcernsAsync(request);
+            
+            // Retrieve skincare routines based on concerns
             var routines = await GetSkincareRoutinesAsync(skinConcerns);
+           
+            // Lấy danh sách các routine hiện tại của user
+            var existingUserRoutines = await _unitOfWorks.UserRoutineRepository
+                .FindByCondition(ur => ur.UserId == userId).ToListAsync();
 
-            List<UserRoutine> userRoutines = new List<UserRoutine>();
+            List<UserRoutine> userRoutinesToUpdate = new List<UserRoutine>();
+            List<UserRoutine> userRoutinesToAdd = new List<UserRoutine>();
+            List<UserRoutine> userRoutinesToDelete = new List<UserRoutine>();
+            
+            var newRoutineIds = routines.Select(r => r.SkincareRoutineId).ToHashSet();
+            
             foreach (var routine in routines)
             {
-                var existingRoutine = await _unitOfWorks.UserRoutineRepository
-                    .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoutineId == routine.SkincareRoutineId);
+                var existingRoutine =
+                    existingUserRoutines.FirstOrDefault(ur => ur.RoutineId == routine.SkincareRoutineId);
 
-                if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Suitable.ToString())
+                if (existingRoutine != null)
                 {
-                    // Nếu đã tồn tại, cập nhật thông tin
-                    existingRoutine.Status = ObjectStatus.Suitable.ToString();
-                    existingRoutine.ProgressNotes = "Updated routine for your skin";
-                    existingRoutine.UpdatedDate = DateTime.Now;
-                    _unitOfWorks.UserRoutineRepository.Update(existingRoutine);
-                    await _unitOfWorks.UserRoutineRepository.Commit();
-                }
-                else if (existingRoutine != null && existingRoutine.Status == ObjectStatus.Active.ToString())
-                {
-                    // Nếu đã tồn tại đang sử dụng, cập nhật thông tin
-                    continue;
+                    if (existingRoutine.Status == ObjectStatus.Suitable.ToString())
+                    {
+                        existingRoutine.ProgressNotes = "Updated routine for your skin";
+                        existingRoutine.UpdatedDate = DateTime.Now;
+                        userRoutinesToUpdate.Add(existingRoutine);
+                    }
+                    else if (existingRoutine.Status == ObjectStatus.Active.ToString())
+                    {
+                        continue;
+                    }
                 }
                 else
                 {
-                    // Nếu chưa tồn tại, thêm mới
                     var newRoutine = new UserRoutine()
                     {
                         UserId = userId,
@@ -319,19 +345,39 @@ public class SkinAnalyzeService
                         CreatedDate = DateTime.Now,
                         UpdatedDate = DateTime.Now
                     };
-                    userRoutines.Add(newRoutine);
+                    userRoutinesToAdd.Add(newRoutine);
                 }
             }
 
-            // Chỉ thêm nếu có dữ liệu mới
-            if (userRoutines.Any())
+            // Xử lý xóa những routine cũ không còn trong danh sách mới và KHÔNG phải là Active
+            foreach (var existingRoutine in existingUserRoutines)
             {
-                await _unitOfWorks.UserRoutineRepository.AddRangeAsync(userRoutines);
+                if (!newRoutineIds.Contains(existingRoutine.RoutineId) &&
+                    existingRoutine.Status != ObjectStatus.Active.ToString())
+                {
+                    existingRoutine.Status = ObjectStatus.InActive.ToString();
+                    userRoutinesToDelete.Add(existingRoutine);
+                }
+            }
+
+            // Cập nhật, thêm mới và xóa
+            if (userRoutinesToUpdate.Any())
+            {
+                await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToUpdate);
+            }
+
+            if (userRoutinesToAdd.Any())
+            {
+                await _unitOfWorks.UserRoutineRepository.AddRangeAsync(userRoutinesToAdd);
+            }
+
+            if (userRoutinesToDelete.Any())
+            {
+                await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToDelete);
             }
 
             // Lưu thay đổi
             await _unitOfWorks.UserRoutineRepository.Commit();
-
 
             var result = new ApiSkinAnalyzeResponse()
             {
