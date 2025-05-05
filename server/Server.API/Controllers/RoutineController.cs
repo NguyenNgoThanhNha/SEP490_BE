@@ -17,12 +17,14 @@ namespace Server.API.Controllers
         private readonly RoutineService _routineService;
         private readonly UserService _userService;
         private readonly OrderService _orderService;
+        private readonly MailService _mailService;
 
-        public RoutineController(RoutineService routineService, UserService userService, OrderService orderService)
+        public RoutineController(RoutineService routineService, UserService userService, OrderService orderService, MailService mailService)
         {
             _routineService = routineService;
             _userService = userService;
             _orderService = orderService;
+            _mailService = mailService;
         }
 
         [HttpGet("get-list-skincare-routines")]
@@ -127,6 +129,16 @@ namespace Server.API.Controllers
             <p style=""text-align: center; color: #888; font-size: 14px;"">Powered by Team Solace</p>
         </div>"
             };
+            
+            // Gửi email thông báo
+            _ = Task.Run(async () =>
+            {
+                var emailResult = await _mailService.SendEmailAsync(mailData, false);
+                if (!emailResult)
+                {
+                    Console.WriteLine("Không gửi được email xác nhận.");
+                }
+            });
 
             return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
             {

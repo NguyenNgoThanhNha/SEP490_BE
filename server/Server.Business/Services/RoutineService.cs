@@ -486,10 +486,10 @@ public class RoutineService
 
             return order.OrderId;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await _unitOfWorks.RollbackTransactionAsync();
-            throw;
+            throw new BadRequestException(ex.Message);
         }
     }
 
