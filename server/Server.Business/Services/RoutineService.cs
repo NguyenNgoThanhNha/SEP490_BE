@@ -365,6 +365,12 @@ public class RoutineService
 
             var userRoutine = await _unitOfWorks.UserRoutineRepository
                 .FirstOrDefaultAsync(x => x.UserId == request.UserId && x.RoutineId == routine.SkincareRoutineId);
+            
+            if(userRoutine != null && userRoutine.Status == ObjectStatus.Active.ToString())
+            {
+                throw new BadRequestException("Bạn đã đặt liệu trình này rồi!");
+            }
+            
             if (userRoutine != null)
             {
                 if (userRoutine.Status == ObjectStatus.Active.ToString())

@@ -97,6 +97,12 @@ public class UserRoutineStatusUpdateService : BackgroundService
 
                             _logger.LogInformation($"[UserRoutineStatusUpdateService] đã cập nhật OrderId = {order.OrderId} sang Completed.");
                         }
+                        
+                        userRoutine.Status = ObjectStatus.Completed.ToString();
+                        userRoutine.UpdatedDate = DateTime.Now;
+                        unitOfWorks.UserRoutineRepository.Update(userRoutine);
+                        await unitOfWorks.UserRoutineRepository.Commit();
+                        _logger.LogInformation($"[UserRoutineStatusUpdateService] đã cập nhật UserRoutineId = {userRoutine.UserRoutineId} sang Completed.");
                     }
                 }
 
