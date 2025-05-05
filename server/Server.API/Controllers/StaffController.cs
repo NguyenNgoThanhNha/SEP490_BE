@@ -1081,5 +1081,29 @@ namespace Server.API.Controllers
             }
         }
 
+        [HttpGet("unassigned-staff")]
+        public async Task<IActionResult> GetStaffWithoutShiftInTimeRange(
+    [FromQuery] int branchId,
+    [FromQuery] TimeSpan startTime,
+    [FromQuery] TimeSpan endTime,
+    [FromQuery] DateTime? date = null)
+        {
+            try
+            {
+                var staffList = await _staffService.GetStaffWithoutShiftInTimeRangeAsync(branchId, startTime, endTime, date);
+
+                return Ok(ApiResponse.Succeed(staffList, "Danh sách nhân viên không có ca làm đã được lấy thành công."));
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ApiResponse.Error(ex.Message));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse.Error($"Lỗi hệ thống: {ex.Message}"));
+            }
+        }
+
+
     }
 }

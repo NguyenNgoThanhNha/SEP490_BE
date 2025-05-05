@@ -1770,6 +1770,54 @@ namespace Server.Business.Services
         }
 
 
+        public async Task<List<StaffModel>> GetStaffWithoutShiftInTimeRangeAsync(
+    int branchId, TimeSpan startTime, TimeSpan endTime, DateTime? date = null)
+        {
+            if (branchId <= 0 || startTime >= endTime)
+                throw new BadRequestException("Invalid input.");
+
+            var targetDate = date?.Date ?? DateTime.Today;
+
+            // 1. Xác định các ca làm (shift) trùng với khoảng thời gian truyền vào
+            var overlappingShifts = await _unitOfWorks.ShiftRepository
+                .FindByCondition(shift =>
+                    shift.StartTime < endTime &&
+                    shift.EndTime > startTime)
+                .ToListAsync();
+
+            if (!overlappingShifts.Any())
+                return new List<StaffModel>();
+
+            var shiftIds = overlappingShifts.Select(s => s.ShiftId).ToList();
+
+            // 2. Lấy tất cả nhân viên trong chi nhánh có Role là Staff
+            var staffList = await _unitOfWorks.StaffRepository
+                .FindByCondition(s => s.BranchId == branchId && s.StaffInfo.RoleID == (int)RoleConstant.RoleType.Staff)
+                .Include(s => s.StaffInfo)
+                .ToListAsync();
+
+            var staffIds = staffList.Select(s => s.StaffId).ToList();
+
+            // 3. Tìm nhân viên đã có lịch làm trong ca đó vào ngày đó
+            var scheduledStaffIds = await _unitOfWorks.WorkScheduleRepository
+                .FindByCondition(ws =>
+                    staffIds.Contains(ws.StaffId) &&
+                    ws.WorkDate.Date == targetDate &&
+                    ws.Status == ObjectStatus.Active.ToString() &&
+                    shiftIds.Contains(ws.ShiftId))
+                .Select(ws => ws.StaffId)
+                .Distinct()
+                .ToListAsync();
+
+            // 4. Trả về nhân viên KHÔNG có lịch làm trong các ca đó
+            var availableStaff = staffList
+                .Where(s => !scheduledStaffIds.Contains(s.StaffId))
+                .ToList();
+
+            return _mapper.Map<List<StaffModel>>(availableStaff);
+        }
+
+
 
 
     }
