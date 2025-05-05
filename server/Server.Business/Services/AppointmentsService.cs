@@ -423,7 +423,7 @@ public class AppointmentsService
 
     public async Task<AppointmentsModel> UpdateAppointments(int appointmentId, AppointmentUpdateRequest request)
     {
-        var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId);
+        var customer = await _unitOfWorks.UserRepository.FirstOrDefaultAsync(x => x.UserId == request.CustomerId && x.RoleID == 3);
         var staff = await _unitOfWorks.StaffRepository.FindByCondition(x => x.StaffId == request.StaffId)
             .Include(x => x.StaffInfo)
             .FirstOrDefaultAsync();

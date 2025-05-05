@@ -85,6 +85,7 @@ namespace Server.Business.Services
                 TotalPrice = dto.TotalPrice,
                 TotalSteps = dto.TotalSteps,
                 TargetSkinTypes = string.Join(", ", dto.TargetSkinTypes),
+                Status = ObjectStatus.Active.ToString(),
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };

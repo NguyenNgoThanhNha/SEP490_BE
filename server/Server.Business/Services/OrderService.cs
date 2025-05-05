@@ -1273,6 +1273,7 @@ namespace Server.Business.Services
                 .Include(x => x.Service)
                 .Include(x => x.Staff)
                 .ThenInclude(s => s.StaffInfo)
+                .Include(x => x.Customer)
                 .ToListAsync();
 
             order.Appointments = orderAppointments;
