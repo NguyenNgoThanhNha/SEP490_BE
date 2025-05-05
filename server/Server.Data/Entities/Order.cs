@@ -35,6 +35,9 @@ public class Order
 
     public string? PaymentMethod { get; set; } = PaymentMethodEnum.PayOS.ToString();
     public string? Note { get; set; }
+    
+    public int? UserRoutineId { get; set; }
+    
     public DateTime CreatedDate { get; set; } = DateTime.Now;
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 

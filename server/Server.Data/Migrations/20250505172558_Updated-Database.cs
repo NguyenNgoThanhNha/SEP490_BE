@@ -677,6 +677,7 @@ namespace Server.Data.Migrations
                     StatusPayment = table.Column<string>(type: "longtext", nullable: false),
                     PaymentMethod = table.Column<string>(type: "longtext", nullable: true),
                     Note = table.Column<string>(type: "longtext", nullable: true),
+                    UserRoutineId = table.Column<int>(type: "int", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },

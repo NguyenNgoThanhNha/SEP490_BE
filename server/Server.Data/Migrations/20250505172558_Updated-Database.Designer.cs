@@ -11,7 +11,7 @@ using Server.Data.Entities;
 namespace Server.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250505165952_Updated-Database")]
+    [Migration("20250505172558_Updated-Database")]
     partial class UpdatedDatabase
     {
         /// <inheritdoc />
@@ -613,6 +613,9 @@ namespace Server.Data.Migrations
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("UserRoutineId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("VoucherId")
                         .HasColumnType("int");

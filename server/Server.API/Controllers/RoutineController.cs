@@ -147,10 +147,10 @@ namespace Server.API.Controllers
             }));
         }
 
-        [HttpGet("tracking-user-routine/{routineId}/{userId}")]
-        public async Task<IActionResult> TrackingUserRoutine(int routineId, int userId)
+        [HttpGet("tracking-user-routine/{userRoutineId}")]
+        public async Task<IActionResult> TrackingUserRoutine(int userRoutineId)
         {
-            var routine = await _routineService.TrackingUserRoutineByRoutineId(routineId, userId);
+            var routine = await _routineService.TrackingUserRoutineByRoutineId(userRoutineId);
             if (routine == null)
                 return NotFound(ApiResult<ApiResponse>.Error(new ApiResponse()
                 {

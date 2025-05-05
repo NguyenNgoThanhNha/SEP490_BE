@@ -611,6 +611,9 @@ namespace Server.Data.Migrations
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("UserRoutineId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("VoucherId")
                         .HasColumnType("int");
 

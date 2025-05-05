@@ -387,8 +387,12 @@ public class RoutineService
                         CreatedDate = DateTime.UtcNow,
                         UpdatedDate = DateTime.UtcNow
                     };
-                    await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
+                    var createdUserRoutine = await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
                     await _unitOfWorks.UserRoutineRepository.Commit();
+                    
+                    order.UserRoutineId = createdUserRoutine.UserRoutineId;
+                    _unitOfWorks.OrderRepository.Update(order);
+                    await _unitOfWorks.OrderRepository.Commit();
                     
                     foreach (var step in routine.SkinCareRoutineSteps)
                     {
@@ -409,6 +413,10 @@ public class RoutineService
                     userRoutine.UpdatedDate = DateTime.UtcNow;
                     _unitOfWorks.UserRoutineRepository.Update(userRoutine);
                     await _unitOfWorks.UserRoutineRepository.Commit();
+                    
+                    order.UserRoutineId = userRoutine.UserRoutineId;
+                    _unitOfWorks.OrderRepository.Update(order);
+                    await _unitOfWorks.OrderRepository.Commit();
 
                     foreach (var step in routine.SkinCareRoutineSteps)
                     {
@@ -436,8 +444,12 @@ public class RoutineService
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 };
-                await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
+                var createdUserRoutine = await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
                 await _unitOfWorks.UserRoutineRepository.Commit();
+                
+                order.UserRoutineId = createdUserRoutine.UserRoutineId;
+                _unitOfWorks.OrderRepository.Update(order);
+                await _unitOfWorks.OrderRepository.Commit();
 
                 var listUserRoutineStep = new List<UserRoutineStep>();
                 foreach (var step in routine.SkinCareRoutineSteps)
@@ -493,11 +505,11 @@ public class RoutineService
         }
     }
 
-    public async Task<UserRoutineModel> TrackingUserRoutineByRoutineId(int routineId, int userId)
+    public async Task<UserRoutineModel> TrackingUserRoutineByRoutineId(int userRoutineId)
     {
         var userRoutine = await _unitOfWorks.UserRoutineRepository
             .FindByCondition(x =>
-                x.RoutineId == routineId && x.UserId == userId &&
+                x.UserRoutineId == userRoutineId &&
                 (x.Status == ObjectStatus.Active.ToString() || x.Status == ObjectStatus.Completed.ToString()))
             .Include(x => x.Routine)
             .Include(x => x.User)
