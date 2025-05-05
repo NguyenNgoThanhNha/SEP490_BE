@@ -1704,10 +1704,13 @@ namespace Server.Business.Services
                 throw new BadRequestException("Đơn hàng đã hoàn thành không thể thay đổi trạng thái!");
             }
 
-            var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
-            customer.BonusPoint += 200;
-            _unitOfWorks.UserRepository.Update(customer);
-            await _unitOfWorks.UserRepository.Commit();
+            if (orderStatus == OrderStatusEnum.Completed.ToString())
+            {
+                var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+                customer.BonusPoint += 200;
+                _unitOfWorks.UserRepository.Update(customer);
+                await _unitOfWorks.UserRepository.Commit();
+            }
 
             order.Status = orderStatus;
             order.UpdatedDate = DateTime.Now;
