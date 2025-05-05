@@ -372,6 +372,8 @@ public class RoutineService
                 {
                     throw new BadRequestException("Bạn đã đặt liệu trình này rồi!");
                 }
+                
+                var listUserRoutineStep = new List<UserRoutineStep>();
 
                 if (userRoutine.Status == ObjectStatus.Completed.ToString())
                 {
@@ -387,8 +389,7 @@ public class RoutineService
                     };
                     await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
                     await _unitOfWorks.UserRoutineRepository.Commit();
-
-                    var listUserRoutineStep = new List<UserRoutineStep>();
+                    
                     foreach (var step in routine.SkinCareRoutineSteps)
                     {
                         var newUserRoutineStep = new UserRoutineStep
@@ -401,18 +402,14 @@ public class RoutineService
                         };
                         listUserRoutineStep.Add(newUserRoutineStep);
                     }
-
-                    await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
                 }
-                else
+                else if (userRoutine.Status == ObjectStatus.Suitable.ToString())
                 {
-                    // Các trường hợp khác (ví dụ Suitable), chuyển sang Active
                     userRoutine.Status = ObjectStatus.Active.ToString();
-                    userRoutine.UpdatedDate = DateTime.Now;
+                    userRoutine.UpdatedDate = DateTime.UtcNow;
                     _unitOfWorks.UserRoutineRepository.Update(userRoutine);
                     await _unitOfWorks.UserRoutineRepository.Commit();
 
-                    var listUserRoutineStep = new List<UserRoutineStep>();
                     foreach (var step in routine.SkinCareRoutineSteps)
                     {
                         var newUserRoutineStep = new UserRoutineStep
@@ -425,21 +422,19 @@ public class RoutineService
                         };
                         listUserRoutineStep.Add(newUserRoutineStep);
                     }
-
-                    await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
                 }
+                await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
             }
             else
             {
-                // Trường hợp chưa có userRoutine
                 var newUserRoutine = new UserRoutine
                 {
                     UserId = request.UserId,
                     RoutineId = routine.SkincareRoutineId,
                     ProgressNotes = "",
                     Status = ObjectStatus.Active.ToString(),
-                    CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow
+                    CreatedDate = DateTime.Now,
+                    UpdatedDate = DateTime.Now
                 };
                 await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
                 await _unitOfWorks.UserRoutineRepository.Commit();
@@ -502,7 +497,8 @@ public class RoutineService
     {
         var userRoutine = await _unitOfWorks.UserRoutineRepository
             .FindByCondition(x =>
-                x.RoutineId == routineId && x.UserId == userId && x.Status == ObjectStatus.Active.ToString())
+                x.RoutineId == routineId && x.UserId == userId &&
+                (x.Status == ObjectStatus.Active.ToString() || x.Status == ObjectStatus.Completed.ToString()))
             .Include(x => x.Routine)
             .Include(x => x.User)
             .Include(x => x.UserRoutineSteps)
@@ -596,7 +592,8 @@ public class RoutineService
         // Lấy danh sách sản phẩm từ stepModels
         var productRoutines = routineModel.ProductRoutines;
         var listProduct = productRoutines.Select(pr => pr.Products).ToList();
-        var listProductModel = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(listProduct));
+        var listProductModel =
+            await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(listProduct));
 
         // Lấy danh sách dịch vụ từ stepModels
         var serviceRoutines = routineModel.ServiceRoutines;
@@ -607,7 +604,8 @@ public class RoutineService
         // Map images của dịch vụ
         foreach (var serviceRoutine in serviceRoutines)
         {
-            var serviceImage = listServiceModel.FirstOrDefault(s => s.ServiceId == serviceRoutine.Service.ServiceId);
+            var serviceImage =
+                listServiceModel.FirstOrDefault(s => s.ServiceId == serviceRoutine.Service.ServiceId);
             if (serviceImage != null)
             {
                 serviceRoutine.Service.images = serviceImage.images;
@@ -648,7 +646,8 @@ public class RoutineService
         // lấy danh sách sản phẩm từ orderDetails
         var orderDetails = orderModel.OrderDetails;
         var listProduct = orderDetails.Select(pr => pr.Product).ToList();
-        var listProductModel = await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(listProduct));
+        var listProductModel =
+            await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(listProduct));
 
         // lấy danh sách dich vụ từ appointments
         var appointments = orderModel.Appointments;
@@ -779,7 +778,8 @@ public class RoutineService
             .ToList();
 
         var listServiceModel =
-            await _serviceService.GetListImagesOfServices(_mapper.Map<List<Data.Entities.Service>>(distinctServices));
+            await _serviceService.GetListImagesOfServices(
+                _mapper.Map<List<Data.Entities.Service>>(distinctServices));
         var listProductModel =
             await _productService.GetListImagesOfProduct(_mapper.Map<List<Product>>(distinctProducts));
 
@@ -819,7 +819,8 @@ public class RoutineService
 
         var appointments = await _unitOfWorks.AppointmentsRepository
             .FindByCondition(x =>
-                x.OrderId == orderId && x.ServiceId != null && serviceIds.Contains(x.ServiceId) && x.Step >= fromStep)
+                x.OrderId == orderId && x.ServiceId != null && serviceIds.Contains(x.ServiceId) &&
+                x.Step >= fromStep)
             .OrderBy(x => x.AppointmentId)
             .ToListAsync();
 
@@ -857,7 +858,8 @@ public class RoutineService
                             throw new BadRequestException("Lịch hẹn trước chưa có thời gian kết thúc!");
                         }
 
-                        var expectedStartDate = previousEndTime.Date.AddDays(previousStep.IntervalBeforeNextStep ?? 0);
+                        var expectedStartDate =
+                            previousEndTime.Date.AddDays(previousStep.IntervalBeforeNextStep ?? 0);
 
                         if (startTime <= expectedStartDate)
                         {
