@@ -43,6 +43,7 @@ namespace Server.Business.Services
             var query = _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(x => x.BranchId == branchId)
                 .Include(x => x.Product)
+                .ThenInclude(x => x.ProductImages)
                 .Include(x => x.Branch)
                 .Include(x => x.Promotion)
                 .OrderByDescending(x => x.Id);
@@ -56,6 +57,14 @@ namespace Server.Business.Services
                 .ToListAsync();
 
             var result = _mapper.Map<List<BranchProductDto>>(items);
+            
+            for (int i = 0; i < items.Count; i++)
+            {
+                var productImages = items[i].Product.ProductImages;
+                result[i].Product.images = productImages
+                    .Select(img => img.image) // img.image là string
+                    .ToArray();
+            }
 
             return new GetAllBranchProductPaginationResponse
             {

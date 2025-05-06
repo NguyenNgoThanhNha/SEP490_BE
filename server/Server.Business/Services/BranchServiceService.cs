@@ -40,7 +40,8 @@ namespace Server.Business.Services
             var query = _unitOfWorks.Branch_ServiceRepository
                 .FindByCondition(x => x.BranchId == branchId)
                 .Include(x => x.Branch)
-                .Include(x => x.Service);
+                .Include(x => x.Service)
+                .ThenInclude(s => s.ServiceImages);;
 
             var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
@@ -51,6 +52,14 @@ namespace Server.Business.Services
                 .ToListAsync();
 
             var dtos = _mapper.Map<List<BranchServiceDto>>(items);
+            
+            for (int i = 0; i < items.Count; i++)
+            {
+                var serviceImages = items[i].Service.ServiceImages;
+                dtos[i].Service.images = serviceImages
+                    .Select(img => img.image) // giả sử image là chuỗi string
+                    .ToArray();
+            }
 
             return new GetAllBranchServicePaginationResponse
             {

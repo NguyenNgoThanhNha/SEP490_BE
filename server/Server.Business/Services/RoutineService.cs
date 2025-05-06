@@ -269,8 +269,8 @@ public class RoutineService
                 PaymentMethod = request.PaymentMethod,
                 Status = OrderStatusEnum.Pending.ToString(),
                 Note = request.Note ?? "",
-                CreatedDate = DateTime.UtcNow,
-                UpdatedDate = DateTime.UtcNow
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
             };
 
             var createdOrder = await _unitOfWorks.OrderRepository.AddAsync(order);
@@ -280,7 +280,6 @@ public class RoutineService
             var listOrderDetail = new List<OrderDetail>();
 
             var appointmentTime = request.AppointmentTime ?? DateTime.Now;
-
             foreach (var step in routine.SkinCareRoutineSteps.OrderBy(x => x.Step))
             {
                 foreach (var serviceStep in step.ServiceRoutineSteps)
@@ -372,11 +371,15 @@ public class RoutineService
                 {
                     throw new BadRequestException("Bạn đã đặt liệu trình này rồi!");
                 }
-                
+
                 var listUserRoutineStep = new List<UserRoutineStep>();
 
                 if (userRoutine.Status == ObjectStatus.Completed.ToString())
                 {
+                    var totalDays = routine.SkinCareRoutineSteps
+                        .OrderBy(x => x.Step)
+                        .Sum(x => x.IntervalBeforeNextStep ?? 0);
+                    var endDate = appointmentTime.AddDays(totalDays);
                     // Tạo routine mới nếu routine cũ đã hoàn thành
                     var newUserRoutine = new UserRoutine
                     {
@@ -384,25 +387,31 @@ public class RoutineService
                         RoutineId = routine.SkincareRoutineId,
                         ProgressNotes = "",
                         Status = ObjectStatus.Active.ToString(),
-                        CreatedDate = DateTime.UtcNow,
-                        UpdatedDate = DateTime.UtcNow
+                        StartDate = appointmentTime,
+                        EndDate = endDate,
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
                     };
                     var createdUserRoutine = await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
                     await _unitOfWorks.UserRoutineRepository.Commit();
-                    
+
                     order.UserRoutineId = createdUserRoutine.UserRoutineId;
                     _unitOfWorks.OrderRepository.Update(order);
                     await _unitOfWorks.OrderRepository.Commit();
-                    
+
+                    var stepStartDate = appointmentTime;
                     foreach (var step in routine.SkinCareRoutineSteps)
                     {
+                        var stepEndDate = stepStartDate.AddDays(step.IntervalBeforeNextStep ?? 0);
                         var newUserRoutineStep = new UserRoutineStep
                         {
                             UserRoutineId = newUserRoutine.UserRoutineId,
                             SkinCareRoutineStepId = step.SkinCareRoutineStepId,
                             StepStatus = UserRoutineStepEnum.Pending.ToString(),
-                            CreatedDate = DateTime.UtcNow,
-                            UpdatedDate = DateTime.UtcNow
+                            StartDate = stepStartDate,
+                            EndDate = stepEndDate,
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now
                         };
                         listUserRoutineStep.Add(newUserRoutineStep);
                     }
@@ -410,57 +419,71 @@ public class RoutineService
                 else if (userRoutine.Status == ObjectStatus.Suitable.ToString())
                 {
                     userRoutine.Status = ObjectStatus.Active.ToString();
-                    userRoutine.UpdatedDate = DateTime.UtcNow;
+                    userRoutine.UpdatedDate = DateTime.Now;
                     _unitOfWorks.UserRoutineRepository.Update(userRoutine);
                     await _unitOfWorks.UserRoutineRepository.Commit();
-                    
+
                     order.UserRoutineId = userRoutine.UserRoutineId;
                     _unitOfWorks.OrderRepository.Update(order);
                     await _unitOfWorks.OrderRepository.Commit();
-
+                    var stepStartDate = appointmentTime;
                     foreach (var step in routine.SkinCareRoutineSteps)
                     {
+                        var stepEndDate = stepStartDate.AddDays(step.IntervalBeforeNextStep ?? 0);
                         var newUserRoutineStep = new UserRoutineStep
                         {
                             UserRoutineId = userRoutine.UserRoutineId,
                             SkinCareRoutineStepId = step.SkinCareRoutineStepId,
                             StepStatus = UserRoutineStepEnum.Pending.ToString(),
-                            CreatedDate = DateTime.UtcNow,
-                            UpdatedDate = DateTime.UtcNow
+                            StartDate = stepStartDate,
+                            EndDate = stepEndDate,
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now
                         };
                         listUserRoutineStep.Add(newUserRoutineStep);
                     }
                 }
+
                 await _unitOfWorks.UserRoutineStepRepository.AddRangeAsync(listUserRoutineStep);
             }
             else
             {
+                var totalDays = routine.SkinCareRoutineSteps
+                    .OrderBy(x => x.Step)
+                    .Sum(x => x.IntervalBeforeNextStep ?? 0);
+                var endDate = appointmentTime.AddDays(totalDays);
                 var newUserRoutine = new UserRoutine
                 {
                     UserId = request.UserId,
                     RoutineId = routine.SkincareRoutineId,
                     ProgressNotes = "",
                     Status = ObjectStatus.Active.ToString(),
+                    StartDate = appointmentTime,
+                    EndDate = endDate,
                     CreatedDate = DateTime.Now,
                     UpdatedDate = DateTime.Now
                 };
                 var createdUserRoutine = await _unitOfWorks.UserRoutineRepository.AddAsync(newUserRoutine);
                 await _unitOfWorks.UserRoutineRepository.Commit();
-                
+
                 order.UserRoutineId = createdUserRoutine.UserRoutineId;
                 _unitOfWorks.OrderRepository.Update(order);
                 await _unitOfWorks.OrderRepository.Commit();
 
                 var listUserRoutineStep = new List<UserRoutineStep>();
+                var stepStartDate = appointmentTime;
                 foreach (var step in routine.SkinCareRoutineSteps)
                 {
+                    var stepEndDate = stepStartDate.AddDays(step.IntervalBeforeNextStep ?? 0);
                     var newUserRoutineStep = new UserRoutineStep
                     {
                         UserRoutineId = newUserRoutine.UserRoutineId,
                         SkinCareRoutineStepId = step.SkinCareRoutineStepId,
                         StepStatus = UserRoutineStepEnum.Pending.ToString(),
-                        CreatedDate = DateTime.UtcNow,
-                        UpdatedDate = DateTime.UtcNow
+                        StartDate = stepStartDate,
+                        EndDate = stepEndDate,
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
                     };
                     listUserRoutineStep.Add(newUserRoutineStep);
                 }
@@ -483,7 +506,7 @@ public class RoutineService
                 Type = "Routine",
                 isRead = false,
                 ObjectId = order.OrderId,
-                CreatedDate = DateTime.UtcNow,
+                CreatedDate = DateTime.Now,
             };
 
             await _unitOfWorks.NotificationRepository.AddAsync(notification);
