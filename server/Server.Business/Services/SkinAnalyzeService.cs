@@ -150,14 +150,15 @@ public class SkinAnalyzeService
             await _unitOfWorks.SkinHealthImageRepository.Commit();
 
             // Process skin concerns
-            var skinConcerns = await GetSkinConcernsAsync(apiResult);
+            var skinConcerns = await GetSkinConcernsAsync(request);
 
             // Retrieve skincare routines based on concerns
             var routines = await GetSkincareRoutinesAsync(skinConcerns);
+
             // Lấy danh sách các routine hiện tại của user
             var existingUserRoutines = await _unitOfWorks.UserRoutineRepository
                 .FindByCondition(ur => ur.UserId == userId).ToListAsync();
-            
+
             List<UserRoutine> userRoutinesToUpdate = new List<UserRoutine>();
             List<UserRoutine> userRoutinesToAdd = new List<UserRoutine>();
             List<UserRoutine> userRoutinesToDelete = new List<UserRoutine>();
@@ -166,43 +167,60 @@ public class SkinAnalyzeService
 
             foreach (var routine in routines)
             {
-                var existingRoutine =
-                    existingUserRoutines.FirstOrDefault(ur => ur.RoutineId == routine.SkincareRoutineId);
+                var existingRoutinesForThisId = existingUserRoutines
+                    .Where(ur => ur.RoutineId == routine.SkincareRoutineId)
+                    .ToList();
 
-                if (existingRoutine != null)
+                var activeRoutine = existingRoutinesForThisId
+                    .FirstOrDefault(r => r.Status == ObjectStatus.Active.ToString());
+
+                if (activeRoutine != null)
                 {
-                    if (existingRoutine.Status == ObjectStatus.Suitable.ToString())
+                    // Đang sử dụng thì giữ nguyên
+                    continue;
+                }
+                
+                var completedRoutine = existingRoutinesForThisId
+                    .FirstOrDefault(r => r.Status == ObjectStatus.Completed.ToString());
+
+                if (completedRoutine != null)
+                {
+                    var suitabledRoutine = existingRoutinesForThisId
+                        .FirstOrDefault(r => r.Status == ObjectStatus.Suitable.ToString());
+                    if (suitabledRoutine != null)
                     {
-                        existingRoutine.ProgressNotes = "Updated routine for your skin";
-                        existingRoutine.UpdatedDate = DateTime.Now;
-                        userRoutinesToUpdate.Add(existingRoutine);
-                    }
-                    else if (existingRoutine.Status == ObjectStatus.Active.ToString())
-                    {
-                        // Đang sử dụng thì giữ nguyên
+                        // Nếu đã có routine suitable thì không cần tạo mới
                         continue;
                     }
-                    else if (existingRoutine.Status == ObjectStatus.Completed.ToString())
+                    // Đã hoàn thành thì tạo bản mới
+                    var newRoutine = new UserRoutine
                     {
-                        // Đã hoàn thành thì tạo bản mới
-                        var newRoutine = new UserRoutine()
-                        {
-                            UserId = userId,
-                            RoutineId = routine.SkincareRoutineId,
-                            Status = ObjectStatus.Suitable.ToString(),
-                            ProgressNotes = "Suitable for your skin",
-                            StartDate = DateTime.Now,
-                            EndDate = DateTime.Now.AddMonths(1),
-                            CreatedDate = DateTime.Now,
-                            UpdatedDate = DateTime.Now
-                        };
-                        userRoutinesToAdd.Add(newRoutine);
-                    }
+                        UserId = userId,
+                        RoutineId = routine.SkincareRoutineId,
+                        Status = ObjectStatus.Suitable.ToString(),
+                        ProgressNotes = "Suitable for your skin",
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now.AddMonths(1),
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+                    userRoutinesToAdd.Add(newRoutine);
+                    continue;
+                }
+                
+                var suitableRoutine = existingRoutinesForThisId
+                    .FirstOrDefault(r => r.Status == ObjectStatus.Suitable.ToString());
+
+                if (suitableRoutine != null)
+                {
+                    suitableRoutine.ProgressNotes = "Updated routine for your skin";
+                    suitableRoutine.UpdatedDate = DateTime.Now;
+                    userRoutinesToUpdate.Add(suitableRoutine);
                 }
                 else
                 {
-                    // Chưa tồn tại thì thêm mới
-                    var newRoutine = new UserRoutine()
+                    // Không có thì tạo mới
+                    var newRoutine = new UserRoutine
                     {
                         UserId = userId,
                         RoutineId = routine.SkincareRoutineId,
@@ -216,7 +234,8 @@ public class SkinAnalyzeService
                     userRoutinesToAdd.Add(newRoutine);
                 }
             }
-            
+
+            // Xử lý routine cũ không còn trong danh sách mới và KHÔNG phải là Active
             foreach (var existingRoutine in existingUserRoutines)
             {
                 if (!newRoutineIds.Contains(existingRoutine.RoutineId) &&
@@ -227,7 +246,8 @@ public class SkinAnalyzeService
                     userRoutinesToDelete.Add(existingRoutine);
                 }
             }
-            
+
+            // Cập nhật, thêm mới và xóa
             if (userRoutinesToUpdate.Any())
             {
                 await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToUpdate);
@@ -242,7 +262,8 @@ public class SkinAnalyzeService
             {
                 await _unitOfWorks.UserRoutineRepository.UpdateRangeAsync(userRoutinesToDelete);
             }
-            
+
+            // Lưu thay đổi
             await _unitOfWorks.UserRoutineRepository.Commit();
 
 
@@ -332,43 +353,60 @@ public class SkinAnalyzeService
 
             foreach (var routine in routines)
             {
-                var existingRoutine =
-                    existingUserRoutines.FirstOrDefault(ur => ur.RoutineId == routine.SkincareRoutineId);
+                var existingRoutinesForThisId = existingUserRoutines
+                    .Where(ur => ur.RoutineId == routine.SkincareRoutineId)
+                    .ToList();
 
-                if (existingRoutine != null)
+                var activeRoutine = existingRoutinesForThisId
+                    .FirstOrDefault(r => r.Status == ObjectStatus.Active.ToString());
+
+                if (activeRoutine != null)
                 {
-                    if (existingRoutine.Status == ObjectStatus.Suitable.ToString())
+                    // Đang sử dụng thì giữ nguyên
+                    continue;
+                }
+                
+                var completedRoutine = existingRoutinesForThisId
+                    .FirstOrDefault(r => r.Status == ObjectStatus.Completed.ToString());
+
+                if (completedRoutine != null)
+                {
+                    var suitabledRoutine = existingRoutinesForThisId
+                        .FirstOrDefault(r => r.Status == ObjectStatus.Suitable.ToString());
+                    if (suitabledRoutine != null)
                     {
-                        existingRoutine.ProgressNotes = "Updated routine for your skin";
-                        existingRoutine.UpdatedDate = DateTime.Now;
-                        userRoutinesToUpdate.Add(existingRoutine);
-                    }
-                    else if (existingRoutine.Status == ObjectStatus.Active.ToString())
-                    {
-                        // Đang sử dụng thì giữ nguyên
+                        // Nếu đã có routine suitable thì không cần tạo mới
                         continue;
                     }
-                    else if (existingRoutine.Status == ObjectStatus.Completed.ToString())
+                    // Đã hoàn thành thì tạo bản mới
+                    var newRoutine = new UserRoutine
                     {
-                        // Đã hoàn thành thì tạo bản mới
-                        var newRoutine = new UserRoutine()
-                        {
-                            UserId = userId,
-                            RoutineId = routine.SkincareRoutineId,
-                            Status = ObjectStatus.Suitable.ToString(),
-                            ProgressNotes = "Suitable for your skin",
-                            StartDate = DateTime.Now,
-                            EndDate = DateTime.Now.AddMonths(1),
-                            CreatedDate = DateTime.Now,
-                            UpdatedDate = DateTime.Now
-                        };
-                        userRoutinesToAdd.Add(newRoutine);
-                    }
+                        UserId = userId,
+                        RoutineId = routine.SkincareRoutineId,
+                        Status = ObjectStatus.Suitable.ToString(),
+                        ProgressNotes = "Suitable for your skin",
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now.AddMonths(1),
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+                    userRoutinesToAdd.Add(newRoutine);
+                    continue;
+                }
+                
+                var suitableRoutine = existingRoutinesForThisId
+                    .FirstOrDefault(r => r.Status == ObjectStatus.Suitable.ToString());
+
+                if (suitableRoutine != null)
+                {
+                    suitableRoutine.ProgressNotes = "Updated routine for your skin";
+                    suitableRoutine.UpdatedDate = DateTime.Now;
+                    userRoutinesToUpdate.Add(suitableRoutine);
                 }
                 else
                 {
-                    // Chưa tồn tại thì thêm mới
-                    var newRoutine = new UserRoutine()
+                    // Không có thì tạo mới
+                    var newRoutine = new UserRoutine
                     {
                         UserId = userId,
                         RoutineId = routine.SkincareRoutineId,
