@@ -150,7 +150,7 @@ public class SkinAnalyzeService
             await _unitOfWorks.SkinHealthImageRepository.Commit();
 
             // Process skin concerns
-            var skinConcerns = await GetSkinConcernsAsync(request);
+            var skinConcerns = await GetSkinConcernsAsync(apiResult!);
 
             // Retrieve skincare routines based on concerns
             var routines = await GetSkincareRoutinesAsync(skinConcerns);
