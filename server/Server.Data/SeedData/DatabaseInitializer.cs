@@ -2781,7 +2781,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da dầu",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 },
                 new SkincareRoutine
                 {
@@ -2790,7 +2790,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da khô",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000 
                 },
                 new SkincareRoutine
                 {
@@ -2799,7 +2799,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da trung tính",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000 
                 },
                 new SkincareRoutine
                 {
@@ -2808,7 +2808,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da hỗn hợp",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000 
                 },
                 new SkincareRoutine
                 {
@@ -2817,7 +2817,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn đầu đen",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000 
                 },
                 new SkincareRoutine
                 {
@@ -2826,7 +2826,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn trứng cá",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000 
                 },
                 new SkincareRoutine
                 {
@@ -2835,7 +2835,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Quầng thâm mắt",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000 
                 },
                 new SkincareRoutine
                 {
@@ -2844,7 +2844,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn có nhân đóng",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000 
                 },
                 new SkincareRoutine
                 {
@@ -2853,7 +2853,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Nếp nhăn Glabella",
-                    TotalPrice = random.Next(500000, 5000000)
+                    TotalPrice = random.Next(3, 6) * 1_000_000 
                 }
             };
 
