@@ -64,6 +64,11 @@ namespace Server.Business.Services
         public async Task<SkincareRoutineDto?> CreateAsync(CreateSkincareRoutineDto dto)
         {
             var skinConcerns = new List<SkinConcern>();
+            
+            if(dto.TotalPrice <= 0)
+            {
+                throw new BadRequestException("Giá trị tổng không hợp lệ");
+            }
 
             foreach (var targetSkinType in dto.TargetSkinTypes)
             {

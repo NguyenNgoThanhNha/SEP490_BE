@@ -305,6 +305,11 @@ namespace Server.Business.Services
             {
                 throw new BadRequestException("Service data is required.");
             }
+            
+            if(serviceDto.Price <= 0)
+            {
+                throw new BadRequestException("Price must be greater than 0.");
+            }
 
             if (serviceDto.ServiceCategoryId == null || serviceDto.ServiceCategoryId == 0)
             {
@@ -554,7 +559,7 @@ namespace Server.Business.Services
             var branch = await _unitOfWorks.BranchRepository.GetByIdAsync(request.BranchId);
             if (branch == null)
                 return new { success = false, result = new { message = "Branch không tồn tại." } };
-
+            
             // Lấy danh sách dịch vụ hiện có của branch
             var oldServices = await _unitOfWorks.Branch_ServiceRepository
                 .FindByCondition(x => x.BranchId == request.BranchId)

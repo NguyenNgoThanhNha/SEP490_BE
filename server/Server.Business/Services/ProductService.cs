@@ -268,6 +268,14 @@ namespace Server.Business.Services
                     message = "Please enter complete information."
                 });
             }
+            
+            if (productCreateDto.Price <= 0 || productCreateDto.Quantity <= 0)
+            {
+                return ApiResult<ApiResponse>.Error(new ApiResponse
+                {
+                    message = "Invalid Price, Quantity."
+                });
+            }
 
             // Kiểm tra Category có tồn tại không
             var categoryExists = await _unitOfWorks.CategoryRepository
@@ -1051,6 +1059,11 @@ namespace Server.Business.Services
             var existing = await _unitOfWorks.Branch_ProductRepository
                 .FindByCondition(bp => bp.ProductId == request.ProductId && bp.BranchId == request.BranchId)
                 .FirstOrDefaultAsync();
+            
+            if (existing == null && request.StockQuantity <= 0)
+            {
+                throw new BadRequestException("Số lượng sản phẩm phải lớn hơn 0 khi thêm mới.");
+            }
 
             if (existing != null)
             {
