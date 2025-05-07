@@ -1692,21 +1692,23 @@ namespace Server.Business.Services
                 throw;
             }
         }
-
-
+        
+        
         public async Task<bool> UpdateOrderStatus(int orderId, string orderStatus)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
-            if (order == null) throw new BadRequestException("Order not found!");
+            if (order == null)
+                throw new BadRequestException("Order not found!");
 
             if (order.Status == OrderStatusEnum.Completed.ToString())
-            {
                 throw new BadRequestException("Đơn hàng đã hoàn thành không thể thay đổi trạng thái!");
-            }
+
+            var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+            if (customer == null)
+                throw new BadRequestException("Customer not found!");
 
             if (orderStatus == OrderStatusEnum.Completed.ToString())
             {
-                var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
                 customer.BonusPoint += 200;
                 _unitOfWorks.UserRepository.Update(customer);
                 await _unitOfWorks.UserRepository.Commit();
@@ -1714,10 +1716,34 @@ namespace Server.Business.Services
 
             order.Status = orderStatus;
             order.UpdatedDate = DateTime.Now;
-
             _unitOfWorks.OrderRepository.Update(order);
-            return await _unitOfWorks.OrderRepository.Commit() > 0;
+            var result = await _unitOfWorks.OrderRepository.Commit() > 0;
+
+            // Gửi notification
+            var notification = new Notifications()
+            {
+                UserId = customer.UserId,
+                Content = $"Trạng thái đơn hàng #{order.OrderId} đã được cập nhật thành: {orderStatus}",
+                Type = "Order",
+                isRead = false,
+                ObjectId = order.OrderId,
+                CreatedDate = DateTime.UtcNow,
+            };
+
+            await _unitOfWorks.NotificationRepository.AddAsync(notification);
+            await _unitOfWorks.NotificationRepository.Commit();
+
+            // Gửi real-time notification nếu đang kết nối
+            var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId); // tùy theo hệ thống của bạn
+            if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+            {
+                _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+                await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+            }
+
+            return result;
         }
+
 
         public async Task<bool> CancelOrder(int orderId, string reasonCancel)
         {
@@ -2900,7 +2926,34 @@ namespace Server.Business.Services
             _unitOfWorks.OrderRepository.Update(order);
             var result = await _unitOfWorks.SaveChangesAsync();
 
+            // Gửi notification cho khách hàng
+            var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+            if (customer != null)
+            {
+                var notification = new Notifications()
+                {
+                    UserId = customer.UserId,
+                    Content = $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
+                    Type = "OrderPayment",
+                    isRead = false,
+                    ObjectId = order.OrderId,
+                    CreatedDate = DateTime.UtcNow,
+                };
+
+                await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                await _unitOfWorks.NotificationRepository.Commit();
+
+                // Gửi real-time nếu đang kết nối
+                var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+                if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+                {
+                    _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+                    await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                }
+            }
+
             return result > 0;
         }
+
     }
 }
