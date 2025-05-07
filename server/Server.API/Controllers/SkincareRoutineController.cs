@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Server.Business.Commons;
 using Server.Business.Commons.Response;
 using Server.Business.Dtos;
@@ -200,6 +201,17 @@ namespace Server.API.Controllers
                     message = "Lỗi: " + ex.Message,
                 }));
             }
+        }
+
+        [Authorize]
+        [HttpPut("active-skincare-routine/{routineId}")]
+        public async Task<IActionResult> ActiveSkinCareRoutine(int routineId)
+        {
+            var result = await _skincareRoutineService.ActiveRoutine(routineId);
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = result ? "Kích hoạt routine thành công" : "Kích hoạt routine thất bại",
+            }));
         }
     }
 }
