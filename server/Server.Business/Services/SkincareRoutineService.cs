@@ -90,7 +90,7 @@ namespace Server.Business.Services
                 TotalPrice = dto.TotalPrice,
                 TotalSteps = dto.TotalSteps,
                 TargetSkinTypes = string.Join(", ", dto.TargetSkinTypes),
-                Status = ObjectStatus.Active.ToString(),
+                Status = ObjectStatus.InActive.ToString(),
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
@@ -208,6 +208,19 @@ namespace Server.Business.Services
                 .Distinct()
                 .ToList();
             return skinTypes;
+        }
+
+        public async Task<bool> ActiveRoutine(int routineId)
+        {
+            var routine = await _unitOfWorks.SkincareRoutineRepository
+                .FirstOrDefaultAsync(x => x.SkincareRoutineId == routineId)
+                ?? throw new BadRequestException("Không tìm thấy routine");
+            
+            routine.Status = ObjectStatus.Active.ToString();
+            routine.UpdatedDate = DateTime.Now;
+            _unitOfWorks.SkincareRoutineRepository.Update(routine);
+            var result = await _unitOfWorks.SkincareRoutineRepository.Commit();
+            return result > 0;
         }
     }
 }
