@@ -1709,14 +1709,14 @@ namespace Server.Business.Services
         }
 
         public async Task<List<StaffModel>> GetAvailableReplacementStaffAsync(
-      int branchId, TimeSpan startTime, TimeSpan endTime, DateTime? date = null)
+     int branchId, TimeSpan startTime, TimeSpan endTime, int serviceId, DateTime? date = null)
         {
             if (branchId <= 0 || startTime >= endTime)
                 throw new BadRequestException("Invalid input.");
 
             var targetDate = date?.Date ?? DateTime.Today;
 
-            // 1. Xác định các ca trùng với khoảng thời gian yêu cầu
+            // 1. Xác định các ca làm trùng giờ yêu cầu
             var overlappingShifts = await _unitOfWorks.ShiftRepository
                 .FindByCondition(shift =>
                     shift.StartTime < endTime &&
@@ -1728,15 +1728,23 @@ namespace Server.Business.Services
 
             var shiftIds = overlappingShifts.Select(s => s.ShiftId).ToList();
 
-            var staffList = await _unitOfWorks.StaffRepository
-    .FindByCondition(s => s.BranchId == branchId && s.StaffInfo.RoleID == (int)RoleConstant.RoleType.Staff)
-    .Include(s => s.StaffInfo)
-    .ToListAsync();
+            // 2. Lấy dịch vụ và danh mục dịch vụ tương ứng
+            var service = await _unitOfWorks.ServiceRepository.GetByIdAsync(serviceId)
+                ?? throw new BadRequestException("Dịch vụ không tồn tại!");
 
+            int serviceCategoryId = service.ServiceCategoryId;
+
+            // 3. Lấy nhân viên thuộc chi nhánh có đúng Role
+            var staffList = await _unitOfWorks.StaffRepository
+                .FindByCondition(s =>
+                    s.BranchId == branchId &&
+                    s.StaffInfo.RoleID == (int)RoleConstant.RoleType.Staff)
+                .Include(s => s.StaffInfo)
+                .ToListAsync();
 
             var staffIds = staffList.Select(s => s.StaffId).ToList();
 
-            // 3. Lấy lịch làm việc có ca phù hợp và ngày phù hợp
+            // 4. Lấy lịch làm việc phù hợp
             var schedules = await _unitOfWorks.WorkScheduleRepository
                 .FindByCondition(ws =>
                     staffIds.Contains(ws.StaffId) &&
@@ -1747,7 +1755,7 @@ namespace Server.Business.Services
 
             var workingStaffIds = schedules.Select(ws => ws.StaffId).Distinct().ToList();
 
-            // 4. Lấy các lịch hẹn đang trùng giờ (chưa bị hủy)
+            // 5. Lấy các lịch hẹn đang trùng giờ
             var from = targetDate.Add(startTime);
             var to = targetDate.Add(endTime);
 
@@ -1761,24 +1769,79 @@ namespace Server.Business.Services
 
             var busyStaffIds = appointments.Select(a => a.StaffId).Distinct().ToHashSet();
 
-            // 5. Trả về danh sách nhân viên có ca làm phù hợp và không bận
+            // 6. Lấy danh sách nhân viên có ca làm phù hợp, không bận và có thực hiện được dịch vụ
+            var staffServiceCategories = await _unitOfWorks.Staff_ServiceCategoryRepository
+                .FindByCondition(ssc =>
+                    workingStaffIds.Contains(ssc.StaffId) &&
+                    ssc.ServiceCategoryId == serviceCategoryId)
+                .ToListAsync();
+
             var availableStaff = staffList
-                .Where(s => workingStaffIds.Contains(s.StaffId) && !busyStaffIds.Contains(s.StaffId))
+                .Where(s =>
+                    workingStaffIds.Contains(s.StaffId) &&
+                    !busyStaffIds.Contains(s.StaffId) &&
+                    staffServiceCategories.Any(ssc => ssc.StaffId == s.StaffId))
                 .ToList();
 
             return _mapper.Map<List<StaffModel>>(availableStaff);
         }
 
 
+        //    public async Task<List<StaffModel>> GetStaffWithoutShiftInTimeRangeAsync(
+        //int branchId, TimeSpan startTime, TimeSpan endTime, DateTime? date = null)
+        //    {
+        //        if (branchId <= 0 || startTime >= endTime)
+        //            throw new BadRequestException("Invalid input.");
+
+        //        var targetDate = date?.Date ?? DateTime.Today;
+
+        //        // 1. Xác định các ca làm (shift) trùng với khoảng thời gian truyền vào
+        //        var overlappingShifts = await _unitOfWorks.ShiftRepository
+        //            .FindByCondition(shift =>
+        //                shift.StartTime < endTime &&
+        //                shift.EndTime > startTime)
+        //            .ToListAsync();
+
+        //        if (!overlappingShifts.Any())
+        //            return new List<StaffModel>();
+
+        //        var shiftIds = overlappingShifts.Select(s => s.ShiftId).ToList();
+
+        //        // 2. Lấy tất cả nhân viên trong chi nhánh có Role là Staff
+        //        var staffList = await _unitOfWorks.StaffRepository
+        //            .FindByCondition(s => s.BranchId == branchId && s.StaffInfo.RoleID == (int)RoleConstant.RoleType.Staff)
+        //            .Include(s => s.StaffInfo)
+        //            .ToListAsync();
+
+        //        var staffIds = staffList.Select(s => s.StaffId).ToList();
+
+        //        // 3. Tìm nhân viên đã có lịch làm trong ca đó vào ngày đó
+        //        var scheduledStaffIds = await _unitOfWorks.WorkScheduleRepository
+        //            .FindByCondition(ws =>
+        //                staffIds.Contains(ws.StaffId) &&
+        //                ws.WorkDate.Date == targetDate &&
+        //                ws.Status == ObjectStatus.Active.ToString() &&
+        //                shiftIds.Contains(ws.ShiftId))
+        //            .Select(ws => ws.StaffId)
+        //            .Distinct()
+        //            .ToListAsync();
+
+        //        // 4. Trả về nhân viên KHÔNG có lịch làm trong các ca đó
+        //        var availableStaff = staffList
+        //            .Where(s => !scheduledStaffIds.Contains(s.StaffId))
+        //            .ToList();
+
+        //        return _mapper.Map<List<StaffModel>>(availableStaff);
+        //    }
+
         public async Task<List<StaffModel>> GetStaffWithoutShiftInTimeRangeAsync(
-    int branchId, TimeSpan startTime, TimeSpan endTime, DateTime? date = null)
+    int branchId, TimeSpan startTime, TimeSpan endTime, int serviceId, DateTime? date = null)
         {
             if (branchId <= 0 || startTime >= endTime)
                 throw new BadRequestException("Invalid input.");
 
             var targetDate = date?.Date ?? DateTime.Today;
 
-            // 1. Xác định các ca làm (shift) trùng với khoảng thời gian truyền vào
             var overlappingShifts = await _unitOfWorks.ShiftRepository
                 .FindByCondition(shift =>
                     shift.StartTime < endTime &&
@@ -1790,7 +1853,6 @@ namespace Server.Business.Services
 
             var shiftIds = overlappingShifts.Select(s => s.ShiftId).ToList();
 
-            // 2. Lấy tất cả nhân viên trong chi nhánh có Role là Staff
             var staffList = await _unitOfWorks.StaffRepository
                 .FindByCondition(s => s.BranchId == branchId && s.StaffInfo.RoleID == (int)RoleConstant.RoleType.Staff)
                 .Include(s => s.StaffInfo)
@@ -1798,7 +1860,6 @@ namespace Server.Business.Services
 
             var staffIds = staffList.Select(s => s.StaffId).ToList();
 
-            // 3. Tìm nhân viên đã có lịch làm trong ca đó vào ngày đó
             var scheduledStaffIds = await _unitOfWorks.WorkScheduleRepository
                 .FindByCondition(ws =>
                     staffIds.Contains(ws.StaffId) &&
@@ -1809,16 +1870,32 @@ namespace Server.Business.Services
                 .Distinct()
                 .ToListAsync();
 
-            // 4. Trả về nhân viên KHÔNG có lịch làm trong các ca đó
-            var availableStaff = staffList
+            var unassignedStaff = staffList
                 .Where(s => !scheduledStaffIds.Contains(s.StaffId))
                 .ToList();
 
-            return _mapper.Map<List<StaffModel>>(availableStaff);
+            var unassignedStaffIds = unassignedStaff.Select(s => s.StaffId).ToList();
+
+            // 🔹 Lấy ServiceCategoryId từ service
+            var service = await _unitOfWorks.ServiceRepository.GetByIdAsync(serviceId)
+                ?? throw new BadRequestException("Không tìm thấy dịch vụ.");
+
+            var requiredCategoryId = service.ServiceCategoryId;
+
+            // 🔹 Lọc nhân viên có phục vụ category này
+            var matchingStaffIds = await _unitOfWorks.Staff_ServiceCategoryRepository
+                .FindByCondition(ssc =>
+                    unassignedStaffIds.Contains(ssc.StaffId) &&
+                    ssc.ServiceCategoryId == requiredCategoryId)
+                .Select(ssc => ssc.StaffId)
+                .Distinct()
+                .ToListAsync();
+
+            var filteredStaff = unassignedStaff
+                .Where(s => matchingStaffIds.Contains(s.StaffId))
+                .ToList();
+
+            return _mapper.Map<List<StaffModel>>(filteredStaff);
         }
-
-
-
-
     }
 }
