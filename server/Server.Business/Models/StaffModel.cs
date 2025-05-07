@@ -12,6 +12,7 @@ public class StaffModel
     public DateTime UpdatedDate { get; set; } = DateTime.Now;
 
     public virtual UserInfoModel StaffInfo { get; set; }
+    public List<int> ServiceIds { get; set; } = new();
 
     // Thêm danh sách lịch làm việc
     //public virtual ICollection<WorkScheduleModel> WorkSchedules { get; set; }
