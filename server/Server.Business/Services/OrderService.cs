@@ -2462,7 +2462,9 @@ namespace Server.Business.Services
                 {
                     // Gán nhân viên bất kỳ trong chi nhánh có RoleId = 3
                     staffAuto = await _unitOfWorks.StaffRepository
-                                    .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId)
+                                    .FindByCondition(x => x.RoleId == 3 && x.BranchId == request.BranchId)
+                                    .Include(x => x.StaffInfo)
+                                    .FirstOrDefaultAsync()
                                 ?? throw new BadRequestException("Không tìm thấy nhân viên phù hợp!");
                     var appointmentTime = request.AppointmentDates.FirstOrDefault();
 
@@ -2499,8 +2501,67 @@ namespace Server.Business.Services
                             Notes = "",
                             CreatedDate = DateTime.Now
                         };
-                        listAppointments.Add(newAppointment);
+                        var appointmentEntity =
+                            await _unitOfWorks.AppointmentsRepository.AddAsync(
+                                _mapper.Map<Appointments>(newAppointment));
+                        await _unitOfWorks.AppointmentsRepository.Commit();
                         appointmentTime = endTime;
+                        
+                                                // Get specialist MySQL
+                        var specialistMySQL = await _staffService.GetStaffById(staffAuto.StaffId);
+
+                        // Get admin, specialist, customer from MongoDB
+                        var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
+                        var specialistMongo =
+                            await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+                        var customerMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId);
+
+                        // Create channel
+                        var channel = await _mongoDbService.CreateChannelAsync(
+                            $"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id,
+                            appointmentEntity.AppointmentId);
+
+                        // Add member to channel
+                        await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+                        await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
+
+
+                        var userMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId)
+                                        ?? throw new BadRequestException(
+                                            "Không tìm thấy thông tin khách hàng trong MongoDB!");
+
+                        // create notification
+                        var notification = new Notifications()
+                        {
+                            UserId = user.UserId,
+                            Content =
+                                $"Bạn có cuộc hẹn mới với {staffAuto.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                            Type = "Appointment",
+                            isRead = false,
+                            ObjectId = appointmentEntity.AppointmentId,
+                            CreatedDate = DateTime.UtcNow,
+                        };
+
+                        await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                        await _unitOfWorks.NotificationRepository.Commit();
+
+                        if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+                        {
+                            _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id,
+                                connectionId);
+                            Console.WriteLine($"User connected: {userMongo.Id} => {connectionId}");
+                            await _hubContext.Clients.Client(connectionId)
+                                .SendAsync("receiveNotification", notification);
+                        }
+
+                        if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionSpecialListId))
+                        {
+                            _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id,
+                                connectionId);
+                            Console.WriteLine($"User connected: {specialistMongo.Id} => {connectionSpecialListId}");
+                            await _hubContext.Clients.Client(connectionSpecialListId)
+                                .SendAsync("receiveNotification", notification);
+                        }
                     }
                 }
                 else
@@ -2509,8 +2570,7 @@ namespace Server.Business.Services
                         request.ServiceIds.Length != request.AppointmentDates.Length ||
                         request.ServiceQuantities.Length != request.ServiceIds.Length)
                         throw new BadRequestException("Số lượng dịch vụ, nhân viên, và thời gian hẹn phải tương ứng!");
-
-                    var appointments = new List<AppointmentsModel>();
+                    
                     var staffAppointments =
                         new Dictionary<int, DateTime>(); // Lưu lịch làm việc của nhân viên trong request
 
@@ -2661,7 +2721,6 @@ namespace Server.Business.Services
                             await _unitOfWorks.AppointmentsRepository.AddAsync(
                                 _mapper.Map<Appointments>(newAppointment));
                         await _unitOfWorks.AppointmentsRepository.Commit();
-                        appointments.Add(_mapper.Map<AppointmentsModel>(appointmentEntity));
 
                         // Get specialist MySQL
                         var specialistMySQL = await _staffService.GetStaffById(staffId);
@@ -2755,7 +2814,7 @@ namespace Server.Business.Services
                 }
 
 
-                await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointments);
+                /*await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointments);*/
                 await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetails);
                 await _unitOfWorks.CommitTransactionAsync();
 
