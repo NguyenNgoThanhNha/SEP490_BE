@@ -721,8 +721,16 @@ public class AppointmentsService
                               .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId)
                           ?? throw new BadRequestException("Không tìm thấy thông tin lịch hẹn");
 
-        appointment.Status = status;
-        appointment.UpdatedDate = DateTime.Now;
+        if (appointment.Status == OrderStatusEnum.Arrived.ToString())
+        {
+            appointment.Status = OrderStatusEnum.Completed.ToString();
+            appointment.UpdatedDate = DateTime.Now;
+        }
+        else
+        {
+            appointment.Status = status;
+            appointment.UpdatedDate = DateTime.Now;
+        }
 
         appointment = _unitOfWorks.AppointmentsRepository.Update(appointment);
         var result = await _unitOfWorks.AppointmentsRepository.Commit();
