@@ -3086,48 +3086,152 @@ namespace Server.Business.Services
 
 
 
+        //public async Task<bool> UpdateStatusPayment(int orderId, string statusPaymentEnum)
+        //{
+        //    if (!Enum.TryParse<OrderStatusPaymentEnum>(statusPaymentEnum, true, out var parsedStatus))
+        //    {
+        //        throw new BadRequestException("Trạng thái thanh toán không hợp lệ!");
+        //    }
+
+        //    var order = await _unitOfWorks.OrderRepository.FirstOrDefaultAsync(x => x.OrderId == orderId)
+        //                ?? throw new BadRequestException("Không tìm thấy đơn hàng!");
+
+        //    order.StatusPayment = parsedStatus.ToString();
+        //    _unitOfWorks.OrderRepository.Update(order);
+        //    var result = await _unitOfWorks.SaveChangesAsync();
+
+        //    // Gửi notification cho khách hàng
+        //    var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+        //    if (customer != null)
+        //    {
+        //        var notification = new Notifications()
+        //        {
+        //            UserId = customer.UserId,
+        //            Content =
+        //                $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
+        //            Type = "OrderPayment",
+        //            isRead = false,
+        //            ObjectId = order.OrderId,
+        //            CreatedDate = DateTime.UtcNow,
+        //        };
+
+        //        await _unitOfWorks.NotificationRepository.AddAsync(notification);
+        //        await _unitOfWorks.NotificationRepository.Commit();
+
+        //        // Gửi real-time nếu đang kết nối
+        //        var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+        //        if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+        //        {
+        //            _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+        //            await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+        //        }
+        //    }
+
+        //    return result > 0;
+        //}
+
         public async Task<bool> UpdateStatusPayment(int orderId, string statusPaymentEnum)
         {
             if (!Enum.TryParse<OrderStatusPaymentEnum>(statusPaymentEnum, true, out var parsedStatus))
-            {
                 throw new BadRequestException("Trạng thái thanh toán không hợp lệ!");
+
+            var order = await _unitOfWorks.OrderRepository
+                .FirstOrDefaultAsync(x => x.OrderId == orderId)
+                ?? throw new BadRequestException("Không tìm thấy đơn hàng!");
+
+            // ✅ Cập nhật trạng thái thanh toán của Order
+            order.StatusPayment = parsedStatus.ToString();
+            order.UpdatedDate = DateTime.UtcNow;
+            _unitOfWorks.OrderRepository.Update(order);
+
+            // ✅ Cập nhật Appointments nếu CHƯA Paid
+            if (order.OrderType == OrderType.Appointment.ToString() ||
+                order.OrderType == OrderType.Routine.ToString() ||
+                order.OrderType == OrderType.ProductAndService.ToString())
+            {
+                var appointments = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(a =>
+                        a.OrderId == order.OrderId &&
+                        a.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
+                    .ToListAsync();
+
+                foreach (var appointment in appointments)
+                {
+                    if (appointment.StatusPayment == OrderStatusPaymentEnum.Paid.ToString())
+                        continue;
+
+                    appointment.StatusPayment = parsedStatus.ToString();
+                    appointment.UpdatedDate = DateTime.UtcNow;
+                    _unitOfWorks.AppointmentsRepository.Update(appointment);
+                }
+
+                if (appointments.Any())
+                    await _unitOfWorks.AppointmentsRepository.Commit();
             }
 
-            var order = await _unitOfWorks.OrderRepository.FirstOrDefaultAsync(x => x.OrderId == orderId)
-                        ?? throw new BadRequestException("Không tìm thấy đơn hàng!");
+            // ✅ Cập nhật OrderDetail nếu CHƯA Paid
+            if (order.OrderType == OrderType.Product.ToString() ||
+                order.OrderType == OrderType.Routine.ToString() ||
+                order.OrderType == OrderType.ProductAndService.ToString())
+            {
+                var orderDetails = await _unitOfWorks.OrderDetailRepository
+                    .FindByCondition(od =>
+                        od.OrderId == order.OrderId &&
+                        od.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
+                    .ToListAsync();
 
-            order.StatusPayment = parsedStatus.ToString();
-            _unitOfWorks.OrderRepository.Update(order);
-            var result = await _unitOfWorks.SaveChangesAsync();
+                foreach (var orderDetail in orderDetails)
+                {
+                    if (orderDetail.StatusPayment == OrderStatusPaymentEnum.Paid.ToString())
+                        continue;
 
-            // Gửi notification cho khách hàng
+                    orderDetail.StatusPayment = parsedStatus.ToString();
+                    orderDetail.UpdatedDate = DateTime.UtcNow;
+                    _unitOfWorks.OrderDetailRepository.Update(orderDetail);
+                }
+
+                if (orderDetails.Any())
+                    await _unitOfWorks.OrderDetailRepository.Commit();
+            }
+
+            var result = await _unitOfWorks.OrderRepository.Commit();
+
+            // 🔔 Gửi thông báo cho khách hàng
             var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
             if (customer != null)
             {
-                var notification = new Notifications()
+                var notification = new Notifications
                 {
                     UserId = customer.UserId,
-                    Content =
-                        $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
+                    Content = $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
                     Type = "OrderPayment",
                     isRead = false,
                     ObjectId = order.OrderId,
-                    CreatedDate = DateTime.UtcNow,
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 await _unitOfWorks.NotificationRepository.AddAsync(notification);
                 await _unitOfWorks.NotificationRepository.Commit();
 
-                // Gửi real-time nếu đang kết nối
-                var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
-                if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+                try
                 {
-                    _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
-                    await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                    var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+                    if (NotificationHub.TryGetConnectionId(userMongo?.Id ?? "", out var connectionId))
+                    {
+                        _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo?.Id, connectionId);
+                        await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"⚠️ Gửi real-time thất bại do lỗi MongoDB: {ex.Message}");
                 }
             }
 
             return result > 0;
         }
+
+
+
     }
 }
