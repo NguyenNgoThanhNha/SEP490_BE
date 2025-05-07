@@ -2191,11 +2191,66 @@ namespace Server.Business.Services
             });
         }
 
+        //public async Task UpdateOrderStatusBasedOnPayment()
+        //{
+        //    var ordersToUpdate = await _unitOfWorks.OrderRepository
+        //        .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
+        //                              o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+        //        .Include(o => o.OrderDetails)
+        //        .Include(o => o.Shipment)
+        //        .ToListAsync();
+
+        //    foreach (var order in ordersToUpdate)
+        //    {
+        //        if (order.PaymentMethod == PaymentMethodEnum.Cash.ToString())
+        //        {
+        //            continue;
+        //        }
+        //        // Check thời gian
+        //        if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
+        //        {
+        //            // ======= Chỉ khi ĐỦ 1 NGÀY mới update =======
+
+        //            // Update Order
+        //            order.Status = OrderStatusEnum.Cancelled.ToString();
+        //            order.UpdatedDate = DateTime.UtcNow;
+        //            _unitOfWorks.OrderRepository.Update(order);
+
+        //            // Update OrderDetails
+        //            if (order.OrderDetails != null && order.OrderDetails.Any())
+        //            {
+        //                foreach (var detail in order.OrderDetails)
+        //                {
+        //                    detail.Status = OrderStatusEnum.Cancelled.ToString();
+        //                    detail.UpdatedDate = DateTime.UtcNow;
+        //                    _unitOfWorks.OrderDetailRepository.Update(detail);
+        //                }
+        //            }
+
+        //            // Update Shipment
+        //            if (order.Shipment != null)
+        //            {
+        //                order.Shipment.ShippingStatus = ShippingStatusEnum.Cancelled.ToString();
+        //                order.Shipment.UpdatedDate = DateTime.UtcNow;
+        //                _unitOfWorks.ShipmentRepository.Update(order.Shipment);
+        //            }
+        //        }
+        //    }
+
+        //    // Commit sau cùng
+        //    await _unitOfWorks.OrderDetailRepository.Commit();
+        //    await _unitOfWorks.ShipmentRepository.Commit();
+        //    await _unitOfWorks.OrderRepository.Commit();
+        //}
+
         public async Task UpdateOrderStatusBasedOnPayment()
         {
+            var nowVN = DateTime.UtcNow.AddHours(7);
+
             var ordersToUpdate = await _unitOfWorks.OrderRepository
-                .FindByCondition(o => o.Status == OrderStatusEnum.Pending.ToString() &&
-                                      o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
+                .FindByCondition(o =>
+                    o.Status == OrderStatusEnum.Pending.ToString() &&
+                    o.StatusPayment == OrderStatusPaymentEnum.Pending.ToString())
                 .Include(o => o.OrderDetails)
                 .Include(o => o.Shipment)
                 .ToListAsync();
@@ -2203,32 +2258,27 @@ namespace Server.Business.Services
             foreach (var order in ordersToUpdate)
             {
                 if (order.PaymentMethod == PaymentMethodEnum.Cash.ToString())
-                {
                     continue;
-                }
 
-                // Check thời gian
-                if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
+                // Nếu CreatedDate là UTC → convert sang giờ Việt Nam để so sánh
+                var createdAtVN = order.CreatedDate.AddHours(7);
+
+                if ((nowVN - createdAtVN).TotalDays >= 1)
                 {
-                    // ======= Chỉ khi ĐỦ 1 NGÀY mới update =======
-
-                    // Update Order
+                    // Cập nhật trạng thái đơn
                     order.Status = OrderStatusEnum.Cancelled.ToString();
                     order.UpdatedDate = DateTime.UtcNow;
                     _unitOfWorks.OrderRepository.Update(order);
 
-                    // Update OrderDetails
-                    if (order.OrderDetails != null && order.OrderDetails.Any())
+                    // Cập nhật các chi tiết đơn
+                    foreach (var detail in order.OrderDetails ?? Enumerable.Empty<OrderDetail>())
                     {
-                        foreach (var detail in order.OrderDetails)
-                        {
-                            detail.Status = OrderStatusEnum.Cancelled.ToString();
-                            detail.UpdatedDate = DateTime.UtcNow;
-                            _unitOfWorks.OrderDetailRepository.Update(detail);
-                        }
+                        detail.Status = OrderStatusEnum.Cancelled.ToString();
+                        detail.UpdatedDate = DateTime.UtcNow;
+                        _unitOfWorks.OrderDetailRepository.Update(detail);
                     }
 
-                    // Update Shipment
+                    // Cập nhật trạng thái vận chuyển
                     if (order.Shipment != null)
                     {
                         order.Shipment.ShippingStatus = ShippingStatusEnum.Cancelled.ToString();
@@ -2245,8 +2295,11 @@ namespace Server.Business.Services
         }
 
 
+
         public async Task AutoCompleteOrderAfterDelivery()
         {
+            var nowVN = DateTime.UtcNow.AddHours(7);
+
             var orders = await _unitOfWorks.OrderRepository
                 .FindByCondition(o =>
                     o.Status == OrderStatusEnum.Pending.ToString() &&
@@ -2259,18 +2312,11 @@ namespace Server.Business.Services
 
             foreach (var order in orders)
             {
-                DateTime deliveryDate;
+                var shipment = order.Shipment!;
+                var deliveryUtc = shipment.EstimatedDeliveryDate ?? shipment.CreatedDate;
+                var deliveryVN = deliveryUtc.AddHours(7);
 
-                if (order.Shipment.EstimatedDeliveryDate.HasValue)
-                {
-                    deliveryDate = order.Shipment.EstimatedDeliveryDate.Value;
-                }
-                else
-                {
-                    deliveryDate = order.Shipment.CreatedDate;
-                }
-
-                if (DateTime.UtcNow >= deliveryDate.Date.AddDays(3))
+                if (nowVN >= deliveryVN.Date.AddDays(3))
                 {
                     // ======= Cập nhật Order =======
                     order.Status = OrderStatusEnum.Completed.ToString();
@@ -2278,31 +2324,23 @@ namespace Server.Business.Services
                     _unitOfWorks.OrderRepository.Update(order);
 
                     // ======= Cập nhật OrderDetails =======
-                    if (order.OrderDetails != null && order.OrderDetails.Any())
+                    foreach (var detail in order.OrderDetails ?? Enumerable.Empty<OrderDetail>())
                     {
-                        foreach (var detail in order.OrderDetails)
-                        {
-                            detail.Status = OrderStatusEnum.Completed.ToString();
-                            detail.UpdatedDate = DateTime.UtcNow;
-                            _unitOfWorks.OrderDetailRepository.Update(detail);
-                        }
+                        detail.Status = OrderStatusEnum.Completed.ToString();
+                        detail.UpdatedDate = DateTime.UtcNow;
+                        _unitOfWorks.OrderDetailRepository.Update(detail);
                     }
 
                     // ======= Cập nhật Shipment =======
-                    if (order.Shipment != null)
-                    {
-                        order.Shipment.ShippingStatus = ShippingStatusEnum.Delivered.ToString();
-                        order.Shipment.UpdatedDate = DateTime.UtcNow;
-                        _unitOfWorks.ShipmentRepository.Update(order.Shipment);
-                    }
+                    shipment.ShippingStatus = ShippingStatusEnum.Delivered.ToString();
+                    shipment.UpdatedDate = DateTime.UtcNow;
+                    _unitOfWorks.ShipmentRepository.Update(shipment);
 
+                    // ======= Cộng điểm thưởng =======
                     if (order.Customer != null)
                     {
                         if (order.Customer.BonusPoint == null)
-                        {
                             order.Customer.BonusPoint = 0;
-                        }
-
 
                         if (order.Customer.BonusPoint < 100)
                         {
@@ -2314,12 +2352,12 @@ namespace Server.Business.Services
                 }
             }
 
-
             await _unitOfWorks.OrderDetailRepository.Commit();
             await _unitOfWorks.ShipmentRepository.Commit();
             await _unitOfWorks.OrderRepository.Commit();
             await _unitOfWorks.UserRepository.Commit();
         }
+
 
 
         public async Task<List<RoutineAppointmentModel>> GetRoutineHistoryByCustomerIdAsync(int customerId)
@@ -2857,27 +2895,127 @@ namespace Server.Business.Services
         //    await _unitOfWorks.AppointmentsRepository.Commit();
         //}
 
+        //        public async Task AutoCancelPendingAppointmentOrdersAsync()
+        //        {
+        //            var utcNow = DateTime.UtcNow;
+        //            var thresholdTime = utcNow.AddMinutes(-15);
+
+        //            var orders = await _unitOfWorks.OrderRepository
+        //                .FindByCondition(o =>
+        //                    (o.OrderType.ToUpper() == OrderType.Appointment.ToString().ToUpper() ||
+        //                     o.OrderType.ToUpper() == OrderType.Routine.ToString().ToUpper() ||
+        //                     o.OrderType.ToUpper() == OrderType.ProductAndService.ToString().ToUpper()) &&
+        //                    o.Status.ToUpper() == OrderStatusEnum.Pending.ToString().ToUpper() &&
+        //                    o.StatusPayment.ToUpper() == OrderStatusPaymentEnum.Pending.ToString().ToUpper() &&
+        //                    o.CreatedDate <= thresholdTime)
+        //                .Include(o => o.Appointments)
+        //                .ThenInclude(a => a.Customer)
+        //                .AsNoTracking()
+        //                .ToListAsync();
+
+        //            foreach (var order in orders)
+        //            {
+        //                if (order.PaymentMethod?.ToUpper() == PaymentMethodEnum.Cash.ToString().ToUpper())
+        //                    continue;
+
+        //                var orderEntity = await _unitOfWorks.OrderRepository.GetByIdAsync(order.OrderId);
+        //                if (orderEntity != null)
+        //                {
+        //                    orderEntity.Status = OrderStatusEnum.Cancelled.ToString();
+        //                    orderEntity.UpdatedDate = utcNow;
+        //                    _unitOfWorks.OrderRepository.Update(orderEntity);
+        //                }
+
+        //                // Lưu flag gửi mail + message theo customerId
+        //                var notifiedCustomers = new Dictionary<int, string>();
+
+        //                foreach (var appointment in order.Appointments)
+        //                {
+        //                    var appointmentEntity =
+        //                        await _unitOfWorks.AppointmentsRepository.GetByIdAsync(appointment.AppointmentId);
+        //                    if (appointmentEntity != null)
+        //                    {
+        //                        appointmentEntity.Status = OrderStatusEnum.Cancelled.ToString();
+        //                        appointmentEntity.UpdatedDate = utcNow;
+        //                        _unitOfWorks.AppointmentsRepository.Update(appointmentEntity);
+        //                    }
+
+        //                    var customer = appointment.Customer;
+        //                    if (customer != null && !string.IsNullOrWhiteSpace(customer.Email))
+        //                    {
+        //                        var content = string.IsNullOrWhiteSpace(appointment.Step?.ToString())
+        //                            ? "Lịch hẹn của bạn đã bị hủy do chưa thanh toán đúng hạn. Vui lòng tạo lại lịch mới nếu cần."
+        //                            : "Lịch hẹn của bạn đã bị hủy. Vui lòng liên hệ với quản lý để được hỗ trợ xử lý bước liệu trình.";
+
+        //                        if (!notifiedCustomers.ContainsKey(customer.UserId))
+        //                            notifiedCustomers[customer.UserId] = content;
+        //                    }
+        //                }
+
+        //                // Gửi duy nhất 1 email cho mỗi customer
+        //                foreach (var (customerId, message) in notifiedCustomers)
+        //                {
+        //                    var customer = order.Appointments.FirstOrDefault(a => a.Customer?.UserId == customerId)?.Customer;
+        //                    if (customer == null) continue;
+
+        //                    var mailData = new MailData
+        //                    {
+        //                        EmailToId = customer.Email,
+        //                        EmailToName = customer.FullName,
+        //                        EmailSubject = "Thông báo hủy lịch hẹn",
+        //                        EmailBody = $@"
+        //<p>Chào {customer.FullName},</p>
+        //<p>{message}</p>
+        //<p>Trân trọng,</p>
+        //<p>Đội ngũ Solace Spa</p>"
+        //                    };
+
+        //                    _ = Task.Run(async () =>
+        //                    {
+        //                        var result = await _mailService.SendEmailAsync(mailData, false);
+        //                        if (!result)
+        //                            Console.WriteLine($"❌ Gửi email thất bại cho: {customer.Email}");
+        //                    });
+        //                }
+        //            }
+
+
+        //            await _unitOfWorks.OrderRepository.Commit();
+        //            await _unitOfWorks.AppointmentsRepository.Commit();
+        //        }
+
         public async Task AutoCancelPendingAppointmentOrdersAsync()
         {
             var utcNow = DateTime.UtcNow;
-            var thresholdTime = utcNow.AddMinutes(-15);
+            var vnNow = utcNow.AddHours(7); // Giờ hiện tại theo múi giờ Việt Nam
 
-            var orders = await _unitOfWorks.OrderRepository
+            string[] validOrderTypes = new[]
+            {
+        OrderType.Appointment.ToString().ToUpper(),
+        OrderType.Routine.ToString().ToUpper(),
+        OrderType.ProductAndService.ToString().ToUpper()
+    };
+
+            var pendingOrders = await _unitOfWorks.OrderRepository
                 .FindByCondition(o =>
-                    (o.OrderType.ToUpper() == OrderType.Appointment.ToString().ToUpper() ||
-                     o.OrderType.ToUpper() == OrderType.Routine.ToString().ToUpper() ||
-                     o.OrderType.ToUpper() == OrderType.ProductAndService.ToString().ToUpper()) &&
+                    validOrderTypes.Contains(o.OrderType.ToUpper()) &&
                     o.Status.ToUpper() == OrderStatusEnum.Pending.ToString().ToUpper() &&
-                    o.StatusPayment.ToUpper() == OrderStatusPaymentEnum.Pending.ToString().ToUpper() &&
-                    o.CreatedDate <= thresholdTime)
+                    o.StatusPayment.ToUpper() == OrderStatusPaymentEnum.Pending.ToString().ToUpper())
                 .Include(o => o.Appointments)
-                .ThenInclude(a => a.Customer)
+                    .ThenInclude(a => a.Customer)
                 .AsNoTracking()
                 .ToListAsync();
 
-            foreach (var order in orders)
+            foreach (var order in pendingOrders)
             {
                 if (order.PaymentMethod?.ToUpper() == PaymentMethodEnum.Cash.ToString().ToUpper())
+                    continue;
+
+                // Chỉ xử lý nếu có ít nhất 1 lịch hẹn đã trễ hơn 15 phút
+                var hasExpiredAppointment = order.Appointments.Any(a =>
+                    vnNow >= a.AppointmentsTime.AddMinutes(15));
+
+                if (!hasExpiredAppointment)
                     continue;
 
                 var orderEntity = await _unitOfWorks.OrderRepository.GetByIdAsync(order.OrderId);
@@ -2888,13 +3026,14 @@ namespace Server.Business.Services
                     _unitOfWorks.OrderRepository.Update(orderEntity);
                 }
 
-                // Lưu flag gửi mail + message theo customerId
-                var notifiedCustomers = new Dictionary<int, string>();
+                var notifiedCustomers = new Dictionary<int, (string FullName, string Email, string Content)>();
 
                 foreach (var appointment in order.Appointments)
                 {
-                    var appointmentEntity =
-                        await _unitOfWorks.AppointmentsRepository.GetByIdAsync(appointment.AppointmentId);
+                    if (vnNow < appointment.AppointmentsTime.AddMinutes(15))
+                        continue;
+
+                    var appointmentEntity = await _unitOfWorks.AppointmentsRepository.GetByIdAsync(appointment.AppointmentId);
                     if (appointmentEntity != null)
                     {
                         appointmentEntity.Status = OrderStatusEnum.Cancelled.ToString();
@@ -2910,24 +3049,22 @@ namespace Server.Business.Services
                             : "Lịch hẹn của bạn đã bị hủy. Vui lòng liên hệ với quản lý để được hỗ trợ xử lý bước liệu trình.";
 
                         if (!notifiedCustomers.ContainsKey(customer.UserId))
-                            notifiedCustomers[customer.UserId] = content;
+                        {
+                            notifiedCustomers[customer.UserId] = (customer.FullName, customer.Email, content);
+                        }
                     }
                 }
 
-                // Gửi duy nhất 1 email cho mỗi customer
-                foreach (var (customerId, message) in notifiedCustomers)
+                foreach (var (customerId, info) in notifiedCustomers)
                 {
-                    var customer = order.Appointments.FirstOrDefault(a => a.Customer?.UserId == customerId)?.Customer;
-                    if (customer == null) continue;
-
                     var mailData = new MailData
                     {
-                        EmailToId = customer.Email,
-                        EmailToName = customer.FullName,
+                        EmailToId = info.Email,
+                        EmailToName = info.FullName,
                         EmailSubject = "Thông báo hủy lịch hẹn",
                         EmailBody = $@"
-<p>Chào {customer.FullName},</p>
-<p>{message}</p>
+<p>Chào {info.FullName},</p>
+<p>{info.Content}</p>
 <p>Trân trọng,</p>
 <p>Đội ngũ Solace Spa</p>"
                     };
@@ -2936,59 +3073,165 @@ namespace Server.Business.Services
                     {
                         var result = await _mailService.SendEmailAsync(mailData, false);
                         if (!result)
-                            Console.WriteLine($"❌ Gửi email thất bại cho: {customer.Email}");
+                            Console.WriteLine($"❌ Gửi email thất bại cho: {info.Email}");
                     });
                 }
             }
-
 
             await _unitOfWorks.OrderRepository.Commit();
             await _unitOfWorks.AppointmentsRepository.Commit();
         }
 
 
+
+
+
+        //public async Task<bool> UpdateStatusPayment(int orderId, string statusPaymentEnum)
+        //{
+        //    if (!Enum.TryParse<OrderStatusPaymentEnum>(statusPaymentEnum, true, out var parsedStatus))
+        //    {
+        //        throw new BadRequestException("Trạng thái thanh toán không hợp lệ!");
+        //    }
+
+        //    var order = await _unitOfWorks.OrderRepository.FirstOrDefaultAsync(x => x.OrderId == orderId)
+        //                ?? throw new BadRequestException("Không tìm thấy đơn hàng!");
+
+        //    order.StatusPayment = parsedStatus.ToString();
+        //    _unitOfWorks.OrderRepository.Update(order);
+        //    var result = await _unitOfWorks.SaveChangesAsync();
+
+        //    // Gửi notification cho khách hàng
+        //    var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+        //    if (customer != null)
+        //    {
+        //        var notification = new Notifications()
+        //        {
+        //            UserId = customer.UserId,
+        //            Content =
+        //                $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
+        //            Type = "OrderPayment",
+        //            isRead = false,
+        //            ObjectId = order.OrderId,
+        //            CreatedDate = DateTime.UtcNow,
+        //        };
+
+        //        await _unitOfWorks.NotificationRepository.AddAsync(notification);
+        //        await _unitOfWorks.NotificationRepository.Commit();
+
+        //        // Gửi real-time nếu đang kết nối
+        //        var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+        //        if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+        //        {
+        //            _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+        //            await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+        //        }
+        //    }
+
+        //    return result > 0;
+        //}
+
         public async Task<bool> UpdateStatusPayment(int orderId, string statusPaymentEnum)
         {
             if (!Enum.TryParse<OrderStatusPaymentEnum>(statusPaymentEnum, true, out var parsedStatus))
-            {
                 throw new BadRequestException("Trạng thái thanh toán không hợp lệ!");
+
+            var order = await _unitOfWorks.OrderRepository
+                .FirstOrDefaultAsync(x => x.OrderId == orderId)
+                ?? throw new BadRequestException("Không tìm thấy đơn hàng!");
+
+            // ✅ Cập nhật trạng thái thanh toán của Order
+            order.StatusPayment = parsedStatus.ToString();
+            order.UpdatedDate = DateTime.UtcNow;
+            _unitOfWorks.OrderRepository.Update(order);
+
+            // ✅ Cập nhật Appointments nếu CHƯA Paid
+            if (order.OrderType == OrderType.Appointment.ToString() ||
+                order.OrderType == OrderType.Routine.ToString() ||
+                order.OrderType == OrderType.ProductAndService.ToString())
+            {
+                var appointments = await _unitOfWorks.AppointmentsRepository
+                    .FindByCondition(a =>
+                        a.OrderId == order.OrderId &&
+                        a.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
+                    .ToListAsync();
+
+                foreach (var appointment in appointments)
+                {
+                    if (appointment.StatusPayment == OrderStatusPaymentEnum.Paid.ToString())
+                        continue;
+
+                    appointment.StatusPayment = parsedStatus.ToString();
+                    appointment.UpdatedDate = DateTime.UtcNow;
+                    _unitOfWorks.AppointmentsRepository.Update(appointment);
+                }
+
+                if (appointments.Any())
+                    await _unitOfWorks.AppointmentsRepository.Commit();
             }
 
-            var order = await _unitOfWorks.OrderRepository.FirstOrDefaultAsync(x => x.OrderId == orderId)
-                        ?? throw new BadRequestException("Không tìm thấy đơn hàng!");
+            // ✅ Cập nhật OrderDetail nếu CHƯA Paid
+            if (order.OrderType == OrderType.Product.ToString() ||
+                order.OrderType == OrderType.Routine.ToString() ||
+                order.OrderType == OrderType.ProductAndService.ToString())
+            {
+                var orderDetails = await _unitOfWorks.OrderDetailRepository
+                    .FindByCondition(od =>
+                        od.OrderId == order.OrderId &&
+                        od.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
+                    .ToListAsync();
 
-            order.StatusPayment = parsedStatus.ToString();
-            _unitOfWorks.OrderRepository.Update(order);
-            var result = await _unitOfWorks.SaveChangesAsync();
+                foreach (var orderDetail in orderDetails)
+                {
+                    if (orderDetail.StatusPayment == OrderStatusPaymentEnum.Paid.ToString())
+                        continue;
 
-            // Gửi notification cho khách hàng
+                    orderDetail.StatusPayment = parsedStatus.ToString();
+                    orderDetail.UpdatedDate = DateTime.UtcNow;
+                    _unitOfWorks.OrderDetailRepository.Update(orderDetail);
+                }
+
+                if (orderDetails.Any())
+                    await _unitOfWorks.OrderDetailRepository.Commit();
+            }
+
+            var result = await _unitOfWorks.OrderRepository.Commit();
+
+            // 🔔 Gửi thông báo cho khách hàng
             var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
             if (customer != null)
             {
-                var notification = new Notifications()
+                var notification = new Notifications
                 {
                     UserId = customer.UserId,
-                    Content =
-                        $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
+                    Content = $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
                     Type = "OrderPayment",
                     isRead = false,
                     ObjectId = order.OrderId,
-                    CreatedDate = DateTime.UtcNow,
+                    CreatedDate = DateTime.UtcNow
                 };
 
                 await _unitOfWorks.NotificationRepository.AddAsync(notification);
                 await _unitOfWorks.NotificationRepository.Commit();
 
-                // Gửi real-time nếu đang kết nối
-                var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
-                if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+                try
                 {
-                    _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
-                    await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                    var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+                    if (NotificationHub.TryGetConnectionId(userMongo?.Id ?? "", out var connectionId))
+                    {
+                        _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo?.Id, connectionId);
+                        await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"⚠️ Gửi real-time thất bại do lỗi MongoDB: {ex.Message}");
                 }
             }
 
             return result > 0;
         }
+
+
+
     }
 }

@@ -1060,14 +1060,16 @@ namespace Server.API.Controllers
 
         [HttpGet("replacement-staff")]
         public async Task<IActionResult> GetAvailableReplacementStaff(
-    [FromQuery] int branchId,
-    [FromQuery] TimeSpan startTime,
-    [FromQuery] TimeSpan endTime,
-    [FromQuery] DateTime? date = null)
+     [FromQuery] int branchId,
+     [FromQuery] TimeSpan startTime,
+     [FromQuery] TimeSpan endTime,
+     [FromQuery] int serviceId,
+     [FromQuery] DateTime? date = null)
         {
             try
             {
-                var staffList = await _staffService.GetAvailableReplacementStaffAsync(branchId, startTime, endTime, date);
+                var staffList = await _staffService.GetAvailableReplacementStaffAsync(
+                    branchId, startTime, endTime, serviceId, date);
 
                 return Ok(ApiResponse.Succeed(staffList, "Available replacement staff retrieved successfully."));
             }
@@ -1081,16 +1083,19 @@ namespace Server.API.Controllers
             }
         }
 
+
         [HttpGet("unassigned-staff")]
         public async Task<IActionResult> GetStaffWithoutShiftInTimeRange(
-    [FromQuery] int branchId,
-    [FromQuery] TimeSpan startTime,
-    [FromQuery] TimeSpan endTime,
-    [FromQuery] DateTime? date = null)
+     [FromQuery] int branchId,
+     [FromQuery] TimeSpan startTime,
+     [FromQuery] TimeSpan endTime,
+     [FromQuery] int serviceId,
+     [FromQuery] DateTime? date = null)
         {
             try
             {
-                var staffList = await _staffService.GetStaffWithoutShiftInTimeRangeAsync(branchId, startTime, endTime, date);
+                var staffList = await _staffService.GetStaffWithoutShiftInTimeRangeAsync(
+                    branchId, startTime, endTime, serviceId, date);
 
                 return Ok(ApiResponse.Succeed(staffList, "Danh sách nhân viên không có ca làm đã được lấy thành công."));
             }
