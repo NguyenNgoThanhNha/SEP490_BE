@@ -174,7 +174,7 @@ namespace Server.API.Controllers
 
         #endregion
 
-        [HttpPost("receive-webhook")]
+        /*[HttpPost("receive-webhook")]
         public async Task<IActionResult> GetResultPayOsOrder([FromBody] WebhookRequest req)
         {
             if (req.success)
@@ -207,7 +207,8 @@ namespace Server.API.Controllers
 
                 // Cập nhật dữ liệu tương ứng theo OrderType
                 if (order.OrderType == OrderType.Appointment.ToString() ||
-                    order.OrderType == OrderType.Routine.ToString())
+                    order.OrderType == OrderType.Routine.ToString() ||
+                    order.OrderType == OrderType.ProductAndService.ToString())
                 {
                     var appointments = await _unitOfWorks.AppointmentsRepository
                         .FindByCondition(a => a.OrderId == order.OrderId)
@@ -231,7 +232,9 @@ namespace Server.API.Controllers
                     await _unitOfWorks.AppointmentsRepository.Commit();
                 }
 
-                if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.Routine.ToString())
+                if (order.OrderType == OrderType.Product.ToString() ||
+                    order.OrderType == OrderType.Routine.ToString() ||
+                    order.OrderType == OrderType.ProductAndService.ToString())
                 {
                     var orderDetails = await _unitOfWorks.OrderDetailRepository
                         .FindByCondition(od => od.OrderId == order.OrderId)
@@ -275,6 +278,125 @@ namespace Server.API.Controllers
                 {
                     order.StatusPayment = OrderStatusPaymentEnum.Paid.ToString();
                 }
+
+                order.UpdatedDate = DateTime.Now;
+
+                _unitOfWorks.OrderRepository.Update(order);
+                var result = await _unitOfWorks.OrderRepository.Commit();
+
+                if (result > 0)
+                {
+                    return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+                    {
+                        message = $"Thanh toán thành công cho mã đơn hàng: {order.OrderCode}"
+                    }));
+                }
+            }
+
+            return Ok(ApiResult<ApiResponse>.Succeed(new ApiResponse()
+            {
+                message = "Lỗi khi cập nhật trạng thái đơn hàng."
+            }));
+        }*/
+
+        [HttpPost("receive-webhook")]
+        public async Task<IActionResult> GetResultPayOsOrder([FromBody] WebhookRequest req)
+        {
+            if (req.success)
+            {
+                var data = req.data;
+
+                // Lấy OrderCode từ description
+                string[] descriptionParts = data.description.Split(' ');
+                if (descriptionParts.Length < 3 || !int.TryParse(descriptionParts[2], out int orderCode))
+                {
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "Định dạng mã đơn hàng trong phần mô tả không hợp lệ!"
+                    }));
+                }
+
+                var order = await _unitOfWorks.OrderRepository
+                    .FindByCondition(o => o.OrderCode == orderCode)
+                    .FirstOrDefaultAsync();
+
+                if (order == null)
+                {
+                    return BadRequest(ApiResult<ApiResponse>.Error(new ApiResponse()
+                    {
+                        message = "Không tìm thấy đơn hàng!"
+                    }));
+                }
+
+                var deposit = order.StatusPayment;
+
+                // Cập nhật Appointment (dịch vụ)
+                if (order.OrderType == OrderType.Appointment.ToString() ||
+                    order.OrderType == OrderType.Routine.ToString() ||
+                    order.OrderType == OrderType.ProductAndService.ToString())
+                {
+                    var appointments = await _unitOfWorks.AppointmentsRepository
+                        .FindByCondition(a =>
+                            a.OrderId == order.OrderId && a.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
+                        .ToListAsync();
+
+                    foreach (var appointment in appointments)
+                    {
+                        appointment.StatusPayment = (deposit == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                            ? OrderStatusPaymentEnum.PaidDeposit.ToString()
+                            : OrderStatusPaymentEnum.Paid.ToString();
+
+                        appointment.UpdatedDate = DateTime.Now;
+                        _unitOfWorks.AppointmentsRepository.Update(appointment);
+                    }
+
+                    if (appointments.Any())
+                    {
+                        await _unitOfWorks.AppointmentsRepository.Commit();
+                    }
+                }
+
+                // Cập nhật OrderDetail (sản phẩm)
+                if (order.OrderType == OrderType.Product.ToString() ||
+                    order.OrderType == OrderType.Routine.ToString() ||
+                    order.OrderType == OrderType.ProductAndService.ToString())
+                {
+                    var orderDetails = await _unitOfWorks.OrderDetailRepository
+                        .FindByCondition(od =>
+                            od.OrderId == order.OrderId && od.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
+                        .ToListAsync();
+
+                    foreach (var orderDetail in orderDetails)
+                    {
+                        orderDetail.StatusPayment = (deposit == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                            ? OrderStatusPaymentEnum.PaidDeposit.ToString()
+                            : OrderStatusPaymentEnum.Paid.ToString();
+
+                        orderDetail.UpdatedDate = DateTime.Now;
+                        _unitOfWorks.OrderDetailRepository.Update(orderDetail);
+                    }
+
+                    if (orderDetails.Any())
+                    {
+                        await _unitOfWorks.OrderDetailRepository.Commit();
+                    }
+                }
+
+                // Cập nhật ghi chú thanh toán
+                var percentPaidMatch = Regex.Match(order.Note ?? string.Empty, @"Đặt cọc (\d+)%");
+                if (percentPaidMatch.Success && int.TryParse(percentPaidMatch.Groups[1].Value, out int percent))
+                {
+                    order.Note = $"Đã thanh toán thành công {percent}%";
+                }
+                else
+                {
+                    order.Note = "Đã thanh toán thành công";
+                }
+
+                // Cập nhật trạng thái đơn hàng
+                order.StatusPayment = (order.StatusPayment == OrderStatusPaymentEnum.PendingDeposit.ToString())
+                    ? OrderStatusPaymentEnum.PaidDeposit.ToString()
+                    : OrderStatusPaymentEnum.Paid.ToString();
 
                 order.UpdatedDate = DateTime.Now;
 

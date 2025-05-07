@@ -349,52 +349,18 @@ namespace Server.Business.Services
             var totalAmount = Convert.ToDecimal(req.totalAmount);
             var itemsList = new List<ItemData>();
 
-            /*if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.Routine.ToString())
-            {
-                var orderDetails = await _unitOfWorks.OrderDetailRepository
-                    .FindByCondition(x => x.OrderId == req.orderId)
-                    .Include(x => x.Product)
-                    .ToListAsync();
-
-                if (order.OrderType == OrderType.Product.ToString() && !orderDetails.Any())
-                    throw new BadRequestException("No order details found for the given Order ID!");
-
-                itemsList.AddRange(orderDetails.Select(od => new ItemData(
-                    name: od.Product.ProductName,
-                    quantity: od.Quantity,
-                    price: Convert.ToInt32(od.UnitPrice)
-                )));
-            }
-
-            if (order.OrderType == OrderType.Appointment.ToString() || order.OrderType == OrderType.Routine.ToString())
-            {
-                var appointments = await _unitOfWorks.AppointmentsRepository
-                    .FindByCondition(x => x.OrderId == req.orderId)
-                    .Include(x => x.Service)
-                    .Include(x => x.Branch)
-                    .ToListAsync();
-
-                if (order.OrderType == OrderType.Appointment.ToString() && !appointments.Any())
-                    throw new BadRequestException("No appointments found for the given Order ID!");
-
-                itemsList.AddRange(appointments.Select(ap => new ItemData(
-                    name: ap.Service.Name,
-                    quantity: ap.Quantity,
-                    price: Convert.ToInt32(ap.UnitPrice)
-                )));
-            }*/
-
             if (order.OrderType == OrderType.Product.ToString()
                 || order.OrderType == OrderType.Routine.ToString()
                 || order.OrderType == OrderType.ProductAndService.ToString())
             {
                 // Lấy danh sách order details (Product)
                 var orderDetails = await _unitOfWorks.OrderDetailRepository
-                    .FindByCondition(x => x.OrderId == req.orderId)
+                    .FindByCondition(x =>
+                        x.OrderId == req.orderId && x.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
                     .Include(x => x.Product)
                     .ToListAsync();
 
-                if (order.OrderType == OrderType.Product.ToString() && !orderDetails.Any())
+                if (!orderDetails.Any())
                     throw new BadRequestException("No order details found for the given Order ID!");
 
                 itemsList.AddRange(orderDetails.Select(od => new ItemData(
@@ -410,12 +376,13 @@ namespace Server.Business.Services
             {
                 // Lấy danh sách appointments (Service)
                 var appointments = await _unitOfWorks.AppointmentsRepository
-                    .FindByCondition(x => x.OrderId == req.orderId)
+                    .FindByCondition(x =>
+                        x.OrderId == req.orderId && x.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
                     .Include(x => x.Service)
                     .Include(x => x.Branch)
                     .ToListAsync();
 
-                if (order.OrderType == OrderType.Appointment.ToString() && !appointments.Any())
+                if (!appointments.Any())
                     throw new BadRequestException("No appointments found for the given Order ID!");
 
                 itemsList.AddRange(appointments.Select(ap => new ItemData(
@@ -1578,8 +1545,8 @@ namespace Server.Business.Services
                     }
                 }
 
-                // Cập nhật tổng giá trị đơn hàng
-                existingOrder.TotalAmount = appointments.Sum(a => a.SubTotal);
+                // Cộng thêm tổng giá trị các cuộc hẹn mới vào đơn hàng hiện tại
+                existingOrder.TotalAmount += appointments.Sum(a => a.SubTotal);
                 _unitOfWorks.OrderRepository.Update(existingOrder);
                 var result = await _unitOfWorks.SaveChangesAsync();
                 await _unitOfWorks.CommitTransactionAsync();
@@ -1616,7 +1583,7 @@ namespace Server.Business.Services
                 if (order.Status == OrderStatusEnum.Completed.ToString() ||
                     order.Status == OrderStatusEnum.Cancelled.ToString())
                 {
-                    throw new BadRequestException("Không thể thêm cuộc hẹn vào đơn hàng đã hoàn thành hoặc bị hủy!");
+                    throw new BadRequestException("Không thể thêm sản phẩm vào đơn hàng đã hoàn thành hoặc bị hủy!");
                 }
 
                 if (request.ProductIds == null || request.ProductIds.Length == 0)
@@ -1633,6 +1600,8 @@ namespace Server.Business.Services
                 var branch = await _unitOfWorks.BranchRepository
                                  .FirstOrDefaultAsync(x => x.BranchId == request.BranchId)
                              ?? throw new BadRequestException("Không tìm thấy thông tin chi nhánh");
+
+                decimal additionalTotal = 0;
 
                 // Duyệt qua từng sản phẩm và xử lý
                 for (int i = 0; i < request.ProductIds.Length; i++)
@@ -1655,6 +1624,7 @@ namespace Server.Business.Services
                     }
 
                     var productPrice = product?.Price ?? 0;
+                    var subTotal = quantity * productPrice;
 
                     var orderDetail = new OrderDetail
                     {
@@ -1672,13 +1642,18 @@ namespace Server.Business.Services
                     };
 
                     await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+                    additionalTotal += subTotal;
                 }
 
                 // Commit giao dịch
                 var result = await _unitOfWorks.OrderDetailRepository.Commit();
                 if (result > 0)
                 {
-                    // Nếu commit thành công, thực hiện commit giao dịch tổng
+                    // Cập nhật lại tổng tiền đơn hàng
+                    order.TotalAmount += additionalTotal;
+                    order.UpdatedDate = DateTime.Now;
+                    _unitOfWorks.OrderRepository.Update(order);
+                    await _unitOfWorks.OrderRepository.Commit();
                     await _unitOfWorks.CommitTransactionAsync();
                     return true;
                 }
@@ -1692,8 +1667,8 @@ namespace Server.Business.Services
                 throw;
             }
         }
-        
-        
+
+
         public async Task<bool> UpdateOrderStatus(int orderId, string orderStatus)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
@@ -2231,6 +2206,7 @@ namespace Server.Business.Services
                 {
                     continue;
                 }
+
                 // Check thời gian
                 if (order.CreatedDate != null && (DateTime.UtcNow - order.CreatedDate).TotalDays >= 1)
                 {
@@ -2506,8 +2482,8 @@ namespace Server.Business.Services
                                 _mapper.Map<Appointments>(newAppointment));
                         await _unitOfWorks.AppointmentsRepository.Commit();
                         appointmentTime = endTime;
-                        
-                                                // Get specialist MySQL
+
+                        // Get specialist MySQL
                         var specialistMySQL = await _staffService.GetStaffById(staffAuto.StaffId);
 
                         // Get admin, specialist, customer from MongoDB
@@ -2570,7 +2546,7 @@ namespace Server.Business.Services
                         request.ServiceIds.Length != request.AppointmentDates.Length ||
                         request.ServiceQuantities.Length != request.ServiceIds.Length)
                         throw new BadRequestException("Số lượng dịch vụ, nhân viên, và thời gian hẹn phải tương ứng!");
-                    
+
                     var staffAppointments =
                         new Dictionary<int, DateTime>(); // Lưu lịch làm việc của nhân viên trong request
 
@@ -2992,7 +2968,8 @@ namespace Server.Business.Services
                 var notification = new Notifications()
                 {
                     UserId = customer.UserId,
-                    Content = $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
+                    Content =
+                        $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
                     Type = "OrderPayment",
                     isRead = false,
                     ObjectId = order.OrderId,
@@ -3013,6 +2990,5 @@ namespace Server.Business.Services
 
             return result > 0;
         }
-
     }
 }
