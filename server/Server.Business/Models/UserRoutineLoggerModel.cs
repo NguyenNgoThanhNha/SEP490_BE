@@ -7,8 +7,8 @@ public class UserRoutineLoggerModel
     public int StepId { get; set; }
     public virtual UserRoutineStepModel UserRoutineStep { get; set; }
     
-    public int? StaffId { get; set; } // Ai thực hiện bước này
-    public virtual StaffModel? Staff { get; set; }
+    public int? ManagerId { get; set; } // Ai thực hiện bước này
+    public virtual UserInfoModel? Manager { get; set; }
     
     public int? UserId { get; set; } // Ai thực hiện bước này
     public virtual UserInfoModel? User { get; set; }

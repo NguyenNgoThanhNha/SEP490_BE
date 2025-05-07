@@ -349,52 +349,18 @@ namespace Server.Business.Services
             var totalAmount = Convert.ToDecimal(req.totalAmount);
             var itemsList = new List<ItemData>();
 
-            /*if (order.OrderType == OrderType.Product.ToString() || order.OrderType == OrderType.Routine.ToString())
-            {
-                var orderDetails = await _unitOfWorks.OrderDetailRepository
-                    .FindByCondition(x => x.OrderId == req.orderId)
-                    .Include(x => x.Product)
-                    .ToListAsync();
-
-                if (order.OrderType == OrderType.Product.ToString() && !orderDetails.Any())
-                    throw new BadRequestException("No order details found for the given Order ID!");
-
-                itemsList.AddRange(orderDetails.Select(od => new ItemData(
-                    name: od.Product.ProductName,
-                    quantity: od.Quantity,
-                    price: Convert.ToInt32(od.UnitPrice)
-                )));
-            }
-
-            if (order.OrderType == OrderType.Appointment.ToString() || order.OrderType == OrderType.Routine.ToString())
-            {
-                var appointments = await _unitOfWorks.AppointmentsRepository
-                    .FindByCondition(x => x.OrderId == req.orderId)
-                    .Include(x => x.Service)
-                    .Include(x => x.Branch)
-                    .ToListAsync();
-
-                if (order.OrderType == OrderType.Appointment.ToString() && !appointments.Any())
-                    throw new BadRequestException("No appointments found for the given Order ID!");
-
-                itemsList.AddRange(appointments.Select(ap => new ItemData(
-                    name: ap.Service.Name,
-                    quantity: ap.Quantity,
-                    price: Convert.ToInt32(ap.UnitPrice)
-                )));
-            }*/
-
             if (order.OrderType == OrderType.Product.ToString()
                 || order.OrderType == OrderType.Routine.ToString()
                 || order.OrderType == OrderType.ProductAndService.ToString())
             {
                 // Lấy danh sách order details (Product)
                 var orderDetails = await _unitOfWorks.OrderDetailRepository
-                    .FindByCondition(x => x.OrderId == req.orderId)
+                    .FindByCondition(x =>
+                        x.OrderId == req.orderId && x.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
                     .Include(x => x.Product)
                     .ToListAsync();
 
-                if (order.OrderType == OrderType.Product.ToString() && !orderDetails.Any())
+                if (!orderDetails.Any())
                     throw new BadRequestException("No order details found for the given Order ID!");
 
                 itemsList.AddRange(orderDetails.Select(od => new ItemData(
@@ -410,12 +376,13 @@ namespace Server.Business.Services
             {
                 // Lấy danh sách appointments (Service)
                 var appointments = await _unitOfWorks.AppointmentsRepository
-                    .FindByCondition(x => x.OrderId == req.orderId)
+                    .FindByCondition(x =>
+                        x.OrderId == req.orderId && x.StatusPayment != OrderStatusPaymentEnum.Paid.ToString())
                     .Include(x => x.Service)
                     .Include(x => x.Branch)
                     .ToListAsync();
 
-                if (order.OrderType == OrderType.Appointment.ToString() && !appointments.Any())
+                if (!appointments.Any())
                     throw new BadRequestException("No appointments found for the given Order ID!");
 
                 itemsList.AddRange(appointments.Select(ap => new ItemData(
@@ -1578,8 +1545,8 @@ namespace Server.Business.Services
                     }
                 }
 
-                // Cập nhật tổng giá trị đơn hàng
-                existingOrder.TotalAmount = appointments.Sum(a => a.SubTotal);
+                // Cộng thêm tổng giá trị các cuộc hẹn mới vào đơn hàng hiện tại
+                existingOrder.TotalAmount += appointments.Sum(a => a.SubTotal);
                 _unitOfWorks.OrderRepository.Update(existingOrder);
                 var result = await _unitOfWorks.SaveChangesAsync();
                 await _unitOfWorks.CommitTransactionAsync();
@@ -1616,7 +1583,7 @@ namespace Server.Business.Services
                 if (order.Status == OrderStatusEnum.Completed.ToString() ||
                     order.Status == OrderStatusEnum.Cancelled.ToString())
                 {
-                    throw new BadRequestException("Không thể thêm cuộc hẹn vào đơn hàng đã hoàn thành hoặc bị hủy!");
+                    throw new BadRequestException("Không thể thêm sản phẩm vào đơn hàng đã hoàn thành hoặc bị hủy!");
                 }
 
                 if (request.ProductIds == null || request.ProductIds.Length == 0)
@@ -1633,6 +1600,8 @@ namespace Server.Business.Services
                 var branch = await _unitOfWorks.BranchRepository
                                  .FirstOrDefaultAsync(x => x.BranchId == request.BranchId)
                              ?? throw new BadRequestException("Không tìm thấy thông tin chi nhánh");
+
+                decimal additionalTotal = 0;
 
                 // Duyệt qua từng sản phẩm và xử lý
                 for (int i = 0; i < request.ProductIds.Length; i++)
@@ -1655,6 +1624,7 @@ namespace Server.Business.Services
                     }
 
                     var productPrice = product?.Price ?? 0;
+                    var subTotal = quantity * productPrice;
 
                     var orderDetail = new OrderDetail
                     {
@@ -1672,13 +1642,18 @@ namespace Server.Business.Services
                     };
 
                     await _unitOfWorks.OrderDetailRepository.AddAsync(orderDetail);
+                    additionalTotal += subTotal;
                 }
 
                 // Commit giao dịch
                 var result = await _unitOfWorks.OrderDetailRepository.Commit();
                 if (result > 0)
                 {
-                    // Nếu commit thành công, thực hiện commit giao dịch tổng
+                    // Cập nhật lại tổng tiền đơn hàng
+                    order.TotalAmount += additionalTotal;
+                    order.UpdatedDate = DateTime.Now;
+                    _unitOfWorks.OrderRepository.Update(order);
+                    await _unitOfWorks.OrderRepository.Commit();
                     await _unitOfWorks.CommitTransactionAsync();
                     return true;
                 }
@@ -1697,16 +1672,18 @@ namespace Server.Business.Services
         public async Task<bool> UpdateOrderStatus(int orderId, string orderStatus)
         {
             var order = await _unitOfWorks.OrderRepository.GetByIdAsync(orderId);
-            if (order == null) throw new BadRequestException("Order not found!");
+            if (order == null)
+                throw new BadRequestException("Order not found!");
 
             if (order.Status == OrderStatusEnum.Completed.ToString())
-            {
                 throw new BadRequestException("Đơn hàng đã hoàn thành không thể thay đổi trạng thái!");
-            }
+
+            var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+            if (customer == null)
+                throw new BadRequestException("Customer not found!");
 
             if (orderStatus == OrderStatusEnum.Completed.ToString())
             {
-                var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
                 customer.BonusPoint += 200;
                 _unitOfWorks.UserRepository.Update(customer);
                 await _unitOfWorks.UserRepository.Commit();
@@ -1714,10 +1691,34 @@ namespace Server.Business.Services
 
             order.Status = orderStatus;
             order.UpdatedDate = DateTime.Now;
-
             _unitOfWorks.OrderRepository.Update(order);
-            return await _unitOfWorks.OrderRepository.Commit() > 0;
+            var result = await _unitOfWorks.OrderRepository.Commit() > 0;
+
+            // Gửi notification
+            var notification = new Notifications()
+            {
+                UserId = customer.UserId,
+                Content = $"Trạng thái đơn hàng #{order.OrderId} đã được cập nhật thành: {orderStatus}",
+                Type = "Order",
+                isRead = false,
+                ObjectId = order.OrderId,
+                CreatedDate = DateTime.UtcNow,
+            };
+
+            await _unitOfWorks.NotificationRepository.AddAsync(notification);
+            await _unitOfWorks.NotificationRepository.Commit();
+
+            // Gửi real-time notification nếu đang kết nối
+            var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId); // tùy theo hệ thống của bạn
+            if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+            {
+                _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+                await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+            }
+
+            return result;
         }
+
 
         public async Task<bool> CancelOrder(int orderId, string reasonCancel)
         {
@@ -2475,7 +2476,9 @@ namespace Server.Business.Services
                 {
                     // Gán nhân viên bất kỳ trong chi nhánh có RoleId = 3
                     staffAuto = await _unitOfWorks.StaffRepository
-                                    .FirstOrDefaultAsync(x => x.RoleId == 3 && x.BranchId == request.BranchId)
+                                    .FindByCondition(x => x.RoleId == 3 && x.BranchId == request.BranchId)
+                                    .Include(x => x.StaffInfo)
+                                    .FirstOrDefaultAsync()
                                 ?? throw new BadRequestException("Không tìm thấy nhân viên phù hợp!");
                     var appointmentTime = request.AppointmentDates.FirstOrDefault();
 
@@ -2512,8 +2515,67 @@ namespace Server.Business.Services
                             Notes = "",
                             CreatedDate = DateTime.Now
                         };
-                        listAppointments.Add(newAppointment);
+                        var appointmentEntity =
+                            await _unitOfWorks.AppointmentsRepository.AddAsync(
+                                _mapper.Map<Appointments>(newAppointment));
+                        await _unitOfWorks.AppointmentsRepository.Commit();
                         appointmentTime = endTime;
+
+                        // Get specialist MySQL
+                        var specialistMySQL = await _staffService.GetStaffById(staffAuto.StaffId);
+
+                        // Get admin, specialist, customer from MongoDB
+                        var adminMongo = await _mongoDbService.GetCustomerByIdAsync(branch.ManagerId);
+                        var specialistMongo =
+                            await _mongoDbService.GetCustomerByIdAsync(specialistMySQL.StaffInfo.UserId);
+                        var customerMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId);
+
+                        // Create channel
+                        var channel = await _mongoDbService.CreateChannelAsync(
+                            $"Channel {appointmentEntity.AppointmentId} {service.Name}", adminMongo!.Id,
+                            appointmentEntity.AppointmentId);
+
+                        // Add member to channel
+                        await _mongoDbService.AddMemberToChannelAsync(channel.Id, specialistMongo!.Id);
+                        await _mongoDbService.AddMemberToChannelAsync(channel.Id, customerMongo!.Id);
+
+
+                        var userMongo = await _mongoDbService.GetCustomerByIdAsync(user.UserId)
+                                        ?? throw new BadRequestException(
+                                            "Không tìm thấy thông tin khách hàng trong MongoDB!");
+
+                        // create notification
+                        var notification = new Notifications()
+                        {
+                            UserId = user.UserId,
+                            Content =
+                                $"Bạn có cuộc hẹn mới với {staffAuto.StaffInfo.FullName} vào lúc {newAppointment.AppointmentsTime}",
+                            Type = "Appointment",
+                            isRead = false,
+                            ObjectId = appointmentEntity.AppointmentId,
+                            CreatedDate = DateTime.UtcNow,
+                        };
+
+                        await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                        await _unitOfWorks.NotificationRepository.Commit();
+
+                        if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+                        {
+                            _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id,
+                                connectionId);
+                            Console.WriteLine($"User connected: {userMongo.Id} => {connectionId}");
+                            await _hubContext.Clients.Client(connectionId)
+                                .SendAsync("receiveNotification", notification);
+                        }
+
+                        if (NotificationHub.TryGetConnectionId(specialistMongo.Id, out var connectionSpecialListId))
+                        {
+                            _logger.LogInformation("User connected: {userId} => {connectionId}", specialistMongo.Id,
+                                connectionId);
+                            Console.WriteLine($"User connected: {specialistMongo.Id} => {connectionSpecialListId}");
+                            await _hubContext.Clients.Client(connectionSpecialListId)
+                                .SendAsync("receiveNotification", notification);
+                        }
                     }
                 }
                 else
@@ -2523,7 +2585,6 @@ namespace Server.Business.Services
                         request.ServiceQuantities.Length != request.ServiceIds.Length)
                         throw new BadRequestException("Số lượng dịch vụ, nhân viên, và thời gian hẹn phải tương ứng!");
 
-                    var appointments = new List<AppointmentsModel>();
                     var staffAppointments =
                         new Dictionary<int, DateTime>(); // Lưu lịch làm việc của nhân viên trong request
 
@@ -2674,7 +2735,6 @@ namespace Server.Business.Services
                             await _unitOfWorks.AppointmentsRepository.AddAsync(
                                 _mapper.Map<Appointments>(newAppointment));
                         await _unitOfWorks.AppointmentsRepository.Commit();
-                        appointments.Add(_mapper.Map<AppointmentsModel>(appointmentEntity));
 
                         // Get specialist MySQL
                         var specialistMySQL = await _staffService.GetStaffById(staffId);
@@ -2768,7 +2828,7 @@ namespace Server.Business.Services
                 }
 
 
-                await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointments);
+                /*await _unitOfWorks.AppointmentsRepository.AddRangeAsync(listAppointments);*/
                 await _unitOfWorks.OrderDetailRepository.AddRangeAsync(listOrderDetails);
                 await _unitOfWorks.CommitTransactionAsync();
 
@@ -3039,6 +3099,33 @@ namespace Server.Business.Services
             order.StatusPayment = parsedStatus.ToString();
             _unitOfWorks.OrderRepository.Update(order);
             var result = await _unitOfWorks.SaveChangesAsync();
+
+            // Gửi notification cho khách hàng
+            var customer = await _unitOfWorks.UserRepository.GetByIdAsync(order.CustomerId);
+            if (customer != null)
+            {
+                var notification = new Notifications()
+                {
+                    UserId = customer.UserId,
+                    Content =
+                        $"Trạng thái thanh toán cho đơn hàng #{order.OrderId} đã được cập nhật thành: {parsedStatus}",
+                    Type = "OrderPayment",
+                    isRead = false,
+                    ObjectId = order.OrderId,
+                    CreatedDate = DateTime.UtcNow,
+                };
+
+                await _unitOfWorks.NotificationRepository.AddAsync(notification);
+                await _unitOfWorks.NotificationRepository.Commit();
+
+                // Gửi real-time nếu đang kết nối
+                var userMongo = await _mongoDbService.GetCustomerByIdAsync(customer.UserId);
+                if (NotificationHub.TryGetConnectionId(userMongo.Id, out var connectionId))
+                {
+                    _logger.LogInformation("User connected: {userId} => {connectionId}", userMongo.Id, connectionId);
+                    await _hubContext.Clients.Client(connectionId).SendAsync("receiveNotification", notification);
+                }
+            }
 
             return result > 0;
         }
