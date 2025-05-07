@@ -15,8 +15,4 @@ public class WorkScheduleForStaffLeaveRequest
     
     [Required(ErrorMessage = "WorkDate is required")]
     public DateTime WorkDate { get; set; }
-    
-    [Required(ErrorMessage = "DayOfWeek is required")]
-    [Range(1, 6)] // 1=Thứ 2, 6=Thứ 7
-    public int DayOfWeek { get; set; } 
 }

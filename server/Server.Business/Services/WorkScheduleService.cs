@@ -159,8 +159,7 @@ public class WorkScheduleService
         var workSchedule = await _unitOfWork.WorkScheduleRepository
             .FirstOrDefaultAsync(ws => ws.StaffId == workScheduleForStaffLeaveRequest.StaffLeaveId
                                        && ws.ShiftId == workScheduleForStaffLeaveRequest.ShiftId
-                                       && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate
-                                       && ws.DayOfWeek == workScheduleForStaffLeaveRequest.DayOfWeek);
+                                       && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate);
         if (workSchedule == null)
         {
             throw new BadRequestException("Work schedule not found");
@@ -169,8 +168,7 @@ public class WorkScheduleService
         var workScheduleReplace = await _unitOfWork.WorkScheduleRepository
             .FirstOrDefaultAsync(ws => ws.StaffId == workScheduleForStaffLeaveRequest.StaffReplaceId
                                        && ws.ShiftId == workScheduleForStaffLeaveRequest.ShiftId
-                                       && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate
-                                       && ws.DayOfWeek == workScheduleForStaffLeaveRequest.DayOfWeek);
+                                       && ws.WorkDate == workScheduleForStaffLeaveRequest.WorkDate);
 
         if (workScheduleReplace != null)
         {
@@ -186,7 +184,7 @@ public class WorkScheduleService
         {
             StaffId = workScheduleForStaffLeaveRequest.StaffReplaceId,
             ShiftId = workScheduleForStaffLeaveRequest.ShiftId,
-            DayOfWeek = workScheduleForStaffLeaveRequest.DayOfWeek,
+            DayOfWeek = (int)workScheduleForStaffLeaveRequest.WorkDate.DayOfWeek,
             WorkDate = workScheduleForStaffLeaveRequest.WorkDate,
             CreatedDate = DateTime.Now,
             UpdatedDate = DateTime.Now
