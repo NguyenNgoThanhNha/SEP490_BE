@@ -196,7 +196,7 @@ public class AppointmentsService
                 var totalDuration = int.Parse(service.Duration) + 5; // Thời gian dịch vụ + thời gian nghỉ
                 var endTime = appointmentTime.AddMinutes(totalDuration);
 
-                if (staffAppointments.ContainsKey(staffId))
+                /*if (staffAppointments.ContainsKey(staffId))
                 {
                     var lastAppointmentEndTime = staffAppointments[staffId];
                     if (appointmentTime < lastAppointmentEndTime)
@@ -205,7 +205,7 @@ public class AppointmentsService
                     }
                 }
 
-                staffAppointments[staffId] = endTime;
+                staffAppointments[staffId] = endTime;*/
 
                 var isStaffBusy = await _unitOfWorks.AppointmentsRepository
                     .FirstOrDefaultAsync(a => a.StaffId == staffId &&
