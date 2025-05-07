@@ -1170,7 +1170,7 @@ namespace Server.Business.Services
             return new GetBranchesHasProductResponse<GetBranchesHasProduct>
             {
                 Message = "Lấy danh sách chi nhánh có sản phẩm thành công",
-                Data = new List<GetBranchesHasProduct> { result }
+                Data = result
             };
         }
     }

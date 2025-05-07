@@ -11,5 +11,5 @@ public class GetBranchesHasService
 public class GetBranchesHasServiceResponse<T>
 {
     public string Message { get; set; }
-    public List<T> Data { get; set; }
+    public T Data { get; set; }
 }

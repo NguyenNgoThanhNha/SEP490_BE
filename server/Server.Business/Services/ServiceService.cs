@@ -661,7 +661,7 @@ namespace Server.Business.Services
             return new GetBranchesHasServiceResponse<GetBranchesHasService>
             {
                 Message = "Lấy danh sách chi nhánh có dịch vụ thành công",
-                Data = new List<GetBranchesHasService> { result }
+                Data = result
             };
         }
 

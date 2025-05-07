@@ -409,7 +409,11 @@ namespace Server.Data.SeedData
 
         private async Task SeedWorkSchedules()
         {
-            var staffs = await _context.Staffs.ToListAsync();
+            var staffs = await _context.Staffs
+                .Where(s => s.BranchId != null)
+                .OrderBy(s => s.StaffId) // Đảm bảo thứ tự ổn định
+                .ToListAsync();
+
             var shifts = await _context.Shifts.ToListAsync();
 
             if (!staffs.Any() || !shifts.Any())
@@ -419,26 +423,35 @@ namespace Server.Data.SeedData
 
             var scheduleList = new List<WorkSchedule>();
             var random = new Random();
+            var startDate = new DateTime(2025, 4, 1);
+            var endDate = new DateTime(2025, 5, 31);
 
-            var startDate = new DateTime(2025, 4, 1); // Bắt đầu từ tuần đầu tiên của tháng (Thứ 2)
-            var endDate = new DateTime(2025, 5, 31); // Kết thúc vào thứ 7 của tuần cuối cùng
+            // Nhóm nhân viên theo branch
+            var staffGroupsByBranch = staffs
+                .GroupBy(s => s.BranchId)
+                .ToList();
 
-            foreach (var staff in staffs)
+            foreach (var branchGroup in staffGroupsByBranch)
             {
-                // Chọn một ca ngẫu nhiên cho nhân viên (cố định suốt tháng)
-                var assignedShift = shifts[random.Next(shifts.Count)];
+                // Chỉ lấy 9 staff đầu tiên
+                var selectedStaffs = branchGroup.Take(9);
 
-                for (var date = startDate; date <= endDate; date = date.AddDays(1))
+                foreach (var staff in selectedStaffs)
                 {
-                    scheduleList.Add(new WorkSchedule
+                    var assignedShift = shifts[random.Next(shifts.Count)];
+
+                    for (var date = startDate; date <= endDate; date = date.AddDays(1))
                     {
-                        StaffId = staff.StaffId,
-                        ShiftId = assignedShift.ShiftId,
-                        DayOfWeek = (int)date.DayOfWeek, // Chuyển thành số (Monday = 1, ..., Saturday = 6)
-                        WorkDate = date, // Ngày làm việc cụ thể
-                        CreatedDate = DateTime.Now,
-                        UpdatedDate = DateTime.Now
-                    });
+                        scheduleList.Add(new WorkSchedule
+                        {
+                            StaffId = staff.StaffId,
+                            ShiftId = assignedShift.ShiftId,
+                            DayOfWeek = (int)date.DayOfWeek,
+                            WorkDate = date,
+                            CreatedDate = DateTime.Now,
+                            UpdatedDate = DateTime.Now
+                        });
+                    }
                 }
             }
 
@@ -2790,7 +2803,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da khô",
-                    TotalPrice = random.Next(3, 6) * 1_000_000 
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 },
                 new SkincareRoutine
                 {
@@ -2799,7 +2812,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da trung tính",
-                    TotalPrice = random.Next(3, 6) * 1_000_000 
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 },
                 new SkincareRoutine
                 {
@@ -2808,7 +2821,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Da hỗn hợp",
-                    TotalPrice = random.Next(3, 6) * 1_000_000 
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 },
                 new SkincareRoutine
                 {
@@ -2817,7 +2830,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn đầu đen",
-                    TotalPrice = random.Next(3, 6) * 1_000_000 
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 },
                 new SkincareRoutine
                 {
@@ -2826,7 +2839,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn trứng cá",
-                    TotalPrice = random.Next(3, 6) * 1_000_000 
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 },
                 new SkincareRoutine
                 {
@@ -2835,7 +2848,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Quầng thâm mắt",
-                    TotalPrice = random.Next(3, 6) * 1_000_000 
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 },
                 new SkincareRoutine
                 {
@@ -2844,7 +2857,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Mụn có nhân đóng",
-                    TotalPrice = random.Next(3, 6) * 1_000_000 
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 },
                 new SkincareRoutine
                 {
@@ -2853,7 +2866,7 @@ namespace Server.Data.SeedData
                     TotalSteps = 4,
                     Status = ObjectStatus.Active.ToString(),
                     TargetSkinTypes = "Nếp nhăn Glabella",
-                    TotalPrice = random.Next(3, 6) * 1_000_000 
+                    TotalPrice = random.Next(3, 6) * 1_000_000
                 }
             };
 
