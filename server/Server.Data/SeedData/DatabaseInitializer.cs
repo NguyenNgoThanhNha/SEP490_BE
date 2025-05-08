@@ -2904,7 +2904,7 @@ namespace Server.Data.SeedData
                         "Mụn trứng cá" => new[] { 5, 6, 9 },
                         "Quầng thâm mắt" => new[] { 3, 4, 8 },
                         "Mụn có nhân đóng" => new[] { 4, 7 },
-                        "Nếp nhăn glabella" => new[] { 2, 3, 8 },
+                        "Nếp nhăn Glabella" => new[] { 2, 3, 8 },
                         _ => Array.Empty<int>()
                     };
 
