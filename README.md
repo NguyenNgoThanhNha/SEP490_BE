@@ -29,11 +29,15 @@
 
 ## 🚀 Proposed Solution
 
-- Auto-booking with specialist work schedules
-- Check for conflicting bookings, suggest alternative specialists
-- Create a chat channel between customers and specialists (using MongoDB)
-- Send real-time notifications using **SignalR**
-- Integrate ratings, feedback, and behavior analysis
+- **Auto-booking with Specialist Work Schedules**: Automatically schedule appointments based on the specialist's availability and working hours.
+- **Conflict Resolution**: Check for conflicting bookings and suggest alternative specialists or time slots.
+- **Chat Channel**: Create a real-time communication channel between customers and specialists, using MongoDB to store chat data.
+- **Real-time Notifications**: Send instant notifications for appointment updates, reminders, and status changes using **SignalR**.
+- **Ratings & Feedback**: Enable customers to rate their service experience and leave feedback for specialists.
+- **Behavioral Analysis**: Analyze customer behavior, appointment patterns, and feedback to provide personalized service recommendations.
+- **AI Facial Skin Scanning**: Integrate an AI-powered facial scanning tool to analyze skin conditions and recommend personalized treatments.
+- **AI Chatbot**: Implement an AI chatbot to assist customers with booking, inquiries, and providing recommendations, improving the customer experience.
+
 
 ---
 
@@ -48,6 +52,11 @@
 - **Mapping**: AutoMapper
 - **Containerization**: Docker, Docker Compose
 - **Search**: ElasticSearch
+- **AI Integration**: AI Lab tool for facial skin scanning
+- **AI Chatbot**: AI-powered chatbot with an admin dashboard and manager dashboard
+- **System Roles**: 5 user roles (Customer, Specialist, Cashier, Manager, Admin)
+- **Hosting**: Deployed on Google Cloud VPS with Nginx reverse proxy
+
 
 
 ---
