@@ -1,27 +1,72 @@
-# SEP490_BE
+# 🎓 SEP490_BE – Backend for Ideas Management SPA Booking System
 
-This repository contains the backend for the SEP490 project, which is the graduation thesis for FPT University. The project is focused on developing an ideas management Single Page Application (SPA) for a booking system, with both web and mobile platforms.
+**Backend repository** for the graduation thesis at **FPT University** – A system for managing bookings and ideas for spa services, supporting both **web** and **mobile apps**.
 
-## Project Overview
+---
 
-- **Title**: Ideas Management SPA Booking System
-- **Platform**: Web and Mobile
-- **Backend**: This repository (SEP490_BE) contains the backend implementation.
-- **University**: FPT University
-- **Subject**: Graduation Thesis (Đồ Án Tốt Nghiệp)
+## 📌 Project Overview
 
-## Technologies
+- **University**: FPT University  
+- **Course**: Graduation Thesis – Software Engineering  
+- **Platform**: Web SPA + Mobile  
+- **Goal**: To manage services, customers, staff, and booking schedules within the spa system.
 
-- ASP.NET Core 8.0
-- Entity Framework Core
-- MySQL
-- Other technologies based on project requirements
+---
 
-## How to Run
+## 💡 Real-World Problems
 
-To run the backend locally:
+### 😕 Customer Challenges
+- Cannot choose their preferred specialist
+- Lack of clear information about services/products
+- Complicated and non-transparent booking process
 
-1. Clone the repository.
-2. Navigate to the project directory:
-   ```bash
-   cd SEP490_BE
+### 🧑‍💼 Spa Management Challenges
+- Booking via multiple channels (Zalo, Facebook, phone calls) causing confusion
+- Inconsistent staff working schedules
+- Lack of CRM for customer management
+
+---
+
+## 🚀 Proposed Solution
+
+- Auto-booking with specialist work schedules
+- Check for conflicting bookings, suggest alternative specialists
+- Create a chat channel between customers and specialists (using MongoDB)
+- Send real-time notifications using **SignalR**
+- Integrate ratings, feedback, and behavior analysis
+
+---
+
+## 🛠️ Technologies Used
+
+- **Backend Framework**: ASP.NET Core 8.0
+- **ORM**: Entity Framework Core
+- **Database**: MySQL (relational), MongoDB (chat storage)
+- **Real-time Notification**: SignalR
+- **Authentication**: JWT
+- **Cache**: Redis
+- **Mapping**: AutoMapper
+- **Containerization**: Docker, Docker Compose
+- **Search**: ElasticSearch
+
+
+---
+
+## 🧪 How to Run the Project
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/SEP490_BE.git
+cd SEP490_BE
+
+# 2. Set up environment variables
+# Create an .env file or set system environment variables for:
+# - DB_CONNECTION
+# - MONGODB_URI
+# - REDIS_CONNECTION
+# - JWT_SECRET
+# - MAIL_CONFIG,...
+# - ZALO_PAY or PAYOS info
+
+# 3. Run using Docker Compose
+docker-compose up --build
