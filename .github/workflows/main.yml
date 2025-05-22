@@ -12,7 +12,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Build and tag Docker image
+        run: |
+          docker build -t kaycccc/solace-spa:latest -f server/Dockerfile .
+          docker push kaycccc/solace-spa:latest
+
+      - name: Pull Docker image from Docker Hub
+        run: docker pull kaycccc/solace-spa:latest
+
       - name: Run Docker Compose
         run: |
           docker compose -f server/compose.production.yaml up --build -d
