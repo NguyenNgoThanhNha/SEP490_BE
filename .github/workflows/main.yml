@@ -65,5 +65,3 @@ jobs:
           MongoDbSettingConnectionString: ${{ secrets.MongoDbSettingConnectionString }}
           MongoDbSettingDatabaseName: ${{ secrets.MongoDbSettingDatabaseName }}
           RedisSettingConnectionString: ${{ secrets.RedisSettingConnectionString }}
-
-          
